@@ -1,6 +1,9 @@
 using System;
 using System.Collections;
+using System.Net.NetworkInformation;
 using UnityEngine;
+using UnityEngine.Profiling;
+using static UnityEngine.GraphicsBuffer;
 
 public class Pull : MonoBehaviour
 {
@@ -20,32 +23,41 @@ public class Pull : MonoBehaviour
     [SerializeField] private float attachThreshold;
     [SerializeField] private float maxPullDistance;
 
+    [Header("Private Variables")]
     private Transform heldObj;
+    private Vector3 targetPos;
     private Coroutine pullCoroutine;
     private PlayerActions playerActions;
 
+    /* Projectile Components
     private bool projectileActive = false;
     private Vector3 projectilePosition;
     private Vector3 projectileVelocity;
     [SerializeField] private float projectileSpeed = 50f;
     private bool fired;
+    */
+
+    [Header("Getters")]
+    public Coroutine PullCoroutine => pullCoroutine;
+    public Transform HoldPos => holdPos; 
+    public Vector3 TargetPos => targetPos;
 
     #region Unity Functions
     private void Awake()
     {
         playerActions = GetComponent<PlayerActions>();
         playerActions.OnThrowPressed += ThrowHeldObject;
+        targetPos = holdPos.position;
     }
 
     private void Update()
     {
         if (playerActions.PullInput)
         {
-            if (!projectileActive && heldObj == null && !fired)
-                HandleProjectileStart();
-
-            else if(projectileActive)
-                SimulateProjectile();
+            if (heldObj == null && pullCoroutine == null)
+            {
+                TryStartPull();
+            }
         }
 
         if (!playerActions.PullInput)
@@ -57,16 +69,14 @@ public class Pull : MonoBehaviour
             }
 
             if (heldObj != null)
+            {
                 ReleaseHeldObject();
-
-            projectileActive = false;
-            lineRenderer.enabled = false;
-            fired = false;
+            }
         }
     }
     #endregion
 
-    #region Projectile cast
+    /*#region Projectile cast (UNUSED)
 
     private void HandleProjectileStart()
     {
@@ -92,17 +102,11 @@ public class Pull : MonoBehaviour
         if (Vector3.Distance(playerCam.transform.position, projectilePosition) > maxPullDistance)
         {
             projectileActive = false;
-            lineRenderer.enabled = false;
             fired = true;
         }
-
-        // Optional: update a line renderer or projectile visual
-        lineRenderer.enabled = true;
-        lineRenderer.SetPosition(0, holdPos.position);
-        lineRenderer.SetPosition(1, projectilePosition);
     }
 
-    #endregion
+    #endregion*/
 
     #region Pull
     private void TryStartPull()
@@ -110,17 +114,22 @@ public class Pull : MonoBehaviour
         Ray ray = playerCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
         if (Physics.SphereCast(ray, hitboxRadius, out RaycastHit hit, maxPullDistance, pullableObjectLayer))
         {
+            targetPos = hit.transform.position;
             pullCoroutine = StartCoroutine(PullObject(hit.transform));
         }
-    }
-    private IEnumerator PullObject(Transform targetObj)
-    {
-        Rigidbody objectRb = targetObj.GetComponent<Rigidbody>();
-        lineRenderer.enabled = true;
-
-        while (Vector3.Distance(holdPos.position, targetObj.position) > attachThreshold)
+        else
         {
-            Vector3 objToHand = holdPos.position - targetObj.position;
+            targetPos = ray.origin + ray.direction * maxPullDistance;
+        }
+    }
+
+    private IEnumerator PullObject(Transform target)
+    {
+        Rigidbody objectRb = target.GetComponent<Rigidbody>();
+
+        while (Vector3.Distance(holdPos.position, target.position) > attachThreshold)
+        {
+            Vector3 objToHand = holdPos.position - target.position;
             Vector3 pullDir = objToHand.normalized;
 
             if (objectRb.linearVelocity.magnitude < maxVelocity)
@@ -128,13 +137,12 @@ public class Pull : MonoBehaviour
             else
                 objectRb.linearVelocity = pullDir * maxVelocity;
 
-            lineRenderer.SetPosition(0, holdPos.position);
-            lineRenderer.SetPosition(1, targetObj.position);
+            targetPos = target.position;
 
             yield return null;
         }
 
-        HoldObject(targetObj, objectRb);
+        HoldObject(target);
     }
     #endregion
 
@@ -144,31 +152,32 @@ public class Pull : MonoBehaviour
         if (heldObj != null)
         {
             Rigidbody rb = heldObj.GetComponent<Rigidbody>();
-            heldObj.parent = null;
             rb.constraints = RigidbodyConstraints.None;
 
             Ray ray = playerCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
             rb.linearVelocity = ray.direction * throwVelocity;
-
+            
+            heldObj.parent = null;
             heldObj = null;
+            targetPos = holdPos.position;
         }
     }
 
-    private void HoldObject(Transform targetObj, Rigidbody objectRb)
+    private void HoldObject(Transform target)
     {
-        targetObj.position = holdPos.position;
-        targetObj.parent = holdPos;
-        objectRb.constraints = RigidbodyConstraints.FreezePosition;
-        lineRenderer.enabled = false;
-        heldObj = targetObj;
+        target.position = holdPos.position;
+        target.parent = holdPos;
+        target.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezePosition;
+        targetPos = holdPos.position;
+        heldObj = target;
     }
 
     private void ReleaseHeldObject()
     {
-        Rigidbody rb = heldObj.GetComponent<Rigidbody>();
+        heldObj.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
         heldObj.parent = null;
-        rb.constraints = RigidbodyConstraints.None;
         heldObj = null;
+        targetPos = holdPos.position;
     }
     #endregion
 }
