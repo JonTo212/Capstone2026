@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class RopeVisuals : MonoBehaviour
 {
-    [SerializeField] private Pull pullScript;
+    [SerializeField] private PullAndThrow pullScript;
     [SerializeField] private PlayerActions playerActions;
     [SerializeField] private int ropeSegmentCount;
     [SerializeField] private float damper;

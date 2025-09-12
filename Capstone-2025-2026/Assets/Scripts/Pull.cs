@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.Profiling;
 using static UnityEngine.GraphicsBuffer;
 
-public class Pull : MonoBehaviour
+public class PullAndThrow : MonoBehaviour
 {
     [Header("Components")]
     [SerializeField] private Transform holdPos;
@@ -29,13 +29,12 @@ public class Pull : MonoBehaviour
     private Coroutine pullCoroutine;
     private PlayerActions playerActions;
 
-    /* Projectile Components
+    [Header("Projectile Components")]
+    [SerializeField] private float projectileSpeed = 50f;
     private bool projectileActive = false;
     private Vector3 projectilePosition;
     private Vector3 projectileVelocity;
-    [SerializeField] private float projectileSpeed = 50f;
     private bool fired;
-    */
 
     [Header("Getters")]
     public Coroutine PullCoroutine => pullCoroutine;
@@ -54,10 +53,27 @@ public class Pull : MonoBehaviour
     {
         if (playerActions.PullInput)
         {
-            if (heldObj == null && pullCoroutine == null)
+            if (!projectileActive && heldObj == null && !fired)
+            {
+                HandleProjectileStart();
+            }
+            else if (projectileActive)
+            {
+                SimulateProjectile();
+            }
+            else if (heldObj != null)
+            {
+                HoldObject(heldObj);
+            }
+            else
+            {
+                targetPos = holdPos.position;
+            }
+            /* //Hitscan version
+            if (pullCoroutine == null && heldObj == null)
             {
                 TryStartPull();
-            }
+            } */
         }
 
         if (!playerActions.PullInput)
@@ -72,11 +88,14 @@ public class Pull : MonoBehaviour
             {
                 ReleaseHeldObject();
             }
+
+            projectileActive = false;
+            fired = false;
         }
     }
     #endregion
 
-    /*#region Projectile cast (UNUSED)
+    #region Projectile cast (UNUSED)
 
     private void HandleProjectileStart()
     {
@@ -98,15 +117,18 @@ public class Pull : MonoBehaviour
             fired = true;
         }
 
+        targetPos = projectilePosition;
+
         //stop once you reach max range
         if (Vector3.Distance(playerCam.transform.position, projectilePosition) > maxPullDistance)
         {
             projectileActive = false;
             fired = true;
+            targetPos = holdPos.position;
         }
     }
 
-    #endregion*/
+    #endregion
 
     #region Pull
     private void TryStartPull()

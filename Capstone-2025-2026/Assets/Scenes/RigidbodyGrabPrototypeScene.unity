@@ -290,7 +290,6 @@ MonoBehaviour:
   throwVelocity: 30
   attachThreshold: 0.3
   maxPullDistance: 15
-  projectileSpeed: 30
 --- !u!114 &60754035
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2363,12 +2362,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RopeVisuals
   pullScript: {fileID: 60754034}
+  playerActions: {fileID: 60754036}
   ropeSegmentCount: 500
-  damper: 14
+  damper: 15
   strength: 800
   velocity: 15
   waveCount: 3
-  waveHeight: 1
+  waveHeight: 2
   affectCurve:
     serializedVersion: 2
     m_Curve:
