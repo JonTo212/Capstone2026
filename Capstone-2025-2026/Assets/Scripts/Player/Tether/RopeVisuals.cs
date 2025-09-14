@@ -1,40 +1,37 @@
 using UnityEngine;
 
+[RequireComponent(typeof(LineRenderer))]
 public class RopeVisuals : MonoBehaviour
 {
-    [SerializeField] private PullAndThrow pullScript;
-    [SerializeField] private PlayerActions playerActions;
-    [SerializeField] private int ropeSegmentCount;
-    [SerializeField] private float damper;
-    [SerializeField] private float strength;
-    [SerializeField] private float velocity;
-    [SerializeField] private float waveCount;
-    [SerializeField] private float waveHeight;
+    [SerializeField] private Tether tetherScript;
+    [SerializeField] private int ropeSegmentCount = 500;
+    [SerializeField] private float damper = 15f;
+    [SerializeField] private float strength = 800f;
+    [SerializeField] private float velocity = 15f;
+    [SerializeField] private float waveCount = 3f;
+    [SerializeField] private float waveHeight = 2f;
     [SerializeField] private AnimationCurve affectCurve;
 
     private LineRenderer lineRenderer;
     private Spring spring;
     private Vector3 currentPullPos;
 
-    #region Unity Functions
-    void Awake()
+    private void Awake()
     {
         lineRenderer = GetComponent<LineRenderer>();
         spring = new Spring();
         spring.SetTarget(0);
     }
-    void LateUpdate()
+
+    private void LateUpdate()
     {
         DrawRope();
     }
 
-    #endregion
-
-    #region Visuals
-
     private void DrawRope()
     {
-        if (!playerActions.PullInput)
+        //hide rope when tether state is empty
+        if (tetherScript.CurrentTetherState == TetherState.Empty)
         {
             ResetRope();
             return;
@@ -50,28 +47,27 @@ public class RopeVisuals : MonoBehaviour
         spring.SetStrength(strength);
         spring.Update(Time.deltaTime);
 
-        Vector3 targetPoint = pullScript.TargetPos;
-        Vector3 startPoint = pullScript.HoldPos.position;
+        Vector3 startPoint = tetherScript.HoldPos.position;
+        Vector3 targetPoint = tetherScript.AnchoredPos.position;
         Vector3 up = Quaternion.LookRotation((targetPoint - startPoint).normalized) * Vector3.up;
 
-        currentPullPos = Vector3.Lerp(currentPullPos, targetPoint, Time.deltaTime * 12f);
+        currentPullPos = Vector3.Lerp(currentPullPos, targetPoint, Time.deltaTime * velocity);
 
         for (int i = 0; i < ropeSegmentCount + 1; i++)
         {
             float delta = i / (float)ropeSegmentCount;
             Vector3 offset = up * waveHeight * Mathf.Sin(delta * waveCount * Mathf.PI) * spring.Value * affectCurve.Evaluate(delta);
+            Vector3 ropePos = Vector3.Lerp(startPoint, currentPullPos, delta) + offset;
 
-            lineRenderer.SetPosition(i, Vector3.Lerp(startPoint, targetPoint, delta) + offset);
+            lineRenderer.SetPosition(i, ropePos);
         }
     }
 
     private void ResetRope()
     {
-        currentPullPos = pullScript.HoldPos.position;
+        currentPullPos = tetherScript.HoldPos.position;
         spring.Reset();
         if (lineRenderer.positionCount > 0)
             lineRenderer.positionCount = 0;
     }
-
-    #endregion
 }

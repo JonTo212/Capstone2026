@@ -101,7 +101,6 @@ public class PlayerController : MonoBehaviour
         defaultHeight = playerCol.height;
 
         playerActions = GetComponent<PlayerActions>();
-        playerActions.OnJumpPressed += StartJumpBuffer;
     }
 
     private void Update()
@@ -123,7 +122,7 @@ public class PlayerController : MonoBehaviour
             jumpBufferTimer -= Time.fixedDeltaTime;
 
         //stance
-        if (playerActions.CrouchInput)
+        if (playerActions.CrouchHeld)
             SwitchStanceState(PlayerStanceState.Crouching);
         else
             SwitchStanceState(PlayerStanceState.Standing);
@@ -135,7 +134,7 @@ public class PlayerController : MonoBehaviour
         //movement state
         if (IsGrounded())
         {
-            if (playerActions.SprintInput)
+            if (playerActions.SprintHeld)
                 SwitchMovementState(PlayerMovementState.Running);
             else
                 SwitchMovementState(PlayerMovementState.Walking);
