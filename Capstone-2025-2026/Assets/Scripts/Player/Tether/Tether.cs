@@ -39,6 +39,8 @@ public class Tether : MonoBehaviour
 
     [Header("Tether Components")]
     [SerializeField] private Transform anchoredPos;
+    private float anchorMagnitude;
+    private float anchorDistance;
     private Transform tetheredObj;
     private Rigidbody tetheredBody;
 
@@ -56,7 +58,7 @@ public class Tether : MonoBehaviour
         pullVelocityCurve = new AnimationCurve(
             new Keyframe(0f, 0f),          // start (no pull)
             new Keyframe(0.3f, 1.5f),      // overshoot above target
-            new Keyframe(0.6f, 0.75f),      // dip below
+            new Keyframe(0.6f, 0.75f),     // dip below
             new Keyframe(0.8f, 1.25f),     // smaller overshoot
             new Keyframe(1f, 1f)           // settle exactly at target
         );
@@ -127,6 +129,11 @@ public class Tether : MonoBehaviour
 
     private void HandleAnchoredState()
     {
+        Ray ray = playerCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+        Vector3 maxDistancePos = ray.origin + ray.direction * anchorDistance;
+        Vector3 minDistancePos = holdPos.position;
+        anchoredPos.position = Vector3.Lerp(minDistancePos, maxDistancePos, anchorMagnitude);
+
         //move to center of screen and snap when close enough
         if (Vector3.Distance(anchoredPos.position, tetheredObj.position) > attachThreshold)
         {
@@ -159,7 +166,8 @@ public class Tether : MonoBehaviour
         {
             tetheredBody.constraints = RigidbodyConstraints.None;
             float currentDistance = Vector3.Distance(anchoredPos.position, holdPos.position);
-            float normalizedProgress = 1f - Mathf.Clamp01(currentDistance / maxPullDistance);
+            anchorMagnitude = Mathf.Clamp01(currentDistance / anchorDistance);
+            float normalizedProgress = 1f - anchorMagnitude;
             float curveFactor = pullVelocityCurve.Evaluate(normalizedProgress);
             float pullForce = curveFactor * pullForceMultiplier;
 
@@ -224,6 +232,8 @@ public class Tether : MonoBehaviour
         {
             tetheredObj = hit.transform;
             tetheredBody = hit.transform.GetComponent<Rigidbody>();
+            anchorDistance = Vector3.Distance(anchoredPos.position, holdPos.position);
+            anchorMagnitude = 1f;
             SwitchTetherState(TetherState.Anchored);
         }
     }
@@ -252,7 +262,7 @@ public class Tether : MonoBehaviour
             tetheredBody.constraints = RigidbodyConstraints.None;
 
             Ray ray = playerCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
-            tetheredBody.linearVelocity = ray.direction * throwVelocity;
+            tetheredBody.AddForce(ray.direction * throwVelocity, ForceMode.Impulse);
 
             tetheredBody.useGravity = true;
             tetheredBody = null;

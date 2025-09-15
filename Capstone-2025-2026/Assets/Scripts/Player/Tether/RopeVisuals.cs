@@ -51,7 +51,14 @@ public class RopeVisuals : MonoBehaviour
         Vector3 targetPoint = tetherScript.AnchoredPos.position;
         Vector3 up = Quaternion.LookRotation((targetPoint - startPoint).normalized) * Vector3.up;
 
-        currentPullPos = Vector3.Lerp(currentPullPos, targetPoint, Time.deltaTime * velocity);
+        if (tetherScript.CurrentTetherState == TetherState.Firing)
+        {
+            currentPullPos = Vector3.Lerp(currentPullPos, targetPoint, Time.deltaTime * velocity);
+        }
+        else
+        {
+            currentPullPos = targetPoint;
+        }
 
         for (int i = 0; i < ropeSegmentCount + 1; i++)
         {

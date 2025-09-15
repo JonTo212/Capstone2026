@@ -109,6 +109,10 @@ public class PlayerController : MonoBehaviour
         HandleXRot();
 
         HandleCoyoteTime();
+        if(playerActions.JumpDown)
+        {
+            StartJumpBuffer();
+        }
 
         //Jumping
         if (_isGrounded && jumpBufferTimer > 0f)
