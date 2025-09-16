@@ -3,7 +3,7 @@ using UnityEngine;
 [RequireComponent(typeof(LineRenderer))]
 public class RopeVisuals : MonoBehaviour
 {
-    [SerializeField] private Tether tetherScript;
+    [SerializeField] private Lasso lassoScript;
     [SerializeField] private int ropeSegmentCount = 500;
     [SerializeField] private float damper = 15f;
     [SerializeField] private float strength = 800f;
@@ -31,7 +31,7 @@ public class RopeVisuals : MonoBehaviour
     private void DrawRope()
     {
         //hide rope when tether state is empty
-        if (tetherScript.CurrentTetherState == TetherState.Empty)
+        if (lassoScript.CurrentLassoState == LassoState.Empty)
         {
             ResetRope();
             return;
@@ -47,11 +47,11 @@ public class RopeVisuals : MonoBehaviour
         spring.SetStrength(strength);
         spring.Update(Time.deltaTime);
 
-        Vector3 startPoint = tetherScript.HoldPos.position;
-        Vector3 targetPoint = tetherScript.AnchoredPos.position;
+        Vector3 startPoint = lassoScript.HoldPos.position;
+        Vector3 targetPoint = lassoScript.AnchoredPos.position;
         Vector3 up = Quaternion.LookRotation((targetPoint - startPoint).normalized) * Vector3.up;
 
-        if (tetherScript.CurrentTetherState == TetherState.Firing)
+        if (lassoScript.CurrentLassoState == LassoState.Firing)
         {
             currentPullPos = Vector3.Lerp(currentPullPos, targetPoint, Time.deltaTime * velocity);
         }
@@ -72,7 +72,7 @@ public class RopeVisuals : MonoBehaviour
 
     private void ResetRope()
     {
-        currentPullPos = tetherScript.HoldPos.position;
+        currentPullPos = lassoScript.HoldPos.position;
         spring.Reset();
         if (lineRenderer.positionCount > 0)
             lineRenderer.positionCount = 0;

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public enum TetherState
+public enum LassoState
 {
     Empty,
     Firing,
@@ -9,7 +9,7 @@ public enum TetherState
     Held
 }
 
-public class Tether : MonoBehaviour
+public class Lasso : MonoBehaviour
 {
     [Header("Components")]
     [SerializeField] private Transform holdPos;
@@ -30,7 +30,7 @@ public class Tether : MonoBehaviour
 
     [Header("Private Variables")]
     private PlayerActions playerActions;
-    private TetherState currentTetherState;
+    private LassoState currentLassoState;
 
     [Header("Projectile Components")]
     [SerializeField] private float projectileSpeed = 50f;
@@ -48,13 +48,13 @@ public class Tether : MonoBehaviour
     public Transform HoldPos => holdPos; 
     public Transform TetheredObj => tetheredObj;
     public Transform AnchoredPos => anchoredPos;
-    public TetherState CurrentTetherState => currentTetherState;
+    public LassoState CurrentLassoState => currentLassoState;
 
     #region Unity Functions
     private void Awake()
     {
         playerActions = GetComponent<PlayerActions>();
-        SwitchTetherState(TetherState.Empty);
+        SwitchLassoState(LassoState.Empty);
         pullVelocityCurve = new AnimationCurve(
             new Keyframe(0f, 0f),          // start (no pull)
             new Keyframe(0.3f, 1.5f),      // overshoot above target
@@ -66,42 +66,42 @@ public class Tether : MonoBehaviour
 
     private void Update()
     {
-        HandleTetherState();
+        HandleLassoState();
     }
     #endregion
 
     #region State Handler
 
-    private void HandleTetherState()
+    private void HandleLassoState()
     {
-        switch(currentTetherState)
+        switch(currentLassoState)
         {
-            case TetherState.Empty:
+            case LassoState.Empty:
                 HandleEmptyState();
                 break;
 
-            case TetherState.Firing:
+            case LassoState.Firing:
                 HandleFiringState();
                 break;
 
-            case TetherState.Anchored:
+            case LassoState.Anchored:
                 HandleAnchoredState();
                 break;
 
-            case TetherState.Pulling:
+            case LassoState.Pulling:
                 HandlePullState();
                 break;
 
-            case TetherState.Held:
+            case LassoState.Held:
                 HandleHeldState();
                 break;
 
         }
     }
 
-    private void SwitchTetherState(TetherState newState)
+    private void SwitchLassoState(LassoState newState)
     {
-        currentTetherState = newState;
+        currentLassoState = newState;
     }
 
     private void HandleEmptyState()
@@ -123,7 +123,7 @@ public class Tether : MonoBehaviour
         else
         {
             ResetAnchor();
-            SwitchTetherState(TetherState.Empty);
+            SwitchLassoState(LassoState.Empty);
         }
     }
 
@@ -149,13 +149,13 @@ public class Tether : MonoBehaviour
         {
             ReleaseHeldObject();
             ResetAnchor();
-            SwitchTetherState(TetherState.Empty);
+            SwitchLassoState(LassoState.Empty);
         }
 
         //if right click, start pull
         if(playerActions.ThrowDown)
         {
-            SwitchTetherState(TetherState.Pulling);
+            SwitchLassoState(LassoState.Pulling);
         }
     }
 
@@ -179,14 +179,14 @@ public class Tether : MonoBehaviour
             else
             {
                 HoldObject(holdPos);
-                SwitchTetherState(TetherState.Held);
+                SwitchLassoState(LassoState.Held);
             }
         }
 
         //otherwise go back to anchor
         else if(playerActions.ThrowUp)
         {
-            SwitchTetherState(TetherState.Anchored);
+            SwitchLassoState(LassoState.Anchored);
         }    
     }
 
@@ -197,14 +197,14 @@ public class Tether : MonoBehaviour
         {
             ThrowHeldObject();
             ResetAnchor();
-            SwitchTetherState(TetherState.Empty);
+            SwitchLassoState(LassoState.Empty);
         }
         
         if(playerActions.PullDown)
         {
             ReleaseHeldObject();
             ResetAnchor();
-            SwitchTetherState(TetherState.Empty);
+            SwitchLassoState(LassoState.Empty);
         }
     }
 
@@ -218,7 +218,7 @@ public class Tether : MonoBehaviour
         projectilePosition = ray.origin;
         projectileVelocity = ray.direction * projectileSpeed;
 
-        SwitchTetherState(TetherState.Firing);
+        SwitchLassoState(LassoState.Firing);
     }
 
     private void SimulateProjectile()
@@ -234,7 +234,7 @@ public class Tether : MonoBehaviour
             tetheredBody = hit.transform.GetComponent<Rigidbody>();
             anchorDistance = Vector3.Distance(anchoredPos.position, holdPos.position);
             anchorMagnitude = 1f;
-            SwitchTetherState(TetherState.Anchored);
+            SwitchLassoState(LassoState.Anchored);
         }
     }
 
@@ -244,9 +244,11 @@ public class Tether : MonoBehaviour
 
     private void PullObject(Transform target)
     {
+        //Determines the location to send the object
         Vector3 objToHand = target.position - tetheredObj.position;
         Vector3 pullDir = objToHand.normalized;
 
+        //Accelerates the objects velocity it's being pulled until the maxVelocity
         if (tetheredBody.linearVelocity.magnitude < maxVelocity)
             tetheredBody.AddForce(pullDir * tetherForceMultiplier, ForceMode.Force);
         else
@@ -257,13 +259,17 @@ public class Tether : MonoBehaviour
     #region Throwing / Holding
     private void ThrowHeldObject()
     {
+        //Checks if there is a Tethered Object
         if (tetheredObj != null)
         {
+            //Removes constraints on RigidBody
             tetheredBody.constraints = RigidbodyConstraints.None;
 
+            //Adds Force to direction player is looking
             Ray ray = playerCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
             tetheredBody.AddForce(ray.direction * throwVelocity, ForceMode.Impulse);
 
+            //Reverts the object back to a regular object
             tetheredBody.useGravity = true;
             tetheredBody = null;
             tetheredObj.parent = null;
@@ -271,8 +277,10 @@ public class Tether : MonoBehaviour
         }
     }
 
+    
     private void HoldObject(Transform targetPos)
     {
+        //Places the object into a held position 
         tetheredObj.position = targetPos.position;
         tetheredObj.parent = targetPos;
         tetheredBody.MovePosition(targetPos.position);
@@ -282,6 +290,7 @@ public class Tether : MonoBehaviour
 
     private void ReleaseHeldObject()
     {
+        //Returns object to a neutral un-parented state where it's acting as a rigidBody again
         tetheredBody.constraints = RigidbodyConstraints.None;
         tetheredBody.useGravity = true;
         tetheredBody = null;
