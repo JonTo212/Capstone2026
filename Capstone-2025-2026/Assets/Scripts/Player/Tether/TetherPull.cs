@@ -1,68 +1,86 @@
+using System.Collections;
 using UnityEngine;
 
 public class TetherPull : MonoBehaviour
 {
-    private float attachThreshold = 0.5f;
-    private float pullForce = 50f;
+    [Header("Properties")]
+    [SerializeField] private float attachThreshold = 0.5f;
+    [SerializeField] private float pullForce = 50f;
     private bool activated;
 
-    [SerializeField] private Transform startObj;
-    [SerializeField] private Transform endObj;
+    [Header("Attachment Components")]
+    private Rigidbody startRb;
+    private Rigidbody endRb;
+    private Vector3 startAttachLocal;
+    private Vector3 endAttachLocal;
 
-    public Transform StartObj => startObj;
-    public Transform EndObj => endObj;
+    [Header("Getters")]
+    public Vector3 StartAttachPoint => startRb ? startRb.transform.TransformPoint(startAttachLocal) : startAttachLocal; //if there's a rigidbody, convert to world space
+    public Vector3 EndAttachPoint => endRb ? endRb.transform.TransformPoint(endAttachLocal) : endAttachLocal; 
 
     public bool Activated
     {
         get { return activated; }
-        set { activated = value; }
+        set {  activated = value; }
     }
 
     private void FixedUpdate()
     {
-        if (activated)
+        if (activated) //this needs to be changed so it doesn't fire every tick
         {
-            if (startObj.GetComponent<Rigidbody>() != null)
+            if (startRb != null)
             {
-                PullObjects(startObj, endObj);
+                PullObject(startRb, EndAttachPoint); //we're using the getters here because they handle local to world conversion
             }
-            if(endObj.GetComponent<Rigidbody>() != null)
+            if (endRb != null)
             {
-                PullObjects(endObj, startObj);
+                PullObject(endRb, StartAttachPoint);
             }
         }
     }
 
-    public void SetStartObj(Transform newObj)
+    public void SetStartPoint(Rigidbody rb, Vector3 hitPoint)
     {
-        startObj = newObj;
+        startRb = rb;
+
+        if (rb != null)
+        {
+            //convert to local space if there's a rigidbody to get relative attachment point
+            startAttachLocal = rb.transform.InverseTransformPoint(hitPoint);
+        }
+        else
+        {
+            //use the world space point otherwise (this means the object is static, so you don't need to save the local conversion as it doesn't rotate)
+            startAttachLocal = hitPoint;
+        }
     }
 
-    public void SetEndObj(Transform newObj)
+    public void SetEndPoint(Rigidbody rb, Vector3 hitPoint)
     {
-        endObj = newObj;
+        endRb = rb;
+
+        if (rb != null)
+        {
+            endAttachLocal = rb.transform.InverseTransformPoint(hitPoint);
+        }
+        else
+        {
+            endAttachLocal = hitPoint;
+        }
     }
 
-    private void SetParent(Transform parent, Transform child)
+    private void PullObject(Rigidbody rb, Vector3 target)
     {
-        child.parent = parent;
-    }
-
-    private void PullObjects(Transform original, Transform target)
-    {
-        Rigidbody rb = original.GetComponent<Rigidbody>();
-        Vector3 distanceToTarget = target.position - original.position;
-        float distance = distanceToTarget.magnitude;
-
-        if(distance > attachThreshold)
+        //target is in world space
+        if (Vector3.Distance(target, rb.position) > attachThreshold)
         {
             rb.useGravity = false;
         }
         else
         {
-            rb.useGravity = false;
+            rb.useGravity = true;
         }
 
-        rb.AddForce(distanceToTarget.normalized * pullForce, ForceMode.Force);
+        rb.AddForce((target - rb.position).normalized * pullForce, ForceMode.Force);
     }
 }

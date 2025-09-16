@@ -2,29 +2,40 @@ using UnityEngine;
 
 public class TetherVisuals : MonoBehaviour
 {
+    [Header("Components")]
     private LineRenderer lineRenderer;
     private TetherPull tetherPull;
+
+    [Header("Variables")]
     private Vector3 startPoint;
     private Vector3 endPoint;
+    private Vector3 lastStartPos;
+    private Vector3 lastEndPos;
 
     private void Awake()
     {
         lineRenderer = GetComponent<LineRenderer>();
         tetherPull = GetComponent<TetherPull>();
+
+        lastStartPos = Vector3.zero;
+        lastEndPos = Vector3.zero;
     }
 
     private void Update()
     {
-        if (lineRenderer != null)
+        if (tetherPull.Activated)
+        {
+            startPoint = tetherPull.StartAttachPoint;
+            endPoint = tetherPull.EndAttachPoint;
+        }
+
+        if (startPoint != lastStartPos || endPoint != lastEndPos)
         {
             lineRenderer.SetPosition(0, startPoint);
             lineRenderer.SetPosition(1, endPoint);
-        }
 
-        if(tetherPull.Activated)
-        {
-            SetStartPoint(tetherPull.StartObj.position);
-            SetEndPoint(tetherPull.EndObj.position);
+            lastStartPos = startPoint;
+            lastEndPos = endPoint;
         }
     }
 

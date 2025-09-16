@@ -2,13 +2,18 @@ using UnityEngine;
 
 public class PlayerTether : MonoBehaviour
 {
+    [Header("Components")]
     private PlayerActions controls;
-    private TetherVisuals tetherVisuals;
-    private GameObject currentTether;
     [SerializeField] private GameObject tetherPullPrefab;
-    private TetherPull tetherPull;
     [SerializeField] private Camera playerCam;
-    private float maxTetherStartDist = 50f;
+
+    [Header("Properties")]
+    [SerializeField] private float maxTetherStartDist = 50f;
+
+    [Header("Current Tether Variables")]
+    private TetherVisuals tetherVisuals;
+    private TetherPull tetherPull;
+    private GameObject currentTether;
 
     private void Awake()
     {
@@ -17,51 +22,55 @@ public class PlayerTether : MonoBehaviour
 
     private void Update()
     {
-        if(controls.ThrowDown)
+        Ray ray = playerCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+        Vector3 tetherPoint = ray.origin + ray.direction * maxTetherStartDist;
+        bool tetherCast = Physics.Raycast(ray, out RaycastHit hit, maxTetherStartDist);
+
+        if (controls.ThrowDown)
         {
-            if (Physics.Raycast(playerCam.transform.position, playerCam.transform.forward, out RaycastHit hit)) 
+            if (tetherCast) 
             {
                 currentTether = Instantiate(tetherPullPrefab, transform.position, Quaternion.identity);
                 tetherPull = currentTether.GetComponent<TetherPull>();
                 tetherVisuals = currentTether.GetComponent<TetherVisuals>();
                 tetherVisuals.SetStartPoint(hit.point);
                 tetherVisuals.PreviewPull();
-                tetherPull.SetStartObj(hit.transform);
+                tetherPull.SetStartPoint(hit.rigidbody, hit.point);
             }
         }
 
         if (controls.ThrowHeld)
         {
-            Physics.Raycast(playerCam.transform.position, playerCam.transform.forward, out RaycastHit hit);
-            tetherVisuals.SetEndPoint(hit.point);
+            if (tetherCast)
+            {
+                tetherVisuals.SetEndPoint(hit.point);
+            }
+            else
+            {
+                tetherVisuals.SetEndPoint(tetherPoint);
+            }
         }
 
         if(controls.ThrowUp)
         {
-            if (tetherPull.StartObj != null)
+            if (tetherCast)
             {
-                if (Physics.Raycast(playerCam.transform.position, playerCam.transform.forward, out RaycastHit hit))
-                {
-                    tetherVisuals.SetEndPoint(hit.point);
-                    tetherVisuals.ActivatePull();
-                    tetherPull.SetEndObj(hit.transform);
-                    tetherPull.Activated = true;
-                }
-                else
-                {
-                    CancelTether();
-                }
+                tetherVisuals.SetEndPoint(hit.point);
+                tetherVisuals.ActivatePull();
+                tetherPull.SetEndPoint(hit.rigidbody, hit.point);
+                tetherPull.Activated = true;
+            }
+            else
+            {
+                CancelTether();
             }
         }
     }
 
     private void CancelTether()
     {
-        if (tetherPull.EndObj == null)
-        {
-            tetherPull = null;
-            tetherVisuals = null;
-            Destroy(currentTether);
-        }
+        tetherPull = null;
+        tetherVisuals = null;
+        Destroy(currentTether);
     }
 }
