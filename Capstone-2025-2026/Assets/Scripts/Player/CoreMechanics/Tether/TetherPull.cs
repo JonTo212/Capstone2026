@@ -15,6 +15,8 @@ public class TetherPull : MonoBehaviour
     private Vector3 endAttachLocal;
 
     [Header("Getters")]
+    public Rigidbody StartRb => startRb;
+    public Rigidbody EndRb => endRb;
     public Vector3 StartAttachPoint => startRb ? startRb.transform.TransformPoint(startAttachLocal) : startAttachLocal; //if there's a rigidbody, convert to world space
     public Vector3 EndAttachPoint => endRb ? endRb.transform.TransformPoint(endAttachLocal) : endAttachLocal; 
 
@@ -30,7 +32,7 @@ public class TetherPull : MonoBehaviour
         {
             if (startRb != null)
             {
-                PullObject(startRb, EndAttachPoint); //we're using the getters here because they handle local to world conversion
+                PullObject(startRb, EndAttachPoint); //using the getters here because they handle local to world conversion
             }
             if (endRb != null)
             {

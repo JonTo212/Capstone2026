@@ -136,6 +136,7 @@ GameObject:
   - component: {fileID: 60754034}
   - component: {fileID: 60754036}
   - component: {fileID: 60754037}
+  - component: {fileID: 60754038}
   m_Layer: 0
   m_Name: Capsule
   m_TagString: Untagged
@@ -361,8 +362,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47f52e6ca6daec54e8e6c556a4d4cd29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerTether
-  tetherPullPrefab: {fileID: 9078681742910677703, guid: 34366ee15e539434f9c187d2a6099565, type: 3}
   playerCam: {fileID: 803436874}
+  maxTetherStartDist: 50
+--- !u!114 &60754038
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 60754027}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 447094e43ddb7b04090a7c256aa4ea00, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TetherPool
+  poolSize: 2
+  tetherPullPrefab: {fileID: 9078681742910677703, guid: 34366ee15e539434f9c187d2a6099565, type: 3}
 --- !u!1 &257171305
 GameObject:
   m_ObjectHideFlags: 0
