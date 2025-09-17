@@ -3,7 +3,7 @@ using UnityEngine;
 [RequireComponent(typeof(LineRenderer))]
 public class RopeVisuals : MonoBehaviour
 {
-    [SerializeField] private Lasso lassoScript;
+    [SerializeField] private PlayerLasso lassoScript;
     [SerializeField] private int ropeSegmentCount = 500;
     [SerializeField] private float damper = 15f;
     [SerializeField] private float strength = 800f;

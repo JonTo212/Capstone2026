@@ -22,22 +22,46 @@ public class PlayerTether : MonoBehaviour
         tetherPool = GetComponent<TetherPool>();
     }
 
-    private void Update()
+    public void HandleStartTether(Tetherable heldObj = null)
     {
-        Ray ray = playerCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
-        Vector3 tetherPoint = ray.origin + ray.direction * maxTetherStartDist;
-        bool tetherCast = Physics.Raycast(ray, out hit, maxTetherStartDist);
+        if (tetherPool.AvailableTetherCount <= 0) return;
 
-        if (controls.ThrowDown && tetherCast)
+        Vector3 tetherPoint = Vector3.zero;
+        Rigidbody tetherBody = null;
+
+        if (heldObj == null)
         {
-            if (tetherPool.AvailableTetherCount <= 0) return;
+            Ray ray = playerCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+            tetherPoint = ray.origin + ray.direction * maxTetherStartDist;
 
-            HandleStartTether();
+            if(Physics.Raycast(ray, out hit, maxTetherStartDist))
+            {
+                tetherPoint = hit.point;
+                tetherBody = hit.rigidbody;
+            }
+        }
+        else
+        {
+            tetherPoint = heldObj.transform.position;
+            tetherBody = heldObj.Rb;
         }
 
-        if (controls.ThrowHeld && tetherVisuals != null)
+        currentTether = tetherPool.GetTether();
+        tetherPull = currentTether.GetComponent<TetherPull>();
+        tetherVisuals = currentTether.GetComponent<TetherVisuals>();
+        tetherVisuals.SetStartPoint(tetherPoint);
+        tetherVisuals.PreviewPull();
+        tetherPull.SetStartPoint(tetherBody, tetherPoint);
+    }
+
+    public void HandleTetherActive()
+    {
+        if (tetherVisuals != null)
         {
-            if (tetherCast)
+            Ray ray = playerCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+            Vector3 tetherPoint = ray.origin + ray.direction * maxTetherStartDist;
+
+            if (Physics.Raycast(ray, out hit, maxTetherStartDist))
             {
                 tetherVisuals.SetEndPoint(hit.point);
             }
@@ -46,12 +70,30 @@ public class PlayerTether : MonoBehaviour
                 tetherVisuals.SetEndPoint(tetherPoint); //if we don't hit anything, extend to max distance
             }
         }
+    }
 
-        if(controls.ThrowUp && currentTether != null)
+    public void HandleEndTether()
+    {
+        if (currentTether != null)
         {
-            if (tetherCast)
+            Ray ray = playerCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+            Vector3 tetherPoint = ray.origin + ray.direction * maxTetherStartDist;
+
+            if (Physics.Raycast(ray, out hit, maxTetherStartDist))
             {
-                HandleEndTether();
+                tetherVisuals.SetEndPoint(hit.point);
+                tetherVisuals.ActivatePull();
+
+                if (hit.rigidbody != tetherPull.StartRb)
+                {
+                    tetherPull.SetEndPoint(hit.rigidbody, hit.point);
+                }
+                else
+                {
+                    tetherPull.SetEndPoint(null, hit.point); //if we hit the same object, just tether to the world at that point
+                }
+
+                tetherPull.Activated = true;
             }
             else
             {
@@ -63,32 +105,5 @@ public class PlayerTether : MonoBehaviour
             tetherVisuals = null;
             currentTether = null;
         }
-    }
-
-    private void HandleStartTether()
-    {
-        currentTether = tetherPool.GetTether();
-        tetherPull = currentTether.GetComponent<TetherPull>();
-        tetherVisuals = currentTether.GetComponent<TetherVisuals>();
-        tetherVisuals.SetStartPoint(hit.point);
-        tetherVisuals.PreviewPull();
-        tetherPull.SetStartPoint(hit.rigidbody, hit.point);
-    }
-
-    private void HandleEndTether()
-    {
-        tetherVisuals.SetEndPoint(hit.point);
-        tetherVisuals.ActivatePull();
-
-        if (hit.rigidbody != tetherPull.StartRb)
-        {
-            tetherPull.SetEndPoint(hit.rigidbody, hit.point);
-        }
-        else
-        {
-            tetherPull.SetEndPoint(null, hit.point); //if we hit the same object, just tether to the world at that point
-        }
-
-        tetherPull.Activated = true;
     }
 }
