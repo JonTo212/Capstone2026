@@ -5,6 +5,7 @@ public class PlayerActions : MonoBehaviour
 {
     private InputAction moveAction;
     private InputAction lookAction;
+    private InputAction scrollAction;
     private InputAction jumpAction;
     private InputAction crouchAction;
     private InputAction sprintAction;
@@ -13,6 +14,8 @@ public class PlayerActions : MonoBehaviour
 
     public Vector2 MoveInput => moveAction.ReadValue<Vector2>();
     public Vector2 LookInput => lookAction.ReadValue<Vector2>();
+
+    public float ScrollAction => scrollAction.ReadValue<float>();  
 
     public bool JumpDown => jumpAction.WasPressedThisFrame();
     public bool JumpHeld => jumpAction.IsPressed();
@@ -39,6 +42,7 @@ public class PlayerActions : MonoBehaviour
         var map = InputSystem.actions;
         moveAction = map.FindAction("Move");
         lookAction = map.FindAction("Look");
+        scrollAction = map.FindAction("ScrollWheel");
         jumpAction = map.FindAction("Jump");
         crouchAction = map.FindAction("Crouch");
         sprintAction = map.FindAction("Sprint");
@@ -50,6 +54,7 @@ public class PlayerActions : MonoBehaviour
     {
         moveAction.Enable();
         lookAction.Enable();
+        scrollAction.Enable();
         jumpAction.Enable();
         crouchAction.Enable();
         sprintAction.Enable();
@@ -61,6 +66,7 @@ public class PlayerActions : MonoBehaviour
     {
         moveAction.Disable();
         lookAction.Disable();
+        scrollAction.Disable();
         jumpAction.Disable();
         crouchAction.Disable();
         sprintAction.Disable();

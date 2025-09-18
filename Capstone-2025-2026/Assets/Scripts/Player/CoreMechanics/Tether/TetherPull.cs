@@ -1,4 +1,5 @@
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class TetherPull : MonoBehaviour
@@ -9,14 +10,16 @@ public class TetherPull : MonoBehaviour
     private bool activated;
 
     [Header("Attachment Components")]
+    private Transform startTransform;
+    private Transform endTransform;
     private Rigidbody startRb;
     private Rigidbody endRb;
     private Vector3 startAttachLocal;
     private Vector3 endAttachLocal;
 
     [Header("Getters")]
-    public Rigidbody StartRb => startRb;
-    public Rigidbody EndRb => endRb;
+    public Transform StartTransform => startTransform;
+    public Transform EndTransform => endTransform;
     public Vector3 StartAttachPoint => startRb ? startRb.transform.TransformPoint(startAttachLocal) : startAttachLocal; //if there's a rigidbody, convert to world space
     public Vector3 EndAttachPoint => endRb ? endRb.transform.TransformPoint(endAttachLocal) : endAttachLocal; 
 
@@ -41,14 +44,15 @@ public class TetherPull : MonoBehaviour
         }
     }
 
-    public void SetStartPoint(Rigidbody rb, Vector3 hitPoint)
+    public void SetStartPoint(Transform start, Vector3 hitPoint)
     {
-        startRb = rb;
+        startTransform = start;
 
-        if (rb != null)
+        if (start.TryGetComponent<Rigidbody>(out Rigidbody rb))
         {
             //convert to local space if there's a rigidbody to get relative attachment point
-            startAttachLocal = rb.transform.InverseTransformPoint(hitPoint);
+            startAttachLocal = start.InverseTransformPoint(hitPoint);
+            startRb = rb;
         }
         else
         {
@@ -57,13 +61,14 @@ public class TetherPull : MonoBehaviour
         }
     }
 
-    public void SetEndPoint(Rigidbody rb, Vector3 hitPoint)
+    public void SetEndPoint(Transform end, Vector3 hitPoint)
     {
-        endRb = rb;
+        endTransform = end;
 
-        if (rb != null)
+        if (end.TryGetComponent<Rigidbody>(out Rigidbody rb))
         {
-            endAttachLocal = rb.transform.InverseTransformPoint(hitPoint);
+            endAttachLocal = end.InverseTransformPoint(hitPoint);
+            endRb = rb;
         }
         else
         {

@@ -10,12 +10,13 @@ public class UpdatedLasso : MonoBehaviour
 
     [Header("Lasso Properties")]
     [SerializeField] private float lassoRange;
+    [SerializeField] private float lassoPullStrength;
     [SerializeField] private float breakDist;
     [SerializeField] private float attachThreshold;
 
     [Header("Lasso Forces")]
     [SerializeField] private float centerStrength;
-    [SerializeField] private float pullStrength;
+    [SerializeField] private float yankStrength;
     [SerializeField] private float throwStrength;
 
     [Header("Internal Variables")]
@@ -89,6 +90,11 @@ public class UpdatedLasso : MonoBehaviour
         projectileCoroutine = null;
     }
 
+    public void UpdateAnchorDistance(float scrollWheelDirection)
+    {
+        anchorDist += (scrollWheelDirection * lassoPullStrength);
+    }
+
     #endregion
 
     #region Center Lasso (continuous)
@@ -130,13 +136,23 @@ public class UpdatedLasso : MonoBehaviour
         while(Vector3.Distance(snaredObj.transform.position, holdPos.position) > attachThreshold)
         {
             Vector3 dirToHoldPos = holdPos.position - snaredObj.transform.position;
-            snaredObj.ApplyForceInDirection(dirToHoldPos.normalized, pullStrength, ForceMode.Force);
+            snaredObj.ApplyForceInDirection(dirToHoldPos.normalized, yankStrength, ForceMode.Force);
 
             yield return null;
         }
 
         yankCoroutine = null;
     }
+
+    public void PullObject(float scrollDirection)
+    {
+        if (snaredObj != null)
+        {
+            Vector3 dirToHoldPos = (holdPos.position - snaredObj.transform.position) * scrollDirection;
+            snaredObj.ApplyForceInDirection(dirToHoldPos.normalized, yankStrength, ForceMode.Impulse);
+        }
+    }
+
     #endregion
 
     #region Throw / Release

@@ -27,7 +27,7 @@ public class PlayerTether : MonoBehaviour
         if (tetherPool.AvailableTetherCount <= 0) return;
 
         Vector3 tetherPoint = Vector3.zero;
-        Rigidbody tetherBody = null;
+        Transform tetherTransform = null;
 
         if (heldObj == null)
         {
@@ -37,13 +37,13 @@ public class PlayerTether : MonoBehaviour
             if(Physics.Raycast(ray, out hit, maxTetherStartDist))
             {
                 tetherPoint = hit.point;
-                tetherBody = hit.rigidbody;
+                tetherTransform = hit.transform;
             }
         }
         else
         {
             tetherPoint = heldObj.transform.position;
-            tetherBody = heldObj.Rb;
+            tetherTransform = heldObj.transform;
         }
 
         currentTether = tetherPool.GetTether();
@@ -51,7 +51,7 @@ public class PlayerTether : MonoBehaviour
         tetherVisuals = currentTether.GetComponent<TetherVisuals>();
         tetherVisuals.SetStartPoint(tetherPoint);
         tetherVisuals.PreviewPull();
-        tetherPull.SetStartPoint(tetherBody, tetherPoint);
+        tetherPull.SetStartPoint(tetherTransform, tetherPoint);
     }
 
     public void HandleTetherActive()
@@ -60,6 +60,8 @@ public class PlayerTether : MonoBehaviour
         {
             Ray ray = playerCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
             Vector3 tetherPoint = ray.origin + ray.direction * maxTetherStartDist;
+
+            tetherVisuals.SetStartPoint(tetherPull.StartAttachPoint);
 
             if (Physics.Raycast(ray, out hit, maxTetherStartDist))
             {
@@ -81,25 +83,23 @@ public class PlayerTether : MonoBehaviour
 
             if (Physics.Raycast(ray, out hit, maxTetherStartDist))
             {
-                if (hit.transform != tetherPull.StartRb.transform)
+                if (hit.transform != tetherPull.StartTransform.transform)
                 {
                     tetherVisuals.SetEndPoint(hit.point);
                     tetherVisuals.ActivatePull();
 
-                    if (hit.rigidbody != tetherPull.StartRb)
-                    {
-                        tetherPull.SetEndPoint(hit.rigidbody, hit.point);
-                    }
-                    else
-                    {
-                        tetherVisuals.ResetPull();
-                    }
+                    tetherPull.SetEndPoint(hit.transform, hit.point);
 
                     tetherPull.Activated = true;
                 }
                 else
                 {
                     tetherVisuals.ResetPull();
+
+                    //Destroy(tetherPull);
+                    //tetherPull = null;
+
+                    //tetherVisuals.ResetPull();
                 }
             }
             else

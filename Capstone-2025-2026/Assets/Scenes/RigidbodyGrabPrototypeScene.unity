@@ -139,6 +139,7 @@ GameObject:
   - component: {fileID: 60754039}
   - component: {fileID: 60754040}
   - component: {fileID: 60754041}
+  - component: {fileID: 60754042}
   m_Layer: 0
   m_Name: Capsule
   m_TagString: Untagged
@@ -364,10 +365,11 @@ MonoBehaviour:
   snaredObj: {fileID: 0}
   holdPos: {fileID: 1795782380}
   lassoRange: 10
+  lassoPullStrength: 0.5
   breakDist: 10
   attachThreshold: 0.1
   centerStrength: 375
-  pullStrength: 50
+  yankStrength: 0
   throwStrength: 25
   hitboxRadius: 0.25
   projectileSpeed: 10
@@ -378,12 +380,11 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 60754027}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: aa75fc78c011e214697d9be2f710e3fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TetherController
-  separateControls: 0
 --- !u!114 &60754041
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -416,6 +417,18 @@ MonoBehaviour:
   maxPullDistance: 50
   projectileSpeed: 50
   anchoredPos: {fileID: 2137204577}
+--- !u!114 &60754042
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 60754027}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d1bf5d6fd89ef8646906bf6292c4b9f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SeparateTetherController
 --- !u!1 &257171305
 GameObject:
   m_ObjectHideFlags: 0
