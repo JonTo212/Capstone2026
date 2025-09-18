@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -11,6 +12,7 @@ public class PlayerActions : MonoBehaviour
     private InputAction sprintAction;
     private InputAction pullAction;
     private InputAction throwAction;
+    private InputAction interactAction;
 
     public Vector2 MoveInput => moveAction.ReadValue<Vector2>();
     public Vector2 LookInput => lookAction.ReadValue<Vector2>();
@@ -37,6 +39,10 @@ public class PlayerActions : MonoBehaviour
     public bool ThrowHeld => throwAction.IsPressed();
     public bool ThrowUp => throwAction.WasReleasedThisFrame();
 
+    public bool InteractDown => interactAction.WasPressedThisFrame();
+    public bool InteractHeld => interactAction.IsPressed();
+    public bool InteractUp => interactAction.WasReleasedThisFrame();
+
     private void Awake()
     {
         var map = InputSystem.actions;
@@ -48,6 +54,7 @@ public class PlayerActions : MonoBehaviour
         sprintAction = map.FindAction("Sprint");
         pullAction = map.FindAction("Pull");
         throwAction = map.FindAction("Throw");
+        interactAction = map.FindAction("Interact");
     }
 
     private void OnEnable()
@@ -60,6 +67,7 @@ public class PlayerActions : MonoBehaviour
         sprintAction.Enable();
         pullAction.Enable();
         throwAction.Enable();
+        interactAction.Enable();
     }
 
     private void OnDisable()
@@ -72,5 +80,6 @@ public class PlayerActions : MonoBehaviour
         sprintAction.Disable();
         pullAction.Disable();
         throwAction.Disable();
+        interactAction.Disable();
     }
 }
