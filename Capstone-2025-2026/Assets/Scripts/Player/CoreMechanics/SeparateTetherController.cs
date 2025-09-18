@@ -18,8 +18,6 @@ public class SeparateTetherController : MonoBehaviour
 
     private void Update()
     {
-        Debug.Log(playerActions.ScrollAction);
-
         switch (currentTetherState)
         {
             case TetherState.Empty:

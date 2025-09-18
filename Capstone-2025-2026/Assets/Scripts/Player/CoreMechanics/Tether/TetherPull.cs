@@ -90,4 +90,13 @@ public class TetherPull : MonoBehaviour
 
         rb.AddForce((target - rb.position).normalized * pullForce, ForceMode.Force);
     }
+
+    public void ResetTether()
+    {
+        activated = false;
+        startRb = null;
+        endRb = null;
+        startAttachLocal = Vector3.zero;
+        endAttachLocal = Vector3.zero;
+    }
 }

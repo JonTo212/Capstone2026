@@ -63,7 +63,6 @@ public class TetherVisuals : MonoBehaviour
 
     public void ResetPull()
     {
-        lineRenderer.positionCount = 0;
         startPoint = Vector3.zero;
         endPoint = Vector3.zero;
         lastStartPos = Vector3.zero;

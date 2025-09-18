@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerTether : MonoBehaviour
@@ -16,6 +18,8 @@ public class PlayerTether : MonoBehaviour
     private TetherPull tetherPull;
     private GameObject currentTether;
 
+    private Queue<GameObject> activeTethers = new Queue<GameObject>();
+
     private void Awake()
     {
         controls = GetComponent<PlayerActions>();
@@ -24,7 +28,10 @@ public class PlayerTether : MonoBehaviour
 
     public void HandleStartTether(Tetherable heldObj = null)
     {
-        if (tetherPool.AvailableTetherCount <= 0) return;
+        if (tetherPool.AvailableTetherCount <= 0)
+            currentTether = activeTethers.Dequeue();
+        else
+            currentTether = tetherPool.GetTether();
 
         Vector3 tetherPoint = Vector3.zero;
         Transform tetherTransform = null;
@@ -46,9 +53,10 @@ public class PlayerTether : MonoBehaviour
             tetherTransform = heldObj.transform;
         }
 
-        currentTether = tetherPool.GetTether();
         tetherPull = currentTether.GetComponent<TetherPull>();
         tetherVisuals = currentTether.GetComponent<TetherVisuals>();
+        tetherPull.ResetTether();
+        activeTethers.Enqueue(currentTether);
         tetherVisuals.SetStartPoint(tetherPoint);
         tetherVisuals.PreviewPull();
         tetherPull.SetStartPoint(tetherTransform, tetherPoint);
@@ -95,16 +103,12 @@ public class PlayerTether : MonoBehaviour
                 else
                 {
                     tetherVisuals.ResetPull();
-
-                    //Destroy(tetherPull);
-                    //tetherPull = null;
-
-                    //tetherVisuals.ResetPull();
                 }
             }
             else
             {
                 tetherPool.ReturnTether(currentTether);
+                activeTethers.Dequeue();
             }
 
             //remove references to current tether, but don't return it to the pool as it's now active
