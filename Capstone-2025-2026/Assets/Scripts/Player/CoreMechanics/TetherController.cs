@@ -17,8 +17,6 @@ public class TetherController : MonoBehaviour
     private TetherState currentTetherState;
     private Coroutine yankCheckCoroutine;
 
-    [SerializeField] private bool separateControls = false;
-
     private void Awake()
     {
         playerTether = GetComponent<PlayerTether>();
@@ -54,8 +52,12 @@ public class TetherController : MonoBehaviour
         {
             if (playerLasso.YankCoroutine == null)
             {
-                playerLasso.MoveObjectToLassoPos(playerLasso.GetCenterOfScreen());
+                playerLasso.MoveObjectToPos(playerLasso.GetCenterOfScreen());
             }
+        }
+        else if(currentTetherState == TetherState.Held)
+        {
+            playerLasso.MoveObjectToPos(playerLasso.HoldPos.position);
         }
     }
 
@@ -98,7 +100,7 @@ public class TetherController : MonoBehaviour
     }
     private IEnumerator CheckIfTap()
     {
-        yield return new WaitForSeconds(0.25f);
+        yield return new WaitForSeconds(0.15f);
 
         if (playerActions.ThrowHeld)
         {
@@ -137,8 +139,6 @@ public class TetherController : MonoBehaviour
 
     private void HandleHeldControls()
     {
-        playerLasso.MoveObjectToLassoPos(playerLasso.HoldPos.position);
-
         if (playerActions.PullDown)
         {
             playerLasso.ReleaseObject();

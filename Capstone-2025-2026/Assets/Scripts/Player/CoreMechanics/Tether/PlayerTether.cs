@@ -81,19 +81,26 @@ public class PlayerTether : MonoBehaviour
 
             if (Physics.Raycast(ray, out hit, maxTetherStartDist))
             {
-                tetherVisuals.SetEndPoint(hit.point);
-                tetherVisuals.ActivatePull();
-
-                if (hit.rigidbody != tetherPull.StartRb)
+                if (hit.transform != tetherPull.StartRb.transform)
                 {
-                    tetherPull.SetEndPoint(hit.rigidbody, hit.point);
+                    tetherVisuals.SetEndPoint(hit.point);
+                    tetherVisuals.ActivatePull();
+
+                    if (hit.rigidbody != tetherPull.StartRb)
+                    {
+                        tetherPull.SetEndPoint(hit.rigidbody, hit.point);
+                    }
+                    else
+                    {
+                        tetherVisuals.ResetPull();
+                    }
+
+                    tetherPull.Activated = true;
                 }
                 else
                 {
-                    tetherPull.SetEndPoint(null, hit.point); //if we hit the same object, just tether to the world at that point
+                    tetherVisuals.ResetPull();
                 }
-
-                tetherPull.Activated = true;
             }
             else
             {

@@ -363,12 +363,14 @@ MonoBehaviour:
   playerCam: {fileID: 803436874}
   snaredObj: {fileID: 0}
   holdPos: {fileID: 1795782380}
-  lassoRange: 75
-  breakDist: 25
+  lassoRange: 10
+  breakDist: 10
   attachThreshold: 0.1
   centerStrength: 375
-  pullStrength: 0
-  throwStrength: 50
+  pullStrength: 50
+  throwStrength: 25
+  hitboxRadius: 0.25
+  projectileSpeed: 10
 --- !u!114 &60754040
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1527,6 +1529,7 @@ GameObject:
   - component: {fileID: 1021286275}
   - component: {fileID: 1021286278}
   - component: {fileID: 1021286277}
+  - component: {fileID: 1021286279}
   m_Layer: 0
   m_Name: Hand
   m_TagString: Untagged
@@ -1658,7 +1661,7 @@ LineRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1021286272}
-  m_Enabled: 0
+  m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -1760,6 +1763,49 @@ LineRenderer:
   m_UseWorldSpace: 1
   m_Loop: 0
   m_ApplyActiveColorSpace: 1
+--- !u!114 &1021286279
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1021286272}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 50830a2ac647c2c4caf7812bb767b739, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UpdatedLassoVisuals
+  lassoScript: {fileID: 60754039}
+  ropeSegmentCount: 50
+  damper: 15
+  strength: 800
+  velocity: 15
+  waveCount: 3
+  waveHeight: 2
+  affectCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 2.963444
+      outSlope: 2.963444
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.041564662
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &1130704512
 GameObject:
   m_ObjectHideFlags: 0

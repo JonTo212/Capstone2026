@@ -18,6 +18,7 @@ public class Tetherable : MonoBehaviour
     public void OnPickUp()
     {
         rb.useGravity = false;
+        rb.interpolation = RigidbodyInterpolation.Interpolate;
         rb.angularVelocity = Vector3.zero;
         rb.linearVelocity = Vector3.zero;
     }
@@ -30,6 +31,7 @@ public class Tetherable : MonoBehaviour
     public void OnRelease()
     {
         rb.useGravity = true;
+        rb.interpolation = RigidbodyInterpolation.None;
         rb.linearDamping = defaultDrag;
         rb.angularDamping = defaultAngularDrag;
     }

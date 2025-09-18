@@ -60,4 +60,13 @@ public class TetherVisuals : MonoBehaviour
         lineRenderer.startColor = Color.green;
         lineRenderer.endColor = Color.green;
     }
+
+    public void ResetPull()
+    {
+        lineRenderer.positionCount = 0;
+        startPoint = Vector3.zero;
+        endPoint = Vector3.zero;
+        lastStartPos = Vector3.zero;
+        lastEndPos = Vector3.zero;
+    }
 }

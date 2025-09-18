@@ -20,8 +20,14 @@ public class UpdatedLasso : MonoBehaviour
 
     [Header("Internal Variables")]
     private float anchorDist;
-    private float anchorMagnitude;
     private Coroutine yankCoroutine;
+
+    [Header("Projectile Properties")]
+    [SerializeField] private float hitboxRadius;
+    [SerializeField] private float projectileSpeed;
+    private Vector3 projectilePosition;
+    private Vector3 projectileVelocity;
+    private Coroutine projectileCoroutine;
 
     [Header("Getters")]
     public bool HasSnaredObject => snaredObj != null;
@@ -29,6 +35,8 @@ public class UpdatedLasso : MonoBehaviour
     public Transform HoldPos => holdPos;
     public float AnchorDistance => anchorDist;
     public Coroutine YankCoroutine => yankCoroutine;
+    public Coroutine ProjectileCoroutine => projectileCoroutine;
+    public Vector3 ProjectilePosition => projectilePosition;
 
     #region Helper Functions
 
@@ -36,8 +44,7 @@ public class UpdatedLasso : MonoBehaviour
     {
         Ray ray = playerCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
         Vector3 maxDistancePos = ray.origin + ray.direction * anchorDist;
-        Vector3 minDistancePos = holdPos.position;
-        return Vector3.Lerp(minDistancePos, maxDistancePos, anchorMagnitude);
+        return maxDistancePos;
     }
 
     #endregion
@@ -45,24 +52,47 @@ public class UpdatedLasso : MonoBehaviour
     #region Start Lasso
     public void TryLasso()
     {
-        Ray ray = playerCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
-        if (Physics.SphereCast(ray, 0.2f, out RaycastHit hit, lassoRange))
-        {
-            anchorDist = Vector3.Distance(hit.point, holdPos.position);
-            anchorMagnitude = 1f;
+        if (projectileCoroutine != null)
+            StopCoroutine(projectileCoroutine);
 
-            if (hit.transform.TryGetComponent(out Tetherable tetherable))
-            {
-                tetherable.OnPickUp();
-                tetherable.SetLinearDamping(25f);
-                snaredObj = tetherable;
-            }
-        }
+        projectileCoroutine = StartCoroutine(SimulateProjectile());
     }
+
+    private IEnumerator SimulateProjectile()
+    {
+        Ray ray = playerCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+        projectilePosition = ray.origin;
+        projectileVelocity = ray.direction * projectileSpeed;
+
+        while (Vector3.Distance(holdPos.position, projectilePosition) < lassoRange)
+        {
+            projectilePosition += projectileVelocity * Time.deltaTime;
+
+            if (Physics.SphereCast(projectilePosition, hitboxRadius, projectileVelocity.normalized, out RaycastHit hit, projectileVelocity.magnitude))
+            {
+                if (hit.transform.TryGetComponent(out Tetherable tetherable))
+                {
+                    anchorDist = Vector3.Distance(hit.point, holdPos.position);
+
+                    tetherable.OnPickUp();
+                    tetherable.SetLinearDamping(25f);
+                    snaredObj = tetherable;
+                }
+
+                projectileCoroutine = null;
+                yield break; //stop coroutine on hit
+            }
+
+            yield return null;
+        }
+
+        projectileCoroutine = null;
+    }
+
     #endregion
 
     #region Center Lasso (continuous)
-    public void MoveObjectToLassoPos(Vector3 desiredPos)
+    public void MoveObjectToPos(Vector3 desiredPos)
     {
         if(snaredObj != null)
         {
@@ -78,7 +108,7 @@ public class UpdatedLasso : MonoBehaviour
                 return;
             }
 
-            snaredObj.ApplyForceInDirection(dirToHoldPos.normalized, centerStrength, ForceMode.Acceleration);
+            snaredObj.ApplyForceInDirection(dirToHoldPos.normalized, centerStrength * distance, ForceMode.Force);
         }
     }
     #endregion
