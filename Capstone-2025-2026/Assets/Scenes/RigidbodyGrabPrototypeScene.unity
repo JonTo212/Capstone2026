@@ -138,6 +138,7 @@ GameObject:
   - component: {fileID: 60754038}
   - component: {fileID: 60754039}
   - component: {fileID: 60754040}
+  - component: {fileID: 60754041}
   m_Layer: 0
   m_Name: Capsule
   m_TagString: Untagged
@@ -360,12 +361,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UpdatedLasso
   playerCam: {fileID: 803436874}
-  lassoRange: 75
   snaredObj: {fileID: 0}
   holdPos: {fileID: 1795782380}
-  centerStrength: 250
+  lassoRange: 75
   breakDist: 25
   attachThreshold: 0.1
+  centerStrength: 375
+  pullStrength: 0
+  throwStrength: 50
 --- !u!114 &60754040
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -379,6 +382,38 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TetherController
   separateControls: 0
+--- !u!114 &60754041
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 60754027}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f8727900a681e04eaaf1d3ae68c56ee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerLasso
+  holdPos: {fileID: 1795782380}
+  pullableObjectLayer:
+    serializedVersion: 2
+    m_Bits: 8
+  playerCam: {fileID: 803436874}
+  hitboxRadius: 0.3
+  tetherForceMultiplier: 22.5
+  pullForceMultiplier: 7.5
+  maxVelocity: 15
+  throwVelocity: 30
+  pullVelocityCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  attachThreshold: 0.3
+  maxPullDistance: 50
+  projectileSpeed: 50
+  anchoredPos: {fileID: 2137204577}
 --- !u!1 &257171305
 GameObject:
   m_ObjectHideFlags: 0
@@ -1584,7 +1619,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 679a15d181a5de64cb68ae342cbc8afd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RopeVisuals
-  lassoScript: {fileID: 0}
+  lassoScript: {fileID: 60754041}
   ropeSegmentCount: 500
   damper: 15
   strength: 800
@@ -1623,7 +1658,7 @@ LineRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1021286272}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1

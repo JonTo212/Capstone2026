@@ -9,7 +9,7 @@ public enum LassoState
     Held
 }
 
-public class Lasso : MonoBehaviour
+public class PlayerLasso : MonoBehaviour
 {
     [Header("Components")]
     [SerializeField] private Transform holdPos;

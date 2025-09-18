@@ -50,7 +50,7 @@ public class TetherController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if(currentTetherState == TetherState.Lassoing)
+        if (currentTetherState == TetherState.Lassoing)
         {
             if (playerLasso.YankCoroutine == null)
             {
@@ -67,12 +67,12 @@ public class TetherController : MonoBehaviour
     #region Empty Controls
     private void HandleEmptyControls()
     {
-        if(playerActions.PullDown)
+        if (playerActions.PullDown)
         {
             playerLasso.TryLasso();
         }
 
-        if(playerLasso.HasSnaredObject)
+        if (playerLasso.HasSnaredObject)
         {
             SwitchTetherState(TetherState.Lassoing);
         }
@@ -88,15 +88,14 @@ public class TetherController : MonoBehaviour
             SwitchTetherState(TetherState.Empty);
         }
 
-        if(playerActions.ThrowDown)
+        if (playerActions.ThrowDown)
         {
-            if (yankCheckCoroutine != null)
+            if(yankCheckCoroutine != null)
                 StopCoroutine(yankCheckCoroutine);
 
             yankCheckCoroutine = StartCoroutine(CheckIfTap());
         }
     }
-
     private IEnumerator CheckIfTap()
     {
         yield return new WaitForSeconds(0.25f);
@@ -119,12 +118,12 @@ public class TetherController : MonoBehaviour
 
     private void HandleTetherControls()
     {
-        if(playerActions.ThrowHeld)
+        if (playerActions.ThrowHeld)
         {
             playerTether.HandleTetherActive();
         }
 
-        if(playerActions.ThrowUp)
+        if (playerActions.ThrowUp)
         {
             playerLasso.ReleaseObject();
             playerTether.HandleEndTether();
@@ -140,13 +139,13 @@ public class TetherController : MonoBehaviour
     {
         playerLasso.MoveObjectToLassoPos(playerLasso.HoldPos.position);
 
-        if(playerActions.PullDown)
+        if (playerActions.PullDown)
         {
             playerLasso.ReleaseObject();
             SwitchTetherState(TetherState.Empty);
         }
 
-        if(playerActions.ThrowDown)
+        if (playerActions.ThrowDown)
         {
             playerLasso.ThrowObject();
             SwitchTetherState(TetherState.Empty);
