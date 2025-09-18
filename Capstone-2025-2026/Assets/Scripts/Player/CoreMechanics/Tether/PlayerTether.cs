@@ -16,6 +16,7 @@ public class PlayerTether : MonoBehaviour
     [Header("Current Tether Variables")]
     private TetherVisuals tetherVisuals;
     private TetherPull tetherPull;
+    private TetherCollider tetherCollider;
     private GameObject currentTether;
 
     private Queue<GameObject> activeTethers = new Queue<GameObject>();
@@ -60,6 +61,7 @@ public class PlayerTether : MonoBehaviour
 
         tetherPull = currentTether.GetComponent<TetherPull>();
         tetherVisuals = currentTether.GetComponent<TetherVisuals>();
+        tetherCollider = currentTether.GetComponent<TetherCollider>();
         tetherPull.ResetTether();
         activeTethers.Enqueue(currentTether);
         tetherVisuals.SetStartPoint(tetherPoint);
@@ -102,8 +104,6 @@ public class PlayerTether : MonoBehaviour
                     tetherVisuals.ActivatePull();
 
                     tetherPull.SetEndPoint(hit.transform, hit.point);
-
-                    tetherPull.Activated = true;
                 }
                 else
                 {
@@ -121,5 +121,15 @@ public class PlayerTether : MonoBehaviour
             tetherVisuals = null;
             currentTether = null;
         }
+    }
+
+    public void ActivateSelectedTether()
+    {
+
+    }
+
+    public void ActivateAllTether()
+    {
+
     }
 }
