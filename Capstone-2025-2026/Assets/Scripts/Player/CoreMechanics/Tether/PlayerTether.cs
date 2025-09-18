@@ -46,6 +46,11 @@ public class PlayerTether : MonoBehaviour
                 tetherPoint = hit.point;
                 tetherTransform = hit.transform;
             }
+            else
+            {
+                currentTether = null;
+                return;
+            }
         }
         else
         {
