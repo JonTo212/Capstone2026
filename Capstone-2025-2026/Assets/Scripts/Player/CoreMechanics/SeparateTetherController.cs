@@ -1,4 +1,5 @@
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class SeparateTetherController : MonoBehaviour
@@ -8,6 +9,7 @@ public class SeparateTetherController : MonoBehaviour
     private PlayerActions playerActions;
     private TetherState currentTetherState;
     private Coroutine yankCheckCoroutine;
+    private Coroutine tetherActivateCheckCoroutine;
 
     private void Awake()
     {
@@ -35,6 +37,21 @@ public class SeparateTetherController : MonoBehaviour
             case TetherState.Held:
                 HandleHeldControls();
                 break;
+        }
+
+        if(playerActions.InteractDown)
+        {
+            tetherActivateCheckCoroutine = StartCoroutine(CheckIfInteractTap());
+        }
+
+        if(playerActions.InteractUp)
+        {
+            if(tetherActivateCheckCoroutine != null)
+            {
+                StopCoroutine(tetherActivateCheckCoroutine);
+            }
+
+            InteractTether();
         }
     }
 
@@ -134,6 +151,21 @@ public class SeparateTetherController : MonoBehaviour
             playerTether.HandleEndTether();
             SwitchTetherState(TetherState.Empty);
         }
+    }
+
+    private void InteractTether()
+    {
+        playerTether.ActivateSelectedTether();
+        Debug.Log("tap");
+    }
+
+    private IEnumerator CheckIfInteractTap()
+    {
+        yield return new WaitForSeconds(1f);
+
+        playerTether.ActivateAllTether();
+
+        Debug.Log("Hold");
     }
 
     #endregion

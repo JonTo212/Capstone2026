@@ -13,6 +13,7 @@ public class PlayerTether : MonoBehaviour
     [Header("Properties")]
     [SerializeField] private float maxTetherStartDist = 50f;
     [SerializeField] private bool autoActivateTether = true;
+    [SerializeField] private LayerMask tetherLayerMask;
 
     [Header("Current Tether Variables")]
     private TetherVisuals tetherVisuals;
@@ -43,7 +44,7 @@ public class PlayerTether : MonoBehaviour
             Ray ray = playerCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
             tetherPoint = ray.origin + ray.direction * maxTetherStartDist;
 
-            if(Physics.Raycast(ray, out hit, maxTetherStartDist))
+            if(Physics.Raycast(ray, out hit, maxTetherStartDist, ~tetherLayerMask))
             {
                 tetherPoint = hit.point;
                 tetherTransform = hit.transform;
@@ -81,7 +82,7 @@ public class PlayerTether : MonoBehaviour
             tetherVisuals.SetStartPoint(tetherPull.StartAttachPoint);
             tetherCollider.SetStartPoint(tetherPull.StartAttachPoint);
 
-            if (Physics.Raycast(ray, out hit, maxTetherStartDist))
+            if (Physics.Raycast(ray, out hit, maxTetherStartDist, ~tetherLayerMask))
             {
                 tetherVisuals.SetEndPoint(hit.point);
                 tetherCollider.SetEndPoint(hit.point);
@@ -101,7 +102,7 @@ public class PlayerTether : MonoBehaviour
             Ray ray = playerCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
             Vector3 tetherPoint = ray.origin + ray.direction * maxTetherStartDist;
 
-            if (Physics.Raycast(ray, out hit, maxTetherStartDist))
+            if (Physics.Raycast(ray, out hit, maxTetherStartDist, ~tetherLayerMask))
             {
                 if (hit.transform != tetherPull.StartTransform.transform)
                 {
