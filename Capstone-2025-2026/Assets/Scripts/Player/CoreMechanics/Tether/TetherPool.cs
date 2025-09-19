@@ -39,6 +39,11 @@ public class TetherPool : MonoBehaviour
         return tether;
     }
 
+    public GameObject[] GetAllPlantedTether()
+    {
+        return tetherPool;
+    }
+
     public void ReturnTether(GameObject tether)
     {
         tether.SetActive(false);

@@ -156,7 +156,6 @@ public class SeparateTetherController : MonoBehaviour
     private void InteractTether()
     {
         playerTether.ActivateSelectedTether();
-        Debug.Log("tap");
     }
 
     private IEnumerator CheckIfInteractTap()
@@ -164,8 +163,6 @@ public class SeparateTetherController : MonoBehaviour
         yield return new WaitForSeconds(1f);
 
         playerTether.ActivateAllTether();
-
-        Debug.Log("Hold");
     }
 
     #endregion

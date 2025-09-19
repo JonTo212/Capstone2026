@@ -137,11 +137,27 @@ public class PlayerTether : MonoBehaviour
 
     public void ActivateSelectedTether()
     {
+        Ray ray = playerCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+        Vector3 tetherPoint = ray.origin + ray.direction * maxTetherStartDist;
 
+        if (Physics.Raycast(ray, out hit, maxTetherStartDist, tetherLayerMask))
+        {
+            GameObject tether = hit.collider.transform.parent.gameObject;
+            tether.GetComponent<TetherPull>().Activated = true;
+            tether.GetComponent<TetherVisuals>().ActivatePull();
+        }
     }
-
     public void ActivateAllTether()
     {
+        foreach(GameObject tether in tetherPool.GetAllPlantedTether())
+        {
+            if(currentTether != null)
+            {
+                if (tether == currentTether.gameObject) continue;
 
+                tether.GetComponent<TetherPull>().Activated = true;
+                tether.GetComponent<TetherVisuals>().ActivatePull();
+            }
+        }
     }
 }
