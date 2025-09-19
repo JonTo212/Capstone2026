@@ -12,6 +12,7 @@ public class PlayerTether : MonoBehaviour
 
     [Header("Properties")]
     [SerializeField] private float maxTetherStartDist = 50f;
+    [SerializeField] private bool autoActivateTether = true;
 
     [Header("Current Tether Variables")]
     private TetherVisuals tetherVisuals;
@@ -65,6 +66,7 @@ public class PlayerTether : MonoBehaviour
         tetherPull.ResetTether();
         activeTethers.Enqueue(currentTether);
         tetherVisuals.SetStartPoint(tetherPoint);
+        tetherCollider.SetStartPoint(tetherPoint);
         tetherVisuals.PreviewPull();
         tetherPull.SetStartPoint(tetherTransform, tetherPoint);
     }
@@ -77,14 +79,17 @@ public class PlayerTether : MonoBehaviour
             Vector3 tetherPoint = ray.origin + ray.direction * maxTetherStartDist;
 
             tetherVisuals.SetStartPoint(tetherPull.StartAttachPoint);
+            tetherCollider.SetStartPoint(tetherPull.StartAttachPoint);
 
             if (Physics.Raycast(ray, out hit, maxTetherStartDist))
             {
                 tetherVisuals.SetEndPoint(hit.point);
+                tetherCollider.SetEndPoint(hit.point);
             }
             else
             {
                 tetherVisuals.SetEndPoint(tetherPoint); //if we don't hit anything, extend to max distance
+                tetherCollider.SetEndPoint(tetherPoint);
             }
         }
     }
@@ -101,9 +106,15 @@ public class PlayerTether : MonoBehaviour
                 if (hit.transform != tetherPull.StartTransform.transform)
                 {
                     tetherVisuals.SetEndPoint(hit.point);
-                    tetherVisuals.ActivatePull();
-
                     tetherPull.SetEndPoint(hit.transform, hit.point);
+                    tetherCollider.SetEndPoint(hit.point);
+                    tetherCollider.IsSet = true;
+
+                    if(autoActivateTether)
+                    {
+                        tetherVisuals.ActivatePull();
+                        tetherPull.Activated = true;
+                    }
                 }
                 else
                 {
