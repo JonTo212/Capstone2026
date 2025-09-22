@@ -17,6 +17,9 @@ public class TetherPull : MonoBehaviour
     private Vector3 startAttachLocal;
     private Vector3 endAttachLocal;
 
+    private bool wasStartGravityEnabled;
+    private bool wasEndGravityEnabled;
+
     [Header("Getters")]
     public Transform StartTransform => startTransform;
     public Transform EndTransform => endTransform;
@@ -35,11 +38,11 @@ public class TetherPull : MonoBehaviour
         {
             if (startRb != null)
             {
-                PullObject(startRb, EndAttachPoint); //using the getters here because they handle local to world conversion
+                PullObject(startRb, EndAttachPoint, wasStartGravityEnabled); //using the getters here because they handle local to world conversion
             }
             if (endRb != null)
             {
-                PullObject(endRb, StartAttachPoint);
+                PullObject(endRb, StartAttachPoint, wasEndGravityEnabled);
             }
         }
     }
@@ -53,6 +56,15 @@ public class TetherPull : MonoBehaviour
             //convert to local space if there's a rigidbody to get relative attachment point
             startAttachLocal = start.InverseTransformPoint(hitPoint);
             startRb = rb;
+
+            if(startRb.useGravity)
+            {
+                wasStartGravityEnabled = true;
+            }
+            else
+            {
+                wasStartGravityEnabled = false;
+            }
         }
         else
         {
@@ -69,6 +81,15 @@ public class TetherPull : MonoBehaviour
         {
             endAttachLocal = end.InverseTransformPoint(hitPoint);
             endRb = rb;
+
+            if(endRb.useGravity)
+            {
+                wasEndGravityEnabled = true;
+            }
+            else
+            {
+                wasEndGravityEnabled= false;
+            }
         }
         else
         {
@@ -76,10 +97,10 @@ public class TetherPull : MonoBehaviour
         }
     }
 
-    private void PullObject(Rigidbody rb, Vector3 target)
+    private void PullObject(Rigidbody rb, Vector3 target, bool wasGravityEnabled)
     {
         //target is in world space
-        if (Vector3.Distance(target, rb.position) > attachThreshold)
+        if (Vector3.Distance(target, rb.position) > attachThreshold || wasGravityEnabled == false)
         {
             rb.useGravity = false;
         }
@@ -93,6 +114,15 @@ public class TetherPull : MonoBehaviour
 
     public void ResetTether()
     {
+        if(startRb != null && wasStartGravityEnabled)
+        {
+            startRb.useGravity = true;
+        }
+        if(endRb != null &&  wasEndGravityEnabled)
+        {
+            endRb.useGravity = true;
+        }
+
         activated = false;
         startRb = null;
         endRb = null;

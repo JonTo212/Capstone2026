@@ -11,6 +11,12 @@ public class TetherVisuals : MonoBehaviour
     private Vector3 endPoint;
     private Vector3 lastStartPos;
     private Vector3 lastEndPos;
+    private bool isSet = false;
+    public bool IsSet
+    {
+        get { return isSet; }
+        set { isSet = value; }
+    }
 
     private void Awake()
     {
@@ -23,7 +29,7 @@ public class TetherVisuals : MonoBehaviour
 
     private void Update()
     {
-        if (tetherPull.Activated)
+        if (isSet)
         {
             startPoint = tetherPull.StartAttachPoint;
             endPoint = tetherPull.EndAttachPoint;

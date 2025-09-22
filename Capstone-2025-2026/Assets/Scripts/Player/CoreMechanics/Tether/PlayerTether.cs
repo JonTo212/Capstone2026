@@ -47,9 +47,15 @@ public class PlayerTether : MonoBehaviour
             if(Physics.Raycast(ray, out hit, maxTetherStartDist, ~tetherLayerMask))
             {
                 if (tetherPool.AvailableTetherCount <= 0)
+                {
                     currentTether = activeTethers.Dequeue();
+                    currentTether.GetComponent<TetherPull>().ResetTether();
+                }
                 else
+                {
                     currentTether = tetherPool.GetTether();
+                    currentTether.GetComponent<TetherPull>().ResetTether();
+                }
 
                 didHit = true;
 
@@ -114,6 +120,7 @@ public class PlayerTether : MonoBehaviour
                 if (hit.transform != tetherPull.StartTransform)
                 {
                     tetherVisuals.SetEndPoint(hit.point);
+                    tetherVisuals.IsSet = true;
                     tetherPull.SetEndPoint(hit.transform, hit.point);
                     tetherCollider.SetEndPoint(hit.point);
                     tetherCollider.IsSet = true;
