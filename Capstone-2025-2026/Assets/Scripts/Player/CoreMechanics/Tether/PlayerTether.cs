@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class PlayerTether : MonoBehaviour
@@ -19,9 +20,11 @@ public class PlayerTether : MonoBehaviour
     private TetherVisuals tetherVisuals;
     private TetherPull tetherPull;
     private TetherCollider tetherCollider;
-    private GameObject currentTether;
+    public GameObject currentTether;
 
     private Queue<GameObject> activeTethers = new Queue<GameObject>();
+
+    public bool didHit = false;
 
     private void Awake()
     {
@@ -31,13 +34,10 @@ public class PlayerTether : MonoBehaviour
 
     public void HandleStartTether(Tetherable heldObj = null)
     {
-        if (tetherPool.AvailableTetherCount <= 0)
-            currentTether = activeTethers.Dequeue();
-        else
-            currentTether = tetherPool.GetTether();
 
         Vector3 tetherPoint = Vector3.zero;
         Transform tetherTransform = null;
+        didHit = false;
 
         if (heldObj == null)
         {
@@ -46,8 +46,24 @@ public class PlayerTether : MonoBehaviour
 
             if(Physics.Raycast(ray, out hit, maxTetherStartDist, ~tetherLayerMask))
             {
+                if (tetherPool.AvailableTetherCount <= 0)
+                    currentTether = activeTethers.Dequeue();
+                else
+                    currentTether = tetherPool.GetTether();
+
+                didHit = true;
+
                 tetherPoint = hit.point;
                 tetherTransform = hit.transform;
+
+                tetherPull = currentTether.GetComponent<TetherPull>();
+                tetherVisuals = currentTether.GetComponent<TetherVisuals>();
+                tetherCollider = currentTether.GetComponent<TetherCollider>();
+                tetherPull.ResetTether();
+                tetherVisuals.SetStartPoint(tetherPoint);
+                tetherCollider.SetStartPoint(tetherPoint);
+                tetherVisuals.PreviewPull();
+                tetherPull.SetStartPoint(tetherTransform, tetherPoint);
             }
             else
             {
@@ -60,21 +76,11 @@ public class PlayerTether : MonoBehaviour
             tetherPoint = heldObj.transform.position;
             tetherTransform = heldObj.transform;
         }
-
-        tetherPull = currentTether.GetComponent<TetherPull>();
-        tetherVisuals = currentTether.GetComponent<TetherVisuals>();
-        tetherCollider = currentTether.GetComponent<TetherCollider>();
-        tetherPull.ResetTether();
-        activeTethers.Enqueue(currentTether);
-        tetherVisuals.SetStartPoint(tetherPoint);
-        tetherCollider.SetStartPoint(tetherPoint);
-        tetherVisuals.PreviewPull();
-        tetherPull.SetStartPoint(tetherTransform, tetherPoint);
     }
 
     public void HandleTetherActive()
     {
-        if (tetherVisuals != null)
+        if (tetherVisuals != null && didHit)
         {
             Ray ray = playerCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
             Vector3 tetherPoint = ray.origin + ray.direction * maxTetherStartDist;
@@ -97,21 +103,22 @@ public class PlayerTether : MonoBehaviour
 
     public void HandleEndTether()
     {
-        if (currentTether != null)
+
+        if (currentTether != null && didHit)
         {
             Ray ray = playerCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
             Vector3 tetherPoint = ray.origin + ray.direction * maxTetherStartDist;
 
             if (Physics.Raycast(ray, out hit, maxTetherStartDist, ~tetherLayerMask))
             {
-                if (hit.transform != tetherPull.StartTransform.transform)
+                if (hit.transform != tetherPull.StartTransform)
                 {
                     tetherVisuals.SetEndPoint(hit.point);
                     tetherPull.SetEndPoint(hit.transform, hit.point);
                     tetherCollider.SetEndPoint(hit.point);
                     tetherCollider.IsSet = true;
-
-                    if(autoActivateTether)
+                    activeTethers.Enqueue(currentTether);
+                    if (autoActivateTether)
                     {
                         tetherVisuals.ActivatePull();
                         tetherPull.Activated = true;
@@ -120,12 +127,12 @@ public class PlayerTether : MonoBehaviour
                 else
                 {
                     tetherVisuals.ResetPull();
+                    tetherPool.ReturnTether(currentTether);
                 }
             }
             else
             {
                 tetherPool.ReturnTether(currentTether);
-                activeTethers.Dequeue();
             }
 
             //remove references to current tether, but don't return it to the pool as it's now active
@@ -149,11 +156,14 @@ public class PlayerTether : MonoBehaviour
     }
     public void ActivateAllTether()
     {
-        foreach(GameObject tether in tetherPool.GetAllPlantedTether())
+        GameObject[] plantedTethers = tetherPool.GetAllPlantedTether();
+
+        foreach(GameObject tether in plantedTethers)
         {
-            if(currentTether != null)
+            if(tether != null)
             {
-                if (tether == currentTether.gameObject) continue;
+                if(currentTether != null)
+                    if(currentTether ==  tether) continue; 
 
                 tether.GetComponent<TetherPull>().Activated = true;
                 tether.GetComponent<TetherVisuals>().ActivatePull();
