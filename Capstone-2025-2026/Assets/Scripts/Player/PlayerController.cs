@@ -284,7 +284,7 @@ public class PlayerController : MonoBehaviour
         if (_isGrounded)
         {
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-            audioManager.PlaySFXVaried(audioManager.jump, 1, 0.2f, 0.5f);
+            audioManager.PlaySFXVaried(audioManager.Jump, 1, 0.2f, 0.5f);
         }
     }
 
