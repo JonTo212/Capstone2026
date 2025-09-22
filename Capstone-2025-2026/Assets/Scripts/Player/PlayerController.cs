@@ -86,6 +86,9 @@ public class PlayerController : MonoBehaviour
     private PlayerStanceState currentStanceState;
     private float smoothSpeed = 5f;
 
+    [Header("Audio")]
+    public AudioManager audioManager;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
@@ -101,6 +104,8 @@ public class PlayerController : MonoBehaviour
         defaultHeight = playerCol.height;
 
         playerActions = GetComponent<PlayerActions>();
+
+        audioManager = GameObject.FindGameObjectWithTag("AudioManager").GetComponent<AudioManager>();
     }
 
     private void Update()
@@ -276,8 +281,11 @@ public class PlayerController : MonoBehaviour
 
     private void Jump()
     {
-        if(_isGrounded)
+        if (_isGrounded)
+        {
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            audioManager.PlaySFXVaried(audioManager.jump, 1, 0.2f, 0.5f);
+        }
     }
 
     private void HandleGravity()
