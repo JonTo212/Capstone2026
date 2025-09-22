@@ -7,8 +7,8 @@ public class TetherPool : MonoBehaviour
     [Header("Properties")]
     [SerializeField] private int poolSize = 5;
     [SerializeField] private GameObject tetherPullPrefab;
-    public GameObject[] tetherPool; //keep this for resetting all tethers if needed
-    public Queue<GameObject> availableTethers;
+    private GameObject[] tetherPool; //keep this for resetting all tethers if needed
+    private Queue<GameObject> availableTethers;
 
     public int AvailableTetherCount => availableTethers.Count;
 

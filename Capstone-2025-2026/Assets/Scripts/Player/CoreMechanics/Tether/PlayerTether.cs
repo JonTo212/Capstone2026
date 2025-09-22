@@ -20,11 +20,11 @@ public class PlayerTether : MonoBehaviour
     private TetherVisuals tetherVisuals;
     private TetherPull tetherPull;
     private TetherCollider tetherCollider;
-    public GameObject currentTether;
+    private GameObject currentTether;
 
     private Queue<GameObject> activeTethers = new Queue<GameObject>();
 
-    public bool didHit = false;
+    private bool didHit = false;
 
     private void Awake()
     {
