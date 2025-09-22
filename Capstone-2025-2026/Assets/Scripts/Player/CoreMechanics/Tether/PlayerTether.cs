@@ -69,6 +69,7 @@ public class PlayerTether : MonoBehaviour
                 tetherVisuals.SetStartPoint(tetherPoint);
                 tetherCollider.SetStartPoint(tetherPoint);
                 tetherVisuals.PreviewPull();
+                tetherVisuals.IsSet = false;
                 tetherPull.SetStartPoint(tetherTransform, tetherPoint);
             }
             else
