@@ -181,7 +181,7 @@ CapsuleCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 60754027}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: a8fd70c224fd95b428f83cb7a57295d5, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -262,14 +262,14 @@ Transform:
   m_GameObject: {fileID: 60754027}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.005367984, y: 4.1779695, z: -0.197395}
-  m_LocalScale: {x: 0.17462538, y: 1.9800804, z: 0.23499401}
+  m_LocalPosition: {x: 0.05, y: 1.73, z: 16.376997}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 803436875}
   - {fileID: 1705976110}
   - {fileID: 1251832106}
-  m_Father: {fileID: 1178819096}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &60754035
 MonoBehaviour:
@@ -308,7 +308,7 @@ MonoBehaviour:
   coyoteTime: 0.1
   jumpBufferDuration: 0.2
   yawSensitivity: 10
-  pitchSensitivity: 5
+  pitchSensitivity: 10
 --- !u!114 &60754036
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -660,6 +660,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae86f25964bff124a85362acb46a52b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Tetherable
+  forceBeingReceived: {x: 0, y: 0, z: 0}
 --- !u!1 &328837816
 GameObject:
   m_ObjectHideFlags: 0
@@ -812,6 +813,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae86f25964bff124a85362acb46a52b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Tetherable
+  forceBeingReceived: {x: 0, y: 0, z: 0}
 --- !u!1 &506492470
 GameObject:
   m_ObjectHideFlags: 0
@@ -964,6 +966,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae86f25964bff124a85362acb46a52b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Tetherable
+  forceBeingReceived: {x: 0, y: 0, z: 0}
 --- !u!1 &628743522
 GameObject:
   m_ObjectHideFlags: 0
@@ -1116,6 +1119,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae86f25964bff124a85362acb46a52b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Tetherable
+  forceBeingReceived: {x: 0, y: 0, z: 0}
 --- !u!1 &651422502
 GameObject:
   m_ObjectHideFlags: 0
@@ -1391,7 +1395,7 @@ GameObject:
   m_Component:
   - component: {fileID: 904833935}
   - component: {fileID: 904833936}
-  m_Layer: 3
+  m_Layer: 6
   m_Name: Collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1420,7 +1424,7 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 904833934}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 6f595553e0876ad489807284a311e076, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -1428,7 +1432,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -1586,6 +1590,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae86f25964bff124a85362acb46a52b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Tetherable
+  forceBeingReceived: {x: 0, y: 0, z: 0}
 --- !u!1 &1021286272
 GameObject:
   m_ObjectHideFlags: 0
@@ -1969,7 +1974,8 @@ GameObject:
   - component: {fileID: 1178819093}
   - component: {fileID: 1178819092}
   - component: {fileID: 1178819097}
-  m_Layer: 3
+  - component: {fileID: 1178819098}
+  m_Layer: 6
   m_Name: MovablePlatform
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2000,9 +2006,9 @@ Rigidbody:
   m_ImplicitTensor: 1
   m_UseGravity: 0
   m_IsKinematic: 0
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_Constraints: 112
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
 --- !u!65 &1178819093
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2010,7 +2016,7 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1178819091}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 6f595553e0876ad489807284a311e076, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -2018,12 +2024,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1.273617, z: 1}
-  m_Center: {x: 0, y: 0.13680844, z: 0}
+  m_Size: {x: 1, y: 0.8586371, z: 1}
+  m_Center: {x: 0, y: -0.07068151, z: 0}
 --- !u!23 &1178819094
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -2049,7 +2055,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 22b8ac7f734768f428ffb2679c774b47, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2094,7 +2100,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 904833935}
-  - {fileID: 60754033}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1178819097
@@ -2109,6 +2114,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae86f25964bff124a85362acb46a52b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Tetherable
+  forceBeingReceived: {x: 0, y: 0, z: 0}
+--- !u!114 &1178819098
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1178819091}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3e84bd18cbe15246aed164bd89f60a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MovablePlatform
+  player: {fileID: 0}
 --- !u!1 &1251832105
 GameObject:
   m_ObjectHideFlags: 0
@@ -2292,6 +2311,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae86f25964bff124a85362acb46a52b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Tetherable
+  forceBeingReceived: {x: 0, y: 0, z: 0}
 --- !u!1 &1499281292
 GameObject:
   m_ObjectHideFlags: 0
@@ -2399,7 +2419,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: -1, z: 0}
-  m_LocalScale: {x: 5, y: 5, z: 5}
+  m_LocalScale: {x: 18.7445, y: 18.7445, z: 18.7445}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
@@ -2556,6 +2576,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae86f25964bff124a85362acb46a52b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Tetherable
+  forceBeingReceived: {x: 0, y: 0, z: 0}
 --- !u!1 &1617106800
 GameObject:
   m_ObjectHideFlags: 0
@@ -2708,6 +2729,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae86f25964bff124a85362acb46a52b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Tetherable
+  forceBeingReceived: {x: 0, y: 0, z: 0}
 --- !u!1 &1705976109
 GameObject:
   m_ObjectHideFlags: 0
@@ -2962,6 +2984,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae86f25964bff124a85362acb46a52b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Tetherable
+  forceBeingReceived: {x: 0, y: 0, z: 0}
 --- !u!1 &1795782379
 GameObject:
   m_ObjectHideFlags: 0
@@ -3145,6 +3168,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae86f25964bff124a85362acb46a52b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Tetherable
+  forceBeingReceived: {x: 0, y: 0, z: 0}
 --- !u!1 &1883793875
 GameObject:
   m_ObjectHideFlags: 0
@@ -3297,6 +3321,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae86f25964bff124a85362acb46a52b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Tetherable
+  forceBeingReceived: {x: 0, y: 0, z: 0}
 --- !u!1 &2137204576
 GameObject:
   m_ObjectHideFlags: 0
@@ -3347,3 +3372,4 @@ SceneRoots:
   - {fileID: 311963888}
   - {fileID: 328837820}
   - {fileID: 1178819096}
+  - {fileID: 60754033}

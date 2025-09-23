@@ -21,6 +21,7 @@ public class PlayerController : MonoBehaviour
 {
     [Header("Movement variables")]
     private Vector3 wishDir;
+    private Vector3 floorVelocity;
     private Rigidbody rb;
     private float acceleration;
     private float gravity;
@@ -201,7 +202,22 @@ public class PlayerController : MonoBehaviour
     private bool IsGrounded()
     {
         feetPos.localPosition = new Vector3(0, -playerCol.height / 2f, 0);
-        return Physics.CheckSphere(feetPos.position, feetRadius, groundLayer);
+        Collider[] collider;
+        collider = Physics.OverlapSphere(feetPos.position, feetRadius, groundLayer);
+        
+        if(collider.Length > 0)
+        {
+            if (collider[0].gameObject.GetComponent<Rigidbody>() != null)
+            {
+                floorVelocity = collider[0].gameObject.GetComponent<Rigidbody>().linearVelocity;
+            }
+        }
+        else
+        {
+            floorVelocity = Vector3.zero;
+        }
+
+            return collider.Length > 0;
     }
 
     private void StartJumpBuffer()
@@ -248,6 +264,8 @@ public class PlayerController : MonoBehaviour
     private void HandleMovement(float accelFactor, float maxSpeedMultiplier, float decelFactor)
     {
         Vector3 horizontalVel = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
+        Vector3 playerOnlyVel = new Vector3(rb.linearVelocity.x - floorVelocity.x, 0, rb.linearVelocity.z - floorVelocity.z);
+        Debug.Log(playerOnlyVel);
         wishDir = new Vector3(playerActions.MoveInput.x, 0, playerActions.MoveInput.y).normalized;
 
         if (wishDir != Vector3.zero)
@@ -256,7 +274,7 @@ public class PlayerController : MonoBehaviour
             wishDir = transform.TransformDirection(wishDir);
 
             //calculate difference in desired velocity and current (self-clamped)
-            Vector3 desiredVel = wishDir * maxSpeed * maxSpeedMultiplier;
+            Vector3 desiredVel = wishDir * (maxSpeed + floorVelocity.magnitude) * maxSpeedMultiplier;
             Vector3 velDelta = desiredVel - horizontalVel;
             Vector3 accelStep = Vector3.ClampMagnitude(velDelta, acceleration * accelFactor * Time.fixedDeltaTime);
 
@@ -264,13 +282,21 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            Vector3 decelStep = -horizontalVel.normalized * friction * decelFactor * Time.fixedDeltaTime;
+            //Vector3 decelStep = -horizontalVel.normalized * friction * decelFactor * Time.fixedDeltaTime;
+
+            ////prevent overshoot when velocity near 0
+            //if (decelStep.sqrMagnitude > horizontalVel.sqrMagnitude)
+            //    decelStep = -horizontalVel;
+
+            //rb.AddForce(decelStep, ForceMode.VelocityChange);
+
+            Vector3 decelStep = -playerOnlyVel.normalized * friction * decelFactor * Time.fixedDeltaTime;
 
             //prevent overshoot when velocity near 0
-            if (decelStep.sqrMagnitude > horizontalVel.sqrMagnitude)
-                decelStep = -horizontalVel;
+            if (decelStep.sqrMagnitude > playerOnlyVel.sqrMagnitude)
+                decelStep = -playerOnlyVel;
 
-            rb.AddForce(decelStep, ForceMode.VelocityChange);
+            //rb.AddForce(decelStep, ForceMode.VelocityChange);
         }
     }
 

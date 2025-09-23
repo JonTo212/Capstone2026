@@ -1,6 +1,7 @@
 using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 public class TetherPull : MonoBehaviour
 {
@@ -99,10 +100,14 @@ public class TetherPull : MonoBehaviour
 
     private void PullObject(Rigidbody rb, Vector3 target, bool wasGravityEnabled)
     {
+        float force = rb.mass * pullForce;
+
         //target is in world space
         if (Vector3.Distance(target, rb.position) > attachThreshold || wasGravityEnabled == false)
         {
             rb.useGravity = false;
+
+            //rb.MovePosition(rb.position + ((target - rb.position).normalized * force * Time.fixedDeltaTime));
         }
         else
         {
@@ -110,6 +115,11 @@ public class TetherPull : MonoBehaviour
         }
 
         rb.AddForce((target - rb.position).normalized * pullForce, ForceMode.Force);
+
+        if(rb.gameObject.GetComponent<Tetherable>() != null )
+        {
+            rb.gameObject.GetComponent<Tetherable>().forceBeingReceived = (target - rb.position).normalized * pullForce;
+        }
     }
 
     public void ResetTether()

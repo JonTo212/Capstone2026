@@ -6,7 +6,9 @@ public class Tetherable : MonoBehaviour
     private Rigidbody rb;
     private float defaultDrag;
     private float defaultAngularDrag;
+    public Vector3 forceBeingReceived;
     public Rigidbody Rb => rb;
+    public Vector3 ForceBeingReceived => forceBeingReceived;
 
     private void Awake()
     {
@@ -39,5 +41,6 @@ public class Tetherable : MonoBehaviour
     public void ApplyForceInDirection(Vector3 dir, float strength, ForceMode forceType)
     {
         rb.AddForce(dir * strength, forceType);
+        forceBeingReceived = dir * strength;
     }
 }
