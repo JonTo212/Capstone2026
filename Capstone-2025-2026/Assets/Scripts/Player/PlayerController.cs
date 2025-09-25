@@ -204,12 +204,16 @@ public class PlayerController : MonoBehaviour
         feetPos.localPosition = new Vector3(0, -playerCol.height / 2f, 0);
         Collider[] collider;
         collider = Physics.OverlapSphere(feetPos.position, feetRadius, groundLayer);
-        
         if(collider.Length > 0)
         {
-            if (collider[0].gameObject.GetComponent<Rigidbody>() != null)
+            foreach(Collider c in collider)
             {
-                floorVelocity = collider[0].gameObject.GetComponent<Rigidbody>().linearVelocity;
+                if (c.gameObject.GetComponent<Rigidbody>() != null)
+                {
+                    Debug.Log(c.gameObject.name);
+                    floorVelocity = c.gameObject.GetComponent<Rigidbody>().linearVelocity;
+                    return true;
+                }
             }
         }
         else
@@ -265,6 +269,9 @@ public class PlayerController : MonoBehaviour
     {
         Vector3 horizontalVel = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
         Vector3 playerOnlyVel = new Vector3(rb.linearVelocity.x - floorVelocity.x, 0, rb.linearVelocity.z - floorVelocity.z);
+        //Debug.Log(floorVelocity);
+        //Debug.Log("player: " + transform.TransformDirection(rb.linearVelocity));
+
         Debug.Log(playerOnlyVel);
         wishDir = new Vector3(playerActions.MoveInput.x, 0, playerActions.MoveInput.y).normalized;
 
@@ -296,7 +303,7 @@ public class PlayerController : MonoBehaviour
             if (decelStep.sqrMagnitude > playerOnlyVel.sqrMagnitude)
                 decelStep = -playerOnlyVel;
 
-            //rb.AddForce(decelStep, ForceMode.VelocityChange);
+            rb.AddForce(decelStep, ForceMode.VelocityChange);
         }
     }
 

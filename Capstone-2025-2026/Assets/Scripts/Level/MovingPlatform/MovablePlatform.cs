@@ -39,6 +39,7 @@ public class MovablePlatform : MonoBehaviour
         if(other.gameObject.tag == "Player")
         {
             player = other.transform;
+            player.GetComponent<Rigidbody>().linearVelocity = GetComponent<Rigidbody>().linearVelocity;
         }
     }
 
