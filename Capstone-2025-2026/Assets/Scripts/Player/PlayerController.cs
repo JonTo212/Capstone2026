@@ -210,7 +210,6 @@ public class PlayerController : MonoBehaviour
             {
                 if (c.gameObject.GetComponent<Rigidbody>() != null)
                 {
-                    Debug.Log(c.gameObject.name);
                     floorVelocity = c.gameObject.GetComponent<Rigidbody>().linearVelocity;
                     return true;
                 }
@@ -272,10 +271,9 @@ public class PlayerController : MonoBehaviour
         //Debug.Log(floorVelocity);
         //Debug.Log("player: " + transform.TransformDirection(rb.linearVelocity));
 
-        Debug.Log(playerOnlyVel);
         wishDir = new Vector3(playerActions.MoveInput.x, 0, playerActions.MoveInput.y).normalized;
 
-        if (wishDir != Vector3.zero)
+        if (wishDir != Vector3.zero && currentMovementState != PlayerMovementState.InAir)
         {
             //change input direction to be local
             wishDir = transform.TransformDirection(wishDir);
@@ -286,6 +284,10 @@ public class PlayerController : MonoBehaviour
             Vector3 accelStep = Vector3.ClampMagnitude(velDelta, acceleration * accelFactor * Time.fixedDeltaTime);
 
             rb.AddForce(accelStep, ForceMode.VelocityChange);
+        }
+        else if(currentMovementState == PlayerMovementState.InAir)
+        {
+            rb.AddForce(wishDir * acceleration * accelFactor * Time.deltaTime, ForceMode.VelocityChange);
         }
         else
         {
