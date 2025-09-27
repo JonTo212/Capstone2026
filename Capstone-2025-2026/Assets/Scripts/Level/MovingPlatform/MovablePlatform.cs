@@ -41,16 +41,16 @@ public class MovablePlatform : MonoBehaviour
 
             //Debug.Log("Player force");
 
-            CheckForlaunchMinimumSpeed();
+            //CheckForlaunchMinimumSpeed();
 
-            if(DidAbruptlyStop())
-            {
-                Debug.Log("Check");
+            //if(DidAbruptlyStop())
+            //{
+            //    Debug.Log("Check");
 
-                LaunchPlayer();
+            //    LaunchPlayer();
 
-                player = null;
-            }
+            //    player = null;
+            //}
         }
 
 
@@ -66,7 +66,7 @@ public class MovablePlatform : MonoBehaviour
         if(other.gameObject.tag == "Player" && playerHasBeenLaunced == false)
         {
             player = other.transform;
-            player.GetComponent<Rigidbody>().linearVelocity = GetComponent<Rigidbody>().linearVelocity;
+            //player.GetComponent<Rigidbody>().linearVelocity = GetComponent<Rigidbody>().linearVelocity;
         }
     }
 

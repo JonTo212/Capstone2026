@@ -8,9 +8,12 @@ public class TetherPull : MonoBehaviour
     [Header("Properties")]
     [SerializeField] private float attachThreshold = 0.5f;
     [SerializeField] private float pullForce = 50f;
+    [SerializeField] private float AssistMultiplier = 1f;
     private bool activated;
 
     [Header("Attachment Components")]
+    private SpringJoint startSpringJoint;
+    private SpringJoint endSpringJoint;
     private Transform startTransform;
     private Transform endTransform;
     private Rigidbody startRb;
@@ -40,10 +43,12 @@ public class TetherPull : MonoBehaviour
             if (startRb != null)
             {
                 PullObject(startRb, EndAttachPoint, wasStartGravityEnabled); //using the getters here because they handle local to world conversion
+                ApplyAssist(startRb, EndAttachPoint);
             }
             if (endRb != null)
             {
                 PullObject(endRb, StartAttachPoint, wasEndGravityEnabled);
+                ApplyAssist(endRb, StartAttachPoint);
             }
         }
     }
@@ -138,5 +143,13 @@ public class TetherPull : MonoBehaviour
         endRb = null;
         startAttachLocal = Vector3.zero;
         endAttachLocal = Vector3.zero;
+    }
+
+    private void ApplyAssist(Rigidbody rb, Vector3 target)
+    {
+        Vector3 assistDirection = ((target - rb.position).normalized - rb.linearVelocity.normalized).normalized;
+
+        rb.AddForce(assistDirection * AssistMultiplier * rb.mass, ForceMode.Force);
+        //Debug.DrawLine(rb.position, rb.position + assistDirection * 2, Color.red, Time.fixedDeltaTime);
     }
 }

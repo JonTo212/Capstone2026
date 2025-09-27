@@ -273,7 +273,7 @@ public class PlayerController : MonoBehaviour
 
         wishDir = new Vector3(playerActions.MoveInput.x, 0, playerActions.MoveInput.y).normalized;
 
-        if (wishDir != Vector3.zero && currentMovementState != PlayerMovementState.InAir)
+        if (wishDir != Vector3.zero)
         {
             //change input direction to be local
             wishDir = transform.TransformDirection(wishDir);
@@ -285,10 +285,10 @@ public class PlayerController : MonoBehaviour
 
             rb.AddForce(accelStep, ForceMode.VelocityChange);
         }
-        else if(currentMovementState == PlayerMovementState.InAir)
-        {
-            rb.AddForce(wishDir * acceleration * accelFactor * Time.deltaTime, ForceMode.VelocityChange);
-        }
+        //else if(currentMovementState == PlayerMovementState.InAir)
+        //{
+        //    rb.AddForce(wishDir * acceleration * accelFactor * Time.deltaTime, ForceMode.VelocityChange);
+        //}
         else
         {
             //Vector3 decelStep = -horizontalVel.normalized * friction * decelFactor * Time.fixedDeltaTime;
