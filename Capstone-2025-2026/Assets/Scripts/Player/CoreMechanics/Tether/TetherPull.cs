@@ -9,6 +9,7 @@ public class TetherPull : MonoBehaviour
     [SerializeField] private float attachThreshold = 0.5f;
     [SerializeField] private float pullForce = 50f;
     [SerializeField] private float AssistMultiplier = 1f;
+    [SerializeField] private float smoothStart = 2f;
     private bool activated;
 
     [Header("Attachment Components")]
@@ -16,8 +17,8 @@ public class TetherPull : MonoBehaviour
     private SpringJoint endSpringJoint;
     private Transform startTransform;
     private Transform endTransform;
-    private Rigidbody startRb;
-    private Rigidbody endRb;
+    public Rigidbody startRb;
+    public Rigidbody endRb;
     private Vector3 startAttachLocal;
     private Vector3 endAttachLocal;
 
@@ -62,7 +63,8 @@ public class TetherPull : MonoBehaviour
             //convert to local space if there's a rigidbody to get relative attachment point
             startAttachLocal = start.InverseTransformPoint(hitPoint);
             startRb = rb;
-
+            Debug.Log("test");
+            //startRb.isKinematic = false;
             if(startRb.useGravity)
             {
                 wasStartGravityEnabled = true;
@@ -87,7 +89,8 @@ public class TetherPull : MonoBehaviour
         {
             endAttachLocal = end.InverseTransformPoint(hitPoint);
             endRb = rb;
-
+            Debug.Log("test");
+            //endRb.isKinematic = false;
             if(endRb.useGravity)
             {
                 wasEndGravityEnabled = true;
@@ -105,6 +108,8 @@ public class TetherPull : MonoBehaviour
 
     private void PullObject(Rigidbody rb, Vector3 target, bool wasGravityEnabled)
     {
+        float alpha = 1f;
+
         float force = rb.mass * pullForce;
 
         //target is in world space
@@ -129,13 +134,23 @@ public class TetherPull : MonoBehaviour
 
     public void ResetTether()
     {
-        if(startRb != null && wasStartGravityEnabled)
+        if(startRb != null)
         {
-            startRb.useGravity = true;
+            startRb.isKinematic = false;
+
+            if(wasStartGravityEnabled)
+            {
+                startRb.useGravity = true;
+            }
         }
-        if(endRb != null &&  wasEndGravityEnabled)
+        if(endRb != null)
         {
-            endRb.useGravity = true;
+            endRb.isKinematic = false;
+            
+            if(wasEndGravityEnabled)
+            {
+                endRb.useGravity = true;
+            }
         }
 
         activated = false;

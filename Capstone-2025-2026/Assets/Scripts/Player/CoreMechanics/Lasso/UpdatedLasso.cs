@@ -29,6 +29,14 @@ public class UpdatedLasso : MonoBehaviour
     private Vector3 projectilePosition;
     private Vector3 projectileVelocity;
     private Coroutine projectileCoroutine;
+    private Rigidbody playerRb;
+
+    [Header("Spring Joint Settings")]
+    [SerializeField] private float springRate = 4.5f;
+    [SerializeField] private float massScale = 4.5f;
+    private SpringJoint grappleJoint;
+    private Transform grappleAnchor;
+    private Vector3 anchorPoint;
 
     [Header("Getters")]
     public bool HasSnaredObject => snaredObj != null;
@@ -38,8 +46,14 @@ public class UpdatedLasso : MonoBehaviour
     public Coroutine YankCoroutine => yankCoroutine;
     public Coroutine ProjectileCoroutine => projectileCoroutine;
     public Vector3 ProjectilePosition => projectilePosition;
+    public SpringJoint GrappleJoint => grappleJoint;
 
     #region Helper Functions
+
+    private void Start()
+    {
+        playerRb = GetComponent<Rigidbody>();
+    }
 
     public Vector3 GetCenterOfScreen()
     {
@@ -75,9 +89,17 @@ public class UpdatedLasso : MonoBehaviour
                 {
                     anchorDist = Vector3.Distance(hit.point, holdPos.position);
 
-                    tetherable.OnPickUp();
-                    tetherable.SetLinearDamping(25f);
+                    if(!tetherable.grappleAble)
+                    {
+                        tetherable.OnPickUp();
+                        tetherable.SetLinearDamping(25f);
+                    }
                     snaredObj = tetherable;
+
+                    if(tetherable.grappleAble)
+                    {
+                        SetUpSpringJoint(gameObject, holdPos.position, hit.point);
+                    }
                 }
 
                 projectileCoroutine = null;
@@ -172,4 +194,32 @@ public class UpdatedLasso : MonoBehaviour
         }
     }
     #endregion
+
+    private void SetUpSpringJoint(GameObject jointObj, Vector3 startPos, Vector3 anchorPos)
+    {
+        anchorPoint = anchorPos;
+
+        SpringJoint joint = jointObj.AddComponent<SpringJoint>();
+        joint.autoConfigureConnectedAnchor = false;
+        joint.connectedAnchor = anchorPoint;
+
+        float currentDist = Vector3.Distance(startPos, anchorPos);
+        joint.maxDistance = currentDist * 0.8f;
+        joint.minDistance = currentDist * 0.25f;
+
+        joint.spring = springRate;
+        float damping = 2f * Mathf.Sqrt(joint.spring * playerRb.mass);
+        joint.damper = damping;
+        joint.massScale = massScale;
+
+        grappleJoint = joint;
+    }
+
+    public void ReleaseGrapple()
+    {
+        Destroy(grappleJoint);
+        grappleJoint = null;
+        grappleAnchor = null;
+    }
+
 }

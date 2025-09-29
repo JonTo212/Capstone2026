@@ -3,6 +3,8 @@ using UnityEngine.XR;
 
 public class MovablePlatform : MonoBehaviour
 {
+    [SerializeField] bool canLaunchPlayer = false;
+
     public Transform player;
     private Tetherable tetherable;
     private Rigidbody rb;
@@ -10,6 +12,7 @@ public class MovablePlatform : MonoBehaviour
     private Vector3 currentPosition;
     private Vector3 previousSpeed;
     private Vector3 currentSpeed;
+    public GameObject previousCollision;
 
 
     [SerializeField] bool hasReachedSpeedToLaunch = false;
@@ -37,13 +40,13 @@ public class MovablePlatform : MonoBehaviour
     {
         if(player != null && playerHasBeenLaunced == false)
         {
-            player.GetComponent<Rigidbody>().AddForce(tetherable.ForceBeingReceived, ForceMode.Force);
+            player.GetComponent<Rigidbody>().AddForce(rb.linearVelocity, ForceMode.Force);
 
             Debug.Log("Player force");
 
             CheckForlaunchMinimumSpeed();
 
-            if (DidAbruptlyStop())
+            if (DidAbruptlyStop() && canLaunchPlayer)
             {
                 Debug.Log("Check");
 
@@ -77,7 +80,13 @@ public class MovablePlatform : MonoBehaviour
     {
         if(collision.gameObject.tag != "Player")
         {
-            rb.isKinematic = true;
+            Debug.Log("kinematic");
+
+            if(previousCollision != collision.gameObject)
+            {
+                previousCollision = collision.gameObject;
+                rb.isKinematic = true;
+            }
         }
     }
 

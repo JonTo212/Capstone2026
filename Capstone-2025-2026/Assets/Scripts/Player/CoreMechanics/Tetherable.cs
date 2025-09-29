@@ -1,5 +1,5 @@
 using UnityEngine;
-
+using System.Collections.Generic;
 [RequireComponent(typeof(Rigidbody))]
 public class Tetherable : MonoBehaviour
 {
@@ -7,8 +7,11 @@ public class Tetherable : MonoBehaviour
     private float defaultDrag;
     private float defaultAngularDrag;
     public Vector3 forceBeingReceived;
+    public List<Vector3> forcesBeingReceived;
     public Rigidbody Rb => rb;
     public Vector3 ForceBeingReceived => forceBeingReceived;
+
+    public bool grappleAble = false;
 
     private void Awake()
     {

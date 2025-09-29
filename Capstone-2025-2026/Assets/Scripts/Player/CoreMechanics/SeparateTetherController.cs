@@ -20,38 +20,41 @@ public class SeparateTetherController : MonoBehaviour
 
     private void Update()
     {
-        switch (currentTetherState)
+        if (playerLasso.GrappleJoint != null)
         {
-            case TetherState.Empty:
-                HandleEmptyControls();
-                break;
-
-            case TetherState.Lassoing:
-                HandleLassoControlsCombined();
-                break;
-
-            case TetherState.Tethering:
-                HandleTetherControls();
-                break;
-
-            case TetherState.Held:
-                HandleHeldControls();
-                break;
-        }
-
-        if(playerActions.InteractDown)
-        {
-            tetherActivateCheckCoroutine = StartCoroutine(CheckIfInteractTap());
-        }
-
-        if(playerActions.InteractUp)
-        {
-            if(tetherActivateCheckCoroutine != null)
+            switch (currentTetherState)
             {
-                StopCoroutine(tetherActivateCheckCoroutine);
+                case TetherState.Empty:
+                    HandleEmptyControls();
+                    break;
+
+                case TetherState.Lassoing:
+                    HandleLassoControlsCombined();
+                    break;
+
+                case TetherState.Tethering:
+                    HandleTetherControls();
+                    break;
+
+                case TetherState.Held:
+                    HandleHeldControls();
+                    break;
             }
 
-            InteractTether();
+            if (playerActions.InteractDown)
+            {
+                tetherActivateCheckCoroutine = StartCoroutine(CheckIfInteractTap());
+            }
+
+            if (playerActions.InteractUp)
+            {
+                if (tetherActivateCheckCoroutine != null)
+                {
+                    StopCoroutine(tetherActivateCheckCoroutine);
+                }
+
+                InteractTether();
+            }
         }
     }
 
