@@ -285,10 +285,10 @@ public class PlayerController : MonoBehaviour
 
             rb.AddForce(accelStep, ForceMode.VelocityChange);
         }
-        //else if(currentMovementState == PlayerMovementState.InAir)
-        //{
-        //    rb.AddForce(wishDir * acceleration * accelFactor * Time.deltaTime, ForceMode.VelocityChange);
-        //}
+        else if (currentMovementState == PlayerMovementState.InAir)
+        {
+            rb.AddForce(wishDir * acceleration * accelFactor * Time.deltaTime, ForceMode.VelocityChange);
+        }
         else
         {
             //Vector3 decelStep = -horizontalVel.normalized * friction * decelFactor * Time.fixedDeltaTime;

@@ -39,26 +39,21 @@ public class MovablePlatform : MonoBehaviour
         {
             player.GetComponent<Rigidbody>().AddForce(tetherable.ForceBeingReceived, ForceMode.Force);
 
-            //Debug.Log("Player force");
+            Debug.Log("Player force");
 
-            //CheckForlaunchMinimumSpeed();
+            CheckForlaunchMinimumSpeed();
 
-            //if(DidAbruptlyStop())
-            //{
-            //    Debug.Log("Check");
+            if (DidAbruptlyStop())
+            {
+                Debug.Log("Check");
 
-            //    LaunchPlayer();
+                LaunchPlayer();
 
-            //    player = null;
-            //}
+                player = null;
+            }
         }
 
-
-        //Vector3 delta = transform.position - lastPosition;
-
-        //player.gameObject.GetComponent<Rigidbody>().MovePosition(delta);
-
-        //lastPosition = transform.position;
+        lastPosition = transform.position;
     }
 
     private void OnTriggerEnter(Collider other)
@@ -66,7 +61,7 @@ public class MovablePlatform : MonoBehaviour
         if(other.gameObject.tag == "Player" && playerHasBeenLaunced == false)
         {
             player = other.transform;
-            //player.GetComponent<Rigidbody>().linearVelocity = GetComponent<Rigidbody>().linearVelocity;
+            player.GetComponent<Rigidbody>().linearVelocity = GetComponent<Rigidbody>().linearVelocity;
         }
     }
 
@@ -82,7 +77,7 @@ public class MovablePlatform : MonoBehaviour
     {
         if(collision.gameObject.tag != "Player")
         {
-            //rb.isKinematic = true;
+            rb.isKinematic = true;
         }
     }
 
@@ -93,10 +88,6 @@ public class MovablePlatform : MonoBehaviour
             hasReachedSpeedToLaunch = true;
 
             player.GetComponent<Rigidbody>().linearVelocity = rb.linearVelocity;
-        }
-        else
-        {
-            hasReachedSpeedToLaunch = false;
         }
     }
 
