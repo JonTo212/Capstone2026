@@ -89,11 +89,8 @@ public class UpdatedLasso : MonoBehaviour
                 {
                     anchorDist = Vector3.Distance(hit.point, holdPos.position);
 
-                    if(!tetherable.grappleAble)
-                    {
-                        tetherable.OnPickUp();
-                        tetherable.SetLinearDamping(25f);
-                    }
+                    tetherable.OnPickUp();
+                    tetherable.SetLinearDamping(25f);
                     snaredObj = tetherable;
 
                     if(tetherable.grappleAble)

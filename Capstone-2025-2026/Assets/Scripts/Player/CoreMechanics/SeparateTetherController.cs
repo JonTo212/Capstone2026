@@ -10,17 +10,19 @@ public class SeparateTetherController : MonoBehaviour
     private TetherState currentTetherState;
     private Coroutine yankCheckCoroutine;
     private Coroutine tetherActivateCheckCoroutine;
+    private PlayerController playerController;
 
     private void Awake()
     {
         playerTether = GetComponent<PlayerTether>();
         playerLasso = GetComponent<UpdatedLasso>();
         playerActions = GetComponent<PlayerActions>();
+        playerController = GetComponent<PlayerController>();
     }
 
     private void Update()
     {
-        if (playerLasso.GrappleJoint != null)
+        if (playerLasso.GrappleJoint == null)
         {
             switch (currentTetherState)
             {
@@ -54,6 +56,15 @@ public class SeparateTetherController : MonoBehaviour
                 }
 
                 InteractTether();
+            }
+        }
+        else
+        {
+            if (playerActions.JumpDown)
+            {
+                playerLasso.ReleaseGrapple();
+                playerLasso.ReleaseObject();
+                SwitchTetherState(TetherState.Empty);
             }
         }
     }

@@ -87,6 +87,8 @@ public class PlayerController : MonoBehaviour
     private PlayerStanceState currentStanceState;
     private float smoothSpeed = 5f;
 
+    private float setMaxAirSpeedMul;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
@@ -102,6 +104,8 @@ public class PlayerController : MonoBehaviour
         defaultHeight = playerCol.height;
 
         playerActions = GetComponent<PlayerActions>();
+
+        setMaxAirSpeedMul = airMaxSpeedMultiplier;
     }
 
     private void Update()
@@ -146,7 +150,10 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
+            airMaxSpeedMultiplier = new Vector2(rb.linearVelocity.x, rb.linearVelocity.z).magnitude / maxSpeed;
             SwitchMovementState(PlayerMovementState.InAir);
+            if(airMaxSpeedMultiplier < setMaxAirSpeedMul)
+                airMaxSpeedMultiplier = setMaxAirSpeedMul;
         }
     }
 
@@ -177,7 +184,7 @@ public class PlayerController : MonoBehaviour
         }
 
         currentAccelFactor = Mathf.Lerp(currentAccelFactor, targetAccelFactor, Time.fixedDeltaTime * smoothSpeed);
-        currentDecelFactor = Mathf.Lerp(currentDecelFactor, targetDecelFactor, Time.fixedDeltaTime * smoothSpeed);
+        currentDecelFactor = targetDecelFactor;
         currentMaxSpeedMultiplier = Mathf.Lerp(currentMaxSpeedMultiplier, targetMaxSpeedMultiplier, Time.fixedDeltaTime * smoothSpeed);
 
         HandleMovement(currentAccelFactor, currentMaxSpeedMultiplier, currentDecelFactor);
@@ -284,10 +291,6 @@ public class PlayerController : MonoBehaviour
             Vector3 accelStep = Vector3.ClampMagnitude(velDelta, acceleration * accelFactor * Time.fixedDeltaTime);
 
             rb.AddForce(accelStep, ForceMode.VelocityChange);
-        }
-        else if (currentMovementState == PlayerMovementState.InAir)
-        {
-            rb.AddForce(wishDir * acceleration * accelFactor * Time.deltaTime, ForceMode.VelocityChange);
         }
         else
         {

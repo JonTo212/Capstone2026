@@ -32,7 +32,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.03074, y: 5.82, z: 17.36}
-  m_LocalScale: {x: 12.604692, y: 3.9556642, z: 11.051606}
+  m_LocalScale: {x: 5.697195, y: 1.7879207, z: 4.9952154}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8853655637900454932}
@@ -71,7 +71,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 6b38742730e330c488cc8d7964788813, type: 2}
+  - {fileID: 2100000, guid: 9bcd541d7c7f9fc4fae3524506fa7dd5, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -123,7 +123,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 474158292810090253}
   serializedVersion: 5
-  m_Mass: 1
+  m_Mass: 5
   m_LinearDamping: 0
   m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -140,7 +140,7 @@ Rigidbody:
   m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 1
-  m_Constraints: 112
+  m_Constraints: 116
   m_CollisionDetection: 1
 --- !u!114 &4945880813315160386
 MonoBehaviour:
@@ -155,6 +155,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Tetherable
   forceBeingReceived: {x: 0, y: 0, z: 0}
+  forcesBeingReceived: []
+  grappleAble: 0
 --- !u!114 &6529148613267860224
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -167,12 +169,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a3e84bd18cbe15246aed164bd89f60a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MovablePlatform
+  canLaunchPlayer: 1
   player: {fileID: 0}
+  previousCollision: {fileID: 0}
+  crackingNoise: {fileID: 8300000, guid: 96caea58b8d2b914f9ad4309a6582075, type: 3}
+  islandHitClip: {fileID: 8300000, guid: f24a09fc1639fe14f97752770fb96470, type: 3}
+  crackingNoiseSource: {fileID: 0}
+  islandHitSource: {fileID: 0}
   hasReachedSpeedToLaunch: 0
   minimumSpeedToLaunch: 1
   minmumSpeedDecreaseToLaunch: 1
-  launchHeightStrength: 30
-  launchSpeedStrength: 15
+  launchHeightStrength: 25
+  launchSpeedStrength: 20
 --- !u!1 &9011152496208983673
 GameObject:
   m_ObjectHideFlags: 0

@@ -14,6 +14,10 @@ public class MovablePlatform : MonoBehaviour
     private Vector3 currentSpeed;
     public GameObject previousCollision;
 
+    public AudioClip crackingNoise;
+    public AudioClip islandHitClip;
+    public AudioSource crackingNoiseSource;
+    public AudioSource islandHitSource;
 
     [SerializeField] bool hasReachedSpeedToLaunch = false;
     bool playerHasBeenLaunced = false;
@@ -28,6 +32,12 @@ public class MovablePlatform : MonoBehaviour
     {
         tetherable = GetComponent<Tetherable>();
         rb = GetComponent<Rigidbody>();
+
+        crackingNoiseSource = gameObject.AddComponent<AudioSource>();
+        crackingNoiseSource.playOnAwake = false;
+        crackingNoiseSource.clip = crackingNoise;
+        crackingNoiseSource.loop = true;
+        crackingNoiseSource.minDistance = 25;
     }
 
     // Update is called once per frame
@@ -57,6 +67,14 @@ public class MovablePlatform : MonoBehaviour
         }
 
         lastPosition = transform.position;
+
+        if(rb.linearVelocity.magnitude > 0.15f)
+        {
+            if(!crackingNoiseSource.isPlaying)
+            {
+                crackingNoiseSource.Play();
+            }
+        }
     }
 
     private void OnTriggerEnter(Collider other)
@@ -80,12 +98,28 @@ public class MovablePlatform : MonoBehaviour
     {
         if(collision.gameObject.tag != "Player")
         {
-            Debug.Log("kinematic");
-
             if(previousCollision != collision.gameObject)
             {
+                crackingNoiseSource.Stop();
+                crackingNoiseSource.PlayOneShot(islandHitClip);
                 previousCollision = collision.gameObject;
                 rb.isKinematic = true;
+            }
+        }
+
+        OverlapPlayerCameraShake();
+    }
+
+    private void OverlapPlayerCameraShake()
+    {
+        Collider[] objectsNear = Physics.OverlapSphere(transform.position, 10);
+
+        foreach(Collider collider in objectsNear)
+        {
+            if(collider.gameObject.tag == "Player")
+            {
+                CameraShake shake = Camera.main.gameObject.GetComponent<CameraShake>();
+                StartCoroutine(shake.Shake(0.3f, 0.2f));
             }
         }
     }
