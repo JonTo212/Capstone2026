@@ -14,9 +14,10 @@ public class JointTetherPlacer : MonoBehaviour
     private TetherPreviewLine tetherPreviewLine;
 
     [Header("Properties")]
+    [SerializeField] private GameObject jointTetherPrefab;
+    [SerializeField] private LayerMask tetherLayerMask;
     [SerializeField] private float maxTetherStartDist = 50f;
     [SerializeField] private bool autoActivateTether = true;
-    [SerializeField] private LayerMask tetherLayerMask;
 
     private Transform firstHitTransform;
     private Vector3 firstHitPosition;
@@ -63,10 +64,7 @@ public class JointTetherPlacer : MonoBehaviour
 
     private void CreateTetherPreviewLine()
     {
-        RaycastHit hit;
-        Ray ray = _playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
-
-        if (Physics.Raycast(ray, out hit, maxTetherStartDist, ~tetherLayerMask))
+        if (ShootRaycastFromPlayer(out RaycastHit hit))
         {
             firstHitTransform = hit.transform;
             firstHitPosition =  firstHitTransform.InverseTransformPoint(hit.point);
@@ -82,10 +80,8 @@ public class JointTetherPlacer : MonoBehaviour
     {
         tetherPreviewLine.SetStartPoint(firstHitTransform.TransformPoint(firstHitPosition));
 
-        RaycastHit hit;
-        Ray ray = _playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
-        if (Physics.Raycast(ray, out hit, maxTetherStartDist, ~tetherLayerMask))
-        {
+        if (ShootRaycastFromPlayer(out RaycastHit hit))
+        { 
             tetherPreviewLine.SetEndPoint(hit.point);
         }
         else
@@ -96,19 +92,24 @@ public class JointTetherPlacer : MonoBehaviour
 
     private void CreateAndSetTether()
     {
-        RaycastHit hit;
-        Ray ray = _playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
-
-        if (Physics.Raycast(ray, out hit, maxTetherStartDist, ~tetherLayerMask))
+        if (ShootRaycastFromPlayer(out RaycastHit hit))
         {
-            GameObject newJointTether = new GameObject("JointTether");
-            JointTether jointTether = newJointTether.AddComponent<JointTether>();
+            GameObject newJointTether = Instantiate(jointTetherPrefab, transform.position, Quaternion.identity);
+            JointTether jointTether = newJointTether.GetComponent<JointTether>();
             
             secondHitTransform = hit.transform;
             secondHitPosition = secondHitTransform.InverseTransformPoint(hit.point);
 
             jointTether.Init(firstHitTransform, firstHitPosition, secondHitTransform, secondHitPosition);
         }
+    }
+
+    private bool ShootRaycastFromPlayer(out RaycastHit hit)
+    {
+        Ray ray = _playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+
+        Physics.Raycast(ray, out hit, maxTetherStartDist, ~tetherLayerMask);
+        return hit.collider != null;
     }
 
     private void DeletePreviewTetherLine()

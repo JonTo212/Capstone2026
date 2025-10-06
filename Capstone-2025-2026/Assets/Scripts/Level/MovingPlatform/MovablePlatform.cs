@@ -4,6 +4,7 @@ using UnityEngine.XR;
 public class MovablePlatform : MonoBehaviour
 {
     [SerializeField] bool canLaunchPlayer = false;
+    [SerializeField] bool movesUpwards = false;
 
     public Transform player;
     private Tetherable tetherable;
@@ -105,9 +106,9 @@ public class MovablePlatform : MonoBehaviour
                 previousCollision = collision.gameObject;
                 rb.isKinematic = true;
             }
+                OverlapPlayerCameraShake();
         }
 
-        OverlapPlayerCameraShake();
     }
 
     private void OverlapPlayerCameraShake()

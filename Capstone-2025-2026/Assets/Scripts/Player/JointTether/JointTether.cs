@@ -3,9 +3,11 @@ using UnityEngine;
 
 public class JointTether : MonoBehaviour
 {
+    private JointTetherVisuals tetherVisuals;
+
+    [Header("Config Joint Parameters")]
     [SerializeField] private float driveStrength = 20f;
     [SerializeField] private float driveDamper = 5f;
-
     private ConfigurableJoint startJoint;
     private ConfigurableJoint endJoint;
     private Rigidbody startRb;
@@ -43,6 +45,9 @@ public class JointTether : MonoBehaviour
 
         if(temporaryStartRbObject == null) endJoint.connectedAnchor = startLocalPosition;
         else endJoint.connectedAnchor = Vector3.zero;
+
+        tetherVisuals = transform.GetComponent<JointTetherVisuals>();
+        tetherVisuals.Init(startTransform, startLocalPosition, endTransform, endLocalPosition); 
     }
 
     // Update is called once per frame

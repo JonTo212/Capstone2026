@@ -25,7 +25,7 @@ public class RandomSpawner : MonoBehaviour
     {
         yield return new WaitForSeconds(1/spawnRate);
 
-
+        SpawnRandomPlatform();
     }
 
     private void SpawnRandomPlatform()
@@ -43,9 +43,7 @@ public class RandomSpawner : MonoBehaviour
             int randomIndex = Random.Range(0, objectsToSpawn.Count);
 
             //spawn random object at position
-        }
-        {
-
+            GameObject newObject = Instantiate(objectsToSpawn[randomIndex], spawnPosition, Quaternion.identity);
         }
     }
 }

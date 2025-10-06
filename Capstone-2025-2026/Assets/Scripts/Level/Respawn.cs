@@ -14,7 +14,7 @@ public class Respawn : MonoBehaviour
     {
         if(other.gameObject.tag == "Player")
         {
-            other.transform.root.position = transform.position;
+            other.transform.position = respawnLocation.position;
         }
     }
 }
