@@ -17,17 +17,18 @@ public class JointTetherPlacer : MonoBehaviour
     [SerializeField] private GameObject jointTetherPrefab;
     [SerializeField] private LayerMask tetherLayerMask;
     [SerializeField] private float maxTetherStartDist = 50f;
+    [SerializeField] private int maxNumOfTethers = 3;
+    [SerializeField] private int numOfTethersPlaced = 0;
     [SerializeField] private bool autoActivateTether = true;
+    private bool didStartPointHit = false;
+    private bool didEndPointHit = false;
 
+    [Header("Hit Properties")]
     private Transform firstHitTransform;
     private Vector3 firstHitPosition;
     private Transform secondHitTransform;
     private Vector3 secondHitPosition;
 
-    [SerializeField] private int maxNumOfTethers = 3;
-    [SerializeField] private int numOfTethersPlaced = 0;
-    private bool didStartPointHit = false;
-    private bool didEndPointHit = false;
 
     private void Awake()
     {
@@ -50,21 +51,23 @@ public class JointTetherPlacer : MonoBehaviour
             {
                 CreateTetherPreviewLine();
             }
-            if(_playerActions.ThrowHeld && didStartPointHit)
+            else if(_playerActions.ThrowHeld && didStartPointHit)
             {
                 UpdateTetherPreviewLine();
             }
-            if(_playerActions.ThrowUp)
+            else if(_playerActions.ThrowUp)
             {
-                CreateAndSetTether();
+                CreateAndInitTether();
                 DeletePreviewTetherLine();
             }
         }
     }
 
+    //Create a tether preview line when player camera raycast hits object
+    //Sets the first hit transform and position
     private void CreateTetherPreviewLine()
     {
-        if (ShootRaycastFromPlayer(out RaycastHit hit))
+        if (IsPlayerLookingAtCloseObject(out RaycastHit hit))
         {
             firstHitTransform = hit.transform;
             firstHitPosition =  firstHitTransform.InverseTransformPoint(hit.point);
@@ -76,11 +79,12 @@ public class JointTetherPlacer : MonoBehaviour
         }
     }
 
+    //Updates the tether preview line start point and end point
     private void UpdateTetherPreviewLine()
     {
         tetherPreviewLine.SetStartPoint(firstHitTransform.TransformPoint(firstHitPosition));
 
-        if (ShootRaycastFromPlayer(out RaycastHit hit))
+        if (IsPlayerLookingAtCloseObject(out RaycastHit hit))
         { 
             tetherPreviewLine.SetEndPoint(hit.point);
         }
@@ -90,9 +94,10 @@ public class JointTetherPlacer : MonoBehaviour
         }
     }
 
-    private void CreateAndSetTether()
+    //Creates and initializes tether parameters like hit transforms and positions
+    private void CreateAndInitTether()
     {
-        if (ShootRaycastFromPlayer(out RaycastHit hit))
+        if (IsPlayerLookingAtCloseObject(out RaycastHit hit))
         {
             GameObject newJointTether = Instantiate(jointTetherPrefab, transform.position, Quaternion.identity);
             JointTether jointTether = newJointTether.GetComponent<JointTether>();
@@ -101,10 +106,16 @@ public class JointTetherPlacer : MonoBehaviour
             secondHitPosition = secondHitTransform.InverseTransformPoint(hit.point);
 
             jointTether.Init(firstHitTransform, firstHitPosition, secondHitTransform, secondHitPosition);
+
+            //Subscribe decrease placed tether count to when tether gets destroyed event
+            jointTether.OnTetherDestroy += DecreasePlacedTetherCount;
+
+            numOfTethersPlaced++;
         }
     }
 
-    private bool ShootRaycastFromPlayer(out RaycastHit hit)
+    //shoots raycast from player center screem
+    private bool IsPlayerLookingAtCloseObject(out RaycastHit hit)
     {
         Ray ray = _playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
 
@@ -119,5 +130,10 @@ public class JointTetherPlacer : MonoBehaviour
             Destroy(tetherPreviewLine.gameObject);
             tetherPreviewLine = null;
         }
+    }
+
+    private void DecreasePlacedTetherCount()
+    {
+        numOfTethersPlaced--;
     }
 }
