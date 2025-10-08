@@ -12,6 +12,8 @@ GameObject:
   - component: {fileID: 2246288304345294775}
   - component: {fileID: -8301517729177021592}
   - component: {fileID: 5565157924276222469}
+  - component: {fileID: 8186839643958934475}
+  - component: {fileID: 2180924010531576783}
   m_Layer: 7
   m_Name: JointTether
   m_TagString: Untagged
@@ -158,6 +160,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::JointTether
   driveStrength: 20
   driveDamper: 5
+  isAutoActivate: 0
 --- !u!114 &5565157924276222469
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -170,5 +173,42 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aecf3031cb15a8946b1f05525ab66923, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::JointTetherVisuals
-  regularStateColor: {r: 0, g: 1, b: 0, a: 1}
+  activatedStateColor: {r: 0, g: 1, b: 0, a: 1}
+  inactiveStateColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   stretchedStateColor: {r: 1, g: 0, b: 0, a: 1}
+--- !u!136 &8186839643958934475
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9078681742910677703}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.55
+  m_Height: 0.1
+  m_Direction: 1
+  m_Center: {x: 0, y: 0, z: 0.5}
+--- !u!114 &2180924010531576783
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9078681742910677703}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4644744f87a7edd458e405810fb9caaa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JointTetherCollider
+  capsuleCollider: {fileID: 0}

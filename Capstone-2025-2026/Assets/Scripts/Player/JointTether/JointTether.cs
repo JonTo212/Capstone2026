@@ -9,12 +9,15 @@ public class JointTether : MonoBehaviour
     public event TetherDestroyAction OnTetherDestroy;
    
     private JointTetherVisuals tetherVisuals;
+    private JointTetherCollider tetherCollider;
 
     [Header("Config Joint Parameters")]
     [SerializeField] private float driveStrength = 20f;
     [SerializeField] private float driveDamper = 5f;
 
     [Header("Properties")]
+    [SerializeField] private bool isAutoActivate = false;
+
     private ConfigurableJoint startJoint;
     private ConfigurableJoint endJoint;
     private Rigidbody startRb;
@@ -25,11 +28,12 @@ public class JointTether : MonoBehaviour
     private GameObject temporaryEndRbObject;
     private Vector3 startLocalPosition;
     private Vector3 endLocalPosition;
+    private bool isActivated = false;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        StartCoroutine(DestroyTetherAfterTime());
+        //StartCoroutine(DestroyTetherAfterTime());
     }
     public void Init(Transform startTransform, Vector3 startLocalPosition, Transform endTransform, Vector3 endLocalPosition)
     {
@@ -42,24 +46,16 @@ public class JointTether : MonoBehaviour
         TryGetRigidbody(startTransform, startLocalPosition, out startRb, out temporaryStartRbObject);
         TryGetRigidbody(endTransform, endLocalPosition, out endRb, out temporaryEndRbObject);
 
-        startJoint = CreateJoint(startRb, endRb);
-        endJoint = CreateJoint(endRb, startRb);
-
-        startJoint.anchor = startLocalPosition;
-
-        if (temporaryStartRbObject == null) startJoint.connectedAnchor = endLocalPosition;
-        else startJoint.connectedAnchor = Vector3.zero;
-
-        endJoint.anchor = endLocalPosition;
-
-        if (temporaryStartRbObject == null) endJoint.connectedAnchor = endLocalPosition;
-        else endJoint.connectedAnchor = Vector3.zero;
-
-        //CreateJointConnections(startJoint, startLocalPosition, endLocalPosition, temporaryStartRbObject);
-        //CreateJointConnections(endJoint, endLocalPosition, startLocalPosition, temporaryEndRbObject);
-
         tetherVisuals = transform.GetComponent<JointTetherVisuals>();
-        tetherVisuals.Init(startTransform, startLocalPosition, endTransform, endLocalPosition, true); 
+        tetherVisuals.Init(startTransform, startLocalPosition, endTransform, endLocalPosition, isAutoActivate);
+
+        tetherCollider = transform.GetComponent<JointTetherCollider>();
+        tetherCollider.Init(startTransform, startLocalPosition, endTransform, endLocalPosition);
+        
+        if(isAutoActivate)
+        {
+            ActivateTether();
+        }
     }
 
     // Update is called once per frame
@@ -70,7 +66,30 @@ public class JointTether : MonoBehaviour
 
     private void FixedUpdate()
     {
-        
+        MoveToTetherCenter();   
+    }
+
+    public void ActivateTether()
+    {
+        startJoint = CreateJoint(startRb, endRb);
+        endJoint = CreateJoint(endRb, startRb);
+
+        CreateJointConnections(startJoint, startLocalPosition, endLocalPosition, temporaryStartRbObject);
+        CreateJointConnections(endJoint, endLocalPosition, startLocalPosition, temporaryEndRbObject);
+
+        isActivated = true;
+
+        tetherVisuals.SetLineColorActive();
+    }
+
+    public void DeactivateTether()
+    {
+        Destroy(startJoint);
+        Destroy(endJoint);
+
+        isActivated = false;
+
+        tetherVisuals.SetLineColorInactive();
     }
 
     private void TryGetRigidbody(Transform fromTransform, Vector3 localHitPosition, out Rigidbody rb, out GameObject temporaryRbObject)
@@ -129,15 +148,25 @@ public class JointTether : MonoBehaviour
         else joint.connectedAnchor = Vector3.zero;
     }
 
+    private void MoveToTetherCenter()
+    {
+        Vector3 worldStartPos = startTransform.TransformPoint(startLocalPosition);
+        Vector3 worldEndPos = endTransform.TransformPoint(endLocalPosition);
+
+        Vector3 startEndVector = worldEndPos - worldStartPos;
+        
+        transform.position = worldStartPos + startEndVector / 2;
+    }
+
     public void DestroyTether()
     {
         OnTetherDestroy();
 
-        if(temporaryStartRbObject != null) Destroy(temporaryStartRbObject);
-        if(temporaryEndRbObject != null) Destroy(temporaryEndRbObject);
-
         Destroy(startJoint);
         Destroy(endJoint);
+
+        if(temporaryStartRbObject != null) Destroy(temporaryStartRbObject);
+        if(temporaryEndRbObject != null) Destroy(temporaryEndRbObject);
 
         Destroy(gameObject);
     }

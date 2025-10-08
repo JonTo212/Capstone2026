@@ -1,6 +1,5 @@
-using NodeCanvas.Tasks.Actions;
-using System.Runtime.CompilerServices;
-using Unity.VisualScripting;
+using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 
 public class JointTetherPlacer : MonoBehaviour
@@ -16,12 +15,17 @@ public class JointTetherPlacer : MonoBehaviour
     [Header("Properties")]
     [SerializeField] private GameObject jointTetherPrefab;
     [SerializeField] private LayerMask tetherLayerMask;
-    [SerializeField] private float maxTetherStartDist = 50f;
-    [SerializeField] private int maxNumOfTethers = 3;
     [SerializeField] private int numOfTethersPlaced = 0;
     [SerializeField] private bool autoActivateTether = true;
+    private List<JointTether> allTethers = new List<JointTether>();
     private bool didStartPointHit = false;
     private bool didEndPointHit = false;
+
+    [Header("Editable Properties")]
+    [SerializeField] private float maxTetherStartDist = 50f;
+    [SerializeField] private int maxNumOfTethers = 3;
+    [SerializeField] private float timeToActivateAllTethers = 0.8f;
+    [SerializeField] private float timeToDestroyAllTethers = 0.8f;
 
     [Header("Hit Properties")]
     private Transform firstHitTransform;
@@ -29,6 +33,9 @@ public class JointTetherPlacer : MonoBehaviour
     private Transform secondHitTransform;
     private Vector3 secondHitPosition;
 
+    [Header("Coroutines")]
+    private Coroutine activateAllTethersCoroutine;
+    private Coroutine destroyAllTethersCoroutine;
 
     private void Awake()
     {
@@ -55,11 +62,46 @@ public class JointTetherPlacer : MonoBehaviour
             {
                 UpdateTetherPreviewLine();
             }
-            else if(_playerActions.ThrowUp)
+            else if(_playerActions.ThrowUp && didStartPointHit)
             {
                 CreateAndInitTether();
                 DeletePreviewTetherLine();
             }
+        }
+
+        if(_playerActions.InteractDown)
+        {
+            Ray ray = _playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+
+            if (Physics.Raycast(ray, out RaycastHit hit, 1000f, tetherLayerMask, QueryTriggerInteraction.Collide))
+            {
+                hit.transform.GetComponent<JointTether>().ActivateTether();
+            }
+
+            activateAllTethersCoroutine = StartCoroutine(ActivateAllTether());
+        }
+
+        if(_playerActions.InteractUp)
+        {
+            StopCoroutine(activateAllTethersCoroutine);
+        }
+
+        if(_playerActions.CrouchDown)
+        {
+            Ray ray = _playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+
+            if (Physics.Raycast(ray, out RaycastHit hit, 1000f, tetherLayerMask, QueryTriggerInteraction.Collide))
+            {
+                allTethers.Remove(hit.transform.GetComponent<JointTether>());
+                hit.transform.GetComponent<JointTether>().DestroyTether();
+            }
+
+            destroyAllTethersCoroutine = StartCoroutine(DestroyAllTether());
+        }
+
+        if(_playerActions.CrouchUp)
+        {
+            StopCoroutine(destroyAllTethersCoroutine);
         }
     }
 
@@ -76,6 +118,10 @@ public class JointTetherPlacer : MonoBehaviour
             tetherPreviewLine = tetherPreview.GetComponent<TetherPreviewLine>();
 
             didStartPointHit = true;
+        }
+        else
+        {
+            didStartPointHit = false;
         }
     }
 
@@ -110,6 +156,8 @@ public class JointTetherPlacer : MonoBehaviour
             //Subscribe decrease placed tether count to when tether gets destroyed event
             jointTether.OnTetherDestroy += DecreasePlacedTetherCount;
 
+            allTethers.Add(jointTether);
+
             numOfTethersPlaced++;
         }
     }
@@ -119,7 +167,7 @@ public class JointTetherPlacer : MonoBehaviour
     {
         Ray ray = _playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
 
-        Physics.Raycast(ray, out hit, maxTetherStartDist, ~tetherLayerMask);
+        Physics.Raycast(ray, out hit, maxTetherStartDist, -1, QueryTriggerInteraction.Ignore);
         return hit.collider != null;
     }
 
@@ -135,5 +183,27 @@ public class JointTetherPlacer : MonoBehaviour
     private void DecreasePlacedTetherCount()
     {
         numOfTethersPlaced--;
+    }
+
+    IEnumerator ActivateAllTether()
+    {
+        yield return new WaitForSeconds(timeToActivateAllTethers);
+
+        foreach (JointTether tether in allTethers)
+        {
+            tether.ActivateTether();
+        }
+    }
+
+    IEnumerator DestroyAllTether()
+    {
+        yield return new WaitForSeconds(timeToDestroyAllTethers);
+
+        foreach (JointTether tether in allTethers)
+        {
+            tether.DestroyTether();
+        }
+
+        allTethers = null;
     }
 }
