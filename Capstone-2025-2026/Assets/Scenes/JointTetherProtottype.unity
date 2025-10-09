@@ -511,7 +511,8 @@ GameObject:
   - component: {fileID: 60754039}
   - component: {fileID: 60754042}
   - component: {fileID: 60754043}
-  m_Layer: 0
+  - component: {fileID: 60754044}
+  m_Layer: 8
   m_Name: Capsule
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -747,10 +748,31 @@ MonoBehaviour:
   tetherLayerMask:
     serializedVersion: 2
     m_Bits: 128
-  maxTetherStartDist: 50
-  maxNumOfTethers: 20
   numOfTethersPlaced: 0
   autoActivateTether: 1
+  maxTetherStartDist: 50
+  maxNumOfTethers: 20
+  timeToActivateAllTethers: 0.8
+  timeToDestroyAllTethers: 0.8
+--- !u!114 &60754044
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 60754027}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 32008829bb3fce84eb47ced9b38600cc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AddOutlineToSelectedObject
+  outlineShader: {fileID: 2100000, guid: 992078b4fbe5c8a4ab82ccd16cffb2e0, type: 2}
+  currentSelectedObject: {fileID: 0}
+  selectedObjectOriginalMaterials: []
+  selectedObjectNewMaterials: []
+  playerLayer:
+    serializedVersion: 2
+    m_Bits: 256
 --- !u!4 &66274913 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4123973729964467584, guid: cb40f2e174a6bde4e9c85d157f3c3269, type: 3}
@@ -7107,7 +7129,7 @@ GameObject:
   - component: {fileID: 257171306}
   - component: {fileID: 257171308}
   - component: {fileID: 257171307}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: CenterDot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12366,7 +12388,7 @@ GameObject:
   - component: {fileID: 803436873}
   - component: {fileID: 803436876}
   - component: {fileID: 803436877}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Main Camera
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
@@ -14515,7 +14537,7 @@ GameObject:
   - component: {fileID: 1021286278}
   - component: {fileID: 1021286277}
   - component: {fileID: 1021286279}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Hand
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -16437,7 +16459,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1251832106}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: FeetPos
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -17313,6 +17335,7 @@ MeshRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 992078b4fbe5c8a4ab82ccd16cffb2e0, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -17352,7 +17375,7 @@ Transform:
   m_GameObject: {fileID: 1350196526}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -6.26314, y: 4.99913, z: 11.90295}
+  m_LocalPosition: {x: -6.26314, y: 4.444, z: 11.90295}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -19803,7 +19826,7 @@ GameObject:
   - component: {fileID: 1705976113}
   - component: {fileID: 1705976112}
   - component: {fileID: 1705976111}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -20964,7 +20987,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1795782380}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: HoldPos
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -24204,7 +24227,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2137204577}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: AnchorPos
   m_TagString: Untagged
   m_Icon: {fileID: 0}
