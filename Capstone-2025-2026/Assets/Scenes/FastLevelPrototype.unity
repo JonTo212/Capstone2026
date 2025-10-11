@@ -149,6 +149,10 @@ PrefabInstance:
       propertyPath: m_Mass
       value: 15
       objectReference: {fileID: 0}
+    - target: {fileID: 5755486919422549385, guid: 3df214060ec99af49b682e3c6ddcd038, type: 3}
+      propertyPath: m_Constraints
+      value: 112
+      objectReference: {fileID: 0}
     - target: {fileID: 7261055575027099312, guid: 3df214060ec99af49b682e3c6ddcd038, type: 3}
       propertyPath: m_LocalPosition.x
       value: 12.121019
@@ -508,13 +512,13 @@ GameObject:
   - component: {fileID: 60754029}
   - component: {fileID: 60754035}
   - component: {fileID: 60754036}
-  - component: {fileID: 60754037}
   - component: {fileID: 60754038}
   - component: {fileID: 60754039}
   - component: {fileID: 60754040}
   - component: {fileID: 60754041}
   - component: {fileID: 60754042}
   - component: {fileID: 60754043}
+  - component: {fileID: 60754044}
   m_Layer: 0
   m_Name: Capsule
   m_TagString: Player
@@ -696,24 +700,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 057727ba87d071f41a7a5fa2ff6ee4f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
---- !u!114 &60754037
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 60754027}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 47f52e6ca6daec54e8e6c556a4d4cd29, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerTether
-  playerCam: {fileID: 803436874}
-  maxTetherStartDist: 50
-  autoActivateTether: 0
-  tetherLayerMask:
-    serializedVersion: 2
-    m_Bits: 129
 --- !u!114 &60754038
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -721,7 +707,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 60754027}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 447094e43ddb7b04090a7c256aa4ea00, type: 3}
   m_Name: 
@@ -747,6 +733,9 @@ MonoBehaviour:
   lassoPullStrength: 5
   breakDist: 10
   attachThreshold: 0.1
+  tetherLayer:
+    serializedVersion: 2
+    m_Bits: 0
   centerStrength: 375
   yankStrength: 50
   throwStrength: 25
@@ -823,13 +812,34 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::JointTetherPlacer
   tetherPreviewLinePrefab: {fileID: 9078681742910677703, guid: 6725f4f1fd28b5a408b7815cdf95dac5, type: 3}
-  maxTetherStartDist: 50
-  autoActivateTether: 1
+  jointTetherPrefab: {fileID: 9078681742910677703, guid: 81485509952bf4244a64b1650ec881d5, type: 3}
   tetherLayerMask:
     serializedVersion: 2
     m_Bits: 128
-  maxNumOfTethers: 3
   numOfTethersPlaced: 0
+  autoActivateTether: 1
+  maxTetherStartDist: 50
+  maxNumOfTethers: 3
+  timeToActivateAllTethers: 0.8
+  timeToDestroyAllTethers: 0.8
+--- !u!114 &60754044
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 60754027}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f261c87710169f4ba9cb1c35b8ec7bc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JointTetherActivator
+  tetherLayerMask:
+    serializedVersion: 2
+    m_Bits: 128
+  activationRange: 50
+  timeToActivateAllTethers: 0.8
+  timeToDestroyAllTethers: 0.8
 --- !u!4 &66274913 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4123973729964467584, guid: cb40f2e174a6bde4e9c85d157f3c3269, type: 3}
@@ -7393,6 +7403,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: MovablePlatformNoLaunch (11)
       objectReference: {fileID: 0}
+    - target: {fileID: 5755486919422549385, guid: 3df214060ec99af49b682e3c6ddcd038, type: 3}
+      propertyPath: m_Constraints
+      value: 112
+      objectReference: {fileID: 0}
     - target: {fileID: 7261055575027099312, guid: 3df214060ec99af49b682e3c6ddcd038, type: 3}
       propertyPath: m_LocalScale.x
       value: 4.645079
@@ -7636,6 +7650,10 @@ PrefabInstance:
     - target: {fileID: 5755486919422549385, guid: 3df214060ec99af49b682e3c6ddcd038, type: 3}
       propertyPath: m_Mass
       value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 5755486919422549385, guid: 3df214060ec99af49b682e3c6ddcd038, type: 3}
+      propertyPath: m_Constraints
+      value: 112
       objectReference: {fileID: 0}
     - target: {fileID: 7261055575027099312, guid: 3df214060ec99af49b682e3c6ddcd038, type: 3}
       propertyPath: m_LocalPosition.x
@@ -8044,6 +8062,10 @@ PrefabInstance:
     - target: {fileID: 5127319263117184290, guid: 3df214060ec99af49b682e3c6ddcd038, type: 3}
       propertyPath: m_Name
       value: MovablePlatformNoLaunch (3)
+      objectReference: {fileID: 0}
+    - target: {fileID: 5755486919422549385, guid: 3df214060ec99af49b682e3c6ddcd038, type: 3}
+      propertyPath: m_Constraints
+      value: 112
       objectReference: {fileID: 0}
     - target: {fileID: 7261055575027099312, guid: 3df214060ec99af49b682e3c6ddcd038, type: 3}
       propertyPath: m_LocalPosition.x
@@ -10796,6 +10818,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: MovablePlatformNoLaunch (9)
       objectReference: {fileID: 0}
+    - target: {fileID: 5755486919422549385, guid: 3df214060ec99af49b682e3c6ddcd038, type: 3}
+      propertyPath: m_Constraints
+      value: 112
+      objectReference: {fileID: 0}
     - target: {fileID: 7261055575027099312, guid: 3df214060ec99af49b682e3c6ddcd038, type: 3}
       propertyPath: m_LocalScale.x
       value: 4.645079
@@ -13058,6 +13084,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: MovablePlatformNoLaunch (12)
       objectReference: {fileID: 0}
+    - target: {fileID: 5755486919422549385, guid: 3df214060ec99af49b682e3c6ddcd038, type: 3}
+      propertyPath: m_Constraints
+      value: 112
+      objectReference: {fileID: 0}
     - target: {fileID: 7261055575027099312, guid: 3df214060ec99af49b682e3c6ddcd038, type: 3}
       propertyPath: m_LocalScale.x
       value: 4.645079
@@ -13257,6 +13287,10 @@ PrefabInstance:
     - target: {fileID: 5127319263117184290, guid: 3df214060ec99af49b682e3c6ddcd038, type: 3}
       propertyPath: m_Name
       value: MovablePlatformNoLaunch (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 5755486919422549385, guid: 3df214060ec99af49b682e3c6ddcd038, type: 3}
+      propertyPath: m_Constraints
+      value: 112
       objectReference: {fileID: 0}
     - target: {fileID: 7261055575027099312, guid: 3df214060ec99af49b682e3c6ddcd038, type: 3}
       propertyPath: m_LocalScale.x
@@ -16645,6 +16679,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: MovablePlatformNoLaunch (7)
       objectReference: {fileID: 0}
+    - target: {fileID: 5755486919422549385, guid: 3df214060ec99af49b682e3c6ddcd038, type: 3}
+      propertyPath: m_Constraints
+      value: 112
+      objectReference: {fileID: 0}
     - target: {fileID: 7261055575027099312, guid: 3df214060ec99af49b682e3c6ddcd038, type: 3}
       propertyPath: m_LocalScale.x
       value: 4.645079
@@ -17019,6 +17057,10 @@ PrefabInstance:
     - target: {fileID: 5127319263117184290, guid: 3df214060ec99af49b682e3c6ddcd038, type: 3}
       propertyPath: m_Name
       value: MovablePlatformNoLaunch (10)
+      objectReference: {fileID: 0}
+    - target: {fileID: 5755486919422549385, guid: 3df214060ec99af49b682e3c6ddcd038, type: 3}
+      propertyPath: m_Constraints
+      value: 112
       objectReference: {fileID: 0}
     - target: {fileID: 7261055575027099312, guid: 3df214060ec99af49b682e3c6ddcd038, type: 3}
       propertyPath: m_LocalScale.x
@@ -20002,6 +20044,10 @@ PrefabInstance:
       propertyPath: m_Mass
       value: 15
       objectReference: {fileID: 0}
+    - target: {fileID: 5755486919422549385, guid: 3df214060ec99af49b682e3c6ddcd038, type: 3}
+      propertyPath: m_Constraints
+      value: 112
+      objectReference: {fileID: 0}
     - target: {fileID: 7261055575027099312, guid: 3df214060ec99af49b682e3c6ddcd038, type: 3}
       propertyPath: m_LocalPosition.x
       value: 41.02102
@@ -20582,6 +20628,10 @@ PrefabInstance:
     - target: {fileID: 5127319263117184290, guid: 3df214060ec99af49b682e3c6ddcd038, type: 3}
       propertyPath: m_Name
       value: MovablePlatformNoLaunch (2)
+      objectReference: {fileID: 0}
+    - target: {fileID: 5755486919422549385, guid: 3df214060ec99af49b682e3c6ddcd038, type: 3}
+      propertyPath: m_Constraints
+      value: 112
       objectReference: {fileID: 0}
     - target: {fileID: 7261055575027099312, guid: 3df214060ec99af49b682e3c6ddcd038, type: 3}
       propertyPath: m_LocalScale.x
@@ -23710,6 +23760,10 @@ PrefabInstance:
     - target: {fileID: 5127319263117184290, guid: 3df214060ec99af49b682e3c6ddcd038, type: 3}
       propertyPath: m_Name
       value: MovablePlatformNoLaunch (8)
+      objectReference: {fileID: 0}
+    - target: {fileID: 5755486919422549385, guid: 3df214060ec99af49b682e3c6ddcd038, type: 3}
+      propertyPath: m_Constraints
+      value: 112
       objectReference: {fileID: 0}
     - target: {fileID: 7261055575027099312, guid: 3df214060ec99af49b682e3c6ddcd038, type: 3}
       propertyPath: m_LocalScale.x

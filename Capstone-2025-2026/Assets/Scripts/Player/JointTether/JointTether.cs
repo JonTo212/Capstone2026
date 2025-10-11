@@ -1,4 +1,3 @@
-using NodeCanvas.Tasks.Actions;
 using System.Collections;
 using UnityEditor.Build;
 using UnityEngine;
@@ -17,7 +16,7 @@ public class JointTether : MonoBehaviour
 
     [Header("Properties")]
     [SerializeField] private bool isAutoActivate = false;
-
+    public bool isActivated { get; private set; } = false;
     private ConfigurableJoint startJoint;
     private ConfigurableJoint endJoint;
     private Rigidbody startRb;
@@ -28,7 +27,6 @@ public class JointTether : MonoBehaviour
     private GameObject temporaryEndRbObject;
     private Vector3 startLocalPosition;
     private Vector3 endLocalPosition;
-    private bool isActivated = false;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()

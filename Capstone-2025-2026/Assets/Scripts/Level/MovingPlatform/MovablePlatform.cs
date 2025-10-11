@@ -104,7 +104,7 @@ public class MovablePlatform : MonoBehaviour
                 crackingNoiseSource.Stop();
                 crackingNoiseSource.PlayOneShot(islandHitClip);
                 previousCollision = collision.gameObject;
-                rb.isKinematic = true;
+                //rb.isKinematic = true;
             }
                 OverlapPlayerCameraShake();
         }

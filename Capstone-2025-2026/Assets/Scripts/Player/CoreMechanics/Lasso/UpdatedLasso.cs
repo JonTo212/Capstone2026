@@ -13,6 +13,7 @@ public class UpdatedLasso : MonoBehaviour
     [SerializeField] private float lassoPullStrength;
     [SerializeField] private float breakDist;
     [SerializeField] private float attachThreshold;
+    [SerializeField] private LayerMask tetherLayer;
 
     [Header("Lasso Forces")]
     [SerializeField] private float centerStrength;
@@ -83,7 +84,7 @@ public class UpdatedLasso : MonoBehaviour
         {
             projectilePosition += projectileVelocity * Time.deltaTime;
 
-            if (Physics.SphereCast(projectilePosition, hitboxRadius, projectileVelocity.normalized, out RaycastHit hit, projectileVelocity.magnitude))
+            if (Physics.SphereCast(projectilePosition, hitboxRadius, projectileVelocity.normalized, out RaycastHit hit, projectileVelocity.magnitude, ~tetherLayer))
             {
                 if (hit.transform.TryGetComponent(out Tetherable tetherable))
                 {

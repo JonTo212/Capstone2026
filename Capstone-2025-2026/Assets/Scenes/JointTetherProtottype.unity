@@ -512,6 +512,7 @@ GameObject:
   - component: {fileID: 60754042}
   - component: {fileID: 60754043}
   - component: {fileID: 60754044}
+  - component: {fileID: 60754045}
   m_Layer: 8
   m_Name: Capsule
   m_TagString: Player
@@ -712,6 +713,9 @@ MonoBehaviour:
   lassoPullStrength: 5
   breakDist: 10
   attachThreshold: 0.1
+  tetherLayer:
+    serializedVersion: 2
+    m_Bits: 128
   centerStrength: 375
   yankStrength: 50
   throwStrength: 25
@@ -773,6 +777,24 @@ MonoBehaviour:
   playerLayer:
     serializedVersion: 2
     m_Bits: 256
+--- !u!114 &60754045
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 60754027}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f261c87710169f4ba9cb1c35b8ec7bc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JointTetherActivator
+  tetherLayerMask:
+    serializedVersion: 2
+    m_Bits: 128
+  activationRange: 50
+  timeToActivateAllTethers: 0.8
+  timeToDestroyAllTethers: 0.8
 --- !u!4 &66274913 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4123973729964467584, guid: cb40f2e174a6bde4e9c85d157f3c3269, type: 3}
