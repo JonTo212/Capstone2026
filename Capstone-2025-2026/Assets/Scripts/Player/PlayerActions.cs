@@ -9,8 +9,9 @@ public class PlayerActions : MonoBehaviour
     private InputAction jumpAction;
     private InputAction crouchAction;
     private InputAction sprintAction;
-    private InputAction pullAction;
-    private InputAction throwAction;
+    private InputAction mainAction;
+    private InputAction altAction;
+    private InputAction interactAction;
 
     public Vector2 MoveInput => moveAction.ReadValue<Vector2>();
     public Vector2 LookInput => lookAction.ReadValue<Vector2>();
@@ -29,13 +30,17 @@ public class PlayerActions : MonoBehaviour
     public bool SprintHeld => sprintAction.IsPressed();
     public bool SprintUp => sprintAction.WasReleasedThisFrame();
 
-    public bool PullDown => pullAction.WasPressedThisFrame();
-    public bool PullHeld => pullAction.IsPressed();
-    public bool PullUp => pullAction.WasReleasedThisFrame();
+    public bool MainDown => mainAction.WasPressedThisFrame();
+    public bool MainHeld => mainAction.IsPressed();
+    public bool MainUp => mainAction.WasReleasedThisFrame();
 
-    public bool ThrowDown => throwAction.WasPressedThisFrame();
-    public bool ThrowHeld => throwAction.IsPressed();
-    public bool ThrowUp => throwAction.WasReleasedThisFrame();
+    public bool AltDown => altAction.WasPressedThisFrame();
+    public bool AltHeld => altAction.IsPressed();
+    public bool AltUp => altAction.WasReleasedThisFrame();
+
+    public bool InteractDown => interactAction.WasPressedThisFrame();
+    public bool InteractHeld => interactAction.IsPressed();
+    public bool InteractUp => interactAction.WasReleasedThisFrame();
 
     private void Awake()
     {
@@ -46,8 +51,9 @@ public class PlayerActions : MonoBehaviour
         jumpAction = map.FindAction("Jump");
         crouchAction = map.FindAction("Crouch");
         sprintAction = map.FindAction("Sprint");
-        pullAction = map.FindAction("Pull");
-        throwAction = map.FindAction("Throw");
+        mainAction = map.FindAction("Main");
+        altAction = map.FindAction("Alt");
+        interactAction = map.FindAction("Interact");
     }
 
     private void OnEnable()
@@ -58,8 +64,9 @@ public class PlayerActions : MonoBehaviour
         jumpAction.Enable();
         crouchAction.Enable();
         sprintAction.Enable();
-        pullAction.Enable();
-        throwAction.Enable();
+        mainAction.Enable();
+        altAction.Enable();
+        interactAction.Enable();
     }
 
     private void OnDisable()
@@ -70,7 +77,8 @@ public class PlayerActions : MonoBehaviour
         jumpAction.Disable();
         crouchAction.Disable();
         sprintAction.Disable();
-        pullAction.Disable();
-        throwAction.Disable();
+        mainAction.Disable();
+        altAction.Disable();
+        interactAction.Disable();
     }
 }

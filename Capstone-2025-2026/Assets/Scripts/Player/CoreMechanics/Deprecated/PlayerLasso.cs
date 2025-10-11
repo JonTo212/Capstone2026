@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public enum LassoState
+public enum PlayerLassoState
 {
     Empty,
     Firing,
@@ -30,7 +30,7 @@ public class PlayerLasso : MonoBehaviour
 
     [Header("Private Variables")]
     private PlayerActions playerActions;
-    private LassoState currentLassoState;
+    private PlayerLassoState currentLassoState;
 
     [Header("Projectile Components")]
     [SerializeField] private float projectileSpeed = 50f;
@@ -48,13 +48,13 @@ public class PlayerLasso : MonoBehaviour
     public Transform HoldPos => holdPos; 
     public Transform TetheredObj => tetheredObj;
     public Transform AnchoredPos => anchoredPos;
-    public LassoState CurrentLassoState => currentLassoState;
+    public PlayerLassoState CurrentLassoState => currentLassoState;
 
     #region Unity Functions
     private void Awake()
     {
         playerActions = GetComponent<PlayerActions>();
-        SwitchLassoState(LassoState.Empty);
+        SwitchLassoState(PlayerLassoState.Empty);
         pullVelocityCurve = new AnimationCurve(
             new Keyframe(0f, 0f),          // start (no pull)
             new Keyframe(0.3f, 1.5f),      // overshoot above target
@@ -76,30 +76,30 @@ public class PlayerLasso : MonoBehaviour
     {
         switch(currentLassoState)
         {
-            case LassoState.Empty:
+            case PlayerLassoState.Empty:
                 HandleEmptyState();
                 break;
 
-            case LassoState.Firing:
+            case PlayerLassoState.Firing:
                 HandleFiringState();
                 break;
 
-            case LassoState.Anchored:
+            case PlayerLassoState.Anchored:
                 HandleAnchoredState();
                 break;
 
-            case LassoState.Pulling:
+            case PlayerLassoState.Pulling:
                 HandlePullState();
                 break;
 
-            case LassoState.Held:
+            case PlayerLassoState.Held:
                 HandleHeldState();
                 break;
 
         }
     }
 
-    private void SwitchLassoState(LassoState newState)
+    private void SwitchLassoState(PlayerLassoState newState)
     {
         currentLassoState = newState;
     }
@@ -107,7 +107,7 @@ public class PlayerLasso : MonoBehaviour
     private void HandleEmptyState()
     {
         //if left click, start shooting projectile
-        if (playerActions.PullDown)
+        if (playerActions.MainDown)
         {
             HandleProjectileStart();
         }
@@ -123,7 +123,7 @@ public class PlayerLasso : MonoBehaviour
         else
         {
             ResetAnchor();
-            SwitchLassoState(LassoState.Empty);
+            SwitchLassoState(PlayerLassoState.Empty);
         }
     }
 
@@ -145,24 +145,24 @@ public class PlayerLasso : MonoBehaviour
         }
 
         //if left click again, release
-        if(playerActions.PullDown)
+        if(playerActions.MainDown)
         {
             ReleaseHeldObject();
             ResetAnchor();
-            SwitchLassoState(LassoState.Empty);
+            SwitchLassoState(PlayerLassoState.Empty);
         }
 
         //if right click, start pull
-        if(playerActions.ThrowDown)
+        if(playerActions.AltDown)
         {
-            SwitchLassoState(LassoState.Pulling);
+            SwitchLassoState(PlayerLassoState.Pulling);
         }
     }
 
     private void HandlePullState()
     {
         //if you're holding right click, pull object towards you and snap when close enough
-        if (playerActions.ThrowHeld)
+        if (playerActions.AltHeld)
         {
             tetheredBody.constraints = RigidbodyConstraints.None;
             float currentDistance = Vector3.Distance(anchoredPos.position, holdPos.position);
@@ -179,32 +179,32 @@ public class PlayerLasso : MonoBehaviour
             else
             {
                 HoldObject(holdPos);
-                SwitchLassoState(LassoState.Held);
+                SwitchLassoState(PlayerLassoState.Held);
             }
         }
 
         //otherwise go back to anchor
-        else if(playerActions.ThrowUp)
+        else if(playerActions.AltUp)
         {
-            SwitchLassoState(LassoState.Anchored);
+            SwitchLassoState(PlayerLassoState.Anchored);
         }    
     }
 
     private void HandleHeldState()
     {
         //if you're holding the object, throw it away
-        if (playerActions.ThrowDown)
+        if (playerActions.AltDown)
         {
             ThrowHeldObject();
             ResetAnchor();
-            SwitchLassoState(LassoState.Empty);
+            SwitchLassoState(PlayerLassoState.Empty);
         }
         
-        if(playerActions.PullDown)
+        if(playerActions.MainDown)
         {
             ReleaseHeldObject();
             ResetAnchor();
-            SwitchLassoState(LassoState.Empty);
+            SwitchLassoState(PlayerLassoState.Empty);
         }
     }
 
@@ -218,7 +218,7 @@ public class PlayerLasso : MonoBehaviour
         projectilePosition = ray.origin;
         projectileVelocity = ray.direction * projectileSpeed;
 
-        SwitchLassoState(LassoState.Firing);
+        SwitchLassoState(PlayerLassoState.Firing);
     }
 
     private void SimulateProjectile()
@@ -234,7 +234,7 @@ public class PlayerLasso : MonoBehaviour
             tetheredBody = hit.transform.GetComponent<Rigidbody>();
             anchorDistance = Vector3.Distance(anchoredPos.position, holdPos.position);
             anchorMagnitude = 1f;
-            SwitchLassoState(LassoState.Anchored);
+            SwitchLassoState(PlayerLassoState.Anchored);
         }
     }
 

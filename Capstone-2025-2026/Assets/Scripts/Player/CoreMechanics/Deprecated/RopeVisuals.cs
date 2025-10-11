@@ -31,7 +31,7 @@ public class RopeVisuals : MonoBehaviour
     private void DrawRope()
     {
         //hide rope when tether state is empty
-        if (lassoScript.CurrentLassoState == LassoState.Empty)
+        if (lassoScript.CurrentLassoState == PlayerLassoState.Empty)
         {
             ResetRope();
             return;
@@ -51,7 +51,7 @@ public class RopeVisuals : MonoBehaviour
         Vector3 targetPoint = lassoScript.AnchoredPos.position;
         Vector3 up = Quaternion.LookRotation((targetPoint - startPoint).normalized) * Vector3.up;
 
-        if (lassoScript.CurrentLassoState == LassoState.Firing)
+        if (lassoScript.CurrentLassoState == PlayerLassoState.Firing)
         {
             currentPullPos = Vector3.Lerp(currentPullPos, targetPoint, Time.deltaTime * velocity);
         }
