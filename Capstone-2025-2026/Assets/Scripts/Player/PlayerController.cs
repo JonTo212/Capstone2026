@@ -7,46 +7,25 @@ using UnityEngine.InputSystem;
 public enum PlayerMovementState
 {
     Walking,
-    Running,
     InAir
-}
-
-public enum PlayerStanceState
-{
-    Standing,
-    Crouching
 }
 
 public class PlayerController : MonoBehaviour
 {
-    [Header("Movement variables")]
-    private Vector3 wishDir;
-    private Vector3 floorVelocity;
-    private Rigidbody rb;
-    private float acceleration;
-    private float gravity;
-    private float jumpForce;
-    private float friction;
-    private float currentAccelFactor = 1f;
-    private float currentDecelFactor = 1f;
-    private float currentMaxSpeedMultiplier = 1f;
-    private float targetAccelFactor = 1f;
-    private float targetDecelFactor = 1f;
-    private float targetMaxSpeedMultiplier = 1f;
+
+    [Header("Base Movement Settings")]
     [SerializeField] private float maxSpeed;
     [SerializeField] private float apexHeight;
     [SerializeField] private float apexTime;
     [SerializeField] private float timeToZero;
     [SerializeField] private float timeToMaxSpeed;
-    [SerializeField] private float sprintMaxSpeedMultiplier;
-    [SerializeField] private float sprintAccelMultiplier;
-    [SerializeField] private float sprintDecelMultiplier;
-    [SerializeField] private float crouchMaxSpeedMultiplier;
-    [SerializeField] private float crouchAccelMultiplier;
-    [SerializeField] private float crouchDecelMultiplier;
+
+    [Header("In Air Settings")]
     [SerializeField] private float airMaxSpeedMultiplier;
     [SerializeField] private float airAccelMultiplier;
     [SerializeField] private float airDecelMultiplier;
+
+    [Header("Ground Settings")]
     [SerializeField] private float groundMaxSpeedMultiplier;
     [SerializeField] private float groundAccelMultiplier;
     [SerializeField] private float groundDecelMultiplier;
@@ -55,10 +34,6 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Transform feetPos;
     [SerializeField] private float feetRadius;
     [SerializeField] private LayerMask groundLayer;
-
-    [Header("Crouching")]
-    private float defaultHeight;
-    private CapsuleCollider playerCol;
 
     [Header("Jumping")]
     [Tooltip("Time after not being grounded that we still consider 'grounded'")]
@@ -84,15 +59,27 @@ public class PlayerController : MonoBehaviour
 
     [Header("States")]
     private PlayerMovementState currentMovementState;
-    private PlayerStanceState currentStanceState;
     private float smoothSpeed = 5f;
+
+    private Vector3 wishDir;
+    private Vector3 floorVelocity;
+    private Rigidbody rb;
+    private float acceleration;
+    private float gravity;
+    private float jumpForce;
+    private float friction;
+    private float currentAccelFactor = 1f;
+    private float currentDecelFactor = 1f;
+    private float currentSpeedMultiplier = 1f;
+    private float targetAccelFactor = 1f;
+    private float targetDecelFactor = 1f;
+    private float targetSpeedMultiplier = 1f;
 
     private float setMaxAirSpeedMul;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
-        playerCol = GetComponent<CapsuleCollider>();
         camTransform = Camera.main.transform;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -101,7 +88,6 @@ public class PlayerController : MonoBehaviour
         jumpForce = 2 * apexHeight / apexTime;
         friction = maxSpeed / timeToZero;
         acceleration = maxSpeed / timeToMaxSpeed;
-        defaultHeight = playerCol.height;
 
         playerActions = GetComponent<PlayerActions>();
 
@@ -110,8 +96,7 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        HandleYRot();
-        HandleXRot();
+        HandleRot();
 
         HandleCoyoteTime();
         if(playerActions.JumpDown)
@@ -130,12 +115,6 @@ public class PlayerController : MonoBehaviour
         if (jumpBufferTimer > 0f)
             jumpBufferTimer -= Time.fixedDeltaTime;
 
-        //stance
-        if (playerActions.CrouchHeld)
-            SwitchStanceState(PlayerStanceState.Crouching);
-        else
-            SwitchStanceState(PlayerStanceState.Standing);
-
     }
 
     private void FixedUpdate()
@@ -143,9 +122,6 @@ public class PlayerController : MonoBehaviour
         //movement state
         if (IsGrounded())
         {
-            if (playerActions.SprintHeld)
-                SwitchMovementState(PlayerMovementState.Running);
-            else
                 SwitchMovementState(PlayerMovementState.Walking);
         }
         else
@@ -166,49 +142,29 @@ public class PlayerController : MonoBehaviour
             case PlayerMovementState.Walking:
                 targetAccelFactor = groundAccelMultiplier;
                 targetDecelFactor = groundDecelMultiplier;
-                targetMaxSpeedMultiplier = groundMaxSpeedMultiplier;
-                break;
-
-            case PlayerMovementState.Running:
-                targetAccelFactor = sprintAccelMultiplier;
-                targetDecelFactor = sprintDecelMultiplier;
-                targetMaxSpeedMultiplier = sprintMaxSpeedMultiplier;
+                targetSpeedMultiplier = groundMaxSpeedMultiplier;
                 break;
 
             case PlayerMovementState.InAir:
                 targetAccelFactor = airAccelMultiplier;
                 targetDecelFactor = airDecelMultiplier;
-                targetMaxSpeedMultiplier = airMaxSpeedMultiplier;
+                targetSpeedMultiplier = airMaxSpeedMultiplier;
                 HandleGravity();
                 break;
         }
 
         currentAccelFactor = Mathf.Lerp(currentAccelFactor, targetAccelFactor, Time.fixedDeltaTime * smoothSpeed);
         currentDecelFactor = targetDecelFactor;
-        currentMaxSpeedMultiplier = Mathf.Lerp(currentMaxSpeedMultiplier, targetMaxSpeedMultiplier, Time.fixedDeltaTime * smoothSpeed);
+        currentSpeedMultiplier = Mathf.Lerp(currentSpeedMultiplier, targetSpeedMultiplier, Time.fixedDeltaTime * smoothSpeed);
 
-        HandleMovement(currentAccelFactor, currentMaxSpeedMultiplier, currentDecelFactor);
-    }
-
-    private void SwitchStanceState(PlayerStanceState newStanceState)
-    {
-        currentStanceState = newStanceState;
-
-        switch (currentStanceState)
-        {
-            case PlayerStanceState.Crouching:
-                HandlePlayerHeight(defaultHeight / 2f);
-                break;
-
-            case PlayerStanceState.Standing:
-                HandlePlayerHeight(defaultHeight);
-                break;
-        }
+        HandleMovement(currentAccelFactor, currentSpeedMultiplier, currentDecelFactor);
     }
 
     private bool IsGrounded()
     {
-        feetPos.localPosition = new Vector3(0, -playerCol.height / 2f, 0);
+        CapsuleCollider playerHeight = GetComponent<CapsuleCollider>();
+
+        feetPos.localPosition = new Vector3(0, -playerHeight.height / 2f, 0);
         Collider[] collider;
         collider = Physics.OverlapSphere(feetPos.position, feetRadius, groundLayer);
         if(collider.Length > 0)
@@ -253,30 +209,26 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void HandleYRot()
+    private void HandleRot()
     {
         //Up-down cam
         yRot -= playerActions.LookInput.y * pitchSensitivity * Time.deltaTime;
         yRot = Mathf.Clamp(yRot, -75f, 75f);
 
         camTransform.localEulerAngles = new Vector3(yRot, 0f, 0f);
-    }
 
-    private void HandleXRot()
-    {
         //Sideways rotation
         float newRot = playerActions.LookInput.x * yawSensitivity * Time.fixedDeltaTime;
         Quaternion deltaRotation = Quaternion.Euler(0, newRot, 0f);
 
         rb.MoveRotation(rb.rotation * deltaRotation);
+
     }
 
     private void HandleMovement(float accelFactor, float maxSpeedMultiplier, float decelFactor)
     {
         Vector3 horizontalVel = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
         Vector3 playerOnlyVel = new Vector3(rb.linearVelocity.x - floorVelocity.x, 0, rb.linearVelocity.z - floorVelocity.z);
-        //Debug.Log(floorVelocity);
-        //Debug.Log("player: " + transform.TransformDirection(rb.linearVelocity));
 
         wishDir = new Vector3(playerActions.MoveInput.x, 0, playerActions.MoveInput.y).normalized;
 
@@ -294,13 +246,6 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            //Vector3 decelStep = -horizontalVel.normalized * friction * decelFactor * Time.fixedDeltaTime;
-
-            ////prevent overshoot when velocity near 0
-            //if (decelStep.sqrMagnitude > horizontalVel.sqrMagnitude)
-            //    decelStep = -horizontalVel;
-
-            //rb.AddForce(decelStep, ForceMode.VelocityChange);
 
             Vector3 decelStep = -playerOnlyVel.normalized * friction * decelFactor * Time.fixedDeltaTime;
 
@@ -321,10 +266,5 @@ public class PlayerController : MonoBehaviour
     private void HandleGravity()
     {
         rb.AddForce(Vector3.down * gravity, ForceMode.Acceleration);
-    }
-
-    private void HandlePlayerHeight(float desiredHeight)
-    {
-        playerCol.height = Mathf.Lerp(playerCol.height, desiredHeight, Time.fixedDeltaTime * smoothSpeed);
     }
 }
