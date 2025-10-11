@@ -1,7 +1,15 @@
 using System.Collections;
 using UnityEngine;
 
-public class SeparateTetherController : MonoBehaviour
+public enum TetherState
+{
+    Empty,
+    Lassoing,
+    Tethering,
+    Held
+}
+
+public class TetherController : MonoBehaviour
 {
     private PlayerTether playerTether;
     private UpdatedLasso playerLasso;
@@ -46,10 +54,8 @@ public class SeparateTetherController : MonoBehaviour
             {
                 playerLasso.MoveObjectToPos(playerLasso.GetCenterOfScreen());
             }
-
-            HandleLassoPull();
         }
-        else if (currentTetherState == TetherState.Held)
+        else if(currentTetherState == TetherState.Held)
         {
             playerLasso.MoveObjectToPos(playerLasso.HoldPos.position);
         }
@@ -63,7 +69,7 @@ public class SeparateTetherController : MonoBehaviour
     #region Empty Controls
     private void HandleEmptyControls()
     {
-        if (playerActions.PullDown)
+        if (playerActions.MainDown)
         {
             playerLasso.TryLasso();
         }
@@ -72,40 +78,31 @@ public class SeparateTetherController : MonoBehaviour
         {
             SwitchTetherState(TetherState.Lassoing);
         }
-
-        if(playerActions.ThrowDown)
-        {
-            playerTether.HandleStartTether(playerLasso.SnaredObject);
-            SwitchTetherState(TetherState.Tethering);
-        }
     }
     #endregion
 
     #region Lasso Controls
     private void HandleLassoControlsCombined()
     {
-        if (playerActions.PullDown)
+        if (playerActions.MainDown)
         {
             playerLasso.ReleaseObject();
             SwitchTetherState(TetherState.Empty);
         }
 
-        if (playerActions.ThrowDown)
+        if (playerActions.AltDown)
         {
-            playerLasso.YankObject();
-            SwitchTetherState(TetherState.Held);
-        }
-    }
+            if(yankCheckCoroutine != null)
+                StopCoroutine(yankCheckCoroutine);
 
-    private void HandleLassoPull()
-    {
-        playerLasso.UpdateAnchorDistance(playerActions.ScrollAction);
+            yankCheckCoroutine = StartCoroutine(CheckIfTap());
+        }
     }
     private IEnumerator CheckIfTap()
     {
         yield return new WaitForSeconds(0.15f);
 
-        if (playerActions.ThrowHeld)
+        if (playerActions.AltHeld)
         {
             playerTether.HandleStartTether(playerLasso.SnaredObject);
             SwitchTetherState(TetherState.Tethering);
@@ -123,12 +120,12 @@ public class SeparateTetherController : MonoBehaviour
 
     private void HandleTetherControls()
     {
-        if (playerActions.ThrowHeld)
+        if (playerActions.AltHeld)
         {
             playerTether.HandleTetherActive();
         }
 
-        if (playerActions.ThrowUp)
+        if (playerActions.AltUp)
         {
             playerLasso.ReleaseObject();
             playerTether.HandleEndTether();
@@ -142,13 +139,13 @@ public class SeparateTetherController : MonoBehaviour
 
     private void HandleHeldControls()
     {
-        if (playerActions.PullDown)
+        if (playerActions.MainDown)
         {
             playerLasso.ReleaseObject();
             SwitchTetherState(TetherState.Empty);
         }
 
-        if (playerActions.ThrowDown)
+        if (playerActions.AltDown)
         {
             playerLasso.ThrowObject();
             SwitchTetherState(TetherState.Empty);
