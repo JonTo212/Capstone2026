@@ -1,8 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEditor.ShaderGraph;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public enum PlayerMovementState
 {
@@ -17,6 +13,20 @@ public enum PlayerStanceState
     Crouching
 }
 
+[System.Serializable]
+public struct MovementMultiplier
+{
+    public float accelMultiplier;
+    public float decelMultiplier;
+    public float maxSpeedMultiplier;
+
+    public MovementMultiplier(float accel, float decel, float max)
+    {
+        accelMultiplier = accel;
+        decelMultiplier = decel;
+        maxSpeedMultiplier = max;
+    }
+}
 public class PlayerController : MonoBehaviour
 {
     [Header("Movement variables")]
@@ -32,23 +42,16 @@ public class PlayerController : MonoBehaviour
     private float targetAccelFactor = 1f;
     private float targetDecelFactor = 1f;
     private float targetMaxSpeedMultiplier = 1f;
+    private Vector3 accelVector;
     [SerializeField] private float maxSpeed;
     [SerializeField] private float apexHeight;
     [SerializeField] private float apexTime;
     [SerializeField] private float timeToZero;
     [SerializeField] private float timeToMaxSpeed;
-    [SerializeField] private float sprintMaxSpeedMultiplier;
-    [SerializeField] private float sprintAccelMultiplier;
-    [SerializeField] private float sprintDecelMultiplier;
-    [SerializeField] private float crouchMaxSpeedMultiplier;
-    [SerializeField] private float crouchAccelMultiplier;
-    [SerializeField] private float crouchDecelMultiplier;
-    [SerializeField] private float airMaxSpeedMultiplier;
-    [SerializeField] private float airAccelMultiplier;
-    [SerializeField] private float airDecelMultiplier;
-    [SerializeField] private float groundMaxSpeedMultiplier;
-    [SerializeField] private float groundAccelMultiplier;
-    [SerializeField] private float groundDecelMultiplier;
+    [SerializeField] private MovementMultiplier sprintMultipliers;
+    [SerializeField] private MovementMultiplier crouchMultipliers;
+    [SerializeField] private MovementMultiplier airMultipliers;
+    [SerializeField] private MovementMultiplier groundMultipliers;
 
     [Header("Ground check")]
     [SerializeField] private Transform feetPos;
@@ -84,15 +87,19 @@ public class PlayerController : MonoBehaviour
     [Header("States")]
     private PlayerMovementState currentMovementState;
     private PlayerStanceState currentStanceState;
+    private LassoTetherController lassoTetherController;
     private float smoothSpeed = 5f;
 
-    [Header("Audio")]
-    public AudioManager audioManager;
+    public float Gravity => gravity;
+    public Vector3 AccelVector => accelVector;
+    public Vector3 WishDir => wishDir;
+    public Rigidbody Rb => rb;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
         playerCol = GetComponent<CapsuleCollider>();
+        lassoTetherController = GetComponent<LassoTetherController>();
         camTransform = Camera.main.transform;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -104,8 +111,6 @@ public class PlayerController : MonoBehaviour
         defaultHeight = playerCol.height;
 
         playerActions = GetComponent<PlayerActions>();
-
-        audioManager = GameObject.FindGameObjectWithTag("AudioManager").GetComponent<AudioManager>();
     }
 
     private void Update()
@@ -151,7 +156,15 @@ public class PlayerController : MonoBehaviour
         else
         {
             SwitchMovementState(PlayerMovementState.InAir);
+
+            if(lassoTetherController != null && lassoTetherController.CurrentLassoState == LassoState.Swinging) //temp override
+                targetAccelFactor = airMultipliers.accelMultiplier;
+                targetDecelFactor = airMultipliers.decelMultiplier;
+                targetMaxSpeedMultiplier = sprintMultipliers.maxSpeedMultiplier;
         }
+
+        CalculateMovementMultipliers();
+        HandleMovement(currentAccelFactor, currentMaxSpeedMultiplier, currentDecelFactor);
     }
 
     private void SwitchMovementState(PlayerMovementState newMovementState)
@@ -161,30 +174,26 @@ public class PlayerController : MonoBehaviour
         switch (currentMovementState)
         {
             case PlayerMovementState.Walking:
-                targetAccelFactor = groundAccelMultiplier;
-                targetDecelFactor = groundDecelMultiplier;
-                targetMaxSpeedMultiplier = groundMaxSpeedMultiplier;
+                targetAccelFactor = groundMultipliers.accelMultiplier;
+                targetDecelFactor = groundMultipliers.decelMultiplier;
+                targetMaxSpeedMultiplier = groundMultipliers.maxSpeedMultiplier;
                 break;
 
             case PlayerMovementState.Running:
-                targetAccelFactor = sprintAccelMultiplier;
-                targetDecelFactor = sprintDecelMultiplier;
-                targetMaxSpeedMultiplier = sprintMaxSpeedMultiplier;
+                targetAccelFactor = sprintMultipliers.accelMultiplier;
+                targetDecelFactor = sprintMultipliers.decelMultiplier;
+                targetMaxSpeedMultiplier = sprintMultipliers.maxSpeedMultiplier;
                 break;
 
             case PlayerMovementState.InAir:
-                targetAccelFactor = airAccelMultiplier;
-                targetDecelFactor = airDecelMultiplier;
-                targetMaxSpeedMultiplier = airMaxSpeedMultiplier;
+                targetAccelFactor = airMultipliers.accelMultiplier;
+                targetDecelFactor = airMultipliers.decelMultiplier;
+                targetMaxSpeedMultiplier = airMultipliers.maxSpeedMultiplier;
                 HandleGravity();
                 break;
         }
 
-        currentAccelFactor = Mathf.Lerp(currentAccelFactor, targetAccelFactor, Time.fixedDeltaTime * smoothSpeed);
-        currentDecelFactor = Mathf.Lerp(currentDecelFactor, targetDecelFactor, Time.fixedDeltaTime * smoothSpeed);
-        currentMaxSpeedMultiplier = Mathf.Lerp(currentMaxSpeedMultiplier, targetMaxSpeedMultiplier, Time.fixedDeltaTime * smoothSpeed);
-
-        HandleMovement(currentAccelFactor, currentMaxSpeedMultiplier, currentDecelFactor);
+        
     }
 
     private void SwitchStanceState(PlayerStanceState newStanceState)
@@ -201,6 +210,13 @@ public class PlayerController : MonoBehaviour
                 HandlePlayerHeight(defaultHeight);
                 break;
         }
+    }
+
+    private void CalculateMovementMultipliers()
+    {
+        currentAccelFactor = Mathf.Lerp(currentAccelFactor, targetAccelFactor, Time.fixedDeltaTime * smoothSpeed);
+        currentDecelFactor = targetDecelFactor;
+        currentMaxSpeedMultiplier = Mathf.Lerp(currentMaxSpeedMultiplier, targetMaxSpeedMultiplier, Time.fixedDeltaTime * smoothSpeed);
     }
 
     private bool IsGrounded()
@@ -263,29 +279,30 @@ public class PlayerController : MonoBehaviour
             //calculate difference in desired velocity and current (self-clamped)
             Vector3 desiredVel = wishDir * maxSpeed * maxSpeedMultiplier;
             Vector3 velDelta = desiredVel - horizontalVel;
-            Vector3 accelStep = Vector3.ClampMagnitude(velDelta, acceleration * accelFactor * Time.fixedDeltaTime);
+            accelVector = velDelta.normalized * acceleration * accelFactor;
 
-            rb.AddForce(accelStep, ForceMode.VelocityChange);
+            //accel = m/s^2
+            if (accelVector.sqrMagnitude > velDelta.sqrMagnitude / (Time.fixedDeltaTime * Time.fixedDeltaTime))
+                accelVector = velDelta / Time.fixedDeltaTime;
+
+            rb.AddForce(accelVector, ForceMode.Acceleration);
         }
         else
         {
-            Vector3 decelStep = -horizontalVel.normalized * friction * decelFactor * Time.fixedDeltaTime;
+            Vector3 decelStep = -horizontalVel.normalized * friction * decelFactor;
 
-            //prevent overshoot when velocity near 0
-            if (decelStep.sqrMagnitude > horizontalVel.sqrMagnitude)
-                decelStep = -horizontalVel;
+            //prevent overshoot when near zero
+            if (decelStep.sqrMagnitude > (horizontalVel.sqrMagnitude / (Time.fixedDeltaTime * Time.fixedDeltaTime)))
+                decelStep = -horizontalVel / Time.fixedDeltaTime;
 
-            rb.AddForce(decelStep, ForceMode.VelocityChange);
+            rb.AddForce(decelStep, ForceMode.Acceleration);
         }
     }
 
     private void Jump()
     {
-        if (_isGrounded)
-        {
+        if(_isGrounded)
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-            audioManager.PlaySFXVaried(audioManager.Jump, 1, 0.2f, 0.5f);
-        }
     }
 
     private void HandleGravity()
