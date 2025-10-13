@@ -5,6 +5,7 @@ public enum LassoState
 {
     Empty,
     Snared,
+    Tethering,
     Swinging,
     PlayerYanking,
     ObjectYanking,
@@ -17,6 +18,8 @@ public class LassoTetherController : MonoBehaviour
     [Header("Components")]
     private Lasso playerLasso;
     private PlayerActions playerActions;
+    private JointTetherPlacer playerTether;
+    private JointTetherActivator playerTetherActivator;
 
     [Header("States")]
     public LassoState CurrentLassoState { get; private set; }
@@ -26,11 +29,14 @@ public class LassoTetherController : MonoBehaviour
     {
         playerLasso = GetComponent<Lasso>();
         playerActions = GetComponent<PlayerActions>();
+        playerTether = GetComponent<JointTetherPlacer>();
+        playerTetherActivator = GetComponent<JointTetherActivator>();
 
         playerLasso.OnObjectYankCompleted += OnObjectYankCompleted;
         playerLasso.OnPlayerYankCompleted += OnPlayerYankCompleted;
         playerLasso.OnLassoReleased += OnLassoReleased;
         playerLasso.OnObjectHit += OnLassoHit;
+        playerTether.OnTetherStartHit += OnTetherStartHit;
     }
 
     private void Update()
@@ -43,6 +49,10 @@ public class LassoTetherController : MonoBehaviour
 
             case LassoState.Snared:
                 HandleSnaredControls();
+                break;
+
+            case LassoState.Tethering:
+                HandleTetherPlacementControls();
                 break;
 
             case LassoState.Swinging:
@@ -65,6 +75,9 @@ public class LassoTetherController : MonoBehaviour
                 HandleUsingControls();
                 break;
         }
+
+        HandleTetherActivation();
+        HandleTetherDestroy();
     }
 
     private void FixedUpdate()
@@ -154,6 +167,11 @@ public class LassoTetherController : MonoBehaviour
         CompareWeightsOnSnare();
     }
 
+    private void OnTetherStartHit()
+    {
+        SwitchLassoState(LassoState.Tethering);
+    }
+
     #endregion
 
     #region Empty Controls
@@ -163,9 +181,48 @@ public class LassoTetherController : MonoBehaviour
         {
             playerLasso.HandleLassoStart();
         }
+        if(playerActions.AltDown)
+        {
+            playerTether.StartTetherPlacement();
+        }
     }
     #endregion
 
+    #region Tether Controls
+    private void HandleTetherPlacementControls()
+    {
+        if(playerActions.AltUp)
+        {
+            playerTether.EndTetherPlacement();
+            SwitchLassoState(LassoState.Empty);
+        }
+    }
+
+    private void HandleTetherActivation()
+    {
+        if (playerActions.InteractDown)
+        {
+            playerTetherActivator.StartActivateTether();
+        }
+        if (playerActions.InteractUp)
+        {
+            playerTetherActivator.EndActivateTether();
+        }
+    }
+
+    private void HandleTetherDestroy()
+    {
+        if(playerActions.CrouchDown)
+        {
+            playerTetherActivator.StartDestroyTether();
+        }
+        if( playerActions.CrouchUp)
+        {
+            playerTetherActivator.EndDestroyTether();
+        }
+
+    }
+    #endregion
     #region Snared Controls
     private void HandleSnaredControls()
     {

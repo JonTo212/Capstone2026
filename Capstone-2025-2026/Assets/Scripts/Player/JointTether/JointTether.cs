@@ -1,9 +1,10 @@
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class JointTether : MonoBehaviour
 {
-    public delegate void TetherDestroyAction();
+    public delegate void TetherDestroyAction(JointTether jointTether);
     public event TetherDestroyAction OnTetherDestroy;
    
     private JointTetherVisuals tetherVisuals;
@@ -16,8 +17,8 @@ public class JointTether : MonoBehaviour
     [Header("Properties")]
     [SerializeField] private bool isAutoActivate = false;
     public bool isActivated { get; private set; } = false;
-    private ConfigurableJoint startJoint;
-    private ConfigurableJoint endJoint;
+    [SerializeField] private ConfigurableJoint startJoint;
+    [SerializeField] private ConfigurableJoint endJoint;
     private Rigidbody startRb;
     private Rigidbody endRb;
     private Transform startTransform;
@@ -68,6 +69,7 @@ public class JointTether : MonoBehaviour
 
     public void ActivateTether()
     {
+        if (startJoint != null && endJoint != null) return;
         startJoint = CreateJoint(startRb, endRb);
         endJoint = CreateJoint(endRb, startRb);
 
@@ -157,21 +159,20 @@ public class JointTether : MonoBehaviour
 
     public void DestroyTether()
     {
-        OnTetherDestroy();
-
         Destroy(startJoint);
         Destroy(endJoint);
 
         if(temporaryStartRbObject != null) Destroy(temporaryStartRbObject);
         if(temporaryEndRbObject != null) Destroy(temporaryEndRbObject);
 
-        Destroy(gameObject);
+        StartCoroutine(DestroyTetherAfterTime());
     }
 
     IEnumerator DestroyTetherAfterTime()
     {
-        yield return new WaitForSeconds(5.0f);
+        yield return new WaitForSeconds(0.2f);
 
-        DestroyTether();
+        OnTetherDestroy(this);
+        Destroy(gameObject);
     }
 }
