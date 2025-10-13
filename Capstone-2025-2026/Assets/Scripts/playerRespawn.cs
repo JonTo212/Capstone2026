@@ -1,0 +1,83 @@
+using UnityEngine;
+using System.Collections;
+using UnityEngine.Rendering;
+using UnityEngine.EventSystems;
+
+public class playerRespawn : MonoBehaviour
+{
+
+    //Components
+    private Rigidbody rb;
+    public ParticleSystem tinyTornado;
+
+    //respawning
+    private Vector3 spawnPosition;
+    public bool isFalling = false;
+    public float returnSpeed;
+    public float returnBuffer = 0.1f;
+    public float respawnHeight = 5f;
+
+    public bool inPlayerView = false;
+    public GameObject playerViewAnchor;
+
+    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    void Start()
+    {
+        //set spawn position
+        spawnPosition = transform.position;
+
+        //get Components
+        rb = GetComponent<Rigidbody>();
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.tag == "Void")
+        {
+            StartCoroutine(Respawn());
+            print("FELL INTO VOID");
+        }
+
+    }
+
+    IEnumerator Respawn()
+    {
+        //Setup 
+        rb.isKinematic = true;
+        isFalling = true;
+
+        //play particle effect
+        tinyTornado.Play();
+
+        // MOVE TOWARDS SPAWN POSITION //
+
+        //check if it is close enough to spawn position
+        var spawnDestination = new Vector3(spawnPosition.x, spawnPosition.y + respawnHeight, spawnPosition.z);
+
+        while (Vector3.Distance(transform.position, spawnDestination) > returnBuffer)
+        {
+
+            //move towards spawn position
+            transform.position = Vector3.MoveTowards(transform.position, spawnDestination, returnSpeed * Time.deltaTime);
+
+            // return when the result is null
+            yield return null;
+        }
+
+        // DELAY TIMER//
+        print("waiting");
+        yield return new WaitForSeconds(1f);
+
+        //RESET//
+        print("reseting");
+
+        //Enable Components
+        rb.isKinematic = false;
+        isFalling = false;
+        inPlayerView = false;
+
+        //end particle effect
+        tinyTornado.Stop();
+
+    }
+}
