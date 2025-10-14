@@ -80,7 +80,7 @@ public class JointTetherPlacer : MonoBehaviour
     {
         if (didStartPointHit)
         {
-            if (GetObjectInPlayerFront(out RaycastHit hit))
+            if (GetObjectInPlayerFront(out RaycastHit hit) && hit.transform != startTransform)
             {
                 SetTetherEndPoint(hit.transform, hit.point);
                 CreateAndInitTether(startTransform, startLocalPosition, endTransform, endLocalPosition, autoActivate);
