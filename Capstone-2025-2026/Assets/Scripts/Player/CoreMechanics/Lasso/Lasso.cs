@@ -22,6 +22,7 @@ public class Lasso : MonoBehaviour
     [Header("Object Yank Properties")]
     [SerializeField] private float handAttachThreshold = 0.2f;
     [SerializeField] private float objectYankDuration = 0.5f;
+    [SerializeField] private float consideredStuckVel = 0.1f;
 
     [Header("Player Yank Properties")]
     [SerializeField] private float playerYankStopBuffer = 0.3f;
@@ -204,13 +205,12 @@ public class Lasso : MonoBehaviour
         float currentDistance = dirToPlayer.magnitude;
         float maxDistance = _anchorDist + maxStretchDist;
         float stretchDistance = currentDistance - _anchorDist;
-        float maxSnapStrength = snapbackImpulseStrength * 5f;
         float accelMagnitudeAway = Vector3.Dot(_playerController.Rb.linearVelocity, pullDirection);
         float normalizedStretch = stretchDistance / maxDistance;
         float tensionFactor = elasticCurve.Evaluate(normalizedStretch);
         Vector3 counterForce = -pullDirection * accelMagnitudeAway * tensionFactor;
 
-        if (currentDistance > maxDistance)
+        if (currentDistance > _anchorDist)
         {
             if (currentDistance >= maxDistance)
             {
@@ -220,7 +220,7 @@ public class Lasso : MonoBehaviour
                 }
                 else if (_isStrainingAtMaxDistance)
                 {
-                    _playerController.Rb.AddForce(-pullDirection * snapbackImpulseStrength, ForceMode.Impulse);
+                    ApplySnapbackForce();
                     _isStrainingAtMaxDistance = false;
                 }
             }
@@ -234,6 +234,13 @@ public class Lasso : MonoBehaviour
         {
             _isStrainingAtMaxDistance = false;
         }
+    }
+
+    public void ApplySnapbackForce()
+    {
+        Vector3 dirToPlayer = HoldPos.position - HitPos;
+        Vector3 pullDirection = dirToPlayer.normalized;
+        _playerController.Rb.AddForce(-pullDirection * snapbackImpulseStrength, ForceMode.Impulse);
     }
 
     #endregion
@@ -291,11 +298,29 @@ public class Lasso : MonoBehaviour
         Vector3 startVel = CalculateObjectYankVelocity(startPosition, HoldPos.position, objectYankDuration);
         SnaredObject.Rb.linearVelocity = Vector3.zero;
         SnaredObject.Rb.AddForce(startVel * SnaredObject.Rb.mass, ForceMode.Impulse);
+        Vector3 previousPos = SnaredObject.transform.position;
+        float stuckTimer = 0;
+        float stuckTime = 0.4f;
 
         while (Vector3.Distance(SnaredObject.transform.position, HoldPos.position) > handAttachThreshold)
         {
             if (SnaredObject == null) break;
 
+            //snapback if object is stuck for too long
+            float displacement = (SnaredObject.transform.position - previousPos).magnitude;
+            previousPos = SnaredObject.transform.position;
+
+            if (displacement < consideredStuckVel)
+                stuckTimer += Time.fixedDeltaTime;
+            else
+                stuckTimer = 0f;
+
+            if (stuckTimer >= stuckTime)
+            {
+                ApplySnapbackForce();
+                HandleObjectReleased();
+                break;
+            }
 
             //calculate correctional pull velocity
             float elapsedTime = Time.time - startTime;
@@ -333,6 +358,7 @@ public class Lasso : MonoBehaviour
         OnObjectYankCompleted?.Invoke();
         _objectYankCoroutine = null;
     }
+
     #endregion
 
     #region Player Yank
