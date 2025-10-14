@@ -34,7 +34,7 @@ public class JointTether : MonoBehaviour
     {
         //StartCoroutine(DestroyTetherAfterTime());
     }
-    public void Init(Transform startTransform, Vector3 startLocalPosition, Transform endTransform, Vector3 endLocalPosition)
+    public void Init(Transform startTransform, Vector3 startLocalPosition, Transform endTransform, Vector3 endLocalPosition, bool autoActivate)
     {
         this.startTransform = startTransform;
         this.startLocalPosition = startLocalPosition;
@@ -51,7 +51,7 @@ public class JointTether : MonoBehaviour
         tetherCollider = transform.GetComponent<JointTetherCollider>();
         tetherCollider.Init(startTransform, startLocalPosition, endTransform, endLocalPosition);
         
-        if(isAutoActivate)
+        if(autoActivate)
         {
             ActivateTether();
         }
