@@ -35,7 +35,7 @@ public class LassoTetherController : MonoBehaviour
 
     private void Update()
     {
-        print(CurrentLassoState);
+        //print(CurrentLassoState);
         switch (CurrentLassoState)
         {
             case LassoState.Empty:
