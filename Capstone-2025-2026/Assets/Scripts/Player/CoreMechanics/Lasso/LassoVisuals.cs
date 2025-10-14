@@ -5,8 +5,12 @@ using UnityEngine;
 [RequireComponent(typeof(LineRenderer))]
 public class LassoVisuals : MonoBehaviour
 {
+    [Header("Components")]
     [SerializeField] private Lasso lassoScript;
     [SerializeField] private LassoTetherController lassoController;
+    [SerializeField] private PlayerActions playerActions;
+
+    [Header("Spring Wave Values")]
     [SerializeField] private int ropeSegmentCount = 50; // reduced for performance
     [SerializeField] private float damper = 15f;
     [SerializeField] private float strength = 800f;
@@ -14,19 +18,24 @@ public class LassoVisuals : MonoBehaviour
     [SerializeField] private float waveCount = 3f;
     [SerializeField] private float waveHeight = 2f;
     [SerializeField] private AnimationCurve affectCurve;
-    [SerializeField] private PlayerActions playerActions;
+
+    [Header("Bend Values")]
+    [SerializeField] private float bendScale = 0.5f;
+    [SerializeField] private float minBend = 0f;
+    [SerializeField] private float maxBend = 2.5f;
 
     private LineRenderer lineRenderer;
+    private Material lineRendererMat;
     private Spring spring;
     private Vector3 currentPullPos;
-    private bool isSpringSettled;
-
     private Vector3 lastMousePosition;
+    private bool isSpringSettled;
     private bool hasMouseMoved = false;
 
     private void Awake()
     {
         lineRenderer = GetComponent<LineRenderer>();
+        lineRendererMat = lineRenderer.material;
         spring = new Spring();
         spring.SetTarget(0);
     }
@@ -116,10 +125,6 @@ public class LassoVisuals : MonoBehaviour
         }
     }
 
-    // Add these variables to the top of your class, outside of any method.
-    // These allow you to control the sideways bend from the Unity Inspector.
-    public float bendAmount = 1.0f; // How much the line bends sideways
-
     private void DrawBendyRope()
     {
         if (lassoScript == null || lineRenderer == null) return;
@@ -128,53 +133,36 @@ public class LassoVisuals : MonoBehaviour
         Vector3 endPoint = lassoScript.HitPos;
         float totalDistance = Vector3.Distance(lassoScript.GetCenterOfScreen(), endPoint);
 
+        //get middle of screen + object hit point and convert to screen space
+        //then, find the opposite vector of the direction vector between the two
         Vector3 screenStart = Camera.main.WorldToScreenPoint(lassoScript.GetCenterOfScreen());
         Vector3 screenEnd = Camera.main.WorldToScreenPoint(endPoint);
         Vector3 screenDirection = (screenEnd - screenStart).normalized;
-
         Vector3 screenPerpendicular = new Vector3(-screenDirection.x, -screenDirection.y, 0f);
 
-        // Project this back into world space
+        //convert the opposite vector back to world space
         Vector3 worldPerpendicular = Camera.main.transform.TransformDirection(screenPerpendicular);
         Vector3 combinedBendAxis = worldPerpendicular.normalized;
 
-        // 1. Calculate two intermediate points (roughly at 1/3 and 2/3 of the way)
-        // Interpolate between start and end, then offset them
-        Vector3 controlPoint1 = Vector3.Lerp(startPoint, endPoint, 0.5f);
-        Vector3 controlPoint2 = Vector3.Lerp(startPoint, endPoint, 0.75f);
+        //one point at midpoint, one at 3/4
+        Vector3 controlPoint1 = Vector3.Lerp(startPoint, endPoint, 0.33f);
+        Vector3 controlPoint2 = Vector3.Lerp(startPoint, endPoint, 0.67f);
 
-        // 2. Add a sideways offset to create the bend.
-        // The bend amount can be scaled by the distance to make it more noticeable
-        // over longer distances, or kept constant.
-        float bendScale = 0.5f;   // how much bend per unit distance
-        float minBend = 0f;     // minimum bend amount
-        float maxBend = 5f;      // max cap
+        //determine how much the object can bend
         float currentBendOffset = Mathf.Clamp(totalDistance * bendScale, minBend, maxBend);
-
-
         controlPoint1 += combinedBendAxis * currentBendOffset;
-        controlPoint2 += combinedBendAxis * currentBendOffset; // You could offset this by a different amount for a more complex curve
+        controlPoint2 += combinedBendAxis * currentBendOffset; 
 
-
-        // 3. Create the input array with points that now form an arc
         Vector3[] linePositions = new Vector3[4]
-        {
-        startPoint,
-        controlPoint1,
-        controlPoint2,
-        endPoint
-        };
+        {  startPoint, controlPoint1, controlPoint2, endPoint };
 
-        // 4. Pass these arced points to your existing smoother
         Vector3[] smoothedPoints = LineSmoother.SmoothLine(linePositions, 0.1f);
 
-        // Set line settings
         lineRenderer.positionCount = smoothedPoints.Length;
         lineRenderer.SetPositions(smoothedPoints);
         lineRenderer.startWidth = 0.1f;
         lineRenderer.endWidth = 0.1f;
     }
-
 
     private void ResetRope()
     {
