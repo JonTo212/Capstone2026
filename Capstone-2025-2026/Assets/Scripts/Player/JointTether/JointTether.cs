@@ -73,8 +73,8 @@ public class JointTether : MonoBehaviour
         startJoint = CreateJoint(startRb, endRb);
         endJoint = CreateJoint(endRb, startRb);
 
-        CreateJointConnections(startJoint, startLocalPosition, endLocalPosition, temporaryStartRbObject);
-        CreateJointConnections(endJoint, endLocalPosition, startLocalPosition, temporaryEndRbObject);
+        CreateJointConnections(startJoint, startLocalPosition, endLocalPosition,temporaryStartRbObject, temporaryEndRbObject);
+        CreateJointConnections(endJoint, endLocalPosition, startLocalPosition,temporaryEndRbObject, temporaryStartRbObject);
 
         isActivated = true;
 
@@ -139,11 +139,12 @@ public class JointTether : MonoBehaviour
         return joint;
     }
 
-    private void CreateJointConnections(ConfigurableJoint joint, Vector3 sourceLocalPosition, Vector3 targetLocalPosition, GameObject temporaryRbObject)
+    private void CreateJointConnections(ConfigurableJoint joint, Vector3 sourceLocalPosition, Vector3 targetLocalPosition,GameObject temporaryRbSource, GameObject temporaryRbTarget)
     {
-        joint.anchor = sourceLocalPosition;
+        if (temporaryRbSource == null) joint.anchor = sourceLocalPosition;
+        else joint.anchor = Vector3.zero;
 
-        if(temporaryRbObject == null) joint.connectedAnchor = targetLocalPosition;
+        if(temporaryRbTarget == null) joint.connectedAnchor = targetLocalPosition;
         else joint.connectedAnchor = Vector3.zero;
     }
 
