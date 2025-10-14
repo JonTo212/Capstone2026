@@ -35,8 +35,6 @@ public class Lasso : MonoBehaviour
     [Header("Swinging")]
     [SerializeField] private float springRate = 10f;
     [SerializeField] private float swingJumpForce = 5f;
-    [SerializeField] private float maxRopeLength = 10f;
-    [SerializeField] private float minRopeLength = 5f;
 
     [Header("Internal Variables")]
     private AimAssist _aimAssist;
@@ -166,11 +164,11 @@ public class Lasso : MonoBehaviour
     #endregion
 
     #region Hold Object At Center
-    public void HandleObjectHoldAtDistance()
+    public void HandleObjectHoldAtDistance(Vector3 desiredPos)
     {
         if (SnaredObject == null) return;
 
-        Vector3 dirToHoldPos = GetCenterOfScreen() - HitPos;
+        Vector3 dirToHoldPos = desiredPos - HitPos;
         SnaredObject.Rb.AddForceAtPosition(dirToHoldPos * centerStrength, HitPos, ForceMode.Force);
     }
 
@@ -254,8 +252,8 @@ public class Lasso : MonoBehaviour
         joint.connectedAnchor = HitPos;
 
         float currentDist = Vector3.Distance(HoldPos.position, HitPos);
-        joint.maxDistance = maxRopeLength;
-        joint.minDistance = minRopeLength;
+        joint.maxDistance = _anchorDist * 0.9f;
+        joint.minDistance = _anchorDist * 0.2f;
 
         joint.spring = springRate;
         float damping = 2f * Mathf.Sqrt(joint.spring * _playerController.Rb.mass);
@@ -294,7 +292,7 @@ public class Lasso : MonoBehaviour
         Vector3 startPosition = SnaredObject.transform.position;
         float startTime = Time.time;
 
-        //Apply initial velocity
+        //apply initial velocity
         Vector3 startVel = CalculateObjectYankVelocity(startPosition, HoldPos.position, objectYankDuration);
         SnaredObject.Rb.linearVelocity = Vector3.zero;
         SnaredObject.Rb.AddForce(startVel * SnaredObject.Rb.mass, ForceMode.Impulse);

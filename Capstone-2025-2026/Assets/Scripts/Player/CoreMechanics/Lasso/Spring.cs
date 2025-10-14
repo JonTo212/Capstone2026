@@ -48,4 +48,5 @@ public class Spring
     }
 
     public float Value => value;
+    public float Velocity => velocity;
 }
