@@ -10,7 +10,7 @@ using static UnityEngine.GraphicsBuffer;
 public class CircleOrbit : MonoBehaviour
 {
     [Header("Components")]
-    public GameObject debris;
+    public GameObject [] debris;
     private SphereCollider sphereCollider;
 
 
@@ -57,7 +57,8 @@ public class CircleOrbit : MonoBehaviour
 
             randomCircle = new Vector3(Mathf.Cos(angle * Mathf.Deg2Rad), 0, Mathf.Sin(angle * Mathf.Deg2Rad));
 
-            Instantiate(debris, transform.position+randomCircle*radius, Quaternion.identity, this.transform);
+            GameObject newDebris = debris[Random.Range(0, debris.Length)];
+            Instantiate(newDebris, transform.position+randomCircle*radius, Quaternion.identity, this.transform);
         }
     }
 
