@@ -1,11 +1,13 @@
 using UnityEngine;
 using System;
+using System.Collections.Generic;
 
 [RequireComponent(typeof(Rigidbody), typeof(Outline))]
-public abstract class Prop : MonoBehaviour, ISnareable, IHoldable
+public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
 {
     //protected means only derived classes can access these values
     protected Rigidbody rb;
+    protected List<GameObject> attachedTethers = new List<GameObject>();
     protected float defaultDrag;
     protected float defaultAngularDrag;
 
@@ -13,6 +15,8 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable
     public virtual bool IsHeld { get; protected set; } = false;
     public virtual bool IsSnared { get; protected set; } = false;
     public virtual bool IsBeingPulled { get; set; } = false;
+    public virtual bool isTetherAttached { get; protected set; } = false;
+    public virtual bool isTetherPulled { get; protected set; } = false;
     public Rigidbody Rb => rb;
     public Transform AttachedTransform { get; set; }
     public Outline ObjectOutline { get; set; }
@@ -69,6 +73,29 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable
         AttachedTransform = null;
     }
 
+    public virtual void OnAttachTether()
+    {
+        isTetherAttached = true;
+    }
+
+    public virtual void OnTetherPull(GameObject tether)
+    {
+        isTetherAttached = false;
+        isTetherPulled = true;
+        attachedTethers.Add(tether);
+        rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+    }
+
+    public virtual void OnDetachTether(GameObject tether)
+    {
+        isTetherAttached = false;
+        attachedTethers.Remove(tether);
+        if (attachedTethers.Count <= 0)
+        {
+            isTetherAttached = false;
+            rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
+        }
+    }
     public virtual void ActivateOutline(bool activate)
     {
         ObjectOutline.enabled = activate;
