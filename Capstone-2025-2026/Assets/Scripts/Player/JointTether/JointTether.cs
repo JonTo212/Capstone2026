@@ -71,6 +71,16 @@ public class JointTether : MonoBehaviour
     public void ActivateTether()
     {
         if (startJoint != null && endJoint != null) return;
+
+        if (startTransform.GetComponent<Prop>() != null)
+        {
+            startTransform.GetComponent<Prop>().OnTetherPull(gameObject);
+        }
+        if (endTransform.GetComponent<Prop>() != null)
+        {
+            endTransform.GetComponent<Prop>().OnTetherPull(gameObject);
+        }
+
         StartCoroutine(ActivateTetherAfterDelay());
     }
 
@@ -153,6 +163,15 @@ public class JointTether : MonoBehaviour
 
     public void DestroyTether()
     {
+        if (startTransform.GetComponent<Prop>() != null)
+        {
+            startTransform.GetComponent<Prop>().OnDetachTether(gameObject);
+        }
+        if (endTransform.GetComponent<Prop>() != null)
+        {
+            endTransform.GetComponent<Prop>().OnDetachTether(gameObject);
+        }
+
         Destroy(startJoint);
         Destroy(endJoint);
 
