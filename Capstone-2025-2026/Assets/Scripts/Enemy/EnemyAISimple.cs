@@ -17,11 +17,16 @@ public class EnemyAISimple : MonoBehaviour
     public GameObject eyes;
 
     //Patrolling
+    public Material chillMat;
     public Vector3 walkPoint;
     bool walkPointSet;
     public float walkPointRange;
 
     //Attacking
+    public Material exclamationMat;
+    public Material spottedMat;
+    public Material angryMat;
+    public Material deathMat;
     public string attackMode;
     public float timeBetweenAttacks;
     bool alreadyAttacked;
@@ -75,6 +80,19 @@ public class EnemyAISimple : MonoBehaviour
         {
             Perish();
         }
+
+        if(currentState == "patrolling")
+        {
+            GetComponent<MeshRenderer>().material = chillMat;
+        }
+        else if(currentState == "chase")
+        {
+            GetComponent<MeshRenderer>().material = spottedMat;
+        }
+        else
+        {
+            GetComponent<MeshRenderer>().material = angryMat;
+        }
     }
 
     #region Patrolling State
@@ -112,10 +130,12 @@ public class EnemyAISimple : MonoBehaviour
 
     #region Chase State
     private void ChasePlayer() {
+
         GetComponent<NavMeshAgent>().speed = 5f;
         currentState = "chase";
         agent.SetDestination(player.position);
         transform.LookAt(player);
+        
     }
 
     #endregion
@@ -184,8 +204,8 @@ public class EnemyAISimple : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        GameObject hitObject = collision.gameObject;
-        if (hitObject.TryGetComponent<Outline>(out Outline outline) && !hitObject.TryGetComponent<EnvironmentalProp>(out EnvironmentalProp prop))
+                GameObject hitObject = collision.gameObject;
+        if (hitObject.TryGetComponent(out Prop prop))
         {
             float speed = hitObject.GetComponent<Rigidbody>().angularVelocity.magnitude;
             if(speed > 5f)
@@ -205,6 +225,7 @@ public class EnemyAISimple : MonoBehaviour
             agent.SetDestination(transform.position);
             currentState = "dying";
             ParticleSystem partSys = GetComponent<ParticleSystem>();
+            GetComponent<ParticleSystemRenderer>().material = deathMat;
             partSys.Play();
             Debug.Log("Enemy has Perished");
             Invoke(nameof(DestroyEnemy), 3f);
