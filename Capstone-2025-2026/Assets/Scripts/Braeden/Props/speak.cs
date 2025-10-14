@@ -23,7 +23,6 @@ public class speak : MonoBehaviour
             Vector3 target = other.transform.position - transform.position;
             Vector3 newDirection = Vector3.RotateTowards(transform.forward, target, 15f, 0.0f);
             transform.rotation = Quaternion.LookRotation(newDirection);
-
         }
 
     }
