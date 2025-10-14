@@ -147,8 +147,8 @@ public class JointTetherVisuals : MonoBehaviour
         }
 
         LineRenderer line = this.GetComponent<LineRenderer>();
-        line.startWidth = lineWidth * 0.3f;
-        line.endWidth = lineWidth * 0.3f;
-        lineWidth *= 0.3f;
+        line.startWidth = lineWidth * 0.4f;
+        line.endWidth = lineWidth * 0.4f;
+        lineWidth *= 0.4f;
     }
 }
