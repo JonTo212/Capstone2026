@@ -15,7 +15,7 @@ public class AnimalJar : MonoBehaviour
     //Components
     private Rigidbody rb;
     private Collider col;
-    private Tetherable tetherScript;
+    private Prop tetherScript;
 
     //particles
     public GameObject explodeParticle;
@@ -62,7 +62,7 @@ public class AnimalJar : MonoBehaviour
         col = GetComponent<SphereCollider>();
         tinyTornado = GetComponentInChildren<ParticleSystem>();
         audioSource = GetComponent<AudioSource>();
-        tetherScript = GetComponent<Tetherable>();
+        tetherScript = GetComponent<Prop>();
 
         camera = Camera.main;
     }

@@ -3,6 +3,7 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class Tetherable : MonoBehaviour
 {
+    public bool isHeld;
     private Rigidbody rb;
     private float defaultDrag;
     private float defaultAngularDrag;

@@ -11,9 +11,10 @@ GameObject:
   - component: {fileID: 97755996859826898}
   - component: {fileID: 5691337194074702416}
   - component: {fileID: 6318971762255204759}
-  - component: {fileID: 4978145715085473767}
   - component: {fileID: 3305347931001343109}
   - component: {fileID: 7371941264431443198}
+  - component: {fileID: -3825818817065192274}
+  - component: {fileID: 7722326307133996800}
   m_Layer: 3
   m_Name: bever
   m_TagString: animal
@@ -85,19 +86,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &4978145715085473767
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6607549945147449428}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ae86f25964bff124a85362acb46a52b7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Tetherable
-  isHeld: 0
 --- !u!114 &3305347931001343109
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -214,6 +202,36 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &-3825818817065192274
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6607549945147449428}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Outline
+  outlineMode: 0
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 2
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
+--- !u!114 &7722326307133996800
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6607549945147449428}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8da93e4e5dee9534a953a3c66c18ff57, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnvironmentalProp
 --- !u!1001 &7304579093713971139
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -11,34 +11,28 @@ public class CircleOrbit : MonoBehaviour
 {
     [Header("Components")]
     public GameObject debris;
-    private Tetherable tetherableScript;
     private SphereCollider sphereCollider;
 
 
-
-
     [Header ("Orbit Properties")]
-    private float radius;
-    private float colliderBuffer; // should shrink the collider a a bit so debris doesnt get too far away
+    [SerializeField] private float maxHeight;
     public float minSpawnRadius;
     public float maxSpawnRadius;
-    [SerializeField] private float maxHeight;
     public float spawnAmount;
-
+    private float radius;
+    private float colliderBuffer; // should shrink the collider a a bit so debris doesnt get too far away
 
     [Header("Debris Properties")]
     public float baseOrbitSpeed;
-    private float orbitSpeed;
     public float orbitSpeedVariation;
-
     public float slowSpd;
-
+    private float orbitSpeed;
     private Vector3 randomCircle;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        DebrisSpawner();
+        SpawnDebris();
 
         //random orbit speed
         orbitSpeed = Random.Range(baseOrbitSpeed - orbitSpeedVariation, baseOrbitSpeed + orbitSpeedVariation);
@@ -51,12 +45,11 @@ public class CircleOrbit : MonoBehaviour
 
     private void FixedUpdate()
     {
-        DebrisOrbitLogic();
+        UpdateDebrisInOrbit();
     }
 
-    void DebrisSpawner() //https://discussions.unity.com/t/finding-a-circumference-point/35284
+    void SpawnDebris() //https://discussions.unity.com/t/finding-a-circumference-point/35284
     {
-        
         for (int i = 0; i < spawnAmount; i++)
         {
             radius = Random.Range(minSpawnRadius, maxSpawnRadius);
@@ -68,43 +61,37 @@ public class CircleOrbit : MonoBehaviour
         }
     }
 
-    void DebrisOrbitLogic()
+    void UpdateDebrisInOrbit()
     {
         foreach (Transform child in transform)
         {
             // Spin children around parent
             child.transform.RotateAround(new Vector3(transform.position.x, transform.position.y, transform.position.z), Vector3.up, orbitSpeed * Time.deltaTime);
 
-            //get tetherscript from each child
-            tetherableScript = child.GetComponent<Tetherable>();
-
             //unparent if held
-            if (tetherableScript.isHeld)
+            if (child.GetComponent<Prop>().IsHeld)
             {
                 child.transform.parent = null;
-                print("ORPHAN");
+                //print("ORPHAN");
             }
         }
-
     }
-
     
     private void OnTriggerStay(Collider other)
     {
-        if (other.GetComponent<Tetherable>())
+        if (other.GetComponent<Prop>())
         {
-            if (!other.GetComponent<Tetherable>().isHeld)
+            if (!other.GetComponent<Prop>().IsHeld)
             {
                 //get distance between self and target
-                var orbitPos = new Vector2(transform.position.x, transform.position.z);
-                var debrisPos = new Vector2(other.transform.position.x, other.transform.position.z);
+                Vector2 orbitPos = new Vector2(transform.position.x, transform.position.z);
+                Vector2 debrisPos = new Vector2(other.transform.position.x, other.transform.position.z);
 
-                var diff = Vector2.Distance(orbitPos, debrisPos);
-                var heightDiff = Mathf.Abs(transform.position.y - other.transform.position.y);
-
+                float orbitToDebrisDist = Vector2.Distance(orbitPos, debrisPos);
+                float orbitToDebrisHeigtDiff = Mathf.Abs(transform.position.y - other.transform.position.y);
 
                 //check distance
-                if ((diff < maxSpawnRadius) && (diff > minSpawnRadius) && (heightDiff < maxHeight))// && (heightDiff < maxHeight)) /*&& target.GetComponent<Rigidbody>().linearVelocity.magnitude > 10f*/
+                if ((orbitToDebrisDist < maxSpawnRadius) && (orbitToDebrisDist > minSpawnRadius) && (orbitToDebrisHeigtDiff < maxHeight))// && (orbitToDebrisHeigtDiff < maxHeight)) /*&& target.GetComponent<Rigidbody>().linearVelocity.magnitude > 10f*/
                 {
                     //set parent
                     other.transform.parent = this.transform;
@@ -118,7 +105,7 @@ public class CircleOrbit : MonoBehaviour
                     //other.GetComponent<Rigidbody>().linearVelocity = Vector3.zero;
 
                     
-                    var rb = other.GetComponent<Rigidbody>();
+                    Rigidbody rb = other.GetComponent<Rigidbody>();
 
                     if (rb.linearVelocity.magnitude > 0.05f)
                     {
@@ -128,7 +115,6 @@ public class CircleOrbit : MonoBehaviour
                     {
                         rb.linearVelocity = Vector3.zero;
                     }
-                    
 
                 }
                 else
@@ -139,10 +125,6 @@ public class CircleOrbit : MonoBehaviour
                     other.transform.parent = null;
                 }
             }
-
-
         }
     }
-
-
 }

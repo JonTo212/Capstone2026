@@ -17,6 +17,8 @@ GameObject:
   - component: {fileID: 1306747076046649129}
   - component: {fileID: 5271329065718155716}
   - component: {fileID: 5263988245269767260}
+  - component: {fileID: 5876903440246381635}
+  - component: {fileID: 2136106674018639640}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -286,6 +288,48 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80a740280c73cb54a987b08758d98485, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LassoTetherController
+--- !u!114 &5876903440246381635
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1858459307730020289}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f261c87710169f4ba9cb1c35b8ec7bc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JointTetherActivator
+  tetherLayerMask:
+    serializedVersion: 2
+    m_Bits: 128
+  activationRange: 50
+  timeToActivateAllTethers: 0.8
+  timeToDestroyAllTethers: 0.8
+  placedTethers: []
+--- !u!114 &2136106674018639640
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1858459307730020289}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d774eb208531774288bd82ac6de1218, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JointTetherPlacer
+  tetherPreviewLinePrefab: {fileID: 9078681742910677703, guid: 069705ce75398c641bd5efaf40dbcc73, type: 3}
+  jointTetherPrefab: {fileID: 9078681742910677703, guid: 06b97e6d73a6f2b449340cf5cd8d5111, type: 3}
+  tetherLayerMask:
+    serializedVersion: 2
+    m_Bits: 128
+  numOfTethersPlaced: 0
+  autoActivateTether: 0
+  maxTetherStartDist: 50
+  maxNumOfTethers: 3
+  timeToActivateAllTethers: 0.8
+  timeToDestroyAllTethers: 0.8
 --- !u!1 &2332506711591357208
 GameObject:
   m_ObjectHideFlags: 0
