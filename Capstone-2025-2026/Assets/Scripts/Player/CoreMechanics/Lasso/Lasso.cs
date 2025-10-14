@@ -406,14 +406,13 @@ public class Lasso : MonoBehaviour
     {
         if (SnaredObject == null) return;
 
-        if (swingJoint != null) Destroy(swingJoint);
-
         SnaredObject.OnPropDestroyed -= HandleObjectReleased;
         SnaredObject.ActivateOutline(false);
         SnaredObject.OnRelease();
         SnaredObject = null;
         _snaredObjTransform = null;
 
+        if (swingJoint != null) Destroy(swingJoint);
         OnLassoReleased?.Invoke();
     }
     #endregion
