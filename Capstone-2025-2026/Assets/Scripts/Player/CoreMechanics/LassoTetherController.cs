@@ -25,6 +25,7 @@ public class LassoTetherController : MonoBehaviour
 
     [Header("States")]
     public LassoState CurrentLassoState { get; private set; }
+    private Coroutine _yankCheckCoroutine;
 
     #region Unity Functions
     private void Awake()
@@ -81,7 +82,6 @@ public class LassoTetherController : MonoBehaviour
                 HandleUsingControls();
                 break;
         }
-        print(CurrentLassoState);
         HandleTetherActivation();
         HandleTetherDestroy();
     }
@@ -154,6 +154,12 @@ public class LassoTetherController : MonoBehaviour
 
     private void OnObjectYankCompleted()
     {
+        if (playerLasso.SnaredObject == null)
+        {
+            SwitchLassoState(LassoState.Empty);
+            return;
+        }
+
         if (playerLasso.SnaredObject.TryGetComponent(out IActivatable activatable)) SwitchLassoState(LassoState.Using);
         else SwitchLassoState(LassoState.Held);
     }
@@ -235,10 +241,8 @@ public class LassoTetherController : MonoBehaviour
     {
         if (playerActions.AltDown)
         {
-            //CompareWeightsOnYank();
-
-            SwitchLassoState(LassoState.SnaredTether);
-            playerTether.StartTetherPlacement(playerLasso.SnaredObject.transform, playerLasso.HitPos);
+            if (_yankCheckCoroutine != null) StopCoroutine(_yankCheckCoroutine);
+            _yankCheckCoroutine = StartCoroutine(CheckIfTap());
         }
 
         if (playerActions.MainUp)
@@ -247,8 +251,24 @@ public class LassoTetherController : MonoBehaviour
         }
     }
 
+    private IEnumerator CheckIfTap()
+    {
+        yield return new WaitForSeconds(0.175f);
+
+        if (playerActions.AltHeld)
+        {
+            SwitchLassoState(LassoState.SnaredTether);
+            playerTether.StartTetherPlacement(playerLasso.SnaredObject.transform, playerLasso.HitPos);
+        }
+        else
+        {
+            CompareWeightsOnYank();
+        }
+    }
+
     #endregion
 
+    #region Snared Tether Controls
     private void HandleSnaredTetherControls()
     {
         playerLasso.HandleObjectHoldAtDistance(playerLasso.HitPos);
@@ -260,6 +280,7 @@ public class LassoTetherController : MonoBehaviour
             SwitchLassoState(LassoState.Empty);
         }
     }
+    #endregion
 
     #region Swinging Controls
 

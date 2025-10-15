@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Lasso : MonoBehaviour
@@ -24,6 +25,9 @@ public class Lasso : MonoBehaviour
     [SerializeField] private float objectYankDuration = 0.5f;
     [SerializeField] private float consideredStuckVel = 0.1f;
     [SerializeField] private float equalWeightYankForce = 5f;
+    [SerializeField] private float maxObjectVelocity = 10f;
+    [SerializeField] private float pullForce = 32f;
+    [SerializeField] private float velocityDistanceThreshold = 2f;
 
     [Header("Player Yank Properties")]
     [SerializeField] private float playerYankStopBuffer = 0.3f;
@@ -169,7 +173,7 @@ public class Lasso : MonoBehaviour
     public void HandleObjectHoldAtDistance(Vector3 desiredPos)
     {
         if (SnaredObject == null) return;
-
+         
         Vector3 dirToHoldPos = desiredPos - HitPos;
         SnaredObject.Rb.AddForceAtPosition(dirToHoldPos * centerStrength, HitPos, ForceMode.Force);
     }
@@ -182,6 +186,17 @@ public class Lasso : MonoBehaviour
 
     /*public void MoveObjectToPos(Vector3 desiredPos)
     {
+        if (SnaredObject == null) return;
+
+        float currentDist = Vector3.Distance(desiredPos, HitPos);
+        float currentSpeed = Mathf.SmoothStep(0f, centerStrength, currentDist / 5f) * Time.fixedDeltaTime;
+        Vector3 direction = desiredPos - HitPos;
+        SnaredObject.Rb.linearVelocity = direction.normalized * currentSpeed;
+        SnaredObject.Rb.angularVelocity *= 0.99f;
+    }*/
+
+    public void MoveObjectToPos(Vector3 desiredPos)
+    {
         Vector3 attachPointWorld = SnaredObject.transform.TransformPoint(_attachPointLocal); 
         Vector3 pointVelocity = SnaredObject.Rb.GetPointVelocity(attachPointWorld); 
         Vector3 displacement = desiredPos - attachPointWorld; 
@@ -192,7 +207,7 @@ public class Lasso : MonoBehaviour
         
         SnaredObject.Rb.AddForceAtPosition(springForce + dampingForce, attachPointWorld, ForceMode.Acceleration); //accel works because the damping already takes into account mass
         SnaredObject.Rb.angularVelocity *= 0.99f; //stop excessive spin
-    }*/
+    }
     #endregion
 
     #region Snapback
@@ -284,6 +299,52 @@ public class Lasso : MonoBehaviour
         }
 
         _objectYankCoroutine = StartCoroutine(YankObjectCoroutine());
+    }
+
+    private IEnumerator YankObjectWithForce()
+    {
+        SnaredObject.Rb.useGravity = true;
+        SnaredObject.Rb.linearDamping = 0f;
+
+        bool shouldSkipYankLoop = SnaredObject.Rb.mass == _playerController.Rb.mass;
+        if (shouldSkipYankLoop)
+        {
+            Vector3 startPosition = SnaredObject.transform.position;
+            Vector3 endPosition = HoldPos.position;
+            Vector3 toPlayer = endPosition - startPosition;
+            SnaredObject.Rb.AddForceAtPosition(equalWeightYankForce * toPlayer.normalized, HitPos, ForceMode.Impulse);
+            HandleObjectReleased();
+        }
+        else
+        {
+            while (Vector3.Distance(SnaredObject.transform.position, HoldPos.position) > handAttachThreshold)
+            {
+                if (SnaredObject == null) break;
+
+                Vector3 startPosition = SnaredObject.transform.position;
+                Vector3 endPosition = HoldPos.position;
+                Vector3 toPlayer = endPosition - startPosition;
+
+                if (SnaredObject.Rb.linearVelocity.magnitude < maxObjectVelocity && toPlayer.magnitude > velocityDistanceThreshold)
+                {
+                    SnaredObject.Rb.AddForce(pullForce * toPlayer.normalized, ForceMode.Force);
+                }
+                else
+                {
+                    SnaredObject.Rb.linearVelocity = toPlayer.normalized * maxObjectVelocity;
+                }
+
+                yield return new WaitForFixedUpdate();
+            }
+            if (SnaredObject != null)
+            {
+                SnaredObject.OnHold(HoldPos);
+                SnaredObject.AttachedTransform = transform;
+            }
+        }
+
+        OnObjectYankCompleted?.Invoke();
+        _objectYankCoroutine = null;
     }
 
     private IEnumerator YankObjectCoroutine()

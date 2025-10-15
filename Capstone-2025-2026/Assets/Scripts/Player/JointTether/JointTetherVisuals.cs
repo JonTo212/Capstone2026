@@ -91,8 +91,6 @@ public class JointTetherVisuals : MonoBehaviour
 
     private void GetPoints()
     {
-        Debug.Log("Line");
-
         //add positions
         linePositions = new Vector3[linePoints.Length];
         for (int i = 0; i < linePoints.Length; i++)

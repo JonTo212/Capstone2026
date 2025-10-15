@@ -217,9 +217,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Lasso
   <HoldPos>k__BackingField: {fileID: 4691526263708714763}
-  playerCam: {fileID: 5305364527564088330}
+  <PlayerCam>k__BackingField: {fileID: 5305364527564088330}
   lassoRange: 25
-  centerStrength: 250
+  centerStrength: 125
   throwStrength: 25
   aimAssistType: 0
   aimAssistBufferRadius: 1.5
@@ -228,8 +228,9 @@ MonoBehaviour:
   handAttachThreshold: 0.2
   objectYankDuration: 0.5
   consideredStuckVel: 0.1
+  equalWeightYankForce: 5
   playerYankStopBuffer: 0.3
-  maxStretchDist: 1
+  maxStretchDist: 2.5
   elasticCurve:
     serializedVersion: 2
     m_Curve:
@@ -275,8 +276,6 @@ MonoBehaviour:
   snapbackImpulseStrength: 20
   springRate: 10
   swingJumpForce: 5
-  maxRopeLength: 25
-  minRopeLength: 2.5
 --- !u!114 &5263988245269767260
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -685,6 +684,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LassoVisuals
   lassoScript: {fileID: 5271329065718155716}
   lassoController: {fileID: 5263988245269767260}
+  playerActions: {fileID: 1306747076046649129}
   ropeSegmentCount: 50
   damper: 15
   strength: 800
@@ -715,8 +715,9 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  playerActions: {fileID: 1306747076046649129}
-  bendAmount: 1
+  bendScale: 0.25
+  minBend: 0
+  maxBend: 1
 --- !u!1 &5754198519069758869
 GameObject:
   m_ObjectHideFlags: 0
