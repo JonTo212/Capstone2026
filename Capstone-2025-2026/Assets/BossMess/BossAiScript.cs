@@ -44,6 +44,7 @@ public class BossAiScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //Freeze Rotation for tilting up
         if(health <= 0)
         {
             Perish();
@@ -99,6 +100,7 @@ public class BossAiScript : MonoBehaviour
     {
         yield return new WaitForSeconds(timer);
         GameObject spawnedProjectile = Instantiate(projectile, location.position, Quaternion.identity, thingThatmMakesTheProjectilesNotGiant.transform);
+        spawnedProjectile.GetComponent<BossProjectile>().bossRef = gameObject;
 
     }
 
