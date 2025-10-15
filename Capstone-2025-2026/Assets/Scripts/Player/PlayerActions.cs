@@ -3,7 +3,6 @@ using UnityEngine.InputSystem;
 
 public class PlayerActions : MonoBehaviour
 {
-    private InputAction moveAction;
     private InputAction lookAction;
     private InputAction scrollAction;
     private InputAction jumpAction;
@@ -12,8 +11,9 @@ public class PlayerActions : MonoBehaviour
     private InputAction mainAction;
     private InputAction altAction;
     private InputAction interactAction;
+    public InputAction MoveAction { get; set; }
 
-    public Vector2 MoveInput => moveAction.ReadValue<Vector2>();
+    public Vector2 MoveInput => MoveAction.ReadValue<Vector2>();
     public Vector2 LookInput => lookAction.ReadValue<Vector2>();
 
     public float ScrollAction => scrollAction.ReadValue<float>();  
@@ -45,7 +45,7 @@ public class PlayerActions : MonoBehaviour
     private void Awake()
     {
         var map = InputSystem.actions;
-        moveAction = map.FindAction("Move");
+        MoveAction = map.FindAction("Move");
         lookAction = map.FindAction("Look");
         scrollAction = map.FindAction("ScrollWheel");
         jumpAction = map.FindAction("Jump");
@@ -58,7 +58,7 @@ public class PlayerActions : MonoBehaviour
 
     private void OnEnable()
     {
-        moveAction.Enable();
+        MoveAction.Enable();
         lookAction.Enable();
         scrollAction.Enable();
         jumpAction.Enable();
@@ -71,7 +71,7 @@ public class PlayerActions : MonoBehaviour
 
     private void OnDisable()
     {
-        moveAction.Disable();
+        MoveAction.Disable();
         lookAction.Disable();
         scrollAction.Disable();
         jumpAction.Disable();

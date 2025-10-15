@@ -2,6 +2,7 @@ using UnityEngine;
 
 public interface ITetherable
 {
-    void AttachTether(Transform tetherPoint);
-    void DetachTether();
+    void OnAttachTether();
+    void OnTetherPull(GameObject tether);
+    void OnDetachTether(GameObject tether);
 }

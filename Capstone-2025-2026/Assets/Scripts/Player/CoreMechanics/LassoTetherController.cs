@@ -1,4 +1,5 @@
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public enum LassoState
@@ -6,6 +7,7 @@ public enum LassoState
     Empty,
     Snared,
     Tethering,
+    SnaredTether,
     Swinging,
     PlayerYanking,
     ObjectYanking,
@@ -55,6 +57,10 @@ public class LassoTetherController : MonoBehaviour
                 HandleTetherPlacementControls();
                 break;
 
+            case LassoState.SnaredTether:
+                HandleSnaredTetherControls();
+                break;
+
             case LassoState.Swinging:
                 HandleSwingingControls();
                 break;
@@ -75,7 +81,7 @@ public class LassoTetherController : MonoBehaviour
                 HandleUsingControls();
                 break;
         }
-
+        print(CurrentLassoState);
         HandleTetherActivation();
         HandleTetherDestroy();
     }
@@ -87,11 +93,11 @@ public class LassoTetherController : MonoBehaviour
             playerLasso.HandleSnapback();
             if (playerActions.MainHeld)
             {
-                playerLasso.HandleObjectHoldAtDistance();
+                playerLasso.HandleObjectHoldAtDistance(playerLasso.GetCenterOfScreen());
             }
         }
         else if (CurrentLassoState == LassoState.Held || CurrentLassoState == LassoState.Using)
-        {
+        {         
             playerLasso.RotateHeldObject();
         }
     }
@@ -193,7 +199,7 @@ public class LassoTetherController : MonoBehaviour
     {
         if(playerActions.AltUp)
         {
-            playerTether.EndTetherPlacement();
+            playerTether.EndTetherPlacement(false);
             SwitchLassoState(LassoState.Empty);
         }
     }
@@ -223,12 +229,16 @@ public class LassoTetherController : MonoBehaviour
 
     }
     #endregion
+
     #region Snared Controls
     private void HandleSnaredControls()
     {
         if (playerActions.AltDown)
         {
-            CompareWeightsOnYank();
+            //CompareWeightsOnYank();
+
+            SwitchLassoState(LassoState.SnaredTether);
+            playerTether.StartTetherPlacement(playerLasso.SnaredObject.transform, playerLasso.HitPos);
         }
 
         if (playerActions.MainUp)
@@ -238,6 +248,18 @@ public class LassoTetherController : MonoBehaviour
     }
 
     #endregion
+
+    private void HandleSnaredTetherControls()
+    {
+        playerLasso.HandleObjectHoldAtDistance(playerLasso.HitPos);
+
+        if(playerActions.AltUp)
+        {
+            playerTether.EndTetherPlacement(true);
+            playerLasso.HandleObjectReleased();
+            SwitchLassoState(LassoState.Empty);
+        }
+    }
 
     #region Swinging Controls
 

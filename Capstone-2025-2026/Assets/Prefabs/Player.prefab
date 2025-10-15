@@ -227,6 +227,7 @@ MonoBehaviour:
   usePickupOutline: 1
   handAttachThreshold: 0.2
   objectYankDuration: 0.5
+  consideredStuckVel: 0.1
   playerYankStopBuffer: 0.3
   maxStretchDist: 1
   elasticCurve:
@@ -274,7 +275,7 @@ MonoBehaviour:
   snapbackImpulseStrength: 20
   springRate: 10
   swingJumpForce: 5
-  maxRopeLength: 10
+  maxRopeLength: 25
   minRopeLength: 2.5
 --- !u!114 &5263988245269767260
 MonoBehaviour:
@@ -714,6 +715,8 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  playerActions: {fileID: 1306747076046649129}
+  bendAmount: 1
 --- !u!1 &5754198519069758869
 GameObject:
   m_ObjectHideFlags: 0
