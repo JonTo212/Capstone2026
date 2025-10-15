@@ -1,4 +1,5 @@
 using System.Collections;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -17,6 +18,14 @@ public enum LassoState
 
 public class LassoTetherController : MonoBehaviour
 {
+    [Header("TEMPORARY - Control UI")]
+    [SerializeField] private TMP_Text m0TapText;
+    [SerializeField] private TMP_Text m0HoldText;
+    [SerializeField] private TMP_Text m0ReleaseText;
+    [SerializeField] private TMP_Text m1TapText;
+    [SerializeField] private TMP_Text m1HoldText;
+    [SerializeField] private TMP_Text m1ReleaseText;
+
     [Header("Components")]
     private Lasso playerLasso;
     private PlayerActions playerActions;
@@ -40,6 +49,8 @@ public class LassoTetherController : MonoBehaviour
         playerLasso.OnLassoReleased += OnLassoReleased;
         playerLasso.OnObjectHit += OnLassoHit;
         playerTether.OnTetherStartHit += OnTetherStartHit;
+
+        TempSetText(LassoState.Empty);
     }
 
     private void Update()
@@ -108,6 +119,8 @@ public class LassoTetherController : MonoBehaviour
     private void SwitchLassoState(LassoState newState)
     {
         CurrentLassoState = newState;
+
+        TempSetText(newState);
     }
 
     private void CompareWeightsOnSnare()
@@ -356,4 +369,88 @@ public class LassoTetherController : MonoBehaviour
     }
 
     #endregion
+
+
+    private void TempSetText(LassoState state)
+    {
+        if(state == LassoState.Empty)
+        {
+            m0TapText.text = "M0 (tap): Start Lasso";
+            m0HoldText.text = "M0 (hold): N/A";
+            m0ReleaseText.text = "M0 (release): N/A";
+            m1TapText.text = "M1 (tap): N/A";
+            m1HoldText.text = "M1 (hold): Start Tether";
+            m1ReleaseText.text = "M1 (release): N/A";
+        }
+
+        if(state == LassoState.Tethering)
+        {
+            m0TapText.text = "M0 (tap): N/A";
+            m0HoldText.text = "M0 (hold): N/A";
+            m0ReleaseText.text = "M0 (release): N/A";
+            m1TapText.text = "M1 (tap): N/A";
+            m1HoldText.text = "M1 (hold): N/A";
+            m1ReleaseText.text = "M1 (release): Set Tether Target";
+        }
+
+        if(state == LassoState.Snared)
+        {
+            m0TapText.text = "M0 (tap): N/A";
+            m0HoldText.text = "M0 (hold): Move Object";
+            m0ReleaseText.text = "M0 (release): Release Object";
+            m1TapText.text = "M1 (tap): Yank Object";
+            m1HoldText.text = "M1 (hold): Start Tether";
+            m1ReleaseText.text = "M1 (release): N/A";
+        }
+
+        if(state == LassoState.SnaredTether)
+        {
+            m0TapText.text = "M0 (tap): N/A";
+            m0HoldText.text = "M0 (hold): N/A";
+            m0ReleaseText.text = "M0 (release): N/A";
+            m1TapText.text = "M1 (tap): N/A";
+            m1HoldText.text = "M1 (hold): N/A";
+            m1ReleaseText.text = "M1 (release): Set Tether Target";
+        }
+
+        if(state == LassoState.Swinging)
+        {
+            m0TapText.text = "M0 (tap): Release Lasso";
+            m0HoldText.text = "M0 (hold): N/A";
+            m0ReleaseText.text = "M0 (release): N/A";
+            m1TapText.text = "M1 (tap): Yank Player";
+            m1HoldText.text = "M1 (hold): N/A";
+            m1ReleaseText.text = "M1 (release): N/A";
+        }
+
+        if(state == LassoState.PlayerYanking || state == LassoState.ObjectYanking)
+        {
+            m0TapText.text = "M0 (tap): Release Lasso";
+            m0HoldText.text = "M0 (hold): N/A";
+            m0ReleaseText.text = "M0 (release): N/A";
+            m1TapText.text = "M1 (tap): N/A";
+            m1HoldText.text = "M1 (hold): N/A";
+            m1ReleaseText.text = "M1 (release): N/A";
+        }
+
+        if(state == LassoState.Held)
+        {
+            m0TapText.text = "M0 (tap): Release Object";
+            m0HoldText.text = "M0 (hold): N/A";
+            m0ReleaseText.text = "M0 (release): N/A";
+            m1TapText.text = "M1 (tap): Throw Object";
+            m1HoldText.text = "M1 (hold): N/A";
+            m1ReleaseText.text = "M1 (release): N/A";
+        }
+
+        if(state == LassoState.Using)
+        {
+            m0TapText.text = "M0 (tap): Activate Object";
+            m0HoldText.text = "M0 (hold): N/A";
+            m0ReleaseText.text = "M0 (release): N/A";
+            m1TapText.text = "M1 (tap): Throw Object";
+            m1HoldText.text = "M1 (hold): N/A";
+            m1ReleaseText.text = "M1 (release): N/A";
+        }
+    }
 }
