@@ -1,4 +1,5 @@
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.UIElements;
@@ -16,6 +17,8 @@ public class BossAiScript : MonoBehaviour
     public float attackTimer;
 
     public bool FightStarted;
+
+    public GameObject thingThatmMakesTheProjectilesNotGiant;
 
     //Attack1
     public Material attack1Mat;
@@ -88,14 +91,14 @@ public class BossAiScript : MonoBehaviour
     {
         for (int i = 0; i < projLim; i++)
         {
-            StartCoroutine(SpawnProjectile(projectileSpawnLocation[i]));
+            StartCoroutine(SpawnProjectile(projectileSpawnLocation[i], i));
         }
     }
 
-    IEnumerator SpawnProjectile(Transform location)
+    IEnumerator SpawnProjectile(Transform location, float timer)
     {
-        yield return new WaitForSeconds(1f);
-        Instantiate(projectile, location.position, Quaternion.identity);
+        yield return new WaitForSeconds(timer);
+        GameObject spawnedProjectile = Instantiate(projectile, location.position, Quaternion.identity, thingThatmMakesTheProjectilesNotGiant.transform);
 
     }
 

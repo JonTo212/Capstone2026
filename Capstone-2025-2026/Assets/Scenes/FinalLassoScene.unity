@@ -119,6 +119,37 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &24078885
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 24078886}
+  m_Layer: 0
+  m_Name: Standardizer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &24078886
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 24078885}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.30158633, y: 0.30158633, z: 0.30158633}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1614671764}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &35795387
 GameObject:
   m_ObjectHideFlags: 0
@@ -5840,11 +5871,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1614671764}
+  - component: {fileID: 1614671759}
   - component: {fileID: 1614671763}
   - component: {fileID: 1614671762}
   - component: {fileID: 1614671761}
   - component: {fileID: 1614671760}
-  - component: {fileID: 1614671759}
   m_Layer: 0
   m_Name: Boss
   m_TagString: Untagged
@@ -5871,7 +5902,8 @@ MonoBehaviour:
   timeBetweenAttacks: 0
   attackTimer: 0
   FightStarted: 0
-  attack1Mat: {fileID: 0}
+  thingThatmMakesTheProjectilesNotGiant: {fileID: 24078885}
+  attack1Mat: {fileID: 2100000, guid: f24e994df4180cd4d917ea7774c2b6f7, type: 2}
   projectile: {fileID: 5767092310593029920, guid: 47c92e1736dfa904c9817f07d476f2b9, type: 3}
   projectileSpawnLocation:
   - {fileID: 1674843035}
@@ -5879,9 +5911,9 @@ MonoBehaviour:
   - {fileID: 107789108}
   - {fileID: 1256379802}
   - {fileID: 1014033847}
-  attack2Mat: {fileID: 0}
-  waiting: {fileID: 0}
-  deathMat: {fileID: 0}
+  attack2Mat: {fileID: 2100000, guid: c7d0ba3627a559f4fb236ab21fdd9da6, type: 2}
+  waiting: {fileID: 2100000, guid: 15504506c177cc147b980d9c5ab5a2bc, type: 2}
+  deathMat: {fileID: 2100000, guid: 6aad6983b385dfa46be3e5a8f380e12c, type: 2}
 --- !u!54 &1614671760
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -6007,6 +6039,7 @@ Transform:
   - {fileID: 107789108}
   - {fileID: 1256379802}
   - {fileID: 1014033847}
+  - {fileID: 24078886}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1617106800
