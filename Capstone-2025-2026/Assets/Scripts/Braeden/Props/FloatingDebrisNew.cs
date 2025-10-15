@@ -7,9 +7,9 @@ public class FloatingDebrisNew : MonoBehaviour
     private Tetherable tetherableScript;
 
     private GameObject target;
-    public float baseOrbitSpeed;
+    private float baseOrbitSpeed = 0f;
     private float orbitSpeed;
-    public float orbitSpeedVariation;
+    private float orbitSpeedVariation = 0f;
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -33,8 +33,11 @@ public class FloatingDebrisNew : MonoBehaviour
         {
             if (transform.parent !=null) transform.parent=null;
         }
+        else
+        {
+            // Spin the object around the target
+            transform.RotateAround(new Vector3(target.transform.position.x, target.transform.position.y, target.transform.position.z), Vector3.up, orbitSpeed * Time.deltaTime);
+        }
 
-        // Spin the object around the target
-        transform.RotateAround(new Vector3 (target.transform.position.x, target.transform.position.y, target.transform.position.z), Vector3.up, orbitSpeed * Time.deltaTime);
     }
 }

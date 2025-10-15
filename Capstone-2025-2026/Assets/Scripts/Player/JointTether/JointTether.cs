@@ -60,7 +60,10 @@ public class JointTether : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if(startTransform == null || endTransform == null)
+        {
+            DestroyTether();
+        }
     }
 
     private void FixedUpdate()
