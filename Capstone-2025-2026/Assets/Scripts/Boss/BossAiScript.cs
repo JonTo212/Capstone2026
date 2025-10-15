@@ -113,6 +113,20 @@ public class BossAiScript : MonoBehaviour
         
     }
 
+    IEnumerator ChargeUpLaser()
+    {
+        yield return null;
+    }
+
+    IEnumerator HoldLaser()
+    {
+        yield return null;
+    }
+
+    IEnumerator LaserSpin()
+    {
+        yield return null;
+    }
     #endregion
 
     #region Death State
