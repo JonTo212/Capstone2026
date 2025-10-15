@@ -10,7 +10,7 @@ public enum AimAssistType
 public class AimAssist
 {
     private Prop _currentlyHighlightedProp;
-
+    LayerMask tetherLayerIgnore = ~(1 << LayerMask.NameToLayer("Tether"));
     #region Closest Target (for snap)
     public Prop GetClosestTarget(Camera cam, Vector3 origin, float range)
     {
@@ -62,7 +62,7 @@ public class AimAssist
                 {
                     Vector3 targetPos = target.transform.position;
                     Ray snapRay = new Ray(cam.transform.position, (targetPos - cam.transform.position).normalized);
-                    if (Physics.Raycast(snapRay, out RaycastHit snapHit, range))
+                    if (Physics.Raycast(snapRay, out RaycastHit snapHit, range, tetherLayerIgnore))
                     {
                         return snapHit;
                     }
@@ -71,7 +71,7 @@ public class AimAssist
 
             case AimAssistType.Buffer:
                 Ray bufferRay = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
-                if (Physics.Raycast(bufferRay, out RaycastHit bufferHit, range)) //raycast first
+                if (Physics.Raycast(bufferRay, out RaycastHit bufferHit, range, tetherLayerIgnore)) //raycast first
                 {
                     if (bufferHit.transform.GetComponentInParent<Prop>() != null)
                     {
@@ -80,7 +80,7 @@ public class AimAssist
                 }
 
                 //sweep spherecast (spherecast just hits the first thing)
-                RaycastHit[] hits = Physics.SphereCastAll(cam.transform.position, bufferRadius, bufferRay.direction, range);
+                RaycastHit[] hits = Physics.SphereCastAll(cam.transform.position, bufferRadius, bufferRay.direction, range, tetherLayerIgnore);
                 if (hits.Length > 0)
                 {
                     RaycastHit bestTargetHit = new RaycastHit();
@@ -112,7 +112,7 @@ public class AimAssist
             case AimAssistType.None:
             default:
                 Ray noAssistRay = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
-                if (Physics.Raycast(noAssistRay, out RaycastHit noAssistHit, range)) //original functionality
+                if (Physics.Raycast(noAssistRay, out RaycastHit noAssistHit, range, tetherLayerIgnore)) //original functionality
                 {
                     if (noAssistHit.transform.GetComponentInParent<Prop>() != null)
                     {
