@@ -65,14 +65,25 @@ public class JointTetherPlacer : MonoBehaviour
         }
     }
 
-    public void EndTetherPlacement()
+    public void StartTetherPlacement(Transform transform, Vector3 position)
+    {
+        if (numOfTethersPlaced < maxNumOfTethers)
+        {
+            CreateTetherPreviewLine();
+            SetTetherStartPoint(transform, position);
+            didStartPointHit = true;
+            //OnTetherStartHit?.Invoke();
+        }
+    }
+
+    public void EndTetherPlacement(bool autoActivate)
     {
         if (didStartPointHit)
         {
-            if (GetObjectInPlayerFront(out RaycastHit hit))
+            if (GetObjectInPlayerFront(out RaycastHit hit) && hit.transform != startTransform)
             {
                 SetTetherEndPoint(hit.transform, hit.point);
-                CreateAndInitTether(startTransform, startLocalPosition, endTransform, endLocalPosition);
+                CreateAndInitTether(startTransform, startLocalPosition, endTransform, endLocalPosition, autoActivate);
             }
         }
         DeletePreviewTetherLine();
@@ -92,12 +103,12 @@ public class JointTetherPlacer : MonoBehaviour
     }
 
     //Creates and initializes tether parameters like hit transforms and positions
-    private void CreateAndInitTether(Transform startTransform, Vector3 startLocalPosition, Transform endTransform, Vector3 endLocalPosition)
+    private void CreateAndInitTether(Transform startTransform, Vector3 startLocalPosition, Transform endTransform, Vector3 endLocalPosition, bool autoActivate)
     {
         GameObject newJointTether = Instantiate(jointTetherPrefab, transform.position, Quaternion.identity);
         JointTether jointTether = newJointTether.GetComponent<JointTether>();
 
-        jointTether.Init(startTransform, startLocalPosition, endTransform, endLocalPosition);
+        jointTether.Init(startTransform, startLocalPosition, endTransform, endLocalPosition, autoActivate);
 
         //Subscribe decrease placed tether count to when tether gets destroyed event
         jointTether.OnTetherDestroy += DecreasePlacedTetherCount;

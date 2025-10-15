@@ -13,6 +13,7 @@ public class JointTether : MonoBehaviour
     [Header("Config Joint Parameters")]
     [SerializeField] private float driveStrength = 20f;
     [SerializeField] private float driveDamper = 5f;
+    [SerializeField] private float activationDelay = 0.4f;
 
     [Header("Properties")]
     [SerializeField] private bool isAutoActivate = false;
@@ -33,7 +34,7 @@ public class JointTether : MonoBehaviour
     {
         //StartCoroutine(DestroyTetherAfterTime());
     }
-    public void Init(Transform startTransform, Vector3 startLocalPosition, Transform endTransform, Vector3 endLocalPosition)
+    public void Init(Transform startTransform, Vector3 startLocalPosition, Transform endTransform, Vector3 endLocalPosition, bool autoActivate)
     {
         this.startTransform = startTransform;
         this.startLocalPosition = startLocalPosition;
@@ -45,12 +46,12 @@ public class JointTether : MonoBehaviour
         TryGetRigidbody(endTransform, endLocalPosition, out endRb, out temporaryEndRbObject);
 
         tetherVisuals = transform.GetComponent<JointTetherVisuals>();
-        tetherVisuals.Init(startTransform, startLocalPosition, endTransform, endLocalPosition, isAutoActivate);
+        tetherVisuals.Init(startTransform, startLocalPosition, endTransform, endLocalPosition, isAutoActivate, activationDelay);
 
         tetherCollider = transform.GetComponent<JointTetherCollider>();
         tetherCollider.Init(startTransform, startLocalPosition, endTransform, endLocalPosition);
         
-        if(isAutoActivate)
+        if(autoActivate)
         {
             ActivateTether();
         }
@@ -70,24 +71,17 @@ public class JointTether : MonoBehaviour
     public void ActivateTether()
     {
         if (startJoint != null && endJoint != null) return;
-        startJoint = CreateJoint(startRb, endRb);
-        endJoint = CreateJoint(endRb, startRb);
 
-        CreateJointConnections(startJoint, startLocalPosition, endLocalPosition,temporaryStartRbObject, temporaryEndRbObject);
-        CreateJointConnections(endJoint, endLocalPosition, startLocalPosition,temporaryEndRbObject, temporaryStartRbObject);
-
-        isActivated = true;
-
-        tetherVisuals.SetLineColorActive();
-
-        if(startTransform.GetComponent<Prop>() != null)
+        if (startTransform.GetComponent<Prop>() != null)
         {
             startTransform.GetComponent<Prop>().OnTetherPull(gameObject);
         }
-        if(endTransform.GetComponent<Prop>() != null)
+        if (endTransform.GetComponent<Prop>() != null)
         {
             endTransform.GetComponent<Prop>().OnTetherPull(gameObject);
         }
+
+        StartCoroutine(ActivateTetherAfterDelay());
     }
 
     public void DeactivateTether()
@@ -193,5 +187,19 @@ public class JointTether : MonoBehaviour
 
         OnTetherDestroy(this);
         Destroy(gameObject);
+    }
+
+    IEnumerator ActivateTetherAfterDelay()
+    {
+        tetherVisuals.SetLineColorActive();
+        yield return new WaitForSeconds(activationDelay);
+
+        startJoint = CreateJoint(startRb, endRb);
+        endJoint = CreateJoint(endRb, startRb);
+
+        CreateJointConnections(startJoint, startLocalPosition, endLocalPosition, temporaryStartRbObject, temporaryEndRbObject);
+        CreateJointConnections(endJoint, endLocalPosition, startLocalPosition, temporaryEndRbObject, temporaryStartRbObject);
+
+        isActivated = true;
     }
 }

@@ -6,7 +6,7 @@ public class Lasso : MonoBehaviour
 {
     [Header("External Components")]
     [field: SerializeField] public Transform HoldPos { get; private set; }
-    [SerializeField] private Camera playerCam;
+    [field: SerializeField] public Camera PlayerCam { get; private set; }
 
     [Header("Lasso Properties")]
     [SerializeField] private float lassoRange = 25f;
@@ -23,6 +23,7 @@ public class Lasso : MonoBehaviour
     [SerializeField] private float handAttachThreshold = 0.2f;
     [SerializeField] private float objectYankDuration = 0.5f;
     [SerializeField] private float consideredStuckVel = 0.1f;
+    [SerializeField] private float equalWeightYankForce = 5f;
 
     [Header("Player Yank Properties")]
     [SerializeField] private float playerYankStopBuffer = 0.3f;
@@ -35,8 +36,6 @@ public class Lasso : MonoBehaviour
     [Header("Swinging")]
     [SerializeField] private float springRate = 10f;
     [SerializeField] private float swingJumpForce = 5f;
-    [SerializeField] private float maxRopeLength = 10f;
-    [SerializeField] private float minRopeLength = 5f;
 
     [Header("Internal Variables")]
     private AimAssist _aimAssist;
@@ -81,7 +80,7 @@ public class Lasso : MonoBehaviour
 
     public Vector3 GetCenterOfScreen()
     {
-        Ray ray = playerCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+        Ray ray = PlayerCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
         Vector3 maxDistancePos = ray.origin + ray.direction * _anchorDist;
         return maxDistancePos;
     }
@@ -123,7 +122,7 @@ public class Lasso : MonoBehaviour
 
         if (useAimOutline)
         {
-            RaycastHit? hit = _aimAssist.GetAssistHitPoint(playerCam, playerCam.transform.position, lassoRange, aimAssistType, aimAssistBufferRadius);
+            RaycastHit? hit = _aimAssist.GetAssistHitPoint(PlayerCam, PlayerCam.transform.position, lassoRange, aimAssistType, aimAssistBufferRadius);
             if (hit.HasValue)
             {
                 targetProp = hit.Value.transform.GetComponentInParent<Prop>();
@@ -139,13 +138,14 @@ public class Lasso : MonoBehaviour
     #region Start Lasso
     public void HandleLassoStart()
     {
-        RaycastHit? hit = _aimAssist.GetAssistHitPoint(playerCam, playerCam.transform.position, lassoRange, aimAssistType, aimAssistBufferRadius);
+        RaycastHit? hit = _aimAssist.GetAssistHitPoint(PlayerCam, PlayerCam.transform.position, lassoRange, aimAssistType, aimAssistBufferRadius);
         if (hit.HasValue)
         {
             RaycastHit actualHit = hit.Value;
+            Ray noAssistRay = PlayerCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
             Prop prop = actualHit.transform.GetComponentInParent<Prop>();
 
-            _anchorDist = Vector3.Distance(actualHit.point, playerCam.transform.position);
+            _anchorDist = Vector3.Distance(actualHit.point, noAssistRay.origin);
             _attachPointLocal = prop.transform.InverseTransformPoint(actualHit.point);
             _snaredObjTransform = prop.transform;
 
@@ -166,11 +166,11 @@ public class Lasso : MonoBehaviour
     #endregion
 
     #region Hold Object At Center
-    public void HandleObjectHoldAtDistance()
+    public void HandleObjectHoldAtDistance(Vector3 desiredPos)
     {
         if (SnaredObject == null) return;
 
-        Vector3 dirToHoldPos = GetCenterOfScreen() - HitPos;
+        Vector3 dirToHoldPos = desiredPos - HitPos;
         SnaredObject.Rb.AddForceAtPosition(dirToHoldPos * centerStrength, HitPos, ForceMode.Force);
     }
 
@@ -254,8 +254,8 @@ public class Lasso : MonoBehaviour
         joint.connectedAnchor = HitPos;
 
         float currentDist = Vector3.Distance(HoldPos.position, HitPos);
-        joint.maxDistance = maxRopeLength;
-        joint.minDistance = minRopeLength;
+        joint.maxDistance = _anchorDist * 0.9f;
+        joint.minDistance = _anchorDist * 0.2f;
 
         joint.spring = springRate;
         float damping = 2f * Mathf.Sqrt(joint.spring * _playerController.Rb.mass);
@@ -292,67 +292,78 @@ public class Lasso : MonoBehaviour
         SnaredObject.Rb.linearDamping = 0f;
 
         Vector3 startPosition = SnaredObject.transform.position;
+        Vector3 toPlayer = HoldPos.position - startPosition;
         float startTime = Time.time;
 
-        //Apply initial velocity
-        Vector3 startVel = CalculateObjectYankVelocity(startPosition, HoldPos.position, objectYankDuration);
-        SnaredObject.Rb.linearVelocity = Vector3.zero;
-        SnaredObject.Rb.AddForce(startVel * SnaredObject.Rb.mass, ForceMode.Impulse);
-        Vector3 previousPos = SnaredObject.transform.position;
-        float stuckTimer = 0;
-        float stuckTime = 0.4f;
-
-        while (Vector3.Distance(SnaredObject.transform.position, HoldPos.position) > handAttachThreshold)
+        bool shouldSkipYankLoop = SnaredObject.Rb.mass == _playerController.Rb.mass;
+        if (shouldSkipYankLoop)
         {
-            if (SnaredObject == null) break;
+            SnaredObject.Rb.AddForceAtPosition(equalWeightYankForce * toPlayer.normalized, HitPos, ForceMode.Impulse);
+            HandleObjectReleased();
+        }
+        else
+        {
+            //apply initial velocity
+            Vector3 startVel = CalculateObjectYankVelocity(startPosition, HoldPos.position, objectYankDuration);
+            SnaredObject.Rb.linearVelocity = Vector3.zero;
+            SnaredObject.Rb.AddForce(startVel * SnaredObject.Rb.mass, ForceMode.Impulse);
 
-            //snapback if object is stuck for too long
-            float displacement = (SnaredObject.transform.position - previousPos).magnitude;
-            previousPos = SnaredObject.transform.position;
+            Vector3 previousPos = SnaredObject.transform.position;
+            float stuckTimer = 0;
+            float stuckTime = 0.4f;
 
-            if (displacement < consideredStuckVel)
-                stuckTimer += Time.fixedDeltaTime;
-            else
-                stuckTimer = 0f;
-
-            if (stuckTimer >= stuckTime)
+            while (Vector3.Distance(SnaredObject.transform.position, HoldPos.position) > handAttachThreshold)
             {
-                ApplySnapbackForce();
-                HandleObjectReleased();
-                break;
+                if (SnaredObject == null) break;
+
+                //snapback if object is stuck for too long
+                float displacement = (SnaredObject.transform.position - previousPos).magnitude;
+                previousPos = SnaredObject.transform.position;
+
+                if (displacement < consideredStuckVel)
+                    stuckTimer += Time.fixedDeltaTime;
+                else
+                    stuckTimer = 0f;
+
+                if (stuckTimer >= stuckTime)
+                {
+                    ApplySnapbackForce();
+                    HandleObjectReleased();
+                    break;
+                }
+
+                //calculate correctional pull velocity
+                float elapsedTime = Time.time - startTime;
+                float remainingTime = objectYankDuration - elapsedTime;
+                float clampedRemainingTime = Mathf.Max(remainingTime, 0.05f);
+
+                Vector3 idealVelocity = CalculateObjectYankVelocity(SnaredObject.transform.position, HoldPos.position, clampedRemainingTime);
+                Vector3 velocityError = idealVelocity - SnaredObject.Rb.linearVelocity;
+
+                SnaredObject.Rb.AddForce(velocityError * SnaredObject.Rb.mass, ForceMode.Impulse);
+
+
+                //calculate correctional torque
+                Quaternion targetRotation = Quaternion.LookRotation(HoldPos.forward, Vector3.up);
+                Quaternion deltaRotation = targetRotation * Quaternion.Inverse(SnaredObject.transform.rotation);
+
+                deltaRotation.ToAngleAxis(out float angle, out Vector3 axis);
+                if (angle > 180f) angle -= 360f;
+
+                Vector3 angularVelocity = axis * angle * Mathf.Deg2Rad / clampedRemainingTime;
+                Vector3 angularError = angularVelocity - SnaredObject.Rb.angularVelocity;
+
+                SnaredObject.Rb.AddTorque(angularError, ForceMode.VelocityChange);
+
+
+                yield return new WaitForFixedUpdate();
             }
 
-            //calculate correctional pull velocity
-            float elapsedTime = Time.time - startTime;
-            float remainingTime = objectYankDuration - elapsedTime;
-            float clampedRemainingTime = Mathf.Max(remainingTime, 0.05f);
-
-            Vector3 idealVelocity = CalculateObjectYankVelocity(SnaredObject.transform.position, HoldPos.position, clampedRemainingTime);
-            Vector3 velocityError = idealVelocity - SnaredObject.Rb.linearVelocity;
-
-            SnaredObject.Rb.AddForce(velocityError * SnaredObject.Rb.mass, ForceMode.Impulse);
-
-
-            //calculate correctional torque
-            Quaternion targetRotation = Quaternion.LookRotation(HoldPos.forward, Vector3.up);
-            Quaternion deltaRotation = targetRotation * Quaternion.Inverse(SnaredObject.transform.rotation);
-
-            deltaRotation.ToAngleAxis(out float angle, out Vector3 axis);
-            if (angle > 180f) angle -= 360f;
-
-            Vector3 angularVelocity = axis * angle * Mathf.Deg2Rad / clampedRemainingTime;
-            Vector3 angularError = angularVelocity - SnaredObject.Rb.angularVelocity;
-
-            SnaredObject.Rb.AddTorque(angularError, ForceMode.VelocityChange);
-
-
-            yield return new WaitForFixedUpdate();
-        }
-
-        if (SnaredObject != null)
-        {
-            SnaredObject.OnHold(HoldPos);
-            SnaredObject.AttachedTransform = transform;
+            if (SnaredObject != null)
+            {
+                SnaredObject.OnHold(HoldPos);
+                SnaredObject.AttachedTransform = transform;
+            }
         }
 
         OnObjectYankCompleted?.Invoke();
@@ -429,7 +440,7 @@ public class Lasso : MonoBehaviour
     {
         if (SnaredObject == null) return;
 
-        Ray ray = playerCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+        Ray ray = PlayerCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
         SnaredObject.OnThrow(ray.direction, throwStrength);
         HandleObjectReleased();
     }

@@ -15,7 +15,6 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     public virtual bool IsHeld { get; protected set; } = false;
     public virtual bool IsSnared { get; protected set; } = false;
     public virtual bool IsBeingPulled { get; set; } = false;
-    public virtual bool isTetherAttached { get; protected set; } = false;
     public virtual bool isTetherPulled { get; protected set; } = false;
     public Rigidbody Rb => rb;
     public Transform AttachedTransform { get; set; }
@@ -75,12 +74,11 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
 
     public virtual void OnAttachTether()
     {
-        isTetherAttached = true;
+
     }
 
     public virtual void OnTetherPull(GameObject tether)
     {
-        isTetherAttached = false;
         isTetherPulled = true;
         attachedTethers.Add(tether);
         rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
@@ -88,12 +86,11 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
 
     public virtual void OnDetachTether(GameObject tether)
     {
-        isTetherAttached = false;
         attachedTethers.Remove(tether);
         if (attachedTethers.Count <= 0)
         {
-            isTetherAttached = false;
             rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
+            isTetherPulled = false;
         }
     }
     public virtual void ActivateOutline(bool activate)
