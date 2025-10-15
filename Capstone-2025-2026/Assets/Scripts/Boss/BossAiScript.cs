@@ -1,3 +1,4 @@
+using Mono.Cecil.Cil;
 using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -10,6 +11,7 @@ public class BossAiScript : MonoBehaviour
     public Transform player;
 
     public int health = 5;
+    private int maxHealth;
     public GameObject eyes;
     public string attackState;
 
@@ -35,17 +37,35 @@ public class BossAiScript : MonoBehaviour
     //Death State
     public Material deathMat;
 
+    public Transform[] armorWalls;
+    public Transform shield;
+    private bool shieldWasUsed = false;
+
+    [Header("Laser")]
+    public float timeToChargeLaser = 4f;
+    public float timeToStartRotate = 2f;
+    public float timeToFullyRotate = 4;
+    public ParticleSystem chargeUpVFX;
+    public Transform laserPivot;
+    public Transform laser;
+    public Transform laserBall;
+    public bool usedLaser = false;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         player = GameObject.Find("Player").transform;
+        maxHealth = health;
+        laserBall.gameObject.SetActive(false);
+        laser.gameObject.SetActive(false);
     }
 
     // Update is called once per frame
     void Update()
     {
+
         //Freeze Rotation for tilting up
-        if(health <= 0)
+        if (health <= 0)
         {
             Perish();
         }
@@ -68,21 +88,30 @@ public class BossAiScript : MonoBehaviour
             }
 
             //Check if ready to Attack
-            if (attackTimer>timeBetweenAttacks)
+            if (attackTimer > timeBetweenAttacks)
             {
-                AttackThrow();
-                /*
-                if (Random.Range(1, 3) == 1)
+                if (health >= 3)
                 {
                     AttackThrow();
                 }
                 else
                 {
-                    AttackBeam();
-                }*/
-                attackTimer = -10;
+                    if (!usedLaser)
+                    {
+                        AttackBeam();
+                    }
+                    else
+                    {
+                        shield.gameObject.SetActive(false);
+                        AttackThrow();
+                    }
+                }
             }
+
+            Debug.Log(attackTimer);
         }
+
+
     }
 
     
@@ -94,6 +123,7 @@ public class BossAiScript : MonoBehaviour
         {
             StartCoroutine(SpawnProjectile(projectileSpawnLocation[i], i));
         }
+        attackTimer = -5;
     }
 
     IEnumerator SpawnProjectile(Transform location, float timer)
@@ -110,22 +140,41 @@ public class BossAiScript : MonoBehaviour
 
     public void AttackBeam()
     {
-        
+        chargeUpVFX.Play();
+        attackTimer = -timeToChargeLaser - timeToStartRotate - timeToFullyRotate - 3f;
+        StartCoroutine(ChargeUpLaser());
+        laserBall.gameObject.SetActive(true);
     }
 
     IEnumerator ChargeUpLaser()
     {
-        yield return null;
+        yield return new WaitForSeconds(timeToChargeLaser);
+        StartCoroutine(HoldLaser());
+        laser.gameObject.SetActive(true);
+        laserBall.gameObject.SetActive(false);
     }
 
     IEnumerator HoldLaser()
     {
-        yield return null;
+        yield return new WaitForSeconds(timeToStartRotate);
+        StartCoroutine(LaserSpin());
     }
 
     IEnumerator LaserSpin()
     {
-        yield return null;
+        float timePassed = 0;
+        while(timePassed < timeToFullyRotate)
+        {
+            timePassed += Time.deltaTime;
+            laserPivot.transform.localEulerAngles = new Vector3(0, 90 - (timePassed / timeToFullyRotate) * 360, 0);
+            Debug.Log(90 - (timePassed / timeToFullyRotate) * 360);
+            yield return null;
+        }
+
+        laser.gameObject.SetActive(false);
+        chargeUpVFX.Stop();
+        usedLaser = true;
+
     }
     #endregion
 
@@ -142,7 +191,15 @@ public class BossAiScript : MonoBehaviour
                 health--;
                 Destroy(hitObject);
                 //Insantiate(ParticleEffect);
+                if (armorWalls[maxHealth-health] != null)
+                {
+                    armorWalls[maxHealth-health].gameObject.SetActive(true);
+                }
+            }
 
+            if (health < 3 && !shieldWasUsed && !usedLaser)
+            {
+                shield.gameObject.SetActive(true);
             }
         }
     }
