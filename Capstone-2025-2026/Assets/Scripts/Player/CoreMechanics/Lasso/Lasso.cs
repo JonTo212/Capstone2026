@@ -6,7 +6,7 @@ public class Lasso : MonoBehaviour
 {
     [Header("External Components")]
     [field: SerializeField] public Transform HoldPos { get; private set; }
-    [SerializeField] private Camera playerCam;
+    [field: SerializeField] public Camera PlayerCam { get; private set; }
 
     [Header("Lasso Properties")]
     [SerializeField] private float lassoRange = 25f;
@@ -80,7 +80,7 @@ public class Lasso : MonoBehaviour
 
     public Vector3 GetCenterOfScreen()
     {
-        Ray ray = playerCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+        Ray ray = PlayerCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
         Vector3 maxDistancePos = ray.origin + ray.direction * _anchorDist;
         return maxDistancePos;
     }
@@ -122,7 +122,7 @@ public class Lasso : MonoBehaviour
 
         if (useAimOutline)
         {
-            RaycastHit? hit = _aimAssist.GetAssistHitPoint(playerCam, playerCam.transform.position, lassoRange, aimAssistType, aimAssistBufferRadius);
+            RaycastHit? hit = _aimAssist.GetAssistHitPoint(PlayerCam, PlayerCam.transform.position, lassoRange, aimAssistType, aimAssistBufferRadius);
             if (hit.HasValue)
             {
                 targetProp = hit.Value.transform.GetComponentInParent<Prop>();
@@ -138,11 +138,11 @@ public class Lasso : MonoBehaviour
     #region Start Lasso
     public void HandleLassoStart()
     {
-        RaycastHit? hit = _aimAssist.GetAssistHitPoint(playerCam, playerCam.transform.position, lassoRange, aimAssistType, aimAssistBufferRadius);
+        RaycastHit? hit = _aimAssist.GetAssistHitPoint(PlayerCam, PlayerCam.transform.position, lassoRange, aimAssistType, aimAssistBufferRadius);
         if (hit.HasValue)
         {
             RaycastHit actualHit = hit.Value;
-            Ray noAssistRay = playerCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+            Ray noAssistRay = PlayerCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
             Prop prop = actualHit.transform.GetComponentInParent<Prop>();
 
             _anchorDist = Vector3.Distance(actualHit.point, noAssistRay.origin);
@@ -295,18 +295,23 @@ public class Lasso : MonoBehaviour
         Vector3 toPlayer = HoldPos.position - startPosition;
         float startTime = Time.time;
 
-        //apply initial velocity
-        Vector3 startVel = CalculateObjectYankVelocity(startPosition, HoldPos.position, objectYankDuration);
-        SnaredObject.Rb.linearVelocity = Vector3.zero;
         bool shouldSkipYankLoop = SnaredObject.Rb.mass == _playerController.Rb.mass;
-        if (SnaredObject.Rb.mass == _playerController.Rb.mass) SnaredObject.Rb.AddForceAtPosition(equalWeightYankForce * toPlayer.normalized, HitPos, ForceMode.Impulse);
-        else SnaredObject.Rb.AddForce(startVel * SnaredObject.Rb.mass, ForceMode.Impulse);
-        Vector3 previousPos = SnaredObject.transform.position;
-        float stuckTimer = 0;
-        float stuckTime = 0.4f;
-
-        if (!shouldSkipYankLoop)
+        if (shouldSkipYankLoop)
         {
+            SnaredObject.Rb.AddForceAtPosition(equalWeightYankForce * toPlayer.normalized, HitPos, ForceMode.Impulse);
+            HandleObjectReleased();
+        }
+        else
+        {
+            //apply initial velocity
+            Vector3 startVel = CalculateObjectYankVelocity(startPosition, HoldPos.position, objectYankDuration);
+            SnaredObject.Rb.linearVelocity = Vector3.zero;
+            SnaredObject.Rb.AddForce(startVel * SnaredObject.Rb.mass, ForceMode.Impulse);
+
+            Vector3 previousPos = SnaredObject.transform.position;
+            float stuckTimer = 0;
+            float stuckTime = 0.4f;
+
             while (Vector3.Distance(SnaredObject.transform.position, HoldPos.position) > handAttachThreshold)
             {
                 if (SnaredObject == null) break;
@@ -359,10 +364,6 @@ public class Lasso : MonoBehaviour
                 SnaredObject.OnHold(HoldPos);
                 SnaredObject.AttachedTransform = transform;
             }
-        }
-        else
-        {
-            HandleObjectReleased();
         }
 
         OnObjectYankCompleted?.Invoke();
@@ -439,7 +440,7 @@ public class Lasso : MonoBehaviour
     {
         if (SnaredObject == null) return;
 
-        Ray ray = playerCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+        Ray ray = PlayerCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
         SnaredObject.OnThrow(ray.direction, throwStrength);
         HandleObjectReleased();
     }

@@ -62,13 +62,11 @@ public class LassoVisuals : MonoBehaviour
 
         if (lassoController.CurrentLassoState != LassoState.Swinging)
         {
-            if (hasMouseMoved)
+            bool shouldDrawBendyRope = isSpringSettled || hasMouseMoved;
+
+            if (shouldDrawBendyRope)
             {
                 isSpringSettled = true;
-                DrawBendyRope();
-            }
-            else if (isSpringSettled)
-            {
                 DrawBendyRope();
             }
             else
@@ -131,11 +129,18 @@ public class LassoVisuals : MonoBehaviour
 
         Vector3 startPoint = lassoScript.HoldPos.position;
         Vector3 endPoint = lassoScript.HitPos;
-        float totalDistance = Vector3.Distance(lassoScript.GetCenterOfScreen(), endPoint);
+        Camera cam = lassoScript.PlayerCam;
+
+        //recalculate object depth relative to camera -> this is for tethered objects that move
+        //using GetCenterOfScreen() doesn't work because that uses a stale _anchorDist value
+        Vector3 cameraToObject = endPoint - cam.transform.position;
+        float objectDepth = Vector3.Dot(cameraToObject, cam.transform.forward);
+        Vector3 dynamicCenterPoint = cam.transform.position + cam.transform.forward * objectDepth;
+        float totalDistance = Vector3.Distance(dynamicCenterPoint, endPoint);
 
         //get middle of screen + object hit point and convert to screen space
         //then, find the opposite vector of the direction vector between the two
-        Vector3 screenStart = Camera.main.WorldToScreenPoint(lassoScript.GetCenterOfScreen());
+        Vector3 screenStart = Camera.main.WorldToScreenPoint(dynamicCenterPoint);
         Vector3 screenEnd = Camera.main.WorldToScreenPoint(endPoint);
         Vector3 screenDirection = (screenEnd - screenStart).normalized;
         Vector3 screenPerpendicular = new Vector3(-screenDirection.x, -screenDirection.y, 0f);
@@ -145,8 +150,8 @@ public class LassoVisuals : MonoBehaviour
         Vector3 combinedBendAxis = worldPerpendicular.normalized;
 
         //one point at midpoint, one at 3/4
-        Vector3 controlPoint1 = Vector3.Lerp(startPoint, endPoint, 0.33f);
-        Vector3 controlPoint2 = Vector3.Lerp(startPoint, endPoint, 0.67f);
+        Vector3 controlPoint1 = Vector3.Lerp(startPoint, endPoint, 0.4f);
+        Vector3 controlPoint2 = Vector3.Lerp(startPoint, endPoint, 0.8f);
 
         //determine how much the object can bend
         float currentBendOffset = Mathf.Clamp(totalDistance * bendScale, minBend, maxBend);
