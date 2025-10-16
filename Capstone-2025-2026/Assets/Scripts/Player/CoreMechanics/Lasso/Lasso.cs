@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 
 public class Lasso : MonoBehaviour
 {
@@ -36,6 +38,7 @@ public class Lasso : MonoBehaviour
     [SerializeField] private float maxStretchDist = 1f;
     [SerializeField] private AnimationCurve elasticCurve;
     [SerializeField] private float snapbackImpulseStrength = 20f;
+    [SerializeField] private Volume tempVignetteVolume;
 
     [Header("Swinging")]
     [SerializeField] private float springRate = 10f;
@@ -43,7 +46,7 @@ public class Lasso : MonoBehaviour
 
     [Header("Internal Variables")]
     private AimAssist _aimAssist;
-    private PlayerController _playerController;
+    private PlayerMovement _playerController;
     private Coroutine _objectYankCoroutine;
     private Coroutine _playerYankCoroutine;
     private Transform _snaredObjTransform;
@@ -65,7 +68,7 @@ public class Lasso : MonoBehaviour
     #region Unity Functions
     private void Awake()
     {
-        _playerController = GetComponent<PlayerController>();
+        _playerController = GetComponent<PlayerMovement>();
         _aimAssist = new AimAssist();
     }
 
@@ -90,7 +93,7 @@ public class Lasso : MonoBehaviour
         float maxCheckDist = lassoRange;
 
         RaycastHit hit;
-        if (Physics.Raycast(ray, out hit, checkDist))
+        if (Physics.Raycast(ray, out hit, checkDist) && hit.transform != _snaredObjTransform)
         {
             checkDist = hit.distance + 0.1f;
         }
@@ -215,14 +218,14 @@ public class Lasso : MonoBehaviour
 
     public void MoveObjectToPos(Vector3 desiredPos)
     {
-        Vector3 attachPointWorld = SnaredObject.transform.TransformPoint(_attachPointLocal); 
-        Vector3 pointVelocity = SnaredObject.Rb.GetPointVelocity(attachPointWorld); 
-        Vector3 displacement = desiredPos - attachPointWorld; 
-        
+        Vector3 attachPointWorld = SnaredObject.transform.TransformPoint(_attachPointLocal);
+        Vector3 pointVelocity = SnaredObject.Rb.GetPointVelocity(attachPointWorld);
+        Vector3 displacement = desiredPos - attachPointWorld;
+
         Vector3 springForce = centerStrength * displacement; //F = -springRate * displacement
         float damping = 2f * Mathf.Sqrt(centerStrength * SnaredObject.Rb.mass); //critical damping = 2 * sqrt(springRate * mass)
-        Vector3 dampingForce = -pointVelocity * damping; 
-        
+        Vector3 dampingForce = -pointVelocity * damping;
+
         SnaredObject.Rb.AddForceAtPosition(springForce + dampingForce, attachPointWorld, ForceMode.Acceleration); //accel works because the damping already takes into account mass
         SnaredObject.Rb.angularVelocity *= 0.99f; //stop excessive spin
     }
@@ -243,6 +246,11 @@ public class Lasso : MonoBehaviour
         float tensionFactor = elasticCurve.Evaluate(normalizedStretch);
         Vector3 counterForce = -pullDirection * accelMagnitudeAway * tensionFactor;
 
+        if (tempVignetteVolume.profile.TryGet<Vignette>(out var _vignette))
+        {
+            _vignette.intensity.value = tensionFactor / 3f;
+}
+
         if (currentDistance > _anchorDist)
         {
             if (currentDistance >= maxDistance)
@@ -253,7 +261,7 @@ public class Lasso : MonoBehaviour
                 }
                 else if (_isStrainingAtMaxDistance)
                 {
-                    ApplySnapbackForce();
+                    ApplySnapbackForce(tensionFactor);
                     _isStrainingAtMaxDistance = false;
                 }
             }
@@ -269,11 +277,11 @@ public class Lasso : MonoBehaviour
         }
     }
 
-    public void ApplySnapbackForce()
+    public void ApplySnapbackForce(float impulseMultiplier)
     {
         Vector3 dirToPlayer = HoldPos.position - HitPos;
         Vector3 pullDirection = dirToPlayer.normalized;
-        _playerController.Rb.AddForce(-pullDirection * snapbackImpulseStrength, ForceMode.Impulse);
+        _playerController.Rb.AddForce(-pullDirection * snapbackImpulseStrength * impulseMultiplier, ForceMode.Impulse);
     }
 
     #endregion
@@ -287,8 +295,8 @@ public class Lasso : MonoBehaviour
         joint.connectedAnchor = HitPos;
 
         float currentDist = Vector3.Distance(HoldPos.position, HitPos);
-        joint.maxDistance = _anchorDist * 0.9f;
-        joint.minDistance = _anchorDist * 0.2f;
+        joint.maxDistance = _anchorDist * 0.85f;
+        joint.minDistance = _anchorDist * 0.15f;
 
         joint.spring = springRate;
         float damping = 2f * Mathf.Sqrt(joint.spring * _playerController.Rb.mass);
@@ -406,7 +414,7 @@ public class Lasso : MonoBehaviour
 
                 if (stuckTimer >= stuckTime)
                 {
-                    ApplySnapbackForce();
+                    ApplySnapbackForce(1f);
                     HandleObjectReleased();
                     break;
                 }

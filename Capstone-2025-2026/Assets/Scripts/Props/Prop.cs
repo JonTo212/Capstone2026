@@ -17,9 +17,6 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     public virtual bool IsBeingPulled { get; set; } = false;
     public virtual bool isTetherPulled { get; protected set; } = false;
     public Rigidbody Rb => rb;
-
-    public Collider PropCollider { get; protected set; }
-
     public Transform AttachedTransform { get; set; }
     public Outline ObjectOutline { get; set; }
 
@@ -60,7 +57,6 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         rb.linearVelocity = Vector3.zero;
         rb.linearDamping = 25f;
         rb.angularDamping = 25f;
-        //PropCollider.enabled = false;
     }
 
     public virtual void OnRelease()
@@ -70,13 +66,11 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         IsBeingPulled = false;
         rb.useGravity = true;
         rb.interpolation = RigidbodyInterpolation.None;
-        rb.constraints = RigidbodyConstraints.None;
         rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
         rb.linearDamping = defaultDrag;
         rb.angularDamping = defaultAngularDrag;
         transform.SetParent(null);
         AttachedTransform = null;
-        //PropCollider.enabled = true;
     }
 
     public virtual void OnAttachTether()
@@ -129,6 +123,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     {
         OnRelease();
         rb.isKinematic = false;
+        rb.constraints = RigidbodyConstraints.None;
         ApplyForceInDirection(dir, magnitude, ForceMode.Impulse);
     }
 
