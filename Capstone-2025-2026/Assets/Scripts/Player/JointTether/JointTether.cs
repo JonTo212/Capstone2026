@@ -166,17 +166,17 @@ public class JointTether : MonoBehaviour
 
     public void DestroyTether()
     {
-        if (startTransform.GetComponent<Prop>() != null)
+        if (startTransform != null && startTransform.GetComponent<Prop>() != null)
         {
             startTransform.GetComponent<Prop>().OnDetachTether(gameObject);
         }
-        if (endTransform.GetComponent<Prop>() != null)
+        if (startTransform != null && endTransform.GetComponent<Prop>() != null)
         {
             endTransform.GetComponent<Prop>().OnDetachTether(gameObject);
         }
 
-        Destroy(startJoint);
-        Destroy(endJoint);
+        if(startJoint != null) Destroy(startJoint);
+        if(endJoint != null) Destroy(endJoint);
 
         if(temporaryStartRbObject != null) Destroy(temporaryStartRbObject);
         if(temporaryEndRbObject != null) Destroy(temporaryEndRbObject);
