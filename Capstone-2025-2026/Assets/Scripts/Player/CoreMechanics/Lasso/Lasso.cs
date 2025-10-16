@@ -27,8 +27,6 @@ public class Lasso : MonoBehaviour
     [SerializeField] private float objectYankDuration = 0.5f;
     [SerializeField] private float consideredStuckVel = 0.1f;
     [SerializeField] private float equalWeightYankForce = 5f;
-    [SerializeField] private float maxObjectVelocity = 10f;
-    [SerializeField] private float pullForce = 32f;
     [SerializeField] private float velocityDistanceThreshold = 2f;
 
     [Header("Player Yank Properties")]
@@ -222,11 +220,25 @@ public class Lasso : MonoBehaviour
         Vector3 pointVelocity = SnaredObject.Rb.GetPointVelocity(attachPointWorld);
         Vector3 displacement = desiredPos - attachPointWorld;
 
+
+        //linear force
         Vector3 springForce = centerStrength * displacement; //F = -springRate * displacement
         float damping = 2f * Mathf.Sqrt(centerStrength * SnaredObject.Rb.mass); //critical damping = 2 * sqrt(springRate * mass)
         Vector3 dampingForce = -pointVelocity * damping;
+        Vector3 totalForce = springForce + dampingForce;
 
-        SnaredObject.Rb.AddForceAtPosition(springForce + dampingForce, attachPointWorld, ForceMode.Acceleration); //accel works because the damping already takes into account mass
+
+        //torque
+        Vector3 r = attachPointWorld - SnaredObject.Rb.worldCenterOfMass;
+        float leverArmLength = (attachPointWorld - SnaredObject.Rb.worldCenterOfMass).magnitude;
+        float scale = 1f / (1f + leverArmLength);
+        Vector3 torque = Vector3.Cross(r, springForce + dampingForce);
+        Vector3 scaledTorque = torque * scale;
+
+
+        //SnaredObject.Rb.AddForceAtPosition(springForce + dampingForce, attachPointWorld, ForceMode.Acceleration); //accel works because the damping already takes into account mass
+        SnaredObject.Rb.AddForce(totalForce, ForceMode.Acceleration);
+        SnaredObject.Rb.AddTorque(scaledTorque, ForceMode.Acceleration);
         SnaredObject.Rb.angularVelocity *= 0.99f; //stop excessive spin
     }
     #endregion
@@ -253,6 +265,11 @@ public class Lasso : MonoBehaviour
 
         if (currentDistance > _anchorDist)
         {
+            if (accelMagnitudeAway > 0)
+            {
+                _playerController.Rb.AddForce(counterForce / Time.fixedDeltaTime, ForceMode.Acceleration);
+            }
+
             if (currentDistance >= maxDistance)
             {
                 if (_playerController.WishDir.sqrMagnitude > 0.01f)
@@ -264,11 +281,6 @@ public class Lasso : MonoBehaviour
                     ApplySnapbackForce(tensionFactor);
                     _isStrainingAtMaxDistance = false;
                 }
-            }
-
-            if (accelMagnitudeAway > 0)
-            {
-                _playerController.Rb.AddForce(counterForce / Time.fixedDeltaTime, ForceMode.Acceleration);
             }
         }
         else
@@ -327,7 +339,7 @@ public class Lasso : MonoBehaviour
         _objectYankCoroutine = StartCoroutine(YankObjectCoroutine());
     }
 
-    private IEnumerator YankObjectWithForce()
+    /*private IEnumerator YankObjectWithForce()
     {
         SnaredObject.Rb.useGravity = true;
         SnaredObject.Rb.linearDamping = 0f;
@@ -371,7 +383,7 @@ public class Lasso : MonoBehaviour
 
         OnObjectYankCompleted?.Invoke();
         _objectYankCoroutine = null;
-    }
+    }*/
 
     private IEnumerator YankObjectCoroutine()
     {

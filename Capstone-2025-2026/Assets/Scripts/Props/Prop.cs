@@ -35,8 +35,6 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         ObjectOutline.OutlineColor = Color.green;
         ObjectOutline.OutlineWidth = 3f;
         ObjectOutline.enabled = false;
-
-        PropCollider = GetComponent<Collider>();
     }
 
     protected virtual void OnDestroy()
@@ -55,8 +53,8 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
         rb.angularVelocity = Vector3.zero;
         rb.linearVelocity = Vector3.zero;
-        rb.linearDamping = 25f;
-        rb.angularDamping = 25f;
+        //rb.linearDamping = 25f;
+        //rb.angularDamping = 25f;
     }
 
     public virtual void OnRelease()
