@@ -53,7 +53,7 @@ public class LassoVisuals : MonoBehaviour
             return;
         }
 
-        if (lassoController.CurrentLassoState == LassoState.ObjectYanking)
+        if (lassoController.CurrentLassoState == LassoState.ObjectYanking || lassoController.CurrentLassoState == LassoState.PlayerYanking)
         {
             ResetRope();
             DrawSnapLasso();
@@ -91,7 +91,7 @@ public class LassoVisuals : MonoBehaviour
         bool isHolding = lassoController.CurrentLassoState == LassoState.Held;
         bool isUsing = lassoController.CurrentLassoState == LassoState.Using;
 
-        return isPlayerYanking || isHolding || isUsing;
+        return isHolding || isUsing;
     }
 
     private void DrawSnapLasso()
