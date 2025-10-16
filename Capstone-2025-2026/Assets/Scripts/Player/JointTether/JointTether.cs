@@ -6,9 +6,13 @@ public class JointTether : MonoBehaviour
 {
     public delegate void TetherDestroyAction(JointTether jointTether);
     public event TetherDestroyAction OnTetherDestroy;
-   
+
     private JointTetherVisuals tetherVisuals;
     private JointTetherCollider tetherCollider;
+
+    [SerializeField] private GameObject trailRendererPrefab;
+    private GameObject startTrailRenderer;
+    private GameObject endTrailRenderer;
 
     [Header("Config Joint Parameters")]
     [SerializeField] private float driveStrength = 20f;
@@ -60,10 +64,7 @@ public class JointTether : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(startTransform == null || endTransform == null)
-        {
-            DestroyTether();
-        }
+
     }
 
     private void FixedUpdate()
@@ -78,10 +79,12 @@ public class JointTether : MonoBehaviour
         if (startTransform.GetComponent<Prop>() != null)
         {
             startTransform.GetComponent<Prop>().OnTetherPull(gameObject);
+            startTransform.GetComponent<Prop>().OnPropDestroyed += DestroyTether;
         }
         if (endTransform.GetComponent<Prop>() != null)
         {
             endTransform.GetComponent<Prop>().OnTetherPull(gameObject);
+            startTransform.GetComponent<Prop>().OnPropDestroyed += DestroyTether;
         }
 
         StartCoroutine(ActivateTetherAfterDelay());
@@ -102,6 +105,9 @@ public class JointTether : MonoBehaviour
         if(fromTransform.gameObject.GetComponent<Rigidbody>() != null)
         {
             rb = fromTransform.gameObject.GetComponent<Rigidbody>();
+            GameObject trail = Instantiate(trailRendererPrefab);
+            trail.transform.parent = fromTransform;
+            trail.transform.position= fromTransform.position;
             temporaryRbObject = null;
         }
         else
@@ -156,6 +162,11 @@ public class JointTether : MonoBehaviour
 
     private void MoveToTetherCenter()
     {
+        if (startTransform == null || endTransform == null)
+        {
+            DestroyTether();
+            return;
+        }
         Vector3 worldStartPos = startTransform.TransformPoint(startLocalPosition);
         Vector3 worldEndPos = endTransform.TransformPoint(endLocalPosition);
 
@@ -166,27 +177,23 @@ public class JointTether : MonoBehaviour
 
     public void DestroyTether()
     {
-        if (startTransform.GetComponent<Prop>() != null)
+        if (startTransform != null && startTransform.gameObject != null && startTransform.GetComponent<Prop>() != null)
         {
             startTransform.GetComponent<Prop>().OnDetachTether(gameObject);
         }
-        if (endTransform.GetComponent<Prop>() != null)
+        if (endTransform != null && endTransform.gameObject != null && endTransform.GetComponent<Prop>() != null)
         {
             endTransform.GetComponent<Prop>().OnDetachTether(gameObject);
         }
 
-        Destroy(startJoint);
-        Destroy(endJoint);
+        if(startJoint != null) Destroy(startJoint);
+        if(endJoint != null) Destroy(endJoint);
 
         if(temporaryStartRbObject != null) Destroy(temporaryStartRbObject);
         if(temporaryEndRbObject != null) Destroy(temporaryEndRbObject);
 
-        StartCoroutine(DestroyTetherAfterTime());
-    }
-
-    IEnumerator DestroyTetherAfterTime()
-    {
-        yield return new WaitForSeconds(0.2f);
+        if(startTrailRenderer != null) Destroy(startTrailRenderer);
+        if(endTrailRenderer != null) Destroy(endTrailRenderer); 
 
         OnTetherDestroy(this);
         Destroy(gameObject);

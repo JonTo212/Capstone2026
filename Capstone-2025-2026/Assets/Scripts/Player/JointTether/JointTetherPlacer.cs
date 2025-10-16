@@ -1,6 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.Collections;
+using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class JointTetherPlacer : MonoBehaviour
@@ -31,7 +32,7 @@ public class JointTetherPlacer : MonoBehaviour
     private Transform endTransform;
     private Vector3 startLocalPosition;
     private Vector3 endLocalPosition;
-
+    [SerializeField] private TMP_Text tetherAmountText;
     public event Action OnTetherStartHit;
 
     #region Unity Functions
@@ -116,6 +117,8 @@ public class JointTetherPlacer : MonoBehaviour
         placedTethers.Add(jointTether);
 
         numOfTethersPlaced++;
+
+        UpdateTetherAmountText();
     }
     #endregion
 
@@ -168,6 +171,7 @@ public class JointTetherPlacer : MonoBehaviour
     {
         placedTethers.Remove(jointTether);
         numOfTethersPlaced--;
+        UpdateTetherAmountText();
     }
 
     private void ResetVariables()
@@ -178,6 +182,11 @@ public class JointTetherPlacer : MonoBehaviour
         endLocalPosition = Vector3.zero;
 
         didStartPointHit = false;
+    }
+
+    private void UpdateTetherAmountText()
+    {
+        tetherAmountText.text = "Tethers: " + (maxNumOfTethers - numOfTethersPlaced).ToString() + "/" + maxNumOfTethers.ToString();
     }
     #endregion
 }

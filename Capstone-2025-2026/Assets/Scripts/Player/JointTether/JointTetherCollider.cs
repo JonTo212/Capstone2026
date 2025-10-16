@@ -38,6 +38,7 @@ public class JointTetherCollider : MonoBehaviour
 
     public void UpdateCollider()
     {
+        if (startTransform == null || endTransform == null) return; 
         Vector3 startWorldPos = startTransform.TransformPoint(startHitLocalPosition);
         Vector3 endWorldPos = endTransform.TransformPoint(endHitLocalPosition);
 

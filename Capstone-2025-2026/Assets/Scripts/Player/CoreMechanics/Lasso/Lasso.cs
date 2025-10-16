@@ -51,6 +51,7 @@ public class Lasso : MonoBehaviour
     private Joint swingJoint;
     private bool _isStrainingAtMaxDistance = false;
     private float _anchorDist;
+    private float _currentAnchorDist;
 
     [Header("Getters")]
     public Prop SnaredObject { get; private set; }
@@ -83,6 +84,23 @@ public class Lasso : MonoBehaviour
     #region Helper Functions
 
     public Vector3 GetCenterOfScreen()
+    {
+        Ray ray = PlayerCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+        float checkDist = _anchorDist;
+        float maxCheckDist = lassoRange;
+
+        RaycastHit hit;
+        if (Physics.Raycast(ray, out hit, checkDist))
+        {
+            checkDist = hit.distance + 0.1f;
+        }
+
+        _currentAnchorDist = checkDist;
+
+        return ray.origin + ray.direction * _currentAnchorDist;
+    }
+
+    public Vector3 GetAnchoredCenterOfScreen()
     {
         Ray ray = PlayerCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
         Vector3 maxDistancePos = ray.origin + ray.direction * _anchorDist;

@@ -79,18 +79,16 @@ public class BombProp : Prop, IActivatable
 
         foreach (Collider collider in hitColliders)
         {
-            float upwardsModifier = 2f;
-
             if(collider.TryGetComponent(out Prop prop))
             {
-                Vector3 explosionPos = transform.position + Vector3.up * upwardsModifier;
+                Vector3 explosionPos = transform.position;
                 Vector3 dir = prop.transform.position - explosionPos;
                 float falloff = 1f - (dir.magnitude / explosionRadius);
                 prop.ApplyForceInDirection(dir.normalized, explosionForce * falloff, ForceMode.Impulse);
             }
             else if(collider.TryGetComponent(out Rigidbody colRb))
             {
-                colRb.AddExplosionForce(explosionForce, transform.position, explosionRadius, upwardsModifier, ForceMode.Impulse);
+                colRb.AddExplosionForce(explosionForce, transform.position, explosionRadius, 2f, ForceMode.Impulse);
             }
         }
 

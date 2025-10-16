@@ -62,7 +62,7 @@ LineRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10306, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 1d0fae21506a64d4eb10f76fbe1722be, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -158,8 +158,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0331365699df4784bbedd028ad968879, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::JointTether
-  driveStrength: 20
-  driveDamper: 5
+  trailRendererPrefab: {fileID: 4549864742591113740, guid: d49e03c26ebda3841aa2ec695bd78505, type: 3}
+  driveStrength: 30
+  driveDamper: 2
   activationDelay: 0.12
   isAutoActivate: 0
   startJoint: {fileID: 0}
@@ -182,6 +183,8 @@ MonoBehaviour:
   activatedStateColor: {r: 0, g: 1, b: 0, a: 1}
   inactiveStateColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   stretchedStateColor: {r: 1, g: 0, b: 0, a: 1}
+  attachedMaterial: {fileID: 2100000, guid: 1d0fae21506a64d4eb10f76fbe1722be, type: 2}
+  activatedMaterial: {fileID: 2100000, guid: 590e64bc6ddcd0442a860e95ec24f535, type: 2}
 --- !u!136 &8186839643958934475
 CapsuleCollider:
   m_ObjectHideFlags: 0
