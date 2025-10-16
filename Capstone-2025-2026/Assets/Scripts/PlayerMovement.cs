@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public enum PlayerMoveState
@@ -36,6 +37,7 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Multipliers")]
     [SerializeField] private MovementProperties _airMultipliers;
+    [SerializeField] private MovementProperties _swingingMultipliers;
     [SerializeField] private float overshootCorrectionMultiplier = 10f;
     [SerializeField] private float hardCapMultiplier = 5f;
 
@@ -54,9 +56,13 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float yawSensitivity;
     [SerializeField] private float pitchSensitivity;
     [SerializeField] private Camera playerCam;
+    [SerializeField] private float desiredSwingFOV = 90f;
+    [SerializeField] private float desiredHoldFOV = 75f;
+    [SerializeField] private float FOVChangeSpeed = 5f;
 
     [Header("Input")]
     private PlayerActions _playerActions;
+    private LassoTetherController _lassoTetherController;
 
     private MovementProperties _currentMultipliers;
     private PlayerMoveState _currentMovementState;
@@ -71,19 +77,25 @@ public class PlayerMovement : MonoBehaviour
     private float _jumpForce;
     private float _friction;
     private float _slopeAngle;
+    private float _defaultFOV;
 
     public float ExternalForce { get; set; }
+    public float Gravity => _gravity;
+    public Vector3 WishDir => _wishDir;
+    public Rigidbody Rb => _rb;
 
     private void Awake()
     {
         _rb = GetComponent<Rigidbody>();
         _playerCol = GetComponent<CapsuleCollider>();
         _playerActions = GetComponent<PlayerActions>();
+        _lassoTetherController = GetComponent<LassoTetherController>();
 
         _gravity = 2 * apexHeight / Mathf.Pow(apexTime, 2);
         _jumpForce = 2 * apexHeight / apexTime;
         _friction = defaultMaxSpeed / timeToZero;
         _acceleration = defaultMaxSpeed / timeToMaxSpeed;
+        _defaultFOV = playerCam.fieldOfView;
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -95,6 +107,7 @@ public class PlayerMovement : MonoBehaviour
         HandleJumpBuffer();
         HandleCoyoteTime();
         HandleJump();
+        HandleFOV();
     }
 
     private void FixedUpdate()
@@ -102,6 +115,10 @@ public class PlayerMovement : MonoBehaviour
         if (IsGrounded())
         {
             SwitchMovementState(PlayerMoveState.Walking);
+        }
+        else if (_lassoTetherController.CurrentLassoState == LassoState.Swinging)
+        {
+            SwitchMovementState(PlayerMoveState.Swinging);
         }
         else
         {
@@ -125,6 +142,10 @@ public class PlayerMovement : MonoBehaviour
             case PlayerMoveState.InAir:
                 _currentMultipliers = _airMultipliers;
                 HandleGravity();
+                break;
+
+            case PlayerMoveState.Swinging:
+                _currentMultipliers = _swingingMultipliers;
                 break;
         }
     }
@@ -177,7 +198,25 @@ public class PlayerMovement : MonoBehaviour
         Quaternion deltaRotation = Quaternion.Euler(0, newRot, 0f);
 
         _rb.MoveRotation(_rb.rotation * deltaRotation);
+    }
 
+    private void HandleFOV()
+    {
+        float desiredFOV = _defaultFOV;
+        float changeSpeed = FOVChangeSpeed;
+
+        if (_lassoTetherController.CurrentLassoState == LassoState.Swinging)
+        {
+            desiredFOV = desiredSwingFOV;
+            changeSpeed = FOVChangeSpeed;
+        }
+        else if (_lassoTetherController.CurrentLassoState == LassoState.Snared || _lassoTetherController.CurrentLassoState == LassoState.SnaredTether)
+        {
+            desiredFOV = desiredHoldFOV;
+            changeSpeed = FOVChangeSpeed * 2f;
+        }
+
+        playerCam.fieldOfView = Mathf.SmoothStep(playerCam.fieldOfView, desiredFOV, Time.deltaTime * changeSpeed);
     }
 
     private void HandleMovement()
@@ -235,24 +274,30 @@ public class PlayerMovement : MonoBehaviour
         Vector3 horizontalVel = new Vector3(_rb.linearVelocity.x, 0f, _rb.linearVelocity.z);
         float speed = horizontalVel.magnitude;
 
-        if (speed < 0.1f)
+        if (speed <= 0f)
         {
-            _rb.linearVelocity = new Vector3(0f, _rb.linearVelocity.y, 0f);
             return;
         }
 
-        float targetSpeed = defaultMaxSpeed * _currentMultipliers.maxSpeedMultiplier;
-        float frictionAccel = _friction * _currentMultipliers.decelMultiplier;
-
-        //speed / targetSpeed gives a value of 0-1
-        //use accel when there's input, when speed = targetSpeed you decelerate at the same rate you accelerate, effectively capping your speed
-        if (_wishDir != Vector3.zero)
+        if (_wishDir == Vector3.zero)
         {
-            frictionAccel = _acceleration * _currentMultipliers.accelMultiplier * (speed / targetSpeed);
-        }
+            float stopAccel = speed / Time.fixedDeltaTime;
+            float frictionAccel = _friction * _currentMultipliers.decelMultiplier;
+            float finalAccel = Mathf.Min(frictionAccel, stopAccel);
 
-        Vector3 frictionForce = -horizontalVel.normalized * frictionAccel;
-        _rb.AddForce(frictionForce, ForceMode.Acceleration);
+            Vector3 frictionForce = -horizontalVel.normalized * finalAccel;
+            _rb.AddForce(frictionForce, ForceMode.Acceleration);
+        }
+        else
+        {
+            //speed / targetSpeed gives a value of 0-1
+            //use accel when there's input, when speed = targetSpeed you decelerate at the same rate you accelerate, effectively capping your speed
+            float targetSpeed = defaultMaxSpeed * _currentMultipliers.maxSpeedMultiplier;
+            float frictionAccel = _acceleration * _currentMultipliers.accelMultiplier * (speed / targetSpeed);
+
+            Vector3 frictionForce = -horizontalVel.normalized * frictionAccel;
+            _rb.AddForce(frictionForce, ForceMode.Acceleration);
+        }
     }
 
     private void ApplyAcceleration()

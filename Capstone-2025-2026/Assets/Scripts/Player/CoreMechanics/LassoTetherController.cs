@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using TMPro;
 using Unity.VisualScripting;
@@ -104,7 +105,7 @@ public class LassoTetherController : MonoBehaviour
             playerLasso.HandleSnapback();
             if (playerActions.MainHeld)
             {
-                playerLasso.MoveObjectToPos(playerLasso.GetCenterOfScreen());
+                playerLasso.HandleObjectHoldAtDistance(playerLasso.GetAnchoredCenterOfScreen());
             }
         }
         else if (CurrentLassoState == LassoState.Held || CurrentLassoState == LassoState.Using)
