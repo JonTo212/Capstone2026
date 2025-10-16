@@ -10,6 +10,10 @@ public class JointTether : MonoBehaviour
     private JointTetherVisuals tetherVisuals;
     private JointTetherCollider tetherCollider;
 
+    [SerializeField] private GameObject trailRendererPrefab;
+    private GameObject startTrailRenderer;
+    private GameObject endTrailRenderer;
+
     [Header("Config Joint Parameters")]
     [SerializeField] private float driveStrength = 20f;
     [SerializeField] private float driveDamper = 5f;
@@ -22,8 +26,8 @@ public class JointTether : MonoBehaviour
     [SerializeField] private ConfigurableJoint endJoint;
     private Rigidbody startRb;
     private Rigidbody endRb;
-    public Transform startTransform;
-    public Transform endTransform;
+    private Transform startTransform;
+    private Transform endTransform;
     private GameObject temporaryStartRbObject;
     private GameObject temporaryEndRbObject;
     private Vector3 startLocalPosition;
@@ -101,6 +105,9 @@ public class JointTether : MonoBehaviour
         if(fromTransform.gameObject.GetComponent<Rigidbody>() != null)
         {
             rb = fromTransform.gameObject.GetComponent<Rigidbody>();
+            GameObject trail = Instantiate(trailRendererPrefab);
+            trail.transform.parent = fromTransform;
+            trail.transform.position= fromTransform.position;
             temporaryRbObject = null;
         }
         else
@@ -184,6 +191,9 @@ public class JointTether : MonoBehaviour
 
         if(temporaryStartRbObject != null) Destroy(temporaryStartRbObject);
         if(temporaryEndRbObject != null) Destroy(temporaryEndRbObject);
+
+        if(startTrailRenderer != null) Destroy(startTrailRenderer);
+        if(endTrailRenderer != null) Destroy(endTrailRenderer); 
 
         OnTetherDestroy(this);
         Destroy(gameObject);

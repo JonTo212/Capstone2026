@@ -121,7 +121,7 @@ public class BossAiScript : MonoBehaviour
         {
             StartCoroutine(SpawnProjectile(projectileSpawnLocation[i], i));
         }
-        attackTimer = -5;
+        attackTimer = -10;
     }
 
     IEnumerator SpawnProjectile(Transform location, float timer)
