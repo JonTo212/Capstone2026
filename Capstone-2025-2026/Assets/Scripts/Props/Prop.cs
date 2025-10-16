@@ -35,8 +35,6 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         ObjectOutline.OutlineColor = Color.green;
         ObjectOutline.OutlineWidth = 3f;
         ObjectOutline.enabled = false;
-
-        PropCollider = GetComponent<Collider>();
     }
 
     protected virtual void OnDestroy()
