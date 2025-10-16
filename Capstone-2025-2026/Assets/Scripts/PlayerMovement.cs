@@ -146,6 +146,7 @@ public class PlayerMovement : MonoBehaviour
 
             case PlayerMoveState.Swinging:
                 _currentMultipliers = _swingingMultipliers;
+                HandleGravity();
                 break;
         }
     }
