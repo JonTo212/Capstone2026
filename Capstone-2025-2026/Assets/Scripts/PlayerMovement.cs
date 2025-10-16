@@ -166,13 +166,13 @@ public class PlayerMovement : MonoBehaviour
 
     private void HandleRot()
     {
-        //Up-down cam
+        //up-down cam
         _yRot -= _playerActions.LookInput.y * pitchSensitivity * Time.deltaTime;
         _yRot = Mathf.Clamp(_yRot, -75f, 75f);
 
         playerCam.transform.localEulerAngles = new Vector3(_yRot, 0f, 0f);
 
-        //Sideways rotation
+        //sideways rotation
         float newRot = _playerActions.LookInput.x * yawSensitivity * Time.fixedDeltaTime;
         Quaternion deltaRotation = Quaternion.Euler(0, newRot, 0f);
 
@@ -182,32 +182,8 @@ public class PlayerMovement : MonoBehaviour
 
     private void HandleMovement()
     {
-        Vector3 horizontalVel = new Vector3(_rb.linearVelocity.x, 0, _rb.linearVelocity.z);
-
-        _wishDir = new Vector3(_playerActions.MoveInput.x, 0, _playerActions.MoveInput.y).normalized;
-
-        if (_wishDir != Vector3.zero)
-        {
-            //change input direction to be local
-            _wishDir = transform.TransformDirection(_wishDir);
-
-            //calculate difference in desired velocity and current (self-clamped)
-            Vector3 desiredVel = _wishDir * defaultMaxSpeed * _currentMultipliers.maxSpeedMultiplier;
-            Vector3 velDelta = desiredVel - horizontalVel;
-            Vector3 accelStep = Vector3.ClampMagnitude(velDelta, _acceleration * _currentMultipliers.accelMultiplier * Time.fixedDeltaTime);
-
-            _rb.AddForce(accelStep, ForceMode.VelocityChange);
-        }
-        else
-        {
-            Vector3 decelStep = -horizontalVel.normalized * _friction * _currentMultipliers.decelMultiplier;
-
-            //prevent overshoot when near zero
-            if (decelStep.sqrMagnitude > (horizontalVel.sqrMagnitude / (Time.fixedDeltaTime * Time.fixedDeltaTime)))
-                decelStep = -horizontalVel / Time.fixedDeltaTime;
-
-            _rb.AddForce(decelStep, ForceMode.Acceleration);
-        }
+        ApplyAcceleration();
+        ApplyFriction();
     }
 
     private void HandleJump()
@@ -252,6 +228,42 @@ public class PlayerMovement : MonoBehaviour
         }
 
         if (correction != Vector3.zero) _rb.AddForce(correction * overshootCorrectionMultiplier, ForceMode.Acceleration);
+    }
+
+    private void ApplyFriction()
+    {
+        Vector3 horizontalVel = new Vector3(_rb.linearVelocity.x, 0f, _rb.linearVelocity.z);
+        float speed = horizontalVel.magnitude;
+
+        if (speed < 0.1f)
+        {
+            _rb.linearVelocity = new Vector3(0f, _rb.linearVelocity.y, 0f);
+            return;
+        }
+
+        float targetSpeed = defaultMaxSpeed * _currentMultipliers.maxSpeedMultiplier;
+        float frictionAccel = _friction * _currentMultipliers.decelMultiplier;
+
+        //speed / targetSpeed gives a value of 0-1
+        //use accel when there's input, when speed = targetSpeed you decelerate at the same rate you accelerate, effectively capping your speed
+        if (_wishDir != Vector3.zero)
+        {
+            frictionAccel = _acceleration * _currentMultipliers.accelMultiplier * (speed / targetSpeed);
+        }
+
+        Vector3 frictionForce = -horizontalVel.normalized * frictionAccel;
+        _rb.AddForce(frictionForce, ForceMode.Acceleration);
+    }
+
+    private void ApplyAcceleration()
+    {
+        _wishDir = new Vector3(_playerActions.MoveInput.x, 0, _playerActions.MoveInput.y).normalized;
+        if (_wishDir == Vector3.zero) return;
+
+        _wishDir = transform.TransformDirection(_wishDir);
+
+        Vector3 accelForce = _wishDir * _acceleration * _currentMultipliers.accelMultiplier;
+        _rb.AddForce(accelForce, ForceMode.Acceleration);
     }
 
     private void HandleMovingPlatforms()
