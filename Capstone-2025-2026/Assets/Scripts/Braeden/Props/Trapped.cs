@@ -35,7 +35,6 @@ public class Trapped : MonoBehaviour
     void SetFree()
     {
         //sound
-        //play rainsound
         if (!audioSource.isPlaying && !audioPlayed)
         {
             audioSource.PlayOneShot(popSound,2);
@@ -54,5 +53,13 @@ public class Trapped : MonoBehaviour
         //fly away
         transform.position += new Vector3(speed, speed, 0) * Time.deltaTime;
 
+        //destroy after 10 seconds
+        Invoke(nameof(DestroyNPC), 10f);
+
+    }
+
+    void DestroyNPC()
+    {
+        Destroy(gameObject);   
     }
 }

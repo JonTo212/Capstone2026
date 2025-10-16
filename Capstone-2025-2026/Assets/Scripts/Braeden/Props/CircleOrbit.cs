@@ -70,10 +70,10 @@ public class CircleOrbit : MonoBehaviour
             child.transform.RotateAround(new Vector3(transform.position.x, transform.position.y, transform.position.z), Vector3.up, orbitSpeed * Time.deltaTime);
 
             //unparent if held
-            if (child.GetComponent<Prop>().IsSnared || child.GetComponent<Prop>().IsHeld)
+            if (child.GetComponent<Prop>().IsHeld)
             {
                 child.transform.parent = null;
-                print("ORPHAN");
+                //print("ORPHAN");
             }
         }
     }

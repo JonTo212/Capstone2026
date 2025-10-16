@@ -289,18 +289,22 @@ MonoBehaviour:
   apexTime: 0.45
   timeToZero: 0.3
   timeToMaxSpeed: 0.15
-  sprintMaxSpeedMultiplier: 1.5
-  sprintAccelMultiplier: 1.5
-  sprintDecelMultiplier: 1.5
-  crouchMaxSpeedMultiplier: 0.75
-  crouchAccelMultiplier: 0.75
-  crouchDecelMultiplier: 1
-  airMaxSpeedMultiplier: 1
-  airAccelMultiplier: 0.75
-  airDecelMultiplier: 0.1
-  groundMaxSpeedMultiplier: 1
-  groundAccelMultiplier: 1
-  groundDecelMultiplier: 1
+  sprintMultipliers:
+    accelMultiplier: 0
+    decelMultiplier: 0
+    maxSpeedMultiplier: 0
+  crouchMultipliers:
+    accelMultiplier: 0
+    decelMultiplier: 0
+    maxSpeedMultiplier: 0
+  airMultipliers:
+    accelMultiplier: 0
+    decelMultiplier: 0
+    maxSpeedMultiplier: 0
+  groundMultipliers:
+    accelMultiplier: 0
+    decelMultiplier: 0
+    maxSpeedMultiplier: 0
   feetPos: {fileID: 1251832106}
   feetRadius: 0.1
   groundLayer:
@@ -310,7 +314,6 @@ MonoBehaviour:
   jumpBufferDuration: 0.2
   yawSensitivity: 10
   pitchSensitivity: 40
-  camTransform: {fileID: 0}
 --- !u!114 &60754036
 MonoBehaviour:
   m_ObjectHideFlags: 0

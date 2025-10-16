@@ -208,7 +208,7 @@ public class EnemyAISimple : MonoBehaviour
         if (hitObject.TryGetComponent(out Prop prop))
         {
             float speed = hitObject.GetComponent<Rigidbody>().angularVelocity.magnitude;
-            if(speed > 5f)
+            if(speed > 1f)
             {
                 alive = false;
             }
