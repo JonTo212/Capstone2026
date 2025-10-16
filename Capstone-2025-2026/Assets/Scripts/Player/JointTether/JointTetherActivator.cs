@@ -94,7 +94,9 @@ public class JointTetherActivator : MonoBehaviour
     {
         yield return new WaitForSeconds(timeToDestroyAllTethers);
 
-        foreach (JointTether tether in placedTethers)
+        List<JointTether> allPlacedTethers = new List<JointTether>(placedTethers);
+
+        foreach (JointTether tether in allPlacedTethers)
         {
             tether.DestroyTether();
         }

@@ -107,8 +107,6 @@ public class BossAiScript : MonoBehaviour
                     }
                 }
             }
-
-            Debug.Log(attackTimer);
         }
 
 

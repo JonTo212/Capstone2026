@@ -52,7 +52,7 @@ public class JointTetherVisuals : MonoBehaviour
     {
         //_lineRenderer.SetPosition(0, startTransform.TransformPoint(startLocalPosition));
         //_lineRenderer.SetPosition(1, endTransform.TransformPoint(endLocalPosition));
-
+        if (startTransform == null || endTransform == null) return;
         UpdateMiddlePointPosition();
         GetPoints();
         SetPointsToLine();
