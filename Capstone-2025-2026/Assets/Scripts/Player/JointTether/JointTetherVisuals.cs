@@ -14,6 +14,8 @@ public class JointTetherVisuals : MonoBehaviour
     [SerializeField] Color activatedStateColor = Color.green;
     [SerializeField] Color inactiveStateColor = Color.yellow;
     [SerializeField] Color stretchedStateColor = Color.red;
+    [SerializeField] Material attachedMaterial;
+    [SerializeField] Material activatedMaterial;
     private Transform startTransform;
     private Transform endTransform;
     private Vector3 startLocalPosition;
@@ -60,15 +62,13 @@ public class JointTetherVisuals : MonoBehaviour
 
     public void SetLineColorActive()
     {
-        _lineRenderer.startColor = activatedStateColor;
-        _lineRenderer.endColor = activatedStateColor;
+        _lineRenderer.material = activatedMaterial;
         StartCoroutine(MakeLineStraight());
     }
 
     public void SetLineColorInactive()
     {
-        _lineRenderer.startColor = inactiveStateColor;
-        _lineRenderer.endColor = inactiveStateColor;
+        _lineRenderer.material = attachedMaterial;
     }
 
     private void UpdateMiddlePointPosition()

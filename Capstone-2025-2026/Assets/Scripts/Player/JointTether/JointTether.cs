@@ -6,7 +6,7 @@ public class JointTether : MonoBehaviour
 {
     public delegate void TetherDestroyAction(JointTether jointTether);
     public event TetherDestroyAction OnTetherDestroy;
-   
+
     private JointTetherVisuals tetherVisuals;
     private JointTetherCollider tetherCollider;
 
