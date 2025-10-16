@@ -149,10 +149,19 @@ public class Lasso : MonoBehaviour
             if (hit.HasValue)
             {
                 targetProp = hit.Value.transform.GetComponentInParent<Prop>();
+                targetProp.SetOutlineColour(Color.green);
+                targetProp.SetOutlineWidth(2f);
             }
         }
 
-        _aimAssist.HighlightSelectedProp(targetProp, SnaredObject != null);
+        if (SnaredObject != null)
+        {
+            targetProp = SnaredObject;
+            SnaredObject.SetOutlineColour(Color.cyan);
+            SnaredObject.SetOutlineWidth(4f);
+        }
+
+        _aimAssist.HighlightSelectedProp(targetProp, false);
     }
 
 

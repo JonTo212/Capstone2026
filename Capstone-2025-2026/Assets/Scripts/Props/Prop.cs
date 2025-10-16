@@ -102,6 +102,11 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         ObjectOutline.OutlineColor = newColour;
     }
 
+    public virtual void SetOutlineWidth(float newWidth)
+    {
+        ObjectOutline.OutlineWidth = newWidth;
+    }
+
     #endregion
 
     #region IHoldable
