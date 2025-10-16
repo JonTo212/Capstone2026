@@ -1,4 +1,4 @@
-using UnityEditor.SearchService;
+//using UnityEditor.SearchService;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -17,6 +17,7 @@ public class MySceneManager : MonoBehaviour
     
     public void QuitToDesktop()
     {
+        /*
         if (UnityEditor.EditorApplication.isPlaying)
         {
             UnityEditor.EditorApplication.isPlaying = false;
@@ -25,6 +26,9 @@ public class MySceneManager : MonoBehaviour
         {
             Application.Quit();
         }
+        */
+
+        Application.Quit();
 
     }
 
