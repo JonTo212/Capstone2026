@@ -30,6 +30,8 @@ public class playerRespawn : MonoBehaviour
         rb = GetComponent<Rigidbody>();
     }
 
+
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.tag == "Void")
@@ -38,6 +40,12 @@ public class playerRespawn : MonoBehaviour
             print("FELL INTO VOID");
         }
 
+
+        if (other.gameObject.tag == "Checkpoint")
+        {
+            spawnPosition = other.transform.position;
+            print("Checkpoint Set!");
+        }
     }
 
     IEnumerator Respawn()
