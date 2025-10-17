@@ -12,6 +12,9 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioSource SFXSource2;
     [SerializeField] private AudioSource SFXSource3;
     [SerializeField] private AudioSource SFXSource4;
+    [SerializeField] private AudioSource SFXSource5;
+    [SerializeField] private AudioSource SFXSource6;
+    [SerializeField] private AudioSource SFXSource7;
 
     [SerializeField] private AudioSource AmbienceSource1;
 
@@ -19,28 +22,69 @@ public class AudioManager : MonoBehaviour
     [Header("------------Music Clips------------")]
     [SerializeField] private AudioClip track1;
     [SerializeField] private AudioClip track2;
+    [SerializeField] private AudioClip happyBirthday;
     public AudioClip Track1 => track1;
     public AudioClip Track2 => track2;
+    public AudioClip HappyBirthday => happyBirthday;
 
     [Header("------------Ambience Clips------------")]
     [SerializeField] private AudioClip ambience1;
     public AudioClip Ambience1 => ambience1;
 
-    [Header("------------SFX Clips------------")]
-    [SerializeField]  private AudioClip jump;
-    [SerializeField]  private AudioClip claspSolid;
-    [SerializeField]  private AudioClip claspSoft;
-    [SerializeField]  private AudioClip pull;
-    [SerializeField]  private AudioClip thrown;
-    [SerializeField]  private AudioClip dog;
-
-
+    [Header("------------Player Clips------------")]
+    [SerializeField] private AudioClip playerHurt;
+    [SerializeField] private AudioClip playerBadlyHurt;
+    [SerializeField] private AudioClip playerSaved;
+    [SerializeField] private AudioClip jump;
+    [SerializeField] private AudioClip walk;
+    [SerializeField] private AudioClip yank;
+    [SerializeField] private AudioClip thrown;
+    [SerializeField] private AudioClip tetherStart;
+    [SerializeField] private AudioClip tetherEnd;
+    [SerializeField] private AudioClip tetherTighten;
+    //[SerializeField]  private AudioClip claspSolid;
+    //[SerializeField]  private AudioClip claspSoft;
+    public AudioClip PlayerHurt => playerHurt;
+    public AudioClip PlayerBadlyHurt => playerBadlyHurt;
+    public AudioClip PlayerSaved => playerSaved;
     public AudioClip Jump => jump;
-    public AudioClip ClaspSolid => claspSolid;
-    public AudioClip ClaspSoft => claspSoft ;
-    public AudioClip Pull => pull;
+    public AudioClip Walk => walk;
+    public AudioClip Pull => yank;
     public AudioClip Thrown => thrown;
-    public AudioClip Dog => dog;
+    public AudioClip TetherStart => tetherStart;
+    public AudioClip TetherEnd => tetherEnd;
+    public AudioClip TetherTighten => tetherTighten;
+    //public AudioClip ClaspSolid => claspSolid;
+    //public AudioClip ClaspSoft => claspSoft ;
+    [Header("------------Enemy Clips------------")]
+    [SerializeField] private AudioClip enemyAttack;
+    [SerializeField] private AudioClip enemyPerish;
+    public AudioClip EnemyAttack => enemyAttack;
+    public AudioClip EnemyPerish => enemyPerish;
+
+    [Header("------------Boss Clips------------")]
+    [SerializeField] private AudioClip bossHurt;
+    [SerializeField] private AudioClip bossPerish;
+    [SerializeField] private AudioClip bossLaserCharge;
+    [SerializeField] private AudioClip bossLaserFire;
+    [SerializeField] private AudioClip bossSpawn;
+    [SerializeField] private AudioClip bossProjectileBoom;
+    public AudioClip BossHurt => bossHurt;
+    public AudioClip BossPerish => bossPerish;
+    public AudioClip BossLaserCharge => bossLaserCharge;
+    public AudioClip BossLaserFire => bossLaserFire;
+    public AudioClip BossSpawn => bossSpawn;
+    public AudioClip BossProjectileBoom => bossProjectileBoom;
+
+    
+
+    [Header("------------Menu Clips------------")]
+    [SerializeField] private AudioClip menuOk;
+    [SerializeField] private AudioClip menuNo;
+    public AudioClip MenuOk => menuOk;
+    public AudioClip MenuNo => menuNo;
+
+
 
     [Header("------------Debugging Clips------------")]
     private AudioClip error;
@@ -51,9 +95,10 @@ public class AudioManager : MonoBehaviour
     {
         if (playOnStart)
         {
-            musicSource1.clip = track1;
-            musicSource1.Play();
+            PlayMusic(track1, 1);
         }
+        
+        PlayAmbience(ambience1);
     }
 
     #region SFX Functions
