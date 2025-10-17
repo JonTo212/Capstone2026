@@ -101,6 +101,8 @@ public class PlayerMovement : MonoBehaviour
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+        aManage.PlaySFX(aManage.Walk, 7, 1);
+        aManage.SFXSource7.loop = true;
     }
 
     private void Update()
@@ -125,6 +127,15 @@ public class PlayerMovement : MonoBehaviour
         else
         {
             SwitchMovementState(PlayerMoveState.InAir);
+        }
+
+        if (_wishDir != Vector3.zero)
+        {
+            aManage.SFXSource7.UnPause();
+        }
+        else
+        {
+            aManage.SFXSource7.Pause(); //PlaySFX(aManage.Walk, 5, 1);
         }
 
         HandleMovement();
@@ -237,7 +248,7 @@ public class PlayerMovement : MonoBehaviour
 
             coyoteTimeCounter = 0f;
             jumpBufferCounter = 0;
-            aManage.PlaySFX(aManage.Jump, 7, 1f);
+            aManage.PlaySFX(aManage.Jump, 6, 1f);
         }
     }
 
@@ -305,10 +316,7 @@ public class PlayerMovement : MonoBehaviour
 
             Vector3 frictionForce = -horizontalVel.normalized * frictionAccel;
             _rb.AddForce(frictionForce, ForceMode.Acceleration);
-            if (!aManage.SFXSource1.isPlaying)
-            {
-                //aManage.PlaySFX(aManage.Walk, 6, 0.5f);
-            }
+            
         }
     }
 

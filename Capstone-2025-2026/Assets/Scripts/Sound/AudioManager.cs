@@ -167,7 +167,8 @@ public class AudioManager : MonoBehaviour
             //Adjust volume or defaults it otherwise
             selectedSource.volume = volume.Value;
             //Plays SFX
-            selectedSource.PlayOneShot(clip);
+            selectedSource.clip = clip;
+            selectedSource.Play();
         }
         //Missing Audio Error
         else

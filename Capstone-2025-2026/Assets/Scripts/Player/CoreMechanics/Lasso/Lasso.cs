@@ -491,6 +491,8 @@ public class Lasso : MonoBehaviour
             StopCoroutine(_playerYankCoroutine);
         }
 
+        
+        aManage.PlaySFX(aManage.Pull, 5, 1);
         _playerYankCoroutine = StartCoroutine(YankPlayerCoroutine());
     }
 
@@ -538,7 +540,7 @@ public class Lasso : MonoBehaviour
             _playerController.Rb.linearVelocity = Vector3.zero; //only do this when you land on top
         }
 
-        aManage.PlaySFX(aManage.Pull, 5, 1);
+        
 
         OnPlayerYankCompleted?.Invoke();
         _playerYankCoroutine = null;
