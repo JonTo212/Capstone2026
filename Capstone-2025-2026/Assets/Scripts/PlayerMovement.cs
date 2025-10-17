@@ -83,9 +83,11 @@ public class PlayerMovement : MonoBehaviour
     public float Gravity => _gravity;
     public Vector3 WishDir => _wishDir;
     public Rigidbody Rb => _rb;
+    public AudioManager aManage;
 
     private void Awake()
     {
+        aManage = GameObject.Find("AudioManager").GetComponent<AudioManager>();
         _rb = GetComponent<Rigidbody>();
         _playerCol = GetComponent<CapsuleCollider>();
         _playerActions = GetComponent<PlayerActions>();
@@ -235,6 +237,7 @@ public class PlayerMovement : MonoBehaviour
 
             coyoteTimeCounter = 0f;
             jumpBufferCounter = 0;
+            aManage.PlaySFX(aManage.Jump, 7, 1f);
         }
     }
 
@@ -277,6 +280,7 @@ public class PlayerMovement : MonoBehaviour
 
         if (speed <= 0f)
         {
+            //aManage.SFXSource6.Stop();
             return;
         }
 
@@ -288,6 +292,9 @@ public class PlayerMovement : MonoBehaviour
 
             Vector3 frictionForce = -horizontalVel.normalized * finalAccel;
             _rb.AddForce(frictionForce, ForceMode.Acceleration);
+            
+            //aManage.SFXSource6.Stop();
+
         }
         else
         {
@@ -298,6 +305,10 @@ public class PlayerMovement : MonoBehaviour
 
             Vector3 frictionForce = -horizontalVel.normalized * frictionAccel;
             _rb.AddForce(frictionForce, ForceMode.Acceleration);
+            if (!aManage.SFXSource1.isPlaying)
+            {
+                //aManage.PlaySFX(aManage.Walk, 6, 0.5f);
+            }
         }
     }
 

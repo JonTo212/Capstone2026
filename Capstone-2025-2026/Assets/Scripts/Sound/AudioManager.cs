@@ -8,15 +8,28 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioSource musicSource1;
     [SerializeField] private AudioSource musicSource2;
 
-    [SerializeField] private AudioSource SFXSource1;
-    [SerializeField] private AudioSource SFXSource2;
-    [SerializeField] private AudioSource SFXSource3;
-    [SerializeField] private AudioSource SFXSource4;
-    [SerializeField] private AudioSource SFXSource5;
-    [SerializeField] private AudioSource SFXSource6;
-    [SerializeField] private AudioSource SFXSource7;
+    [SerializeField] private AudioSource sFXSource1;
+    [SerializeField] private AudioSource sFXSource2;
+    [SerializeField] private AudioSource sFXSource3;
+    [SerializeField] private AudioSource sFXSource4;
+    [SerializeField] private AudioSource sFXSource5;
+    [SerializeField] private AudioSource sFXSource6;
+    [SerializeField] private AudioSource sFXSource7;
 
-    [SerializeField] private AudioSource AmbienceSource1;
+    [SerializeField] private AudioSource ambienceSource1;
+
+    public AudioSource MusicSource1 => musicSource1;
+    public AudioSource MusicSource2 => musicSource2;
+
+    public AudioSource SFXSource1 => sFXSource1;
+    public AudioSource SFXSource2 => sFXSource2;
+    public AudioSource SFXSource3 => sFXSource3;
+    public AudioSource SFXSource4 => sFXSource4;
+    public AudioSource SFXSource5 => sFXSource5;
+    public AudioSource SFXSource6 => sFXSource6;
+    public AudioSource SFXSource7 => sFXSource7;
+
+    public AudioSource AmbienceSource1 => ambienceSource1;
 
 
     [Header("------------Music Clips------------")]
@@ -88,20 +101,36 @@ public class AudioManager : MonoBehaviour
 
     [Header("------------Debugging Clips------------")]
     private AudioClip error;
-    private AudioClip empty;
+    [SerializeField] private AudioClip empty;
+    public AudioClip Empty => empty;
+
 
 
     void Start()
     {
         if (playOnStart)
         {
-            PlayMusic(track1, 1);
+            PlayMusic(Track1, 1, 1);
         }
-        
-        PlayAmbience(ambience1);
+
+        PlayAmbience(ambience1, 1, 0.5f);
     }
 
     #region SFX Functions
+    public void MenuOKFunc()
+    {
+        //Plays SFX
+        SFXSource1.PlayOneShot(menuOk);
+
+    }
+
+    public void MenuNOFunc()
+    {
+        //Plays SFX
+        SFXSource1.PlayOneShot(menuNo);
+
+    }
+    
     //Choose CLIP, Choose CHANNEL. It'll play one loop of the clip at full volume. If the clip isn't filled out properly, error noise will play
     public void PlaySFX(AudioClip clip, int channel, float? volume = null)
     {
@@ -122,6 +151,15 @@ public class AudioManager : MonoBehaviour
                     break;
                 case 4:
                     selectedSource = SFXSource4;
+                    break;
+                case 5:
+                    selectedSource = SFXSource5;
+                    break;
+                case 6:
+                    selectedSource = SFXSource6;
+                    break;
+                case 7:
+                    selectedSource = SFXSource7;
                     break;
 
             }

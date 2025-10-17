@@ -62,12 +62,16 @@ public class Lasso : MonoBehaviour
     public event Action OnLassoReleased;
     public event Action OnObjectYankCompleted;
     public event Action OnPlayerYankCompleted;
+    public AudioManager aManage;
+
 
     #region Unity Functions
     private void Awake()
     {
         _playerController = GetComponent<PlayerMovement>();
         _aimAssist = new AimAssist();
+        
+        aManage = GameObject.Find("AudioManager").GetComponent<AudioManager>();
     }
 
     private void Update()
@@ -183,6 +187,7 @@ public class Lasso : MonoBehaviour
             }
 
             OnObjectHit?.Invoke();
+            aManage.PlaySFX(aManage.Thrown, 5, 1);
         }
     }
 
@@ -261,7 +266,11 @@ public class Lasso : MonoBehaviour
         if (tempVignetteVolume.profile.TryGet<Vignette>(out var _vignette))
         {
             _vignette.intensity.value = tensionFactor / 3f;
-}
+            if (tensionFactor > 0.5f && !aManage.SFXSource5.isPlaying)
+            {
+                aManage.PlaySFX(aManage.Pull, 5, 1);
+            }
+        }
 
         if (currentDistance > _anchorDist)
         {
@@ -403,6 +412,7 @@ public class Lasso : MonoBehaviour
         else
         {
             //apply initial velocity
+            aManage.PlaySFX(aManage.Pull, 5, 1);
             Vector3 startVel = CalculateObjectYankVelocity(startPosition, HoldPos.position, objectYankDuration);
             SnaredObject.Rb.linearVelocity = Vector3.zero;
             SnaredObject.Rb.AddForce(startVel * SnaredObject.Rb.mass, ForceMode.Impulse);
@@ -528,6 +538,8 @@ public class Lasso : MonoBehaviour
             _playerController.Rb.linearVelocity = Vector3.zero; //only do this when you land on top
         }
 
+        aManage.PlaySFX(aManage.Pull, 5, 1);
+
         OnPlayerYankCompleted?.Invoke();
         _playerYankCoroutine = null;
     }
@@ -541,6 +553,7 @@ public class Lasso : MonoBehaviour
 
         Ray ray = PlayerCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
         SnaredObject.OnThrow(ray.direction, throwStrength);
+        aManage.PlaySFX(aManage.Thrown, 5, 1);
         HandleObjectReleased();
     }
 
