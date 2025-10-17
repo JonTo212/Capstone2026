@@ -57,11 +57,11 @@ public class rainLogic : MonoBehaviour
         }
         else if (rainIntensity == RainIntensity.Medium)
         {
-            audioSource.volume = 0.8f;
+            audioSource.volume = 0.6f;
         }
         else if (rainIntensity == RainIntensity.High)
         {
-            audioSource.volume = 1.2f;
+            audioSource.volume = 0.8f;
         }
     }
     private void OnParticleCollision(GameObject other)
