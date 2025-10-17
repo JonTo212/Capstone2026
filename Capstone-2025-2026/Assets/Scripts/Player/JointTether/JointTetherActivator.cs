@@ -18,10 +18,14 @@ public class JointTetherActivator : MonoBehaviour
     private Coroutine activateAllTethersCoroutine;
     private Coroutine destroyAllTethersCoroutine;
 
+    public AudioManager aManage;
+
     #region Unity Functions
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        
+        aManage = GameObject.Find("AudioManager").GetComponent<AudioManager>();
         _playerCamera = Camera.main;
         placedTethers = gameObject.GetComponent<JointTetherPlacer>().placedTethers;
     }
@@ -46,9 +50,12 @@ public class JointTetherActivator : MonoBehaviour
     }
     private void ActivateSelectedTether()
     {
+        
         JointTether tether = TryGetTether();
         if (tether != null)
         {
+            
+            aManage.PlaySFX(aManage.TetherTighten, 4, 1f);
             tether.ActivateTether();
         }
     }
@@ -56,9 +63,11 @@ public class JointTetherActivator : MonoBehaviour
     IEnumerator ActivateAllTether()
     {
         yield return new WaitForSeconds(timeToActivateAllTethers);
-
+        
+        
         foreach (JointTether tether in placedTethers)
         {
+            aManage.PlaySFX(aManage.TetherTighten, 4, 1f);
             tether.ActivateTether();
         }
     }
