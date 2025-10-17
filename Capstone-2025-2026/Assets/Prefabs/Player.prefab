@@ -20,6 +20,7 @@ GameObject:
   - component: {fileID: 5876903440246381635}
   - component: {fileID: 2136106674018639640}
   - component: {fileID: 36783132655902543}
+  - component: {fileID: 3906031025634917986}
   m_Layer: 7
   m_Name: Player
   m_TagString: Player
@@ -353,9 +354,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d54c8bc5b20034e94fc875eec19b75, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
-  defaultMaxSpeed: 7
+  defaultMaxSpeed: 10
   apexHeight: 2
-  apexTime: 0.41
+  apexTime: 0.45
   timeToZero: 0.3
   timeToMaxSpeed: 0.15
   _airMultipliers:
@@ -383,6 +384,25 @@ MonoBehaviour:
   desiredSwingFOV: 90
   desiredHoldFOV: 75
   FOVChangeSpeed: 10
+--- !u!114 &3906031025634917986
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1858459307730020289}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e7ae4973e22dce4e983f46fc6528d1f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::playerRespawn
+  tinyTornado: {fileID: 2756618522217592439, guid: c552e0141e0642a48a844b45c5ad62b0, type: 3}
+  isFalling: 0
+  returnSpeed: 20
+  returnBuffer: 0.1
+  respawnHeight: 5
+  inPlayerView: 0
+  playerViewAnchor: {fileID: 0}
 --- !u!1 &2332506711591357208
 GameObject:
   m_ObjectHideFlags: 0
@@ -2093,7 +2113,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: -25}
+  m_AnchoredPosition: {x: 0, y: -25.000122}
   m_SizeDelta: {x: 300, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &7361811092188265657
