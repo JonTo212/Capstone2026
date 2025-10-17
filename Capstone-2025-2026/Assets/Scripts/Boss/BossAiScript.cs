@@ -139,6 +139,7 @@ public class BossAiScript : MonoBehaviour
     IEnumerator SpawnProjectile(Transform location, float timer)
     {
         yield return new WaitForSeconds(timer);
+        aManage.PlaySFX(aManage.BossSpawn, 2, 1);
         GameObject spawnedProjectile = Instantiate(projectile, location.position, Quaternion.identity, thingThatmMakesTheProjectilesNotGiant.transform);
         spawnedProjectile.GetComponent<BossProjectile>().bossRef = gameObject;
 
@@ -151,6 +152,7 @@ public class BossAiScript : MonoBehaviour
     public void AttackBeam()
     {
         chargeUpVFX.Play();
+        aManage.PlaySFX(aManage.BossLaserCharge, 2, 1);
         attackTimer = -timeToChargeLaser - timeToStartRotate - timeToFullyRotate - 3f;
         StartCoroutine(ChargeUpLaser());
         laserBall.gameObject.SetActive(true);
@@ -173,6 +175,7 @@ public class BossAiScript : MonoBehaviour
     IEnumerator LaserSpin()
     {
         float timePassed = 0;
+        aManage.PlaySFX(aManage.BossLaserFire, 2, 1);
         while(timePassed < timeToFullyRotate)
         {
             timePassed += Time.deltaTime;
@@ -198,6 +201,7 @@ public class BossAiScript : MonoBehaviour
             float speed = hitObject.GetComponent<Rigidbody>().angularVelocity.magnitude;
             if (speed > 5f)
             {
+                aManage.PlaySFX(aManage.BossHurt, 1, 1);
                 health--;
                 Destroy(hitObject);
                 //Insantiate(ParticleEffect);
@@ -218,6 +222,8 @@ public class BossAiScript : MonoBehaviour
     {
         if (attackState != "dying")
         {
+            aManage.FadeMusic(aManage.Track1);
+            aManage.PlaySFX(aManage.BossPerish, 1, 1);
             GetComponent<MeshRenderer>().enabled = false;
             eyes.GetComponent<BoxCollider>().enabled = true;
             eyes.AddComponent<Rigidbody>();
