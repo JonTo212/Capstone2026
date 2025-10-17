@@ -268,7 +268,7 @@ public class Lasso : MonoBehaviour
             _vignette.intensity.value = tensionFactor / 3f;
             if (tensionFactor > 0.5f && !aManage.SFXSource5.isPlaying)
             {
-                aManage.PlaySFX(aManage.Pull, 5, 1);
+                aManage.PlaySFX(aManage.TetherTighten, 5, 1);
             }
         }
 
@@ -289,6 +289,7 @@ public class Lasso : MonoBehaviour
                 {
                     ApplySnapbackForce(tensionFactor);
                     _isStrainingAtMaxDistance = false;
+                    _vignette.intensity.value = 0f;
                 }
             }
         }
@@ -303,6 +304,8 @@ public class Lasso : MonoBehaviour
         Vector3 dirToPlayer = HoldPos.position - HitPos;
         Vector3 pullDirection = dirToPlayer.normalized;
         _playerController.Rb.AddForce(-pullDirection * snapbackImpulseStrength * impulseMultiplier, ForceMode.Impulse);
+        
+        aManage.PlaySFX(aManage.Pull, 5, 1);
     }
 
     #endregion
