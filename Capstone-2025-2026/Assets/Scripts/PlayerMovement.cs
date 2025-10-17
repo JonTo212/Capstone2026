@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Windows;
 
 public enum PlayerMoveState
 {
@@ -72,6 +73,7 @@ public class PlayerMovement : MonoBehaviour
     private Rigidbody _rb;
     private CapsuleCollider _playerCol;
     private float _yRot;
+    private float _xRot;
     private float _acceleration;
     private float _gravity;
     private float _jumpForce;
@@ -107,7 +109,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
-        HandleRot();
+        HandleCamera();
         HandleJumpBuffer();
         HandleCoyoteTime();
         HandleJump();
@@ -199,19 +201,12 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    private void HandleRot()
+    private void HandleCamera()
     {
-        //up-down cam
+        _xRot += _playerActions.LookInput.x * yawSensitivity * Time.deltaTime;
         _yRot -= _playerActions.LookInput.y * pitchSensitivity * Time.deltaTime;
         _yRot = Mathf.Clamp(_yRot, -75f, 75f);
-
-        playerCam.transform.localEulerAngles = new Vector3(_yRot, 0f, 0f);
-
-        //sideways rotation
-        float newRot = _playerActions.LookInput.x * yawSensitivity * Time.fixedDeltaTime;
-        Quaternion deltaRotation = Quaternion.Euler(0, newRot, 0f);
-
-        _rb.MoveRotation(_rb.rotation * deltaRotation);
+        playerCam.transform.localEulerAngles = new Vector3(_yRot, _xRot, 0f);
     }
 
     private void HandleFOV()
@@ -323,9 +318,11 @@ public class PlayerMovement : MonoBehaviour
     private void ApplyAcceleration()
     {
         _wishDir = new Vector3(_playerActions.MoveInput.x, 0, _playerActions.MoveInput.y).normalized;
-        if (_wishDir == Vector3.zero) return;
+        _wishDir = playerCam.transform.TransformDirection(_wishDir);
+        _wishDir.y = 0f;
+        _wishDir.Normalize();
 
-        _wishDir = transform.TransformDirection(_wishDir);
+        if (_wishDir == Vector3.zero) return;
 
         Vector3 accelForce = _wishDir * _acceleration * _currentMultipliers.accelMultiplier;
         _rb.AddForce(accelForce, ForceMode.Acceleration);
