@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using Unity.VisualScripting;
+using DG.Tweening;
 
 public class AudioManager : MonoBehaviour
 {
@@ -298,24 +299,25 @@ public class AudioManager : MonoBehaviour
 
     public void FadeMusic(AudioClip selectedTrack)
     {
-        StartCoroutine(FadeTrackOut(selectedTrack));
+        Tween fade1 = MusicSource1.DOFade(0, 1);
+        Tween fade2 = MusicSource1.DOFade(1, 1);
+        fade1.onComplete += () => NewMusicTrack(selectedTrack);
+
+        DG.Tweening.Sequence swapAudio = DOTween.Sequence();
+        swapAudio.Append(fade1);
+        swapAudio.Append(fade2);
+        swapAudio.Play();
     }
 
-    public IEnumerator FadeTrackOut(AudioClip selectedTrack)
+    
+    
+    public void NewMusicTrack(AudioClip newClip)
     {
-        Debug.Log("Fading out");
-        float timeToFade = 1.25f;
-        float timeElapsed = 0;
-
-        while (timeElapsed < timeToFade)
-        {
-            musicSource1.volume = Mathf.Lerp(1, 0, timeElapsed / timeToFade);
-            yield return new WaitForSeconds(1.25f);
-            PlayMusic(selectedTrack, 1);
-            musicSource1.volume = Mathf.Lerp(0, 1, timeElapsed / timeToFade);
-        }
-
+        musicSource1.clip = newClip;
+        musicSource1.Play();
     }
+
+    
     #endregion
 
     #region Ambience Functions

@@ -50,7 +50,15 @@ public class BossAiScript : MonoBehaviour
     public Transform laserBall;
     public bool usedLaser = false;
 
+    public bool musicStarted = false;
+    AudioManager aManage;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
+    void Awake()
+    {
+        
+        aManage = GameObject.Find("AudioManager").GetComponent<AudioManager>();
+    }
     void Start()
     {
         player = GameObject.Find("Player").transform;
@@ -70,6 +78,11 @@ public class BossAiScript : MonoBehaviour
         }
         if (FightStarted)
         {
+            if (!musicStarted)
+            {
+                aManage.FadeMusic(aManage.Track2);
+                musicStarted = true;
+            }
             attackTimer += Time.deltaTime;
             transform.LookAt(player);
             //Set Amount of Projectiles to spawn
