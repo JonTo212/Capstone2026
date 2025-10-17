@@ -64,6 +64,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         IsBeingPulled = false;
         rb.useGravity = true;
         rb.interpolation = RigidbodyInterpolation.None;
+        rb.constraints = RigidbodyConstraints.None;
         rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
         rb.linearDamping = defaultDrag;
         rb.angularDamping = defaultAngularDrag;
@@ -115,6 +116,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         IsHeld = true;
         IsSnared = false;
         IsBeingPulled = false;
+        rb.isKinematic = true;
         rb.interpolation = RigidbodyInterpolation.None;
         rb.constraints = RigidbodyConstraints.FreezePosition;
         transform.SetParent(newParent);
@@ -126,7 +128,6 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     {
         OnRelease();
         rb.isKinematic = false;
-        rb.constraints = RigidbodyConstraints.None;
         ApplyForceInDirection(dir, magnitude, ForceMode.Impulse);
     }
 
