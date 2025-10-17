@@ -175,7 +175,7 @@ public class BossAiScript : MonoBehaviour
     IEnumerator LaserSpin()
     {
         float timePassed = 0;
-        aManage.PlaySFX(aManage.BossLaserFire, 2, 1);
+        aManage.PlaySFX(aManage.BossLaserFire, 2, 1f);
         while(timePassed < timeToFullyRotate)
         {
             timePassed += Time.deltaTime;

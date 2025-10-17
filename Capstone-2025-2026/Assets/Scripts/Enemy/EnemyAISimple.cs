@@ -181,6 +181,7 @@ public class EnemyAISimple : MonoBehaviour
             {
                 collider.gameObject.GetComponent<Rigidbody>().AddForce(transform.up * meleeStrength + transform.forward * meleeStrength, ForceMode.Impulse);
                 aManage.PlaySFXVaried(aManage.EnemyAttack, 3, 0.25f, 1f);
+                aManage.PlaySFX(aManage.PlayerHurt, 6, 1f);
                 StartCoroutine(ReEnable(collider.gameObject.GetComponent<PlayerActions>()));
             }
         }

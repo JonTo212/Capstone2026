@@ -55,6 +55,10 @@ public class BossProjectile : MonoBehaviour
         }
         else if(!grounded)
         {
+            if(collision.gameObject.TryGetComponent(out PlayerController pc))
+            {
+                aManage.PlaySFX(aManage.PlayerBadlyHurt, 6, 1f);
+            }
             collision.gameObject.GetComponent<Rigidbody>().AddForce((bossRef.transform.forward + bossRef.transform.up) * projectileStrength, ForceMode.Impulse);
             DestroyProjectileAfterAWhile();
         }
