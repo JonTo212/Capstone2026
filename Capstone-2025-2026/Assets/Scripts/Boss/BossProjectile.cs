@@ -5,7 +5,7 @@ public class BossProjectile : MonoBehaviour
     Rigidbody rb;
     Transform player;
     float speedMultiplier = 2f;
-    float projectileStrength = 7f;
+    float projectileStrength = 20f;
     bool grounded = false;
     public GameObject bossRef;
     public float projectileLifetime = 15f;

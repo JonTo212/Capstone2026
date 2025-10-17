@@ -82,48 +82,51 @@ public class CircleOrbit : MonoBehaviour
     {
         if (other.GetComponent<Prop>())
         {
-            if (!other.GetComponent<Prop>().IsHeld)
+            if (!other.GetComponent<Rigidbody>().isKinematic)
             {
-                //get distance between self and target
-                Vector2 orbitPos = new Vector2(transform.position.x, transform.position.z);
-                Vector2 debrisPos = new Vector2(other.transform.position.x, other.transform.position.z);
-
-                float orbitToDebrisDist = Vector2.Distance(orbitPos, debrisPos);
-                float orbitToDebrisHeigtDiff = Mathf.Abs(transform.position.y - other.transform.position.y);
-
-                //check distance
-                if ((orbitToDebrisDist < maxSpawnRadius) && (orbitToDebrisDist > minSpawnRadius) && (orbitToDebrisHeigtDiff < maxHeight))// && (orbitToDebrisHeigtDiff < maxHeight)) /*&& target.GetComponent<Rigidbody>().linearVelocity.magnitude > 10f*/
+                if (!other.GetComponent<Prop>().IsHeld)
                 {
-                    //set parent
-                    other.transform.parent = this.transform;
+                    //get distance between self and target
+                    Vector2 orbitPos = new Vector2(transform.position.x, transform.position.z);
+                    Vector2 debrisPos = new Vector2(other.transform.position.x, other.transform.position.z);
 
-                    //turn off gravity
-                    other.GetComponent<Rigidbody>().useGravity = false;
+                    float orbitToDebrisDist = Vector2.Distance(orbitPos, debrisPos);
+                    float orbitToDebrisHeigtDiff = Mathf.Abs(transform.position.y - other.transform.position.y);
 
-                    //smoothly stop all inertia/movement when reparented
-                    //StartCoroutine(SlowDown(other.gameObject));
-
-                    //other.GetComponent<Rigidbody>().linearVelocity = Vector3.zero;
-
-                    
-                    Rigidbody rb = other.GetComponent<Rigidbody>();
-
-                    if (rb.linearVelocity.magnitude > 0.05f)
+                    //check distance
+                    if ((orbitToDebrisDist < maxSpawnRadius) && (orbitToDebrisDist > minSpawnRadius) && (orbitToDebrisHeigtDiff < maxHeight))// && (orbitToDebrisHeigtDiff < maxHeight)) /*&& target.GetComponent<Rigidbody>().linearVelocity.magnitude > 10f*/
                     {
-                        rb.linearVelocity = Vector3.Lerp(rb.linearVelocity, Vector3.zero, Time.deltaTime * slowSpd);
+                        //set parent
+                        other.transform.parent = this.transform;
+
+                        //turn off gravity
+                        other.GetComponent<Rigidbody>().useGravity = false;
+
+                        //smoothly stop all inertia/movement when reparented
+                        //StartCoroutine(SlowDown(other.gameObject));
+
+                        //other.GetComponent<Rigidbody>().linearVelocity = Vector3.zero;
+
+
+                        Rigidbody rb = other.GetComponent<Rigidbody>();
+
+                        if (rb.linearVelocity.magnitude > 0.05f)
+                        {
+                            rb.linearVelocity = Vector3.Lerp(rb.linearVelocity, Vector3.zero, Time.deltaTime * slowSpd);
+                        }
+                        else
+                        {
+                            rb.linearVelocity = Vector3.zero;
+                        }
+
                     }
                     else
                     {
-                        rb.linearVelocity = Vector3.zero;
+
+                        other.GetComponent<Rigidbody>().useGravity = true;
+
+                        other.transform.parent = null;
                     }
-
-                }
-                else
-                {
-
-                    other.GetComponent<Rigidbody>().useGravity = true;
-
-                    other.transform.parent = null;
                 }
             }
         }

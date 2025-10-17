@@ -40,7 +40,7 @@ public class DivingBell : MonoBehaviour
     {
         bellHP--;
 
-        if (bellHP == 1)
+        if (bellHP > 0)
         {
             animator.Play("bellRingAnim", 0, 0f);
             
@@ -54,7 +54,7 @@ public class DivingBell : MonoBehaviour
         
         if (!audioSource.isPlaying)
         {
-            if (bellHP > 0)
+            if (bellHP >-1)
             {
                 audioSource.PlayOneShot(ringSound, 1);
                 audioSource.PlayOneShot(breakSound, .25f);
@@ -65,7 +65,9 @@ public class DivingBell : MonoBehaviour
             }
 
         }
-        
+
+  
+
     }
 
     bool AnimatorIsPlaying() //https://discussions.unity.com/t/how-can-i-check-if-an-animation-is-playing-or-has-finished-using-animator-c/57888/4
