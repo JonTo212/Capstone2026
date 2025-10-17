@@ -72,7 +72,7 @@ public class Lasso : MonoBehaviour
 
     private void Update()
     {
-        if (_snaredObjTransform == null) // destroyed
+        if (_snaredObjTransform == null || SnaredObject == null) // destroyed
         {
             HandleObjectReleased();
         }
