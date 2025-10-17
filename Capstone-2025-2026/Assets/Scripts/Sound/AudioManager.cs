@@ -1,8 +1,9 @@
 using UnityEngine;
+using System.Collections;
 
 public class AudioManager : MonoBehaviour
 {
-
+    public bool playOnStart = true;
     [Header("------------Audio Source------------")]
     [SerializeField] private AudioSource musicSource1;
     [SerializeField] private AudioSource musicSource2;
@@ -17,7 +18,9 @@ public class AudioManager : MonoBehaviour
 
     [Header("------------Music Clips------------")]
     [SerializeField] private AudioClip track1;
+    [SerializeField] private AudioClip track2;
     public AudioClip Track1 => track1;
+    public AudioClip Track2 => track2;
 
     [Header("------------Ambience Clips------------")]
     [SerializeField] private AudioClip ambience1;
@@ -46,8 +49,11 @@ public class AudioManager : MonoBehaviour
 
     void Start()
     {
-        musicSource1.clip = track1;
-        musicSource1.Play();
+        if (playOnStart)
+        {
+            musicSource1.clip = track1;
+            musicSource1.Play();
+        }
     }
 
     #region SFX Functions
@@ -202,6 +208,26 @@ public class AudioManager : MonoBehaviour
         musicSource2.Stop();
     }
 
+    public void FadeMusic(AudioClip selectedTrack)
+    {
+        StartCoroutine(FadeTrackOut(selectedTrack));
+    }
+
+    public IEnumerator FadeTrackOut(AudioClip selectedTrack)
+    {
+        Debug.Log("Fading out");
+        float timeToFade = 1.25f;
+        float timeElapsed = 0;
+
+        while (timeElapsed < timeToFade)
+        {
+            musicSource1.volume = Mathf.Lerp(1, 0, timeElapsed / timeToFade);
+            yield return new WaitForSeconds(1.25f);
+            PlayMusic(selectedTrack, 1);
+            musicSource1.volume = Mathf.Lerp(0, 1, timeElapsed / timeToFade);
+        }
+
+    }
     #endregion
 
     #region Ambience Functions
