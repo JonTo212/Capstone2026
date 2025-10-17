@@ -9,10 +9,12 @@ public class BossProjectile : MonoBehaviour
     bool grounded = false;
     public GameObject bossRef;
     public float projectileLifetime = 15f;
+    public AudioManager aManage;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        aManage = GameObject.Find("AudioManager").GetComponent<AudioManager>();
         rb = GetComponent<Rigidbody>();
         player = GameObject.Find("Player").transform;
 
@@ -46,19 +48,25 @@ public class BossProjectile : MonoBehaviour
     {
         if (collision.gameObject.layer == 6 && !grounded)
         {
+            aManage.PlaySFX(aManage.WallBreak, 3, 1f);
             transform.parent = null;
             rb.isKinematic = true;
             grounded = true;
         }
         else if(!grounded)
         {
+            if(collision.gameObject.TryGetComponent(out PlayerController pc))
+            {
+                aManage.PlaySFX(aManage.PlayerBadlyHurt, 6, 1f);
+            }
             collision.gameObject.GetComponent<Rigidbody>().AddForce((bossRef.transform.forward + bossRef.transform.up) * projectileStrength, ForceMode.Impulse);
-            Destroy(gameObject);
+            DestroyProjectileAfterAWhile();
         }
     }
 
     private void DestroyProjectileAfterAWhile()
     {
+        aManage.PlaySFX(aManage.WallBreak, 3, 1f);
         Destroy(gameObject);
     }
 }

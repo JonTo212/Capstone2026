@@ -19,6 +19,12 @@ public class playerRespawn : MonoBehaviour
 
     public bool inPlayerView = false;
     public GameObject playerViewAnchor;
+    AudioManager aManage;
+
+    void Awake()
+    {
+        aManage = GameObject.Find("AudioManager").GetComponent<AudioManager>();
+    }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -56,6 +62,7 @@ public class playerRespawn : MonoBehaviour
 
         //play particle effect
         tinyTornado.Play();
+        aManage.PlaySFX(aManage.PlayerSaved, 6, 1);
 
         // MOVE TOWARDS SPAWN POSITION //
 

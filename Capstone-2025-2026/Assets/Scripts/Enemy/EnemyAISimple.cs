@@ -40,7 +40,10 @@ public class EnemyAISimple : MonoBehaviour
     public bool playerInSightRange, playerInAttackRange;
     public string currentState;
 
+    public AudioManager aManage;
+
     private void Awake() {
+        aManage = GameObject.Find("AudioManager").GetComponent<AudioManager>();
         player = GameObject.Find("Player").transform;
         agent = GetComponent<NavMeshAgent>();
     }
@@ -172,12 +175,13 @@ public class EnemyAISimple : MonoBehaviour
 
     private void Melee()
     {
-        Debug.Log("Here is the attack fucer");
         Collider[] arrayOfHits = Physics.OverlapBox(boxHit.bounds.center, (boxHit.bounds.max - boxHit.bounds.min) / 2);
         foreach (Collider collider in arrayOfHits) { 
             if(collider.transform == player.transform)
             {
                 collider.gameObject.GetComponent<Rigidbody>().AddForce(transform.up * meleeStrength + transform.forward * meleeStrength, ForceMode.Impulse);
+                aManage.PlaySFXVaried(aManage.EnemyAttack, 3, 0.25f, 1f);
+                aManage.PlaySFX(aManage.PlayerHurt, 6, 1f);
                 StartCoroutine(ReEnable(collider.gameObject.GetComponent<PlayerActions>()));
             }
         }
@@ -204,7 +208,7 @@ public class EnemyAISimple : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-                GameObject hitObject = collision.gameObject;
+        GameObject hitObject = collision.gameObject;
         if (hitObject.TryGetComponent(out Prop prop))
         {
             float speed = hitObject.GetComponent<Rigidbody>().angularVelocity.magnitude;
@@ -227,7 +231,7 @@ public class EnemyAISimple : MonoBehaviour
             ParticleSystem partSys = GetComponent<ParticleSystem>();
             GetComponent<ParticleSystemRenderer>().material = deathMat;
             partSys.Play();
-            Debug.Log("Enemy has Perished");
+            aManage.PlaySFXVaried(aManage.EnemyPerish, 3,  0.25f, 1f);
             Invoke(nameof(DestroyEnemy), 3f);
         }
     }

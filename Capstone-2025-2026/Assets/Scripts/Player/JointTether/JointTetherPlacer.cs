@@ -34,10 +34,12 @@ public class JointTetherPlacer : MonoBehaviour
     private Vector3 endLocalPosition;
     [SerializeField] private TMP_Text tetherAmountText;
     public event Action OnTetherStartHit;
+    public AudioManager aManage;
 
     #region Unity Functions
     private void Awake()
     {
+        aManage = GameObject.Find("AudioManager").GetComponent<AudioManager>();
         _playerCamera = Camera.main;
     }
 
@@ -95,12 +97,17 @@ public class JointTetherPlacer : MonoBehaviour
     {
         this.startTransform = startTransform;
         startLocalPosition = startTransform.InverseTransformPoint(startPosition);
+
+        
+        aManage.PlaySFX(aManage.TetherStart, 4, 1f);
     }
 
     private void SetTetherEndPoint(Transform endTransform, Vector3 endPosition)
     {
         this.endTransform = endTransform;
         endLocalPosition = endTransform.InverseTransformPoint(endPosition);
+        
+        aManage.PlaySFX(aManage.TetherEnd, 4, 1f);
     }
 
     //Creates and initializes tether parameters like hit transforms and positions

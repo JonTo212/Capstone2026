@@ -4,8 +4,12 @@ public class WallBreak : MonoBehaviour
 {
     public GameObject explodeParticle;
     public float minimumBreakableVelocity;
+    public AudioManager aManage;
 
-
+    private void Awake()
+    {
+        aManage = GameObject.Find("AudioManager").GetComponent<AudioManager>();
+    }
     private void OnCollisionEnter(Collision collision)
     {
         GameObject impactObject = collision.gameObject;
@@ -32,6 +36,7 @@ public class WallBreak : MonoBehaviour
         Destroy(gameObject);
 
         //play particle effect
+        aManage.PlaySFX(aManage.WallBreak, 3, 1f);
         Instantiate(explodeParticle, transform.position, Quaternion.identity);
     }
 

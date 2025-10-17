@@ -7,10 +7,12 @@ public class BossLaser : MonoBehaviour
     [SerializeField] private float laserRadius = 1.2f;
 
     [SerializeField] Transform[] laserHitChecks;
+
+    AudioManager aManage;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    void Awake()
     {
-        
+        aManage = GameObject.Find("AudioManager").GetComponent<AudioManager>();
     }
 
     // Update is called once per frame
@@ -35,6 +37,7 @@ public class BossLaser : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        aManage.PlaySFXVaried(aManage.PlayerBadlyHurt, 6, 0.25f, 1f);
         other.attachedRigidbody.AddForce(transform.forward * 30f + new Vector3(0,20f,0), ForceMode.Impulse);
     }
 }
