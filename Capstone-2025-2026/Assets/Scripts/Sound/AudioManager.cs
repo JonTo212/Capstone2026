@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using Unity.VisualScripting;
 
 public class AudioManager : MonoBehaviour
 {
@@ -69,11 +70,14 @@ public class AudioManager : MonoBehaviour
     public AudioClip TetherTighten => tetherTighten;
     //public AudioClip ClaspSolid => claspSolid;
     //public AudioClip ClaspSoft => claspSoft ;
-    [Header("------------Enemy Clips------------")]
+    [Header("------------Environment Clips------------")]
     [SerializeField] private AudioClip enemyAttack;
     [SerializeField] private AudioClip enemyPerish;
+    [SerializeField] private AudioClip wallBreak;
     public AudioClip EnemyAttack => enemyAttack;
     public AudioClip EnemyPerish => enemyPerish;
+    public AudioClip WallBreak => wallBreak;
+    
 
     [Header("------------Boss Clips------------")]
     [SerializeField] private AudioClip bossHurt;
