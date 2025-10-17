@@ -170,6 +170,8 @@ public class BossAiScript : MonoBehaviour
 
     IEnumerator HoldLaser()
     {
+
+        aManage.PlaySFX(aManage.BossLaserFire, 2, 1f);
         yield return new WaitForSeconds(timeToStartRotate);
         StartCoroutine(LaserSpin());
     }
@@ -177,7 +179,6 @@ public class BossAiScript : MonoBehaviour
     IEnumerator LaserSpin()
     {
         float timePassed = 0;
-        aManage.PlaySFX(aManage.BossLaserFire, 2, 1f);
         while(timePassed < timeToFullyRotate)
         {
             timePassed += Time.deltaTime;
