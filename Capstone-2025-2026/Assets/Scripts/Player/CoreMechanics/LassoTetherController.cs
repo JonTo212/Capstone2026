@@ -269,6 +269,12 @@ public class LassoTetherController : MonoBehaviour
     {
         yield return new WaitForSeconds(0.175f);
 
+        if (playerLasso.SnaredObject == null)
+        {
+            _yankCheckCoroutine = null;
+            yield break;
+        }
+
         if (playerActions.AltHeld)
         {
             SwitchLassoState(LassoState.SnaredTether);
