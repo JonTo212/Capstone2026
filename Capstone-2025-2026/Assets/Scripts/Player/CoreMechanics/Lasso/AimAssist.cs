@@ -67,7 +67,7 @@ public class AimAssist
             case AimAssistType.Buffer:
                 if (GetDirectHit(directHitRay, range, out RaycastHit directHit))
                     return directHit;
-                if (GetDynamicBufferHit(cam, directHitRay, range, 0f, bufferRadius, out RaycastHit bufferHit))
+                if (GetDynamicBufferHit(cam, directHitRay, range, bufferRadius, out RaycastHit bufferHit))
                     return bufferHit;
                 break;
 
@@ -122,56 +122,36 @@ public class AimAssist
 
     #region Buffer Hit
 
-    private bool GetDynamicBufferHit(Camera cam, Ray ray, float range, float minRadius, float maxRadius, out RaycastHit bestHit)
+    private bool GetDynamicBufferHit(Camera cam, Ray ray, float range, float maxRadius, out RaycastHit bestHit)
     {
-        bestHit = new RaycastHit();
-        bool foundProp = false;
+        RaycastHit bestTargetHit = new RaycastHit();
         float closestSqrDistance = float.MaxValue;
+        bool foundProp = false;
 
-        int steps = 10; //number of slices along the ray (i.e. number of times it increases in radius)
-        Vector3 origin = ray.origin;
-
-        for (int i = 1; i <= steps; i++)
+        //sweep spherecast (spherecast just hits the first thing)
+        RaycastHit[] hits = Physics.SphereCastAll(cam.transform.position, maxRadius, ray.direction, range, tetherLayerIgnore);
+        if (hits.Length > 0)
         {
-            //% along the 'cone'
-            float startPercent = (float)i / steps;
-            float endPercent = (float)(i + 1) / steps;
-
-            //start and end points of current segment
-            float startDistance = startPercent * range;
-            float endDistance = endPercent * range;
-            float segmentRadius = Mathf.Lerp(minRadius, maxRadius, endPercent);
-
-            //length + origin of segment for spherecast
-            float segmentLength = endDistance - startDistance;
-            Vector3 segmentOrigin = ray.origin + ray.direction * startDistance;
-
-            //only spherecast the current segment for 'growing cone' effect
-            RaycastHit[] hits = Physics.SphereCastAll(segmentOrigin, segmentRadius, ray.direction, segmentLength, tetherLayerIgnore);
             foreach (RaycastHit hit in hits)
             {
-                if (hit.transform.GetComponentInParent<Prop>() == null)
-                    continue;
+                //ignore if no prop
+                if (hit.transform.GetComponentInParent<Prop>() == null) continue;
 
-                float sqrDistance = (origin - hit.point).sqrMagnitude;
+                //check if this is the closest option
+                float sqrDistance = (cam.transform.position - hit.transform.position).sqrMagnitude;
                 if (sqrDistance < closestSqrDistance)
                 {
                     closestSqrDistance = sqrDistance;
-                    bestHit = hit;
+                    bestTargetHit = hit;
                     foundProp = true;
                 }
             }
-
-            if (foundProp)
-                break;
         }
-
+        bestHit = bestTargetHit;
         return foundProp;
     }
 
-
-
-    #endregion
+   #endregion
 
     #region Highlight
     public void HighlightSelectedProp(Prop selectedProp, bool isDisabled)

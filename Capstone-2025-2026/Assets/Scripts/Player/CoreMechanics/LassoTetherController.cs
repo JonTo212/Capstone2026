@@ -33,6 +33,8 @@ public class LassoTetherController : MonoBehaviour
     private JointTetherPlacer playerTether;
     private JointTetherActivator playerTetherActivator;
 
+    private Vector3 tempFix;
+
     [Header("States")]
     public LassoState CurrentLassoState { get; private set; }
     private Coroutine _yankCheckCoroutine;
@@ -108,7 +110,7 @@ public class LassoTetherController : MonoBehaviour
                 playerLasso.MoveObjectToPos(playerLasso.GetAnchoredCenterOfScreen());
             }
         }
-        else if (CurrentLassoState == LassoState.Held || CurrentLassoState == LassoState.Using)
+        else if (CurrentLassoState == LassoState.Using)
         {         
             playerLasso.RotateHeldObject();
         }
@@ -272,6 +274,7 @@ public class LassoTetherController : MonoBehaviour
         if (playerLasso.SnaredObject == null)
         {
             _yankCheckCoroutine = null;
+            playerLasso.HandleObjectReleased();
             yield break;
         }
 
@@ -279,6 +282,7 @@ public class LassoTetherController : MonoBehaviour
         {
             SwitchLassoState(LassoState.SnaredTether);
             playerTether.StartTetherPlacement(playerLasso.SnaredObject.transform, playerLasso.HitPos);
+            tempFix = playerLasso.HitPos;
         }
         else
         {
@@ -291,9 +295,9 @@ public class LassoTetherController : MonoBehaviour
     #region Snared Tether Controls
     private void HandleSnaredTetherControls()
     {
-        playerLasso.HandleObjectHoldAtDistance(playerLasso.HitPos);
+        playerLasso.MoveObjectToPos(tempFix);
 
-        if(playerActions.AltUp)
+        if (playerActions.AltUp)
         {
             playerTether.EndTetherPlacement(true);
             playerLasso.HandleObjectReleased();
@@ -376,7 +380,6 @@ public class LassoTetherController : MonoBehaviour
     }
 
     #endregion
-
 
     private void TempSetText(LassoState state)
     {

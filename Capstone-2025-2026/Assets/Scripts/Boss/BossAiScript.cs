@@ -11,6 +11,7 @@ public class BossAiScript : MonoBehaviour
 
     public int health = 5;
     private int maxHealth;
+    bool IsDead = false;
     public GameObject eyes;
     public string attackState;
 
@@ -67,6 +68,7 @@ public class BossAiScript : MonoBehaviour
         if (health <= 0)
         {
             Perish();
+            IsDead = true;
         }
         if (FightStarted)
         {
@@ -179,6 +181,8 @@ public class BossAiScript : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
+        if (IsDead) return;
+
         GameObject hitObject = collision.gameObject;
         if (hitObject.TryGetComponent(out Prop prop))
         {
@@ -209,9 +213,6 @@ public class BossAiScript : MonoBehaviour
             eyes.GetComponent<BoxCollider>().enabled = true;
             eyes.AddComponent<Rigidbody>();
             attackState = "dying";
-            ParticleSystem partSys = GetComponent<ParticleSystem>();
-            GetComponent<ParticleSystemRenderer>().material = deathMat;
-            partSys.Play();
             Debug.Log("Boss has Perished");
             Invoke(nameof(DestroyBoss), 3f);
         }
