@@ -573,8 +573,14 @@ public class Lasso : MonoBehaviour
         SnaredObject.OnRelease();
         SnaredObject = null;
         _snaredObjTransform = null;
+        if (tempVignetteVolume.profile.TryGet<Vignette>(out var _vignette))
+        {
+            _vignette.intensity.value = 0f;
+        }
 
         OnLassoReleased?.Invoke();
+
+        
     }
     #endregion
 }
