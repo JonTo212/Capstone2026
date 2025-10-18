@@ -1,5 +1,6 @@
 using System.Collections;
 using Unity.Mathematics;
+using Unity.VisualScripting;
 using UnityEngine;
 
 [RequireComponent(typeof(LineRenderer))]
@@ -16,6 +17,8 @@ public class JointTetherVisuals : MonoBehaviour
     [SerializeField] Color stretchedStateColor = Color.red;
     [SerializeField] Material attachedMaterial;
     [SerializeField] Material activatedMaterial;
+    [SerializeField] Material selectedMaterial;
+
     private Transform startTransform;
     private Transform endTransform;
     private Vector3 startLocalPosition;
@@ -69,6 +72,11 @@ public class JointTetherVisuals : MonoBehaviour
     public void SetLineColorInactive()
     {
         _lineRenderer.material = attachedMaterial;
+    }
+
+    public void SetLineColorSelected()
+    {
+        _lineRenderer.material = selectedMaterial;
     }
 
     private void UpdateMiddlePointPosition()

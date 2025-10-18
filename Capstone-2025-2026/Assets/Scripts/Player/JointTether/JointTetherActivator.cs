@@ -24,10 +24,28 @@ public class JointTetherActivator : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+
         aManage = GameObject.Find("AudioManager").GetComponent<AudioManager>();
         _playerCamera = Camera.main;
         placedTethers = gameObject.GetComponent<JointTetherPlacer>().placedTethers;
+    }
+    void Update()
+    {
+        JointTether hoverTether = TryGetTether();
+        if (hoverTether != null && hoverTether.isActivated == false)
+        {
+            hoverTether.gameObject.GetComponent<JointTetherVisuals>().SetLineColorSelected();
+        }
+        else
+        {
+            foreach(JointTether tether in placedTethers)
+            {
+                if (!tether.isActivated) {
+                    tether.gameObject.GetComponent<JointTetherVisuals>().SetLineColorInactive();
+                }
+            }
+        }
+        
     }
     #endregion
 
