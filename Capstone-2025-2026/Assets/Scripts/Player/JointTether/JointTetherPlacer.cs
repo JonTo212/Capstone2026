@@ -2,7 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.ProBuilder.MeshOperations;
 
 public class JointTetherPlacer : MonoBehaviour
 {
@@ -33,6 +35,7 @@ public class JointTetherPlacer : MonoBehaviour
     private Vector3 startLocalPosition;
     private Vector3 endLocalPosition;
     [SerializeField] private TMP_Text tetherAmountText;
+    [SerializeField] private TMP_Text tetherControlsText;
     public event Action OnTetherStartHit;
     public AudioManager aManage;
 
@@ -194,6 +197,19 @@ public class JointTetherPlacer : MonoBehaviour
     private void UpdateTetherAmountText()
     {
         tetherAmountText.text = "Tethers: " + (maxNumOfTethers - numOfTethersPlaced).ToString() + "/" + maxNumOfTethers.ToString();
+        if (numOfTethersPlaced == 0)
+        {
+            tetherControlsText.SetText("");
+        }
+        else if (numOfTethersPlaced == 1)
+        {
+            tetherControlsText.SetText("[E]: Activate Selected Tether\n[C]: Deactivate Selected Tether");
+        }
+        else if (numOfTethersPlaced > 1)
+        {
+
+            tetherControlsText.SetText("[E]: Activate Selected Tether\nHold [E]: Activate All Tethers\n[C]: Deactivate Selected Tether\nHold [C]: Deactivate all Tethers");
+        }
     }
     #endregion
 }
