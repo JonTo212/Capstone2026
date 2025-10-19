@@ -3,6 +3,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.UIElements;
+using DG.Tweening;
 
 public class BossAiScript : MonoBehaviour
 {
@@ -26,7 +27,7 @@ public class BossAiScript : MonoBehaviour
     public Material attack1Mat;
     public GameObject projectile;
     public Transform[] projectileSpawnLocation;
-    float projLim;
+    [SerializeField] private int projLim;
 
     //Attack2
     public Material attack2Mat;
@@ -52,6 +53,9 @@ public class BossAiScript : MonoBehaviour
     public bool usedLaser = false;
 
     public bool musicStarted = false;
+
+    [Header("Model reference")]
+    public Transform bossModel;
     AudioManager aManage;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -131,6 +135,7 @@ public class BossAiScript : MonoBehaviour
 
     public void AttackThrow()
     {
+        attackState = "Attack1";
         for (int i = 0; i < projLim; i++)
         {
             StartCoroutine(SpawnProjectile(projectileSpawnLocation[i], i));
@@ -140,6 +145,7 @@ public class BossAiScript : MonoBehaviour
 
     IEnumerator SpawnProjectile(Transform location, float timer)
     {
+        //bossModel.transform.DOLocalRotate(new Vector3(bossModel.transform.rotation.x,bossModel.transform.rotation.y,bossModel.transform.rotation.z +360), timer);
         yield return new WaitForSeconds(timer);
         aManage.PlaySFX(aManage.BossSpawn, 2, 1);
         GameObject spawnedProjectile = Instantiate(projectile, location.position, Quaternion.identity, thingThatmMakesTheProjectilesNotGiant.transform);
@@ -153,6 +159,7 @@ public class BossAiScript : MonoBehaviour
 
     public void AttackBeam()
     {
+        //bossModel.transform.DOLocalRotate(new Vector3(bossModel.transform.rotation.x,bossModel.transform.rotation.y,bossModel.transform.rotation.z +360*13), 13f);
         chargeUpVFX.Play();
         aManage.PlaySFX(aManage.BossLaserCharge, 2, 1);
         attackTimer = -timeToChargeLaser - timeToStartRotate - timeToFullyRotate - 3f;
@@ -190,6 +197,7 @@ public class BossAiScript : MonoBehaviour
         laser.gameObject.SetActive(false);
         chargeUpVFX.Stop();
         usedLaser = true;
+        attackState = "Waiting";
 
     }
     #endregion
