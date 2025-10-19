@@ -233,6 +233,8 @@ public class BossAiScript : MonoBehaviour
             eyes.GetComponent<BoxCollider>().enabled = true;
             eyes.AddComponent<Rigidbody>();
             attackState = "dying";
+            GetComponent<ParticleSystem>().Play();
+            chargeUpVFX.Stop();
             Debug.Log("Boss has Perished");
             Invoke(nameof(DestroyBoss), 3f);
         }
