@@ -158,9 +158,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0331365699df4784bbedd028ad968879, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::JointTether
+  trailRendererPrefab: {fileID: 0}
   driveStrength: 20
   driveDamper: 5
+  activationDelay: 0.4
   isAutoActivate: 0
+  startJoint: {fileID: 0}
+  endJoint: {fileID: 0}
 --- !u!114 &5565157924276222469
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -173,9 +177,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aecf3031cb15a8946b1f05525ab66923, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::JointTetherVisuals
+  lineSegmentSize: 0.15
+  lineWidth: 0.1
+  bendAmount: 0
   activatedStateColor: {r: 0, g: 1, b: 0, a: 1}
   inactiveStateColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   stretchedStateColor: {r: 1, g: 0, b: 0, a: 1}
+  attachedMaterial: {fileID: 0}
+  activatedMaterial: {fileID: 0}
+  selectedMaterial: {fileID: 0}
 --- !u!136 &8186839643958934475
 CapsuleCollider:
   m_ObjectHideFlags: 0
