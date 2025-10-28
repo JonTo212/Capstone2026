@@ -251,7 +251,7 @@ public class Lasso : MonoBehaviour
 
 
         //SnaredObject.Rb.AddForceAtPosition(springForce + dampingForce, attachPointWorld, ForceMode.Acceleration); //accel works because the damping already takes into account mass
-        SnaredObject.Rb.AddForce(totalForce, ForceMode.Acceleration);
+        SnaredObject.ApplyForceInDirection(totalForce.normalized, totalForce.magnitude, ForceMode.Acceleration, transform);
         SnaredObject.Rb.AddTorque(scaledTorque, ForceMode.Acceleration);
         SnaredObject.Rb.angularVelocity *= 0.99f; //stop excessive spin
     }

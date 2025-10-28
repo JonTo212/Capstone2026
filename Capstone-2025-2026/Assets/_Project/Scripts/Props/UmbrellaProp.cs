@@ -62,7 +62,7 @@ public class UmbrellaProp : Prop
         }
     }
 
-    public override void ApplyForceInDirection(Vector3 direction, float magnitude, ForceMode forceMode)
+    public override void ApplyForceInDirection(Vector3 direction, float magnitude, ForceMode forceMode, Transform forceApplier = null)
     {
         base.ApplyForceInDirection(direction, magnitude, forceMode);
         AbsorbForce(direction);

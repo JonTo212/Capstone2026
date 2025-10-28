@@ -68,8 +68,9 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
         rb.linearDamping = defaultDrag;
         rb.angularDamping = defaultAngularDrag;
-        transform.SetParent(null);
         AttachedTransform = null;
+
+        if(transform != null) transform.SetParent(null);
     }
 
     public virtual void OnAttachTether()
@@ -135,7 +136,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
 
     #region Force Addition
 
-    public virtual void ApplyForceInDirection(Vector3 direction, float magnitude, ForceMode forceMode)
+    public virtual void ApplyForceInDirection(Vector3 direction, float magnitude, ForceMode forceMode, Transform forceApplier = null)
     {
         Rb.AddForce(direction * magnitude, forceMode);
     }
