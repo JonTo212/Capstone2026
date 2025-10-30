@@ -19,6 +19,16 @@ public class JointTetherVisuals : MonoBehaviour
     [SerializeField] Material activatedMaterial;
     [SerializeField] Material selectedMaterial;
 
+    [Header("Attachment Point Variables")]
+    [SerializeField] private Transform startPointVisuals;
+    [SerializeField] private Transform endPointVisuals;
+    [SerializeField] private Transform startPointRingVisuals;
+    [SerializeField] private Transform endPointRingVisuals;
+    [SerializeField] private Material inactivePoint;
+    [SerializeField] private Material activatedPoint;
+    [SerializeField] private Material inactiveRing;
+    [SerializeField] private Material activatedRing;
+
     private Transform startTransform;
     private Transform endTransform;
     private Vector3 startLocalPosition;
