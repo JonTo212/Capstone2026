@@ -253,6 +253,8 @@ public class LassoTetherController : MonoBehaviour
     #region Snared Controls
     private void HandleSnaredControls()
     {
+        playerLasso.MoveAnchorPoint(playerActions.ScrollAction);
+
         if (playerActions.AltDown)
         {
             if (_yankCheckCoroutine != null) StopCoroutine(_yankCheckCoroutine);
