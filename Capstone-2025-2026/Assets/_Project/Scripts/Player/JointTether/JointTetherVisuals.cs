@@ -1,4 +1,5 @@
 using System.Collections;
+using Unity.Cinemachine;
 using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -22,8 +23,6 @@ public class JointTetherVisuals : MonoBehaviour
     [Header("Attachment Point Variables")]
     [SerializeField] private Transform startPointVisuals;
     [SerializeField] private Transform endPointVisuals;
-    [SerializeField] private Transform startPointRingVisuals;
-    [SerializeField] private Transform endPointRingVisuals;
     [SerializeField] private Material inactivePoint;
     [SerializeField] private Material activatedPoint;
     [SerializeField] private Material inactiveRing;
@@ -62,6 +61,18 @@ public class JointTetherVisuals : MonoBehaviour
         _lineRenderer = GetComponent<LineRenderer>();
     }
 
+    private void Start()
+    {
+        startPointVisuals.parent = null;
+        endPointVisuals.parent = null;
+
+        startPointVisuals.eulerAngles = Vector3.zero;
+        endPointVisuals.eulerAngles = Vector3.zero;
+
+        startPointVisuals.localScale = Vector3.one;
+        endPointVisuals.localScale = Vector3.one;
+    }
+
     // Update is called once per frame
     void Update()
     {
@@ -71,6 +82,7 @@ public class JointTetherVisuals : MonoBehaviour
         UpdateMiddlePointPosition();
         GetPoints();
         SetPointsToLine();
+        UpdateAttachmentPointVisualPosition();
     }
 
     public void SetLineColorActive()
@@ -105,6 +117,15 @@ public class JointTetherVisuals : MonoBehaviour
         linePoints[2] = middlePosition;
         linePoints[3] = endMiddlePosition;
         linePoints[4] = endWorldPos;
+    }
+
+    private void UpdateAttachmentPointVisualPosition()
+    {
+        Vector3 startWorldPos = startTransform.TransformPoint(startLocalPosition);
+        Vector3 endWorldPos = endTransform.TransformPoint(endLocalPosition);
+
+        startPointVisuals.position = startWorldPos;
+        endPointVisuals.position = endWorldPos;
     }
 
     private void GetPoints()
@@ -166,5 +187,17 @@ public class JointTetherVisuals : MonoBehaviour
         line.startWidth = lineWidth * 0.4f;
         line.endWidth = lineWidth * 0.4f;
         lineWidth *= 0.4f;
+    }
+
+    private void OnDestroy()
+    {
+        if(startPointVisuals != null)
+        {
+            Destroy(startPointVisuals.gameObject);
+        }
+        if(endPointVisuals != null)
+        {
+            Destroy(endPointVisuals.gameObject);
+        }
     }
 }

@@ -26,8 +26,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 3543694340114588232}
   - {fileID: 2856179639617135533}
@@ -171,8 +171,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
   m_LocalPosition: {x: 0, y: 0, z: 0.972}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 3440318406506318538}
   - {fileID: 1193809879664342382}
@@ -207,8 +207,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 0.6, y: 0.6, z: 0.6}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 1031772743447313476}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -245,7 +245,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 22601d819fe63d64db4b48ae27ba1f41, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -319,8 +319,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.61698, y: 0.61698, z: 0.61698}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 0.6, y: 0.6, z: 0.6}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 431404078125509900}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -432,7 +432,7 @@ Transform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 1031772743447313476}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -469,7 +469,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 1279e5c1a91de4b41a6e60b9066988f6, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -528,6 +528,7 @@ GameObject:
   - component: {fileID: 5565157924276222469}
   - component: {fileID: 8186839643958934475}
   - component: {fileID: 2180924010531576783}
+  - component: {fileID: 4889650414918798804}
   m_Layer: 7
   m_Name: JointTether
   m_TagString: Untagged
@@ -545,7 +546,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 10.855802, y: 10.855802, z: 10.855802}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 431404078125509900}
@@ -702,10 +703,8 @@ MonoBehaviour:
   attachedMaterial: {fileID: 2100000, guid: 1d0fae21506a64d4eb10f76fbe1722be, type: 2}
   activatedMaterial: {fileID: 2100000, guid: 590e64bc6ddcd0442a860e95ec24f535, type: 2}
   selectedMaterial: {fileID: 2100000, guid: a19996db1525a9e469e044657207f7ba, type: 2}
-  startPointVisuals: {fileID: 0}
-  endPointVisuals: {fileID: 0}
-  startPointRingVisuals: {fileID: 0}
-  endPointRingVisuals: {fileID: 0}
+  startPointVisuals: {fileID: 431404078125509900}
+  endPointVisuals: {fileID: 1031772743447313476}
   inactivePoint: {fileID: 0}
   activatedPoint: {fileID: 0}
   inactiveRing: {fileID: 0}
@@ -746,3 +745,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::JointTetherCollider
   capsuleCollider: {fileID: 0}
+--- !u!114 &4889650414918798804
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9078681742910677703}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0ef927e367be0345ad6e5168a66dd12, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TetherStripeParameters
