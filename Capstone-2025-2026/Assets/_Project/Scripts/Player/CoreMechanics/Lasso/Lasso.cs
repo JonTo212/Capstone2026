@@ -10,6 +10,7 @@ public class Lasso : MonoBehaviour
     [Header("External Components")]
     [field: SerializeField] public Transform HoldPos { get; private set; }
     [field: SerializeField] public Camera PlayerCam { get; private set; }
+    [SerializeField] private GameObject lassoGrabVisualIndicator;
 
     [Header("Lasso Properties")]
     [SerializeField] private float reelIncrement = 2f;
@@ -54,7 +55,6 @@ public class Lasso : MonoBehaviour
     private Joint swingJoint;
     private bool _isStrainingAtMaxDistance = false;
     private float _anchorDist;
-    private float _currentAnchorDist;
 
     [Header("Getters")]
     public Prop SnaredObject { get; private set; }
@@ -140,6 +140,7 @@ public class Lasso : MonoBehaviour
                 targetProp = hit.Value.transform.GetComponentInParent<Prop>();
                 targetProp.SetOutlineColour(Color.green);
                 targetProp.SetOutlineWidth(2f);
+                lassoGrabVisualIndicator.transform.position = targetProp.CheckNearestGrabPoint(hit.Value.point);
             }
         }
 
@@ -150,6 +151,7 @@ public class Lasso : MonoBehaviour
             SnaredObject.SetOutlineWidth(4f);
         }
 
+        lassoGrabVisualIndicator.SetActive(targetProp != null && SnaredObject == null);
         _aimAssist.HighlightSelectedProp(targetProp, false);
     }
 
@@ -166,8 +168,12 @@ public class Lasso : MonoBehaviour
             Ray noAssistRay = PlayerCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
             Prop prop = actualHit.transform.GetComponentInParent<Prop>();
 
-            _anchorDist = Vector3.Distance(actualHit.point, noAssistRay.origin);
-            _attachPointLocal = prop.transform.InverseTransformPoint(actualHit.point);
+            _anchorDist = Vector3.Distance(prop.CheckNearestGrabPoint(actualHit.point), noAssistRay.origin);
+            Vector3 closestPoint = prop.CheckNearestGrabPoint(actualHit.point);
+            _attachPointLocal = prop.transform.InverseTransformPoint(closestPoint);
+
+            //_anchorDist = Vector3.Distance(actualHit.point, noAssistRay.origin);
+            //_attachPointLocal = prop.transform.InverseTransformPoint(actualHit.point);
             _snaredObjTransform = prop.transform;
 
             SnaredObject = prop;
@@ -188,30 +194,12 @@ public class Lasso : MonoBehaviour
     #endregion
 
     #region Hold Object At Center
-    public void HandleObjectHoldAtDistance(Vector3 desiredPos)
-    {
-        if (SnaredObject == null) return;
-         
-        Vector3 dirToHoldPos = desiredPos - HitPos;
-        SnaredObject.Rb.AddForceAtPosition(dirToHoldPos * centerStrength, HitPos, ForceMode.Force);
-    }
 
     public void RotateHeldObject()
     {
         Quaternion targetRotation = Quaternion.LookRotation(HoldPos.forward, Vector3.up);
         SnaredObject.Rb.MoveRotation(targetRotation);
     }
-
-    /*public void MoveObjectToPos(Vector3 desiredPos)
-    {
-        if (SnaredObject == null) return;
-
-        float currentDist = Vector3.Distance(desiredPos, HitPos);
-        float currentSpeed = Mathf.SmoothStep(0f, centerStrength, currentDist / 5f) * Time.fixedDeltaTime;
-        Vector3 direction = desiredPos - HitPos;
-        SnaredObject.Rb.linearVelocity = direction.normalized * currentSpeed;
-        SnaredObject.Rb.angularVelocity *= 0.99f;
-    }*/
 
     public void MoveObjectToPos(Vector3 desiredPos)
     {
@@ -222,7 +210,7 @@ public class Lasso : MonoBehaviour
 
         //linear force
         Vector3 springForce = centerStrength * displacement; //F = -springRate * displacement
-        float damping = 2f * Mathf.Sqrt(centerStrength * SnaredObject.Rb.mass); //critical damping = 2 * sqrt(springRate * mass)
+        float damping = 2f * Mathf.Sqrt(centerStrength); //critical damping = 2 * sqrt(springRate * mass)
         Vector3 dampingForce = -pointVelocity * damping;
         Vector3 totalForce = springForce + dampingForce;
 
@@ -238,8 +226,28 @@ public class Lasso : MonoBehaviour
         //SnaredObject.Rb.AddForceAtPosition(springForce + dampingForce, attachPointWorld, ForceMode.Acceleration); //accel works because the damping already takes into account mass
         SnaredObject.ApplyForceInDirection(totalForce.normalized, totalForce.magnitude, ForceMode.Acceleration, transform);
         SnaredObject.Rb.AddTorque(scaledTorque, ForceMode.Acceleration);
-        SnaredObject.Rb.angularVelocity *= 0.99f; //stop excessive spin
+        SnaredObject.Rb.angularVelocity *= 0.9f; //stop excessive spin
     }
+
+    /*public void HandleObjectHoldAtDistance(Vector3 desiredPos)
+    {
+        if (SnaredObject == null) return;
+         
+        Vector3 dirToHoldPos = desiredPos - HitPos;
+        SnaredObject.Rb.AddForceAtPosition(dirToHoldPos * centerStrength, HitPos, ForceMode.Force);
+    }
+
+    public void MoveObjectToPos(Vector3 desiredPos)
+    {
+        if (SnaredObject == null) return;
+
+        float currentDist = Vector3.Distance(desiredPos, HitPos);
+        float currentSpeed = Mathf.SmoothStep(0f, centerStrength, currentDist / 5f) * Time.fixedDeltaTime;
+        Vector3 direction = desiredPos - HitPos;
+        SnaredObject.Rb.linearVelocity = direction.normalized * currentSpeed;
+        SnaredObject.Rb.angularVelocity *= 0.99f;
+    }*/
+
     #endregion
 
     #region Anchor Adjustment
@@ -585,6 +593,7 @@ public class Lasso : MonoBehaviour
             _vignette.intensity.value = 0f;
         }
 
+        lassoGrabVisualIndicator.SetActive(false);
         OnLassoReleased?.Invoke();
 
         

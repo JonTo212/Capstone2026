@@ -19,6 +19,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     public Rigidbody Rb => rb;
     public Transform AttachedTransform { get; set; }
     public Outline ObjectOutline { get; set; }
+    [field: SerializeField] public Transform[] GrabPoints { get; protected set; }
 
     public event Action OnPropDestroyed;
 
@@ -139,6 +140,29 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     public virtual void ApplyForceInDirection(Vector3 direction, float magnitude, ForceMode forceMode, Transform forceApplier = null)
     {
         Rb.AddForce(direction * magnitude, forceMode);
+    }
+
+    #endregion
+
+    #region Grab Points
+
+    public Vector3 CheckNearestGrabPoint(Vector3 grabPos)
+    {
+        Vector3 nearestGrabPoint = grabPos;
+        float currentNearestDist = float.MaxValue;
+
+        foreach (var point in GrabPoints)
+        {
+            float dist = Vector3.Distance(grabPos, point.position);
+
+            if (dist < currentNearestDist)
+            {
+                currentNearestDist = dist;
+                nearestGrabPoint = point.position;
+            }
+        }
+
+        return nearestGrabPoint;
     }
 
     #endregion
