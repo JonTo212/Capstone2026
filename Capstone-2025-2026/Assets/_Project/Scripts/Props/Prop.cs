@@ -5,9 +5,14 @@ using System.Collections.Generic;
 [RequireComponent(typeof(Rigidbody), typeof(Outline))]
 public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
 {
+    [SerializeField] protected bool objectDebug = false;
+
     //protected means only derived classes can access these values
     protected Rigidbody rb;
+    protected Lasso playerLasso;
     protected List<GameObject> attachedTethers = new List<GameObject>();
+    [SerializeField] protected List <Transform> connectedTransform = new List<Transform>();
+    [SerializeField] protected List<ConfigurableJoint> tetherJoints = new List<ConfigurableJoint>(); 
     protected float defaultDrag;
     protected float defaultAngularDrag;
 
@@ -25,6 +30,8 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     //virtual functions can be overridden by the derived classes
     //default behaviour is updating IsHeld and parenting the object to a given transform (i.e. player hand)
 
+    public Vector3 totalForceApplied { get; protected set; } = Vector3.zero;
+
     protected virtual void Init()
     {
         rb = GetComponent<Rigidbody>();
@@ -35,6 +42,28 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         ObjectOutline.OutlineColor = Color.green;
         ObjectOutline.OutlineWidth = 3f;
         ObjectOutline.enabled = false;
+    }
+
+    protected virtual void Update()
+    {
+
+    }
+
+    protected virtual void FixedUpdate()
+    {
+        //totalForceApplied += GetForcesFromJoint();
+
+        if(objectDebug == true)
+        {
+            //Debug.Log(totalForceApplied);
+        }
+    }
+
+    protected virtual void LateUpdate()
+    {
+        GetForcesFromJoint();
+
+        totalForceApplied = Vector3.zero;
     }
 
     protected virtual void OnDestroy()
@@ -78,15 +107,19 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
 
     }
 
-    public virtual void OnTetherPull(GameObject tether)
+    public virtual void OnTetherPull(GameObject tether, Transform target, ConfigurableJoint joint)
     {
         isTetherPulled = true;
+        tetherJoints.Add(joint);
         attachedTethers.Add(tether);
+        connectedTransform.Add(target);
         rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
     }
 
-    public virtual void OnDetachTether(GameObject tether)
+    public virtual void OnDetachTether(GameObject tether, Transform target, ConfigurableJoint joint)
     {
+        tetherJoints.RemoveAt(attachedTethers.IndexOf(tether));
+        connectedTransform.RemoveAt(attachedTethers.IndexOf(tether));
         attachedTethers.Remove(tether);
         if (attachedTethers.Count <= 0)
         {
@@ -139,7 +172,38 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     public virtual void ApplyForceInDirection(Vector3 direction, float magnitude, ForceMode forceMode, Transform forceApplier = null)
     {
         Rb.AddForce(direction * magnitude, forceMode);
+
+        if(playerLasso == null && forceApplier.GetComponent<Lasso>() != null)
+        {
+            totalForceApplied += direction * magnitude;
+        }
     }
 
     #endregion
+
+    protected Vector3 GetForcesFromJoint()
+    {
+        Vector3 totalForce = Vector3.zero;
+
+        for (int i = 0; i < attachedTethers.Count; i++)
+        {
+            ConfigurableJoint joint = tetherJoints[i];
+
+            Vector3 worldAnchor = transform.TransformPoint(joint.anchor);
+            if (objectDebug) Debug.Log(worldAnchor);
+            Vector3 worldTargetAnchor = connectedTransform[i].TransformPoint(joint.anchor);
+            Vector3 difference = worldTargetAnchor - worldAnchor;
+
+            float springConstant = joint.xDrive.positionSpring;
+            float dampener = joint.xDrive.positionDamper;
+
+            Vector3 forceFromJoint = (springConstant * difference - dampener * rb.linearVelocity) * Time.fixedDeltaTime;
+
+            totalForce += forceFromJoint;
+        }
+
+        //if(objectDebug) Debug.Log(totalForce);
+
+        return totalForce;
+    }
 }

@@ -26,8 +26,8 @@ public class JointTether : MonoBehaviour
     [SerializeField] private ConfigurableJoint endJoint;
     private Rigidbody startRb;
     private Rigidbody endRb;
-    private Transform startTransform;
-    private Transform endTransform;
+    public Transform startTransform { get; private set; }
+    public Transform endTransform { get; private set; }
     private GameObject temporaryStartRbObject;
     private GameObject temporaryEndRbObject;
     private Vector3 startLocalPosition;
@@ -75,17 +75,6 @@ public class JointTether : MonoBehaviour
     public void ActivateTether()
     {
         if (startJoint != null && endJoint != null) return;
-
-        if (startTransform.GetComponent<Prop>() != null)
-        {
-            startTransform.GetComponent<Prop>().OnTetherPull(gameObject);
-            startTransform.GetComponent<Prop>().OnPropDestroyed += DestroyTether;
-        }
-        if (endTransform.GetComponent<Prop>() != null)
-        {
-            endTransform.GetComponent<Prop>().OnTetherPull(gameObject);
-            startTransform.GetComponent<Prop>().OnPropDestroyed += DestroyTether;
-        }
 
         StartCoroutine(ActivateTetherAfterDelay());
     }
@@ -179,11 +168,11 @@ public class JointTether : MonoBehaviour
     {
         if (startTransform != null && startTransform.gameObject != null && startTransform.GetComponent<Prop>() != null)
         {
-            startTransform.GetComponent<Prop>().OnDetachTether(gameObject);
+            startTransform.GetComponent<Prop>().OnDetachTether(gameObject, endTransform, startJoint);
         }
         if (endTransform != null && endTransform.gameObject != null && endTransform.GetComponent<Prop>() != null)
         {
-            endTransform.GetComponent<Prop>().OnDetachTether(gameObject);
+            endTransform.GetComponent<Prop>().OnDetachTether(gameObject, startTransform, endJoint);
         }
 
         if(startJoint != null) Destroy(startJoint);
@@ -209,6 +198,17 @@ public class JointTether : MonoBehaviour
 
         CreateJointConnections(startJoint, startLocalPosition, endLocalPosition, temporaryStartRbObject, temporaryEndRbObject);
         CreateJointConnections(endJoint, endLocalPosition, startLocalPosition, temporaryEndRbObject, temporaryStartRbObject);
+
+        if (startTransform.GetComponent<Prop>() != null)
+        {
+            startTransform.GetComponent<Prop>().OnTetherPull(gameObject,endTransform, startJoint);
+            startTransform.GetComponent<Prop>().OnPropDestroyed += DestroyTether;
+        }
+        if (endTransform.GetComponent<Prop>() != null)
+        {
+            endTransform.GetComponent<Prop>().OnTetherPull(gameObject,endTransform, endJoint);
+            startTransform.GetComponent<Prop>().OnPropDestroyed += DestroyTether;
+        }
 
         isActivated = true;
     }
