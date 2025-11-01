@@ -11,7 +11,8 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     protected Rigidbody rb;
     protected Lasso playerLasso;
     protected List<GameObject> attachedTethers = new List<GameObject>();
-    [SerializeField] protected List <Transform> connectedTransform = new List<Transform>();
+    [SerializeField] protected List <Transform> connectedObject = new List<Transform>();
+    [SerializeField] protected List<Transform> connectedTransform = new List<Transform>();
     [SerializeField] protected List<ConfigurableJoint> tetherJoints = new List<ConfigurableJoint>(); 
     protected float defaultDrag;
     protected float defaultAngularDrag;
@@ -112,14 +113,14 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         isTetherPulled = true;
         tetherJoints.Add(joint);
         attachedTethers.Add(tether);
-        connectedTransform.Add(target);
+        connectedObject.Add(target);
         rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
     }
 
     public virtual void OnDetachTether(GameObject tether, Transform target, ConfigurableJoint joint)
     {
         tetherJoints.RemoveAt(attachedTethers.IndexOf(tether));
-        connectedTransform.RemoveAt(attachedTethers.IndexOf(tether));
+        connectedObject.RemoveAt(attachedTethers.IndexOf(tether));
         attachedTethers.Remove(tether);
         if (attachedTethers.Count <= 0)
         {
@@ -190,8 +191,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
             ConfigurableJoint joint = tetherJoints[i];
 
             Vector3 worldAnchor = transform.TransformPoint(joint.anchor);
-            if (objectDebug) Debug.Log(worldAnchor);
-            Vector3 worldTargetAnchor = connectedTransform[i].TransformPoint(joint.anchor);
+            Vector3 worldTargetAnchor = connectedObject[i].TransformPoint(joint.anchor);
             Vector3 difference = worldTargetAnchor - worldAnchor;
 
             float springConstant = joint.xDrive.positionSpring;
@@ -202,7 +202,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
             totalForce += forceFromJoint;
         }
 
-        //if(objectDebug) Debug.Log(totalForce);
+        if(objectDebug) Debug.Log(totalForce);
 
         return totalForce;
     }
