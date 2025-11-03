@@ -19,7 +19,9 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     public Rigidbody Rb => rb;
     public Transform AttachedTransform { get; set; }
     public Outline ObjectOutline { get; set; }
-    [field: SerializeField] public Transform[] GrabPoints { get; protected set; }
+    [field: SerializeField] public List<Transform> GrabPoints { get; protected set; }
+    [field: SerializeField] public int faceRows { get; protected set; }
+    [field: SerializeField] public int faceColumns { get; protected set; }
 
     public event Action OnPropDestroyed;
 
@@ -36,6 +38,13 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         ObjectOutline.OutlineColor = Color.green;
         ObjectOutline.OutlineWidth = 3f;
         ObjectOutline.enabled = false;
+
+        var generator = GetComponent<IGrabPointGenerator>();
+        if(generator != null)
+        {
+            Collider col = GetComponent<Collider>();
+            GrabPoints = generator.GeneratePoints(col, faceRows, faceColumns);
+        }
     }
 
     protected virtual void OnDestroy()
@@ -146,9 +155,9 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
 
     #region Grab Points
 
-    public Vector3 CheckNearestGrabPoint(Vector3 grabPos)
+    public virtual Transform CheckNearestGrabPoint(Vector3 grabPos)
     {
-        Vector3 nearestGrabPoint = grabPos;
+        Transform nearestGrabPoint = null;
         float currentNearestDist = float.MaxValue;
 
         foreach (var point in GrabPoints)
@@ -158,7 +167,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
             if (dist < currentNearestDist)
             {
                 currentNearestDist = dist;
-                nearestGrabPoint = point.position;
+                nearestGrabPoint = point;
             }
         }
 
