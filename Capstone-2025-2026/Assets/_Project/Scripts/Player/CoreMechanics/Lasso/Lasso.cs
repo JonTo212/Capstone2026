@@ -234,9 +234,13 @@ public class Lasso : MonoBehaviour
 
         Vector3 totalTorque = torqueForce + lookAtTorque;
 
+        float effectiveMassScale = CalculateScale();
+        Vector3 linearAcceleration = linearForce / effectiveMassScale;
+        Vector3 angularAcceleration = totalTorque / effectiveMassScale;
+
         //SnaredObject.Rb.AddForceAtPosition(springForce + dampingForce, attachPointWorld, ForceMode.Acceleration); //accel works because the damping already takes into account mass
-        SnaredObject.ApplyForceInDirection(linearForce.normalized, linearForce.magnitude, ForceMode.Acceleration, transform);
-        SnaredObject.Rb.AddTorque(totalTorque, ForceMode.Acceleration);
+        SnaredObject.ApplyForceInDirection(linearAcceleration.normalized, linearAcceleration.magnitude, ForceMode.Acceleration, transform);
+        SnaredObject.Rb.AddTorque(angularAcceleration, ForceMode.Acceleration);
         SnaredObject.Rb.angularVelocity *= 0.98f; //stop excessive spin
     }
 
@@ -266,15 +270,27 @@ public class Lasso : MonoBehaviour
     {
         Vector3 lookAtSpringTorque = Vector3.zero;
         Vector3 lookAtDampingTorque = Vector3.zero;
+
         if (_localFaceNormal != Vector3.zero)
         {
             Vector3 worldFaceNormal = SnaredObject.transform.TransformDirection(_localFaceNormal);
-            Vector3 toPlayer = (transform.position - SnaredObject.Rb.worldCenterOfMass).normalized;
-            lookAtSpringTorque = Vector3.Cross(worldFaceNormal, toPlayer) * lookAtStrength;
+            Vector3 toPlayer = (PlayerCam.transform.position - SnaredObject.Rb.worldCenterOfMass).normalized;
+            float alignment = Mathf.Abs(Vector3.Dot(worldFaceNormal, toPlayer));
+            lookAtSpringTorque = Vector3.Cross(worldFaceNormal, toPlayer) * lookAtStrength * alignment;
             lookAtDampingTorque = -SnaredObject.Rb.angularVelocity * lookAtDamping;
         }
 
         return lookAtSpringTorque + lookAtDampingTorque;
+    }
+
+    private float CalculateScale()
+    {
+        Vector3 scale = SnaredObject.transform.localScale;
+        float effectiveMassScale = scale.x * scale.y * scale.z;
+
+        effectiveMassScale = Mathf.Max(1.0f, effectiveMassScale);
+
+        return effectiveMassScale;
     }
 
 

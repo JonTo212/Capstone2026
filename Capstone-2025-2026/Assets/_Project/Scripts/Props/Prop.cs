@@ -127,7 +127,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         IsHeld = true;
         IsSnared = false;
         IsBeingPulled = false;
-        rb.isKinematic = true;
+        //rb.isKinematic = true;
         rb.interpolation = RigidbodyInterpolation.None;
         rb.constraints = RigidbodyConstraints.FreezePosition;
         transform.SetParent(newParent);
