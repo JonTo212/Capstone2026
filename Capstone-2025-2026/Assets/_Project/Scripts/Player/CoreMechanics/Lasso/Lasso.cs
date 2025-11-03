@@ -97,6 +97,22 @@ public class Lasso : MonoBehaviour
     {
         Ray ray = PlayerCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
         Vector3 maxDistancePos = ray.origin + ray.direction * _anchorDist;
+
+        RaycastHit[] hits = Physics.RaycastAll(ray, _anchorDist);
+        if (hits.Length > 0)
+        { 
+            Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+
+            foreach (var hit in hits)
+            {
+                if (hit.transform != _snaredObjTransform)
+                {
+                    maxDistancePos = ray.origin + ray.direction * hit.distance;
+                    break;
+                }
+            }
+        }
+
         return maxDistancePos;
     }
 
