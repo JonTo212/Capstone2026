@@ -44,6 +44,10 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         {
             Collider col = GetComponent<Collider>();
             GrabPoints = generator.GeneratePoints(col, faceRows, faceColumns);
+            foreach(Transform t in GrabPoints)
+            {
+                t.gameObject.SetActive(false);
+            }
         }
     }
 
@@ -172,6 +176,14 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         }
 
         return nearestGrabPoint;
+    }
+
+    public void EnableAllGrabPoints(bool active)
+    {
+        foreach (var point in GrabPoints)
+        {
+            point.gameObject.SetActive(active);
+        }
     }
 
     #endregion

@@ -185,6 +185,7 @@ public class Lasso : MonoBehaviour
 
             if (closestPointTransform != null)
             {
+                //prop.EnableAllGrabPoints(true); //apparently it still works while everything is inactive?
                 _anchorDist = Vector3.Distance(closestPointTransform.position, noAssistRay.origin);
                 _attachPointLocal = prop.transform.InverseTransformPoint(closestPointTransform.position);
                 _localFaceNormal = prop.transform.InverseTransformDirection(closestPointTransform.forward);
@@ -650,6 +651,7 @@ public class Lasso : MonoBehaviour
 
         SnaredObject.OnPropDestroyed -= HandleObjectReleased;
         SnaredObject.ActivateOutline(false);
+        //SnaredObject.EnableAllGrabPoints(false);
         SnaredObject.OnRelease();
         SnaredObject = null;
         _snaredObjTransform = null;
