@@ -109,7 +109,8 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
-        HandleCamera();
+        
+        //HandleCamera();
         HandleJumpBuffer();
         HandleCoyoteTime();
         HandleJump();
@@ -201,13 +202,6 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    private void HandleCamera()
-    {
-        _xRot += _playerActions.LookInput.x * yawSensitivity * Time.deltaTime;
-        _yRot -= _playerActions.LookInput.y * pitchSensitivity * Time.deltaTime;
-        _yRot = Mathf.Clamp(_yRot, -75f, 75f);
-        playerCam.transform.localEulerAngles = new Vector3(_yRot, _xRot, 0f);
-    }
 
     private void HandleFOV()
     {
@@ -226,6 +220,22 @@ public class PlayerMovement : MonoBehaviour
         }
 
         playerCam.fieldOfView = Mathf.SmoothStep(playerCam.fieldOfView, desiredFOV, Time.deltaTime * changeSpeed);
+    }
+
+    private void HandleForward()
+    {
+        Vector3 camForward = playerCam.transform.forward;
+        Vector3 camRight = playerCam.transform.right;
+
+        camRight.y = 0;
+        camForward.y = 0;
+
+        //Multiply camera's directional vectors by inputs
+        Vector3 forwardRelative = camForward * _playerActions.MoveInput.y;
+        Vector3 rightRelative = camRight * _playerActions.MoveInput.x;
+
+        //Set desired move direction to be based on camera direction
+        _wishDir = (forwardRelative + rightRelative).normalized;
     }
 
     private void HandleMovement()
@@ -317,10 +327,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void ApplyAcceleration()
     {
-        _wishDir = new Vector3(_playerActions.MoveInput.x, 0, _playerActions.MoveInput.y).normalized;
-        _wishDir = playerCam.transform.TransformDirection(_wishDir);
-        _wishDir.y = 0f;
-        _wishDir.Normalize();
+        HandleForward();
 
         if (_wishDir == Vector3.zero) return;
 
