@@ -26,10 +26,12 @@ public class JointTether : MonoBehaviour
     [SerializeField] private ConfigurableJoint endJoint;
     private Rigidbody startRb;
     private Rigidbody endRb;
-    public Transform startTransform { get; private set; }
-    public Transform endTransform { get; private set; }
-    private GameObject temporaryStartRbObject;
-    private GameObject temporaryEndRbObject;
+    private Transform startTransform;
+    private Transform endTransform;
+    private Transform startAnchor;
+    private Transform endAnchor;
+    //private GameObject temporaryStartRbObject;
+    //private GameObject temporaryEndRbObject;
     private Vector3 startLocalPosition;
     private Vector3 endLocalPosition;
 
@@ -46,8 +48,8 @@ public class JointTether : MonoBehaviour
         this.endLocalPosition = endLocalPosition;
 
         //Try gets the rigitbody of the start and end transform. If there isn't a rigidbody, create a temporary rigidbody object as a target
-        TryGetRigidbody(startTransform, startLocalPosition, out startRb, out temporaryStartRbObject);
-        TryGetRigidbody(endTransform, endLocalPosition, out endRb, out temporaryEndRbObject);
+        TryGetRigidbody(startTransform, startLocalPosition, out startRb, out startAnchor);
+        TryGetRigidbody(endTransform, endLocalPosition, out endRb, out endAnchor);
 
         tetherVisuals = transform.GetComponent<JointTetherVisuals>();
         tetherVisuals.Init(startTransform, startLocalPosition, endTransform, endLocalPosition, isAutoActivate, activationDelay);
@@ -89,7 +91,7 @@ public class JointTether : MonoBehaviour
         tetherVisuals.SetLineColorInactive();
     }
 
-    private void TryGetRigidbody(Transform fromTransform, Vector3 localHitPosition, out Rigidbody rb, out GameObject temporaryRbObject)
+    private void TryGetRigidbody(Transform fromTransform, Vector3 localHitPosition, out Rigidbody rb, out Transform anchorTransform)
     {
         if(fromTransform.gameObject.GetComponent<Rigidbody>() != null)
         {
@@ -97,13 +99,14 @@ public class JointTether : MonoBehaviour
             GameObject trail = Instantiate(trailRendererPrefab);
             trail.transform.parent = fromTransform;
             trail.transform.position= fromTransform.position;
-            temporaryRbObject = null;
+            anchorTransform = fromTransform;
         }
         else
         {
-            temporaryRbObject = new GameObject("TemporaryTetherRbObject");
-            temporaryRbObject.transform.position = fromTransform.TransformPoint(localHitPosition);
-            rb = temporaryRbObject.AddComponent<Rigidbody>();
+            anchorTransform = new GameObject("TemporaryTetherRbObject").transform;
+            anchorTransform.transform.position = fromTransform.TransformPoint(localHitPosition);
+            anchorTransform.AddComponent<TemporaryJointAnchor>();
+            rb = anchorTransform.AddComponent<Rigidbody>();
             rb.isKinematic = true;
         }
     }
@@ -140,12 +143,12 @@ public class JointTether : MonoBehaviour
         return joint;
     }
 
-    private void CreateJointConnections(ConfigurableJoint joint, Vector3 sourceLocalPosition, Vector3 targetLocalPosition,GameObject temporaryRbSource, GameObject temporaryRbTarget)
+    private void CreateJointConnections(ConfigurableJoint joint, Vector3 sourceLocalPosition, Vector3 targetLocalPosition,Transform sourceJointAnchor, Transform targetJointAnchor)
     {
-        if (temporaryRbSource == null) joint.anchor = sourceLocalPosition;
+        if (sourceJointAnchor.GetComponent<TemporaryJointAnchor>() == null) joint.anchor = sourceLocalPosition;
         else joint.anchor = Vector3.zero;
 
-        if(temporaryRbTarget == null) joint.connectedAnchor = targetLocalPosition;
+        if(targetJointAnchor.GetComponent<TemporaryJointAnchor>() == null) joint.connectedAnchor = targetLocalPosition;
         else joint.connectedAnchor = Vector3.zero;
     }
 
@@ -168,18 +171,18 @@ public class JointTether : MonoBehaviour
     {
         if (startTransform != null && startTransform.gameObject != null && startTransform.GetComponent<Prop>() != null)
         {
-            startTransform.GetComponent<Prop>().OnDetachTether(gameObject, endTransform, startJoint);
+            startTransform.GetComponent<Prop>().OnDetachTether(gameObject,endAnchor, endTransform, startJoint);
         }
         if (endTransform != null && endTransform.gameObject != null && endTransform.GetComponent<Prop>() != null)
         {
-            endTransform.GetComponent<Prop>().OnDetachTether(gameObject, startTransform, endJoint);
+            endTransform.GetComponent<Prop>().OnDetachTether(gameObject, startAnchor, startTransform, endJoint);
         }
 
         if(startJoint != null) Destroy(startJoint);
         if(endJoint != null) Destroy(endJoint);
 
-        if(temporaryStartRbObject != null) Destroy(temporaryStartRbObject);
-        if(temporaryEndRbObject != null) Destroy(temporaryEndRbObject);
+        if(startAnchor.GetComponent<TemporaryJointAnchor>() != null) Destroy(startAnchor);
+        if(endAnchor.GetComponent<TemporaryJointAnchor>() != null) Destroy(endAnchor);
 
         if(startTrailRenderer != null) Destroy(startTrailRenderer);
         if(endTrailRenderer != null) Destroy(endTrailRenderer); 
@@ -196,17 +199,17 @@ public class JointTether : MonoBehaviour
         startJoint = CreateJoint(startRb, endRb);
         endJoint = CreateJoint(endRb, startRb);
 
-        CreateJointConnections(startJoint, startLocalPosition, endLocalPosition, temporaryStartRbObject, temporaryEndRbObject);
-        CreateJointConnections(endJoint, endLocalPosition, startLocalPosition, temporaryEndRbObject, temporaryStartRbObject);
+        CreateJointConnections(startJoint, startLocalPosition, endLocalPosition, startAnchor, endAnchor);
+        CreateJointConnections(endJoint, endLocalPosition, startLocalPosition, endAnchor, startAnchor);
 
         if (startTransform.GetComponent<Prop>() != null)
         {
-            startTransform.GetComponent<Prop>().OnTetherPull(gameObject,endTransform, startJoint);
+            startTransform.GetComponent<Prop>().OnTetherPull(gameObject,endAnchor, endTransform, startJoint);
             startTransform.GetComponent<Prop>().OnPropDestroyed += DestroyTether;
         }
         if (endTransform.GetComponent<Prop>() != null)
         {
-            endTransform.GetComponent<Prop>().OnTetherPull(gameObject,endTransform, endJoint);
+            endTransform.GetComponent<Prop>().OnTetherPull(gameObject,startAnchor, startTransform, endJoint);
             startTransform.GetComponent<Prop>().OnPropDestroyed += DestroyTether;
         }
 

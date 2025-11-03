@@ -6,14 +6,14 @@ using System.Collections.Generic;
 public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
 {
     [SerializeField] protected bool objectDebug = false;
-
+    private bool didFixedUpdateRun = false;
     //protected means only derived classes can access these values
     protected Rigidbody rb;
     protected Lasso playerLasso;
     protected List<GameObject> attachedTethers = new List<GameObject>();
-    [SerializeField] protected List <Transform> connectedObject = new List<Transform>();
-    [SerializeField] protected List<Transform> connectedTransform = new List<Transform>();
     [SerializeField] protected List<ConfigurableJoint> tetherJoints = new List<ConfigurableJoint>(); 
+    [SerializeField] protected List <Transform> connectedObject = new List<Transform>();
+    [SerializeField] protected List<Transform> connectedAnchors = new List<Transform>();
     protected float defaultDrag;
     protected float defaultAngularDrag;
 
@@ -47,24 +47,22 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
 
     protected virtual void Update()
     {
-
+        if (objectDebug == true)
+        {
+            Debug.Log(totalForceApplied);
+            Debug.DrawLine(transform.position, transform.position + totalForceApplied.normalized * 2, Color.yellow);
+        }
     }
 
     protected virtual void FixedUpdate()
     {
-        //totalForceApplied += GetForcesFromJoint();
-
-        if(objectDebug == true)
-        {
-            //Debug.Log(totalForceApplied);
-        }
+        totalForceApplied += GetForcesFromJoint();
+        didFixedUpdateRun = true;
     }
 
     protected virtual void LateUpdate()
     {
-        GetForcesFromJoint();
-
-        totalForceApplied = Vector3.zero;
+        if (didFixedUpdateRun) totalForceApplied = Vector3.zero;
     }
 
     protected virtual void OnDestroy()
@@ -108,19 +106,21 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
 
     }
 
-    public virtual void OnTetherPull(GameObject tether, Transform target, ConfigurableJoint joint)
+    public virtual void OnTetherPull(GameObject tether, Transform targetAnchorTransform, Transform targetObjectTransform, ConfigurableJoint joint)
     {
         isTetherPulled = true;
         tetherJoints.Add(joint);
         attachedTethers.Add(tether);
-        connectedObject.Add(target);
+        connectedObject.Add(targetObjectTransform);
+        connectedAnchors.Add(targetAnchorTransform);
         rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
     }
 
-    public virtual void OnDetachTether(GameObject tether, Transform target, ConfigurableJoint joint)
+    public virtual void OnDetachTether(GameObject tether, Transform targetAnchorTransform, Transform targetObjectTransform, ConfigurableJoint joint)
     {
         tetherJoints.RemoveAt(attachedTethers.IndexOf(tether));
         connectedObject.RemoveAt(attachedTethers.IndexOf(tether));
+        connectedAnchors.RemoveAt(attachedTethers.IndexOf((tether)));
         attachedTethers.Remove(tether);
         if (attachedTethers.Count <= 0)
         {
@@ -191,7 +191,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
             ConfigurableJoint joint = tetherJoints[i];
 
             Vector3 worldAnchor = transform.TransformPoint(joint.anchor);
-            Vector3 worldTargetAnchor = connectedObject[i].TransformPoint(joint.anchor);
+            Vector3 worldTargetAnchor = connectedAnchors[i].TransformPoint(joint.connectedAnchor);
             Vector3 difference = worldTargetAnchor - worldAnchor;
 
             float springConstant = joint.xDrive.positionSpring;
@@ -201,8 +201,6 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
 
             totalForce += forceFromJoint;
         }
-
-        if(objectDebug) Debug.Log(totalForce);
 
         return totalForce;
     }
