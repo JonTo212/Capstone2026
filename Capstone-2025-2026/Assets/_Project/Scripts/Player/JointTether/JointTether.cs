@@ -56,8 +56,10 @@ public class JointTether : MonoBehaviour
 
         tetherCollider = transform.GetComponent<JointTetherCollider>();
         tetherCollider.Init(startTransform, startLocalPosition, endTransform, endLocalPosition);
-        
-        if(autoActivate)
+
+        AttachTether();
+
+        if (autoActivate)
         {
             ActivateTether();
         }
@@ -74,10 +76,31 @@ public class JointTether : MonoBehaviour
         MoveToTetherCenter();   
     }
 
+    private void AttachTether()
+    {
+        tetherVisuals.SetLineColorActive();
+
+        startJoint = CreateJoint(startRb, endRb);
+        endJoint = CreateJoint(endRb, startRb);
+
+        CreateJointConnections(startJoint, startLocalPosition, endLocalPosition, startAnchor, endAnchor);
+        CreateJointConnections(endJoint, endLocalPosition, startLocalPosition, endAnchor, startAnchor);
+
+        if (startTransform.GetComponent<Prop>() != null)
+        {
+            startTransform.GetComponent<Prop>().OnTetherPull(gameObject, endAnchor, endTransform, startJoint);
+            startTransform.GetComponent<Prop>().OnPropDestroyed += DestroyTether;
+        }
+        if (endTransform.GetComponent<Prop>() != null)
+        {
+            endTransform.GetComponent<Prop>().OnTetherPull(gameObject, startAnchor, startTransform, endJoint);
+            endTransform.GetComponent<Prop>().OnPropDestroyed += DestroyTether;
+        }
+    }
+
     public void ActivateTether()
     {
-        if (startJoint != null && endJoint != null) return;
-
+        if (startJoint == null || endJoint == null) return;
         StartCoroutine(ActivateTetherAfterDelay());
     }
 
@@ -114,12 +137,18 @@ public class JointTether : MonoBehaviour
     private ConfigurableJoint CreateJoint(Rigidbody sourceRb, Rigidbody targetRb)
     {
         ConfigurableJoint joint = sourceRb.gameObject.AddComponent<ConfigurableJoint>();
-
         joint.connectedBody = targetRb;
+        joint.autoConfigureConnectedAnchor = false;
+        joint.enableCollision = true;
 
+        return joint;
+    }
+
+    private void ActivateJoint(ConfigurableJoint joint)
+    {
         JointDrive xDrive = new JointDrive();
         JointDrive yDrive = new JointDrive();
-        JointDrive zDrive = new JointDrive();   
+        JointDrive zDrive = new JointDrive();
 
         xDrive.positionSpring = driveStrength;
         xDrive.positionDamper = driveDamper;
@@ -130,7 +159,7 @@ public class JointTether : MonoBehaviour
         yDrive.maximumForce = 1000000f;
 
         zDrive.positionSpring = driveStrength;
-        zDrive.positionDamper = driveDamper; 
+        zDrive.positionDamper = driveDamper;
         zDrive.maximumForce = 1000000f;
 
         joint.xDrive = xDrive;
@@ -139,8 +168,6 @@ public class JointTether : MonoBehaviour
 
         joint.autoConfigureConnectedAnchor = false;
         joint.enableCollision = true;
-
-        return joint;
     }
 
     private void CreateJointConnections(ConfigurableJoint joint, Vector3 sourceLocalPosition, Vector3 targetLocalPosition,Transform sourceJointAnchor, Transform targetJointAnchor)
@@ -181,8 +208,8 @@ public class JointTether : MonoBehaviour
         if(startJoint != null) Destroy(startJoint);
         if(endJoint != null) Destroy(endJoint);
 
-        if(startAnchor.GetComponent<TemporaryJointAnchor>() != null) Destroy(startAnchor);
-        if(endAnchor.GetComponent<TemporaryJointAnchor>() != null) Destroy(endAnchor);
+        if(startAnchor.GetComponent<TemporaryJointAnchor>() != null) Destroy(startAnchor.gameObject);
+        if(endAnchor.GetComponent<TemporaryJointAnchor>() != null) Destroy(endAnchor.gameObject);
 
         if(startTrailRenderer != null) Destroy(startTrailRenderer);
         if(endTrailRenderer != null) Destroy(endTrailRenderer); 
@@ -196,22 +223,8 @@ public class JointTether : MonoBehaviour
         tetherVisuals.SetLineColorActive();
         yield return new WaitForSeconds(activationDelay);
 
-        startJoint = CreateJoint(startRb, endRb);
-        endJoint = CreateJoint(endRb, startRb);
-
-        CreateJointConnections(startJoint, startLocalPosition, endLocalPosition, startAnchor, endAnchor);
-        CreateJointConnections(endJoint, endLocalPosition, startLocalPosition, endAnchor, startAnchor);
-
-        if (startTransform.GetComponent<Prop>() != null)
-        {
-            startTransform.GetComponent<Prop>().OnTetherPull(gameObject,endAnchor, endTransform, startJoint);
-            startTransform.GetComponent<Prop>().OnPropDestroyed += DestroyTether;
-        }
-        if (endTransform.GetComponent<Prop>() != null)
-        {
-            endTransform.GetComponent<Prop>().OnTetherPull(gameObject,startAnchor, startTransform, endJoint);
-            startTransform.GetComponent<Prop>().OnPropDestroyed += DestroyTether;
-        }
+        ActivateJoint(startJoint);
+        ActivateJoint(endJoint);
 
         isActivated = true;
     }

@@ -5,15 +5,15 @@ using System.Collections.Generic;
 [RequireComponent(typeof(Rigidbody), typeof(Outline))]
 public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
 {
-    [SerializeField] protected bool objectDebug = false;
-    private bool didFixedUpdateRun = false;
+    [SerializeField] protected bool debugThisProp = false;
+
     //protected means only derived classes can access these values
     protected Rigidbody rb;
     protected Lasso playerLasso;
     protected List<GameObject> attachedTethers = new List<GameObject>();
-    [SerializeField] protected List<ConfigurableJoint> tetherJoints = new List<ConfigurableJoint>(); 
-    [SerializeField] protected List <Transform> connectedObject = new List<Transform>();
-    [SerializeField] protected List<Transform> connectedAnchors = new List<Transform>();
+    protected List<ConfigurableJoint> tetherJoints = new List<ConfigurableJoint>(); 
+    protected List <Transform> connectedObject = new List<Transform>();
+    protected List<Transform> connectedAnchors = new List<Transform>();
     protected float defaultDrag;
     protected float defaultAngularDrag;
 
@@ -44,25 +44,25 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         ObjectOutline.OutlineWidth = 3f;
         ObjectOutline.enabled = false;
     }
+    protected virtual void FixedUpdate()
+    {
+        totalForceApplied = Vector3.zero;
+        totalForceApplied += GetForcesFromJoint();
+
+    }
 
     protected virtual void Update()
     {
-        if (objectDebug == true)
+        if(debugThisProp)
         {
-            Debug.Log(totalForceApplied);
-            Debug.DrawLine(transform.position, transform.position + totalForceApplied.normalized * 2, Color.yellow);
+           Debug.DrawLine(transform.position, transform.position + totalForceApplied / 3, Color.green);
+           Debug.Log(totalForceApplied);
         }
-    }
-
-    protected virtual void FixedUpdate()
-    {
-        totalForceApplied += GetForcesFromJoint();
-        didFixedUpdateRun = true;
     }
 
     protected virtual void LateUpdate()
     {
-        if (didFixedUpdateRun) totalForceApplied = Vector3.zero;
+
     }
 
     protected virtual void OnDestroy()
@@ -100,7 +100,32 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
 
         if(transform != null) transform.SetParent(null);
     }
+    #endregion
 
+    #region IHoldable
+    public virtual void OnHold(Transform newParent)
+    {
+        IsHeld = true;
+        IsSnared = false;
+        IsBeingPulled = false;
+        rb.isKinematic = true;
+        rb.interpolation = RigidbodyInterpolation.None;
+        rb.constraints = RigidbodyConstraints.FreezePosition;
+        transform.SetParent(newParent);
+        transform.position = newParent.position;
+        ActivateOutline(false);
+    }
+
+    public virtual void OnThrow(Vector3 dir, float magnitude)
+    {
+        OnRelease();
+        rb.isKinematic = false;
+        ApplyForceInDirection(dir, magnitude, ForceMode.Impulse);
+    }
+
+    #endregion
+
+    #region ITetherable
     public virtual void OnAttachTether()
     {
 
@@ -128,6 +153,9 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
             isTetherPulled = false;
         }
     }
+    #endregion
+
+    #region Outline
     public virtual void ActivateOutline(bool activate)
     {
         ObjectOutline.enabled = activate;
@@ -145,29 +173,6 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
 
     #endregion
 
-    #region IHoldable
-    public virtual void OnHold(Transform newParent)
-    {
-        IsHeld = true;
-        IsSnared = false;
-        IsBeingPulled = false;
-        rb.isKinematic = true;
-        rb.interpolation = RigidbodyInterpolation.None;
-        rb.constraints = RigidbodyConstraints.FreezePosition;
-        transform.SetParent(newParent);
-        transform.position = newParent.position;
-        ActivateOutline(false);
-    }
-
-    public virtual void OnThrow(Vector3 dir, float magnitude)
-    {
-        OnRelease();
-        rb.isKinematic = false;
-        ApplyForceInDirection(dir, magnitude, ForceMode.Impulse);
-    }
-
-    #endregion
-
     #region Force Addition
 
     public virtual void ApplyForceInDirection(Vector3 direction, float magnitude, ForceMode forceMode, Transform forceApplier = null)
@@ -179,9 +184,6 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
             totalForceApplied += direction * magnitude;
         }
     }
-
-    #endregion
-
     protected Vector3 GetForcesFromJoint()
     {
         Vector3 totalForce = Vector3.zero;
@@ -204,4 +206,14 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
 
         return totalForce;
     }
+
+    #endregion
+
+    #region Utility
+    protected void PropDebug(string message) { if(debugThisProp == true) Debug.Log(message); }
+
+    protected void PropWarning(string message){ if(debugThisProp == true) Debug.LogWarning(message); }
+
+    protected void PropError(string message) { if (debugThisProp == true) Debug.LogError(message); }
+    #endregion
 }
