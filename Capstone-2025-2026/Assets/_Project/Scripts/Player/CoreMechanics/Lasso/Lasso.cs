@@ -12,7 +12,9 @@ public class Lasso : MonoBehaviour
     [field: SerializeField] public Camera PlayerCam { get; private set; }
 
     [Header("Lasso Properties")]
-    [SerializeField] private float lassoRange = 25f;
+    [SerializeField] private float reelIncrement = 2f;
+    [SerializeField] private float minLassoRange = 1f;
+    [SerializeField] private float maxLassoRange = 25f;
     [SerializeField] private float centerStrength = 250f;
     [SerializeField] private float throwStrength = 25f;
 
@@ -88,23 +90,6 @@ public class Lasso : MonoBehaviour
 
     #region Helper Functions
 
-    public Vector3 GetCenterOfScreen()
-    {
-        Ray ray = PlayerCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
-        float checkDist = _anchorDist;
-        float maxCheckDist = lassoRange;
-
-        RaycastHit hit;
-        if (Physics.Raycast(ray, out hit, checkDist) && hit.transform != _snaredObjTransform)
-        {
-            checkDist = hit.distance + 0.1f;
-        }
-
-        _currentAnchorDist = checkDist;
-
-        return ray.origin + ray.direction * _currentAnchorDist;
-    }
-
     public Vector3 GetAnchoredCenterOfScreen()
     {
         Ray ray = PlayerCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
@@ -149,7 +134,7 @@ public class Lasso : MonoBehaviour
 
         if (useAimOutline)
         {
-            RaycastHit? hit = _aimAssist.GetAssistHitPoint(PlayerCam, PlayerCam.transform.position, lassoRange, aimAssistType, aimAssistBufferRadius);
+            RaycastHit? hit = _aimAssist.GetAssistHitPoint(PlayerCam, PlayerCam.transform.position, maxLassoRange, aimAssistType, aimAssistBufferRadius);
             if (hit.HasValue)
             {
                 targetProp = hit.Value.transform.GetComponentInParent<Prop>();
@@ -174,7 +159,7 @@ public class Lasso : MonoBehaviour
     #region Start Lasso
     public void HandleLassoStart()
     {
-        RaycastHit? hit = _aimAssist.GetAssistHitPoint(PlayerCam, PlayerCam.transform.position, lassoRange, aimAssistType, aimAssistBufferRadius);
+        RaycastHit? hit = _aimAssist.GetAssistHitPoint(PlayerCam, PlayerCam.transform.position, maxLassoRange, aimAssistType, aimAssistBufferRadius);
         if (hit.HasValue)
         {
             RaycastHit actualHit = hit.Value;
@@ -255,6 +240,19 @@ public class Lasso : MonoBehaviour
         SnaredObject.Rb.AddTorque(scaledTorque, ForceMode.Acceleration);
         SnaredObject.Rb.angularVelocity *= 0.99f; //stop excessive spin
     }
+    #endregion
+
+    #region Anchor Adjustment
+
+    public void MoveAnchorPoint(float scrollInput)
+    {
+        if (Mathf.Approximately(scrollInput, 0f)) return;
+
+        _anchorDist += Mathf.Sign(scrollInput) * reelIncrement;
+        _anchorDist = Mathf.Round(_anchorDist / reelIncrement) * reelIncrement;
+        _anchorDist = Mathf.Clamp(_anchorDist, minLassoRange, maxLassoRange);
+    }
+
     #endregion
 
     #region Snapback
