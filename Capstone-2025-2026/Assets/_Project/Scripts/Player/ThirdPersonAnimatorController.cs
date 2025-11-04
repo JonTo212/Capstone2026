@@ -38,6 +38,39 @@ public class ThirdPersonAnimatorController : MonoBehaviour
 
         animator.SetBool("Jump", _playerInput.JumpDown);
         animator.SetBool("Swinging", _lassoTetherController.CurrentLassoState == LassoState.Swinging);
+
+
+        //ground check 
+        if (_playerController.IsGrounded())
+        {
+            animator.SetBool("IsGrounded", true);
+        }
+        else
+        {
+            animator.SetBool("IsGrounded", false);
+        }
+
+        //check if laso is currently active
+        if (_lassoTetherController.CurrentLassoState == LassoState.Snared)
+        {
+            animator.SetBool("LassoSnared", true);
+        }
+        else
+        {
+            animator.SetBool("LassoSnared", false);
+        }
+
+        //check tether
+        if (_jointTetherPlacer.didEndPointHit == true)
+        {
+            animator.SetBool("TetherEndPointHit", true);
+            Debug.Log("LOCKIN");
+        }
+        else
+        {
+            animator.SetBool("TetherEndPointHit", false);
+        }
+
     }
 
     private void SetLassoBool()
@@ -51,6 +84,8 @@ public class ThirdPersonAnimatorController : MonoBehaviour
         animator.SetBool("TetherStart", true);
         StartCoroutine(ResetBoolNextFrame("TetherStart"));
     }
+
+
 
     private IEnumerator ResetBoolNextFrame(string boolName)
     {

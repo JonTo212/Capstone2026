@@ -20,8 +20,8 @@ public class JointTetherPlacer : MonoBehaviour
     [SerializeField] private int numOfTethersPlaced = 0;
     [SerializeField] private bool autoActivateTether = true;
     public List<JointTether> placedTethers { get; private set; } = new List<JointTether>();
-    private bool didStartPointHit = false;
-    private bool didEndPointHit = false;
+    public bool didStartPointHit = false;
+    public bool didEndPointHit = false;
 
     [Header("Editable Properties")]
     [SerializeField] private float maxTetherStartDist = 50f;
@@ -59,6 +59,9 @@ public class JointTetherPlacer : MonoBehaviour
     #region Tether
     public void StartTetherPlacement()
     {
+        didStartPointHit = false;
+        didEndPointHit = false;
+
         if (numOfTethersPlaced < maxNumOfTethers)
         {
             if (GetObjectInPlayerFront(out RaycastHit hit))
@@ -88,6 +91,8 @@ public class JointTetherPlacer : MonoBehaviour
         {
             if (GetObjectInPlayerFront(out RaycastHit hit) && hit.transform != startTransform)
             {
+                didEndPointHit = true;
+                Debug.Log("HIT");
                 SetTetherEndPoint(hit.transform, hit.point);
                 CreateAndInitTether(startTransform, startLocalPosition, endTransform, endLocalPosition, autoActivate);
             }
@@ -116,6 +121,7 @@ public class JointTetherPlacer : MonoBehaviour
     //Creates and initializes tether parameters like hit transforms and positions
     private void CreateAndInitTether(Transform startTransform, Vector3 startLocalPosition, Transform endTransform, Vector3 endLocalPosition, bool autoActivate)
     {
+
         GameObject newJointTether = Instantiate(jointTetherPrefab, transform.position, Quaternion.identity);
         JointTether jointTether = newJointTether.GetComponent<JointTether>();
 
@@ -190,8 +196,6 @@ public class JointTetherPlacer : MonoBehaviour
         endTransform = null;
         startLocalPosition = Vector3.zero;
         endLocalPosition = Vector3.zero;
-
-        didStartPointHit = false;
     }
 
     private void UpdateTetherAmountText()

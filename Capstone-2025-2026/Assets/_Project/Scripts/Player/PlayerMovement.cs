@@ -167,7 +167,7 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    private bool IsGrounded()
+    public bool IsGrounded()
     {
         feetPos.localPosition = new Vector3(0, -_playerCol.height / 2f, 0);
         return Physics.CheckSphere(feetPos.position, feetRadius, groundLayer);
