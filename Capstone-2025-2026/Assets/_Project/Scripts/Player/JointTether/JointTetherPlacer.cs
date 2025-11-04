@@ -59,6 +59,9 @@ public class JointTetherPlacer : MonoBehaviour
     #region Tether
     public void StartTetherPlacement()
     {
+        didStartPointHit = false;
+        didEndPointHit = false;
+
         if (numOfTethersPlaced < maxNumOfTethers)
         {
             if (GetObjectInPlayerFront(out RaycastHit hit))
@@ -88,6 +91,7 @@ public class JointTetherPlacer : MonoBehaviour
         {
             if (GetObjectInPlayerFront(out RaycastHit hit) && hit.transform != startTransform)
             {
+                didEndPointHit = true;
                 SetTetherEndPoint(hit.transform, hit.point);
                 CreateAndInitTether(startTransform, startLocalPosition, endTransform, endLocalPosition, autoActivate);
             }
