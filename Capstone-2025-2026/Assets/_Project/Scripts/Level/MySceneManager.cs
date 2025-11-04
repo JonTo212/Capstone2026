@@ -1,4 +1,5 @@
 //using UnityEditor.SearchService;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -9,12 +10,18 @@ public class MySceneManager : MonoBehaviour
 
     private string currentScene;
 
+    public GameObject goalScreen;
+
     public void LoadNewScene(int sceneIndex)
     {
-        SceneManager.LoadScene(SceneNames[sceneIndex]);
-        currentScene = SceneNames[sceneIndex];
+        goalScreen.SetActive(true);
+
+        StartCoroutine(switchLevel(sceneIndex));
+
+        /*SceneManager.LoadScene(SceneNames[sceneIndex]);
+        currentScene = SceneNames[sceneIndex];*/
     }
-    
+
     public void QuitToDesktop()
     {
         /*
@@ -32,7 +39,7 @@ public class MySceneManager : MonoBehaviour
 
     }
 
-    public void ReturnToStartMenu ()
+    public void ReturnToStartMenu()
     {
         SceneManager.LoadScene("StartMenu");
         currentScene = "StartMenu";
@@ -41,5 +48,12 @@ public class MySceneManager : MonoBehaviour
     public void RestartCurrentLevel()
     {
         SceneManager.LoadScene(currentScene);
+    }
+
+    IEnumerator switchLevel(int sceneIndex)
+    {
+        yield return new WaitForSeconds(5);
+        SceneManager.LoadScene(SceneNames[sceneIndex]);
+        currentScene = SceneNames[sceneIndex];
     }
 }
