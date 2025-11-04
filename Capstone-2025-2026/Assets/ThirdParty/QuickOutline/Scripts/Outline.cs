@@ -23,7 +23,15 @@ public class Outline : MonoBehaviour {
     OutlineAndSilhouette,
     SilhouetteOnly
   }
+  
+    public enum OutlineStates
+    {
+        Snare,
+        TetherActive,
+        TetherInnactive
+    }
 
+   public OutlineStates outlineState = OutlineStates.Snare;
   public Mode OutlineMode {
     get { return outlineMode; }
     set {
@@ -56,7 +64,7 @@ public class Outline : MonoBehaviour {
   [SerializeField]
   private Mode outlineMode;
 
-  [SerializeField]
+  [ColorUsage(true,true)] [SerializeField]
   private Color outlineColor = Color.white;
 
   [SerializeField, Range(0f, 10f)]
@@ -77,6 +85,7 @@ public class Outline : MonoBehaviour {
   private Renderer[] renderers;
   private Material outlineMaskMaterial;
   private Material outlineFillMaterial;
+  private Material stripeEffectMaterial;
 
   private bool needsUpdate;
 
@@ -88,9 +97,11 @@ public class Outline : MonoBehaviour {
     // Instantiate outline materials
     outlineMaskMaterial = Instantiate(Resources.Load<Material>(@"Materials/OutlineMask"));
     outlineFillMaterial = Instantiate(Resources.Load<Material>(@"Materials/OutlineFill"));
+    stripeEffectMaterial = Instantiate(Resources.Load<Material>(@"Materials/HideStripeEffect"));
 
     outlineMaskMaterial.name = "OutlineMask (Instance)";
     outlineFillMaterial.name = "OutlineFill (Instance)";
+        stripeEffectMaterial.name = "stripeEffect (Instance)";
 
     // Retrieve or generate smooth normals
     LoadSmoothNormals();
@@ -107,6 +118,7 @@ public class Outline : MonoBehaviour {
 
       materials.Add(outlineMaskMaterial);
       materials.Add(outlineFillMaterial);
+      materials.Add(stripeEffectMaterial);
 
       renderer.materials = materials.ToArray();
     }
@@ -145,7 +157,7 @@ public class Outline : MonoBehaviour {
 
       materials.Remove(outlineMaskMaterial);
       materials.Remove(outlineFillMaterial);
-
+      materials.Remove(stripeEffectMaterial);
       renderer.materials = materials.ToArray();
     }
   }
@@ -157,7 +169,29 @@ public class Outline : MonoBehaviour {
     Destroy(outlineFillMaterial);
   }
 
-  void Bake() {
+
+  public void SnareColor()
+  {
+        outlineState = OutlineStates.Snare;
+        outlineColor = stripeEffectMaterial.GetColor("_LassoedEmissive");
+        stripeEffectMaterial.SetColor("_HiddenEmissive", stripeEffectMaterial.GetColor("_HiddenLassoedEmissive"));
+  }
+
+  public void TetherInactiveColor()
+  {
+        outlineState = OutlineStates.TetherInnactive;
+        outlineColor = stripeEffectMaterial.GetColor("_TetherInactiveEmissive");
+        stripeEffectMaterial.SetColor("_HiddenEmissive", stripeEffectMaterial.GetColor("_HiddenTetherInactiveEmissive"));
+    }
+
+  public void TetherActiveColor()
+  {
+        outlineState |= OutlineStates.TetherActive;
+        outlineColor = stripeEffectMaterial.GetColor("_TetherActiveEmissive");
+        stripeEffectMaterial.SetColor("_HiddenEmissive", stripeEffectMaterial.GetColor("_HiddenTetherActiveEmissive"));
+
+    }
+    void Bake() {
 
     // Generate smooth normals for each mesh
     var bakedMeshes = new HashSet<Mesh>();

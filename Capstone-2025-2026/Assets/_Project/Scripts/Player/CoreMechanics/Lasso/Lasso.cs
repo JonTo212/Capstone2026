@@ -11,6 +11,7 @@ public class Lasso : MonoBehaviour
     [field: SerializeField] public Transform HoldPos { get; private set; }
     [field: SerializeField] public Camera PlayerCam { get; private set; }
     [SerializeField] private GameObject lassoGrabVisualIndicator;
+    [SerializeField] private GameObject lassoGrabVisual;
 
     [Header("Lasso Properties")]
     [SerializeField] private float reelIncrement = 2f;

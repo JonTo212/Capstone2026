@@ -1,6 +1,7 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 
 [RequireComponent(typeof(Rigidbody), typeof(Outline))]
 public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
@@ -10,10 +11,10 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     //protected means only derived classes can access these values
     protected Rigidbody rb;
     protected Lasso playerLasso;
-    protected List<GameObject> attachedTethers = new List<GameObject>();
-    protected List<ConfigurableJoint> tetherJoints = new List<ConfigurableJoint>(); 
-    protected List <Transform> connectedObject = new List<Transform>();
-    protected List<Transform> connectedAnchors = new List<Transform>();
+    [SerializeField] protected List<JointTether> attachedTethers = new List<JointTether>();
+    [SerializeField] protected List<ConfigurableJoint> tetherJoints = new List<ConfigurableJoint>();
+    [SerializeField] protected List <Transform> connectedObject = new List<Transform>();
+    [SerializeField] protected List<Transform> connectedAnchors = new List<Transform>();
     protected float defaultDrag;
     protected float defaultAngularDrag;
 
@@ -67,11 +68,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
 
     protected virtual void Update()
     {
-        if(debugThisProp)
-        {
-           Debug.DrawLine(transform.position, transform.position + totalForceApplied / 3, Color.green);
-           Debug.Log(totalForceApplied);
-        }
+        HandleOutlineColors();
     }
 
     protected virtual void LateUpdate()
@@ -142,10 +139,10 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     #region ITetherable
     public virtual void OnAttachTether()
     {
-
+        
     }
 
-    public virtual void OnTetherPull(GameObject tether, Transform targetAnchorTransform, Transform targetObjectTransform, ConfigurableJoint joint)
+    public virtual void OnTetherPull(JointTether tether, Transform targetAnchorTransform, Transform targetObjectTransform, ConfigurableJoint joint)
     {
         isTetherPulled = true;
         tetherJoints.Add(joint);
@@ -155,8 +152,9 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
     }
 
-    public virtual void OnDetachTether(GameObject tether, Transform targetAnchorTransform, Transform targetObjectTransform, ConfigurableJoint joint)
+    public virtual void OnDetachTether(JointTether tether, Transform targetAnchorTransform, Transform targetObjectTransform, ConfigurableJoint joint)
     {
+        if (attachedTethers.IndexOf(tether) < 0) return;
         tetherJoints.RemoveAt(attachedTethers.IndexOf(tether));
         connectedObject.RemoveAt(attachedTethers.IndexOf(tether));
         connectedAnchors.RemoveAt(attachedTethers.IndexOf((tether)));
@@ -165,6 +163,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         {
             rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
             isTetherPulled = false;
+            ObjectOutline.enabled = false;
         }
     }
     #endregion
@@ -183,6 +182,34 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     public virtual void SetOutlineWidth(float newWidth)
     {
         ObjectOutline.OutlineWidth = newWidth;
+    }
+
+    private void HandleOutlineColors()
+    {
+        if (IsSnared || attachedTethers.Count > 0)
+        {
+            ActivateOutline(true);
+            if (attachedTethers.Count > 0)
+            {
+                foreach (JointTether jointTether in attachedTethers)
+                {
+                    if (jointTether.isActivated)
+                    {
+                        if (ObjectOutline.outlineState != Outline.OutlineStates.TetherActive)
+                            ObjectOutline.TetherActiveColor(); return;
+                    }
+                }
+                if (ObjectOutline.outlineState != Outline.OutlineStates.TetherInnactive)
+                    ObjectOutline.TetherInactiveColor(); return;
+            }
+            if (IsSnared)
+            {
+                if (ObjectOutline.outlineState != Outline.OutlineStates.Snare)
+                {
+                    ObjectOutline.SnareColor(); return;
+                }
+            }
+        }
     }
 
     #endregion

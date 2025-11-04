@@ -88,12 +88,12 @@ public class JointTether : MonoBehaviour
 
         if (startTransform.GetComponent<Prop>() != null)
         {
-            startTransform.GetComponent<Prop>().OnTetherPull(gameObject, endAnchor, endTransform, startJoint);
+            startTransform.GetComponent<Prop>().OnTetherPull(this, endAnchor, endTransform, startJoint);
             startTransform.GetComponent<Prop>().OnPropDestroyed += DestroyTether;
         }
         if (endTransform.GetComponent<Prop>() != null)
         {
-            endTransform.GetComponent<Prop>().OnTetherPull(gameObject, startAnchor, startTransform, endJoint);
+            endTransform.GetComponent<Prop>().OnTetherPull(this, startAnchor, startTransform, endJoint);
             endTransform.GetComponent<Prop>().OnPropDestroyed += DestroyTether;
         }
     }
@@ -199,18 +199,18 @@ public class JointTether : MonoBehaviour
     {
         if (startTransform != null && startTransform.gameObject != null && startTransform.GetComponent<Prop>() != null)
         {
-            startTransform.GetComponent<Prop>().OnDetachTether(gameObject,endAnchor, endTransform, startJoint);
+            startTransform.GetComponent<Prop>().OnDetachTether(this,endAnchor, endTransform, startJoint);
         }
         if (endTransform != null && endTransform.gameObject != null && endTransform.GetComponent<Prop>() != null)
         {
-            endTransform.GetComponent<Prop>().OnDetachTether(gameObject, startAnchor, startTransform, endJoint);
+            endTransform.GetComponent<Prop>().OnDetachTether(this, startAnchor, startTransform, endJoint);
         }
 
         if(startJoint != null) Destroy(startJoint);
         if(endJoint != null) Destroy(endJoint);
 
-        if(startAnchor.GetComponent<TemporaryJointAnchor>() != null) Destroy(startAnchor.gameObject);
-        if(endAnchor.GetComponent<TemporaryJointAnchor>() != null) Destroy(endAnchor.gameObject);
+        if(startAnchor!= null && startAnchor.GetComponent<TemporaryJointAnchor>() != null) Destroy(startAnchor.gameObject);
+        if (endAnchor != null && endAnchor.GetComponent<TemporaryJointAnchor>() != null) Destroy(endAnchor.gameObject);
 
         if(startTrailRenderer != null) Destroy(startTrailRenderer);
         if(endTrailRenderer != null) Destroy(endTrailRenderer); 
