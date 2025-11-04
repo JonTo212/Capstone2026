@@ -20,8 +20,8 @@ public class JointTetherPlacer : MonoBehaviour
     [SerializeField] private int numOfTethersPlaced = 0;
     [SerializeField] private bool autoActivateTether = true;
     public List<JointTether> placedTethers { get; private set; } = new List<JointTether>();
-    private bool didStartPointHit = false;
-    private bool didEndPointHit = false;
+    public bool didStartPointHit = false;
+    public bool didEndPointHit = false;
 
     [Header("Editable Properties")]
     [SerializeField] private float maxTetherStartDist = 50f;
