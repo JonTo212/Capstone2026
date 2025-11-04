@@ -13,12 +13,31 @@ public class JointTetherVisuals : MonoBehaviour
     [SerializeField] private float lineSegmentSize = 0.15f;
     [SerializeField] private float lineWidth = 0.1f;
     [SerializeField] private float bendAmount = 0.5f;
-    [SerializeField] Color activatedStateColor = Color.green;
-    [SerializeField] Color inactiveStateColor = Color.yellow;
     [SerializeField] Color stretchedStateColor = Color.red;
-    [SerializeField] Material attachedMaterial;
-    [SerializeField] Material activatedMaterial;
-    [SerializeField] Material selectedMaterial;
+
+    [Header("Activated Colors")]
+    [SerializeField] Color activatedStateColor = Color.green;
+    [ColorUsage(true,true)] [SerializeField] Color activatedEmmissive = Color.green;
+    [SerializeField] Color activatedHiddenStateColor = Color.green;
+    [ColorUsage(true, true)][SerializeField] Color activatedHiddenEmmissive = Color.green;
+
+    [Header("Inactive Colors")]
+    [SerializeField] Color inactiveStateColor = Color.yellow;
+    [ColorUsage(true, true)][SerializeField] Color inactiveEmmissive = Color.yellow;
+    [SerializeField] Color inactiveHiddenStateColor = Color.yellow;
+    [ColorUsage(true, true)][SerializeField] Color inactiveHiddenEmmissive = Color.yellow;
+
+    [Header("Selected Colors")]
+    [SerializeField] Color selectedStateColor = Color.yellow;
+    [ColorUsage(true, true)][SerializeField] Color selectedEmmissive = Color.yellow;
+    [SerializeField] Color selectedHiddenStateColor = Color.yellow;
+    [ColorUsage(true, true)][SerializeField] Color selectedHiddenEmmissive = Color.yellow;
+
+    [SerializeField] Material tetherLineMaterial;
+    private Material[] tetherLineMatInstances;
+    //[SerializeField] Material attachedMaterial;
+    //[SerializeField] Material activatedMaterial;
+    //[SerializeField] Material selectedMaterial;
 
     [Header("Attachment Point Variables")]
     [SerializeField] private Transform startPointVisuals;
@@ -52,8 +71,11 @@ public class JointTetherVisuals : MonoBehaviour
         this.endLocalPosition = endLocalPosition;
         timeToStraighenLine = activationDelay;
 
-        if(startsActive) SetLineColorActive();
+        GetMaterialInstances();
+
+        if (startsActive) SetLineColorActive();
         else SetLineColorInactive();
+
     }
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()
@@ -87,18 +109,45 @@ public class JointTetherVisuals : MonoBehaviour
 
     public void SetLineColorActive()
     {
-        _lineRenderer.material = activatedMaterial;
-        StartCoroutine(MakeLineStraight());
+        foreach (Material mat in tetherLineMatInstances)
+        {
+            mat.SetColor("_Color", activatedStateColor);
+            mat.SetColor("_Emissive", activatedEmmissive);
+            mat.SetColor("_HiddenEmissive", activatedHiddenEmmissive);
+        }
+
+        //_lineRenderer.material = activatedMaterial;
+        //StartCoroutine(MakeLineStraight());
     }
 
     public void SetLineColorInactive()
     {
-        _lineRenderer.material = attachedMaterial;
+        foreach (Material mat in tetherLineMatInstances)
+        {
+            mat.SetColor("_Color", inactiveHiddenStateColor);
+            mat.SetColor("_Emissive", inactiveEmmissive);
+            mat.SetColor("_HiddenEmissive", inactiveHiddenEmmissive);
+        }
     }
 
     public void SetLineColorSelected()
     {
-        _lineRenderer.material = selectedMaterial;
+        foreach (Material mat in tetherLineMatInstances)
+        {
+            mat.SetColor("_Color", selectedStateColor);
+            mat.SetColor("_Emissive", selectedEmmissive);
+            mat.SetColor("_HiddenEmissive", selectedHiddenEmmissive);
+        }
+    }
+
+    private void GetMaterialInstances()
+    {
+        tetherLineMatInstances = new Material[5];
+        tetherLineMatInstances[0] = GetComponent<LineRenderer>().material;
+        tetherLineMatInstances[1] = startPointVisuals.GetChild(0).GetComponent<MeshRenderer>().material;
+        tetherLineMatInstances[2] = startPointVisuals.GetChild(1).GetComponent<MeshRenderer>().material;
+        tetherLineMatInstances[3] = endPointVisuals.GetChild(0).GetComponent<MeshRenderer>().material;
+        tetherLineMatInstances[4] = endPointVisuals.GetChild(1).GetComponent<MeshRenderer>().material;
     }
 
     private void UpdateMiddlePointPosition()

@@ -101,6 +101,7 @@ public class JointTether : MonoBehaviour
     public void ActivateTether()
     {
         if (startJoint == null || endJoint == null) return;
+        isActivated = true;
         StartCoroutine(ActivateTetherAfterDelay());
     }
 

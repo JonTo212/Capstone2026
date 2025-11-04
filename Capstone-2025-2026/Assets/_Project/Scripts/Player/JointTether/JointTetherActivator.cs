@@ -75,6 +75,7 @@ public class JointTetherActivator : MonoBehaviour
             
             aManage.PlaySFX(aManage.TetherTighten, 4, 1f);
             tether.ActivateTether();
+            tether.gameObject.GetComponent<JointTetherVisuals>().SetLineColorActive();
         }
     }
 
@@ -87,6 +88,7 @@ public class JointTetherActivator : MonoBehaviour
         {
             aManage.PlaySFX(aManage.TetherTighten, 4, 1f);
             tether.ActivateTether();
+            tether.gameObject.GetComponent<JointTetherVisuals>().SetLineColorActive();
         }
     }
     #endregion
