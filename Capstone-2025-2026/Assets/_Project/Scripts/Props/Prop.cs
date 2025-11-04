@@ -25,6 +25,9 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     public Rigidbody Rb => rb;
     public Transform AttachedTransform { get; set; }
     public Outline ObjectOutline { get; set; }
+    [field: SerializeField] public List<Transform> GrabPoints { get; protected set; }
+    [field: SerializeField] public int faceRows { get; protected set; }
+    [field: SerializeField] public int faceColumns { get; protected set; }
 
     public event Action OnPropDestroyed;
 
@@ -43,6 +46,17 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         ObjectOutline.OutlineColor = Color.green;
         ObjectOutline.OutlineWidth = 3f;
         ObjectOutline.enabled = false;
+
+        var generator = GetComponent<IGrabPointGenerator>();
+        if (generator != null)
+        {
+            Collider col = GetComponent<Collider>();
+            GrabPoints = generator.GeneratePoints(col, faceRows, faceColumns);
+            foreach (Transform t in GrabPoints)
+            {
+                t.gameObject.SetActive(false);
+            }
+        }
     }
     protected virtual void FixedUpdate()
     {
@@ -205,6 +219,37 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         }
 
         return totalForce;
+    }
+
+    #endregion
+
+    #region Grab Points
+
+    public virtual Transform CheckNearestGrabPoint(Vector3 grabPos)
+    {
+        Transform nearestGrabPoint = null;
+        float currentNearestDist = float.MaxValue;
+
+        foreach (var point in GrabPoints)
+        {
+            float dist = Vector3.Distance(grabPos, point.position);
+
+            if (dist < currentNearestDist)
+            {
+                currentNearestDist = dist;
+                nearestGrabPoint = point;
+            }
+        }
+
+        return nearestGrabPoint;
+    }
+
+    public void EnableAllGrabPoints(bool active)
+    {
+        foreach (var point in GrabPoints)
+        {
+            point.gameObject.SetActive(active);
+        }
     }
 
     #endregion
