@@ -81,6 +81,7 @@ public class JointTetherActivator : MonoBehaviour
             tether.ActivateTether();
 
             OnTetherActivated?.Invoke();
+            tether.gameObject.GetComponent<JointTetherVisuals>().SetLineColorActive();
         }
     }
 
@@ -95,6 +96,7 @@ public class JointTetherActivator : MonoBehaviour
             tether.ActivateTether();
 
             OnTetherActivated?.Invoke();
+            tether.gameObject.GetComponent<JointTetherVisuals>().SetLineColorActive();
         }
     }
     #endregion

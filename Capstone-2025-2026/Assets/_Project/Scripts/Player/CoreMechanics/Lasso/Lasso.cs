@@ -11,6 +11,7 @@ public class Lasso : MonoBehaviour
     [field: SerializeField] public Transform HoldPos { get; private set; }
     [field: SerializeField] public Camera PlayerCam { get; private set; }
     [SerializeField] private GameObject lassoGrabVisualIndicator;
+    [SerializeField] private GameObject lassoGrabVisual;
 
     [Header("Lasso Properties")]
     [SerializeField] private float reelIncrement = 2f;
@@ -97,6 +98,22 @@ public class Lasso : MonoBehaviour
     {
         Ray ray = PlayerCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
         Vector3 maxDistancePos = ray.origin + ray.direction * _anchorDist;
+
+        RaycastHit[] hits = Physics.RaycastAll(ray, _anchorDist);
+        if (hits.Length > 0)
+        { 
+            Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+
+            foreach (var hit in hits)
+            {
+                if (hit.transform != _snaredObjTransform)
+                {
+                    maxDistancePos = ray.origin + ray.direction * hit.distance;
+                    break;
+                }
+            }
+        }
+
         return maxDistancePos;
     }
 
@@ -185,6 +202,7 @@ public class Lasso : MonoBehaviour
 
             if (closestPointTransform != null)
             {
+                //prop.EnableAllGrabPoints(true); //apparently it still works while everything is inactive?
                 _anchorDist = Vector3.Distance(closestPointTransform.position, noAssistRay.origin);
                 _attachPointLocal = prop.transform.InverseTransformPoint(closestPointTransform.position);
                 _localFaceNormal = prop.transform.InverseTransformDirection(closestPointTransform.forward);
@@ -234,9 +252,13 @@ public class Lasso : MonoBehaviour
 
         Vector3 totalTorque = torqueForce + lookAtTorque;
 
+        float effectiveMassScale = CalculateScale();
+        Vector3 linearAcceleration = linearForce / effectiveMassScale;
+        Vector3 angularAcceleration = totalTorque / effectiveMassScale;
+
         //SnaredObject.Rb.AddForceAtPosition(springForce + dampingForce, attachPointWorld, ForceMode.Acceleration); //accel works because the damping already takes into account mass
-        SnaredObject.ApplyForceInDirection(linearForce.normalized, linearForce.magnitude, ForceMode.Acceleration, transform);
-        SnaredObject.Rb.AddTorque(totalTorque, ForceMode.Acceleration);
+        SnaredObject.ApplyForceInDirection(linearAcceleration.normalized, linearAcceleration.magnitude, ForceMode.Acceleration, transform);
+        SnaredObject.Rb.AddTorque(angularAcceleration, ForceMode.Acceleration);
         SnaredObject.Rb.angularVelocity *= 0.98f; //stop excessive spin
     }
 
@@ -266,15 +288,27 @@ public class Lasso : MonoBehaviour
     {
         Vector3 lookAtSpringTorque = Vector3.zero;
         Vector3 lookAtDampingTorque = Vector3.zero;
+
         if (_localFaceNormal != Vector3.zero)
         {
             Vector3 worldFaceNormal = SnaredObject.transform.TransformDirection(_localFaceNormal);
-            Vector3 toPlayer = (transform.position - SnaredObject.Rb.worldCenterOfMass).normalized;
-            lookAtSpringTorque = Vector3.Cross(worldFaceNormal, toPlayer) * lookAtStrength;
+            Vector3 toPlayer = (PlayerCam.transform.position - SnaredObject.Rb.worldCenterOfMass).normalized;
+            float alignment = Mathf.Abs(Vector3.Dot(worldFaceNormal, toPlayer));
+            lookAtSpringTorque = Vector3.Cross(worldFaceNormal, toPlayer) * lookAtStrength * alignment;
             lookAtDampingTorque = -SnaredObject.Rb.angularVelocity * lookAtDamping;
         }
 
         return lookAtSpringTorque + lookAtDampingTorque;
+    }
+
+    private float CalculateScale()
+    {
+        Vector3 scale = SnaredObject.transform.localScale;
+        float effectiveMassScale = scale.x * scale.y * scale.z;
+
+        effectiveMassScale = Mathf.Max(1.0f, effectiveMassScale);
+
+        return effectiveMassScale;
     }
 
 
@@ -634,6 +668,7 @@ public class Lasso : MonoBehaviour
 
         SnaredObject.OnPropDestroyed -= HandleObjectReleased;
         SnaredObject.ActivateOutline(false);
+        //SnaredObject.EnableAllGrabPoints(false);
         SnaredObject.OnRelease();
         SnaredObject = null;
         _snaredObjTransform = null;

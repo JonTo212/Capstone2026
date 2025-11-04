@@ -9,6 +9,7 @@ public class LassoVisuals : MonoBehaviour
     [SerializeField] private Lasso lassoScript;
     [SerializeField] private LassoTetherController lassoController;
     [SerializeField] private PlayerActions playerActions;
+    [SerializeField] private Transform lassoPointVisuals;
 
     [Header("Spring Wave Values")]
     [SerializeField] private int ropeSegmentCount = 50; // reduced for performance
@@ -36,6 +37,7 @@ public class LassoVisuals : MonoBehaviour
     {
         lineRenderer = GetComponent<LineRenderer>();
         lineRendererMat = lineRenderer.material;
+        lassoPointVisuals.gameObject.SetActive(false);
         spring = new Spring();
         spring.SetTarget(0);
     }
@@ -49,6 +51,7 @@ public class LassoVisuals : MonoBehaviour
         if (lassoScript.SnaredObject == null || DisableVisuals())
         {
             ResetRope();
+            lassoPointVisuals.gameObject.SetActive(false);
             isSpringSettled = false;
             return;
         }
@@ -90,7 +93,6 @@ public class LassoVisuals : MonoBehaviour
         bool isPlayerYanking = lassoController.CurrentLassoState == LassoState.PlayerYanking;
         bool isHolding = lassoController.CurrentLassoState == LassoState.Held;
         bool isUsing = lassoController.CurrentLassoState == LassoState.Using;
-
         return isHolding || isUsing;
     }
 
@@ -112,6 +114,10 @@ public class LassoVisuals : MonoBehaviour
         Vector3 up = Quaternion.LookRotation((targetPoint - startPoint).normalized) * Vector3.up;
 
         currentPullPos = lassoScript.HitPos;
+
+        lassoPointVisuals.gameObject.SetActive(true);
+        lassoPointVisuals.transform.position = currentPullPos;
+        lassoPointVisuals.transform.rotation = Quaternion.Euler(Vector3.zero);
 
         for (int i = 0; i < ropeSegmentCount + 1; i++)
         {
@@ -167,6 +173,11 @@ public class LassoVisuals : MonoBehaviour
         lineRenderer.SetPositions(smoothedPoints);
         lineRenderer.startWidth = 0.1f;
         lineRenderer.endWidth = 0.1f;
+
+        lassoPointVisuals.gameObject.SetActive(true);
+        currentPullPos = lassoScript.HitPos;
+        lassoPointVisuals.transform.position = currentPullPos;
+        lassoPointVisuals.transform.rotation = Quaternion.Euler(Vector3.zero);
     }
 
     private void ResetRope()
