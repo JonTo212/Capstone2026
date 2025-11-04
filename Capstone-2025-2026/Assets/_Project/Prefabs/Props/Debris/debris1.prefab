@@ -18,6 +18,7 @@ GameObject:
   - component: {fileID: -1193750631540310999}
   - component: {fileID: -249444962380345398}
   - component: {fileID: 266065871924051190}
+  - component: {fileID: 6732625420680446845}
   m_Layer: 0
   m_Name: debris1
   m_TagString: Untagged
@@ -201,6 +202,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8da93e4e5dee9534a953a3c66c18ff57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnvironmentalProp
+  <GrabPoints>k__BackingField: []
+  <faceRows>k__BackingField: 1
+  <faceColumns>k__BackingField: 1
 --- !u!114 &266065871924051190
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -214,3 +218,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Tetherable
   isHeld: 0
+--- !u!114 &6732625420680446845
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2212198093552044606}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1afd55086c73aba4f809b9bc975d45a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BoxGrabPointGenerator

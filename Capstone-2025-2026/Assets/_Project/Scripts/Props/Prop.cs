@@ -16,6 +16,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     public virtual bool IsSnared { get; protected set; } = false;
     public virtual bool IsBeingPulled { get; set; } = false;
     public virtual bool isTetherPulled { get; protected set; } = false;
+    public bool IsTouchingSurface {  get; protected set; } = false;
     public Rigidbody Rb => rb;
     public Transform AttachedTransform { get; set; }
     public Outline ObjectOutline { get; set; }
@@ -44,6 +45,10 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         {
             Collider col = GetComponent<Collider>();
             GrabPoints = generator.GeneratePoints(col, faceRows, faceColumns);
+            foreach (Transform t in GrabPoints)
+            {
+                t.gameObject.SetActive(false);
+            }
         }
     }
 
@@ -127,7 +132,6 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         IsHeld = true;
         IsSnared = false;
         IsBeingPulled = false;
-        rb.isKinematic = true;
         rb.interpolation = RigidbodyInterpolation.None;
         rb.constraints = RigidbodyConstraints.FreezePosition;
         transform.SetParent(newParent);
@@ -138,7 +142,6 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     public virtual void OnThrow(Vector3 dir, float magnitude)
     {
         OnRelease();
-        rb.isKinematic = false;
         ApplyForceInDirection(dir, magnitude, ForceMode.Impulse);
     }
 
@@ -172,6 +175,33 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         }
 
         return nearestGrabPoint;
+    }
+
+    public void EnableAllGrabPoints(bool active)
+    {
+        foreach (var point in GrabPoints)
+        {
+            point.gameObject.SetActive(active);
+        }
+    }
+
+    #endregion
+
+    #region OnCollisionEnter
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        IsTouchingSurface = true;
+    }
+
+    private void OnCollisionStay(Collision collision)
+    {
+        IsTouchingSurface = true;
+    }
+
+    private void OnCollisionExit(Collision collision)
+    {
+        IsTouchingSurface = false;
     }
 
     #endregion
