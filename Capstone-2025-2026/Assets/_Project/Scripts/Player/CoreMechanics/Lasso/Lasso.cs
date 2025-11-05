@@ -21,6 +21,7 @@ public class Lasso : MonoBehaviour
     [SerializeField] private float throwStrength = 25f;
     [SerializeField, Range(0, 1)] private float lookAtStrength = 0.5f;
     [SerializeField, Range(0, 0.2f)] private float lookAtDamping = 0.05f;
+    [SerializeField] private float rotationalDampingStrength = 0.5f;
 
     [Header("Aim Assist Properties")]
     [SerializeField] private AimAssistType aimAssistType;
@@ -258,8 +259,9 @@ public class Lasso : MonoBehaviour
 
         //SnaredObject.Rb.AddForceAtPosition(springForce + dampingForce, attachPointWorld, ForceMode.Acceleration); //accel works because the damping already takes into account mass
         //if (SnaredObject.IsTouchingSurface) linearAcceleration = Vector3.ClampMagnitude(linearForce / effectiveMassScale, centerStrength);
+        //if (!SnaredObject.IsTouchingSurface) SnaredObject.Rb.AddTorque(angularAcceleration, ForceMode.Acceleration); //temp (?)
         SnaredObject.ApplyForceInDirection(linearAcceleration.normalized, linearAcceleration.magnitude, ForceMode.Acceleration, transform);
-        if (!SnaredObject.IsTouchingSurface) SnaredObject.Rb.AddTorque(angularAcceleration, ForceMode.Acceleration); //temp (?)
+        SnaredObject.Rb.AddTorque(angularAcceleration, ForceMode.Acceleration);
         SnaredObject.Rb.angularVelocity *= 0.98f; //stop excessive spin
     }
 
@@ -279,10 +281,15 @@ public class Lasso : MonoBehaviour
         Vector3 r = attachPointWorld - SnaredObject.Rb.worldCenterOfMass;
         float leverArmLength = (attachPointWorld - SnaredObject.Rb.worldCenterOfMass).magnitude;
         float scale = 1f / (1f + leverArmLength);
+
+        Vector3 dampingTorque = -SnaredObject.Rb.angularVelocity * rotationalDampingStrength;
+
         Vector3 torque = Vector3.Cross(r, linearForce);
         Vector3 correctiveTorque = torque * scale;
 
-        return correctiveTorque;
+        if (SnaredObject.IsTouchingSurface) return (correctiveTorque * scale) + dampingTorque;
+        else return correctiveTorque * scale;
+
     }
 
     private Vector3 CalculateLookAtTorque()
