@@ -25,6 +25,13 @@ public class ThirdPersonAnimatorController : MonoBehaviour
         _jointTetherActivator.OnTetherActivated += SetTetherBool;
     }
 
+    private void OnDisable()
+    {
+        _lasso.OnObjectHit -= SetLassoBool;
+        _jointTetherPlacer.OnTetherStartHit -= SetTetherBool;
+        _jointTetherActivator.OnTetherActivated -= SetTetherBool;
+    }
+
     private void Update()
     {
         if (_playerController.WishDir != Vector3.zero)

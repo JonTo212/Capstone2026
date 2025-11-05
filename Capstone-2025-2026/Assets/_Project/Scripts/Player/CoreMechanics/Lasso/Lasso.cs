@@ -119,7 +119,7 @@ public class Lasso : MonoBehaviour
         Vector3 aimDir = (screenRay.GetPoint(1000f) - PlayerCamLookPos.position).normalized;
 
         Vector3 camOffset = GetCameraWorldOffset();
-        Ray ray = new Ray(PlayerCamLookPos.position, aimDir);
+        Ray ray = new Ray(PlayerCamLookPos.position + camOffset, aimDir);
         Vector3 maxDistancePos = PlayerCamLookPos.position + camOffset + ray.direction * _anchorDist;
 
         return maxDistancePos;
