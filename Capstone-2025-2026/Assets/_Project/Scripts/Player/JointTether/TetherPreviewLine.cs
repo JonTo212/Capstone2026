@@ -5,6 +5,8 @@ public class TetherPreviewLine : MonoBehaviour
 {
     [Header("Components")]
     private LineRenderer lineRenderer;
+    [SerializeField] private Transform startPointVisuals;
+    [SerializeField] private Transform endPointVisuals;
 
     [Header("Variables")]
     [SerializeField] private Color previewColor = Color.yellow;
@@ -26,12 +28,14 @@ public class TetherPreviewLine : MonoBehaviour
     public void SetStartPoint(Vector3 newPos)
     {
         startPoint = newPos;
+        startPointVisuals.position = newPos;
         lineRenderer.SetPosition(0, newPos);
     }
 
     public void SetEndPoint(Vector3 newPos)
     {
         endPoint = newPos;
+        endPointVisuals.position = newPos;
         lineRenderer.SetPosition(1, newPos);
     }
 
