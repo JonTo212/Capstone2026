@@ -23,6 +23,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     public virtual bool IsSnared { get; protected set; } = false;
     public virtual bool IsBeingPulled { get; set; } = false;
     public virtual bool isTetherPulled { get; protected set; } = false;
+    public bool IsTouchingSurface { get; protected set; } = false;
     public Rigidbody Rb => rb;
     public Transform AttachedTransform { get; set; }
     public Outline ObjectOutline { get; set; }
@@ -277,6 +278,25 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         {
             point.gameObject.SetActive(active);
         }
+    }
+
+    #endregion
+
+    #region OnCollisionEnter
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        IsTouchingSurface = true;
+    }
+
+    private void OnCollisionStay(Collision collision)
+    {
+        IsTouchingSurface = true;
+    }
+
+    private void OnCollisionExit(Collision collision)
+    {
+        IsTouchingSurface = false;
     }
 
     #endregion

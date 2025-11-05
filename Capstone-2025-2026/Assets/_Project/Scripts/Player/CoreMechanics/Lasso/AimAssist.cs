@@ -91,7 +91,7 @@ public class AimAssist
         {
             Vector3 targetPos = target.transform.position;
             Ray snapRay = new Ray(cam.transform.position, (targetPos - cam.transform.position).normalized);
-            if (Physics.Raycast(snapRay, out RaycastHit snapHit, range))
+            if (Physics.Raycast(snapRay, out RaycastHit snapHit, range, Physics.AllLayers, QueryTriggerInteraction.Ignore))
             {
                 hit = snapHit;
                 return true;
@@ -107,7 +107,7 @@ public class AimAssist
     private bool GetDirectHit(Ray ray, float range, out RaycastHit hit)
     {
         hit = new RaycastHit();
-        if (Physics.Raycast(ray, out RaycastHit bufferHit, range, tetherLayerIgnore))
+        if (Physics.Raycast(ray, out RaycastHit bufferHit, range, Physics.AllLayers, QueryTriggerInteraction.Ignore))
         {
             if (bufferHit.transform.GetComponentInParent<Prop>() != null)
             {
@@ -129,7 +129,7 @@ public class AimAssist
         bool foundProp = false;
 
         //sweep spherecast (spherecast just hits the first thing)
-        RaycastHit[] hits = Physics.SphereCastAll(cam.transform.position, maxRadius, ray.direction, range, tetherLayerIgnore);
+        RaycastHit[] hits = Physics.SphereCastAll(cam.transform.position, maxRadius, ray.direction, range, Physics.AllLayers, QueryTriggerInteraction.Ignore);
         if (hits.Length > 0)
         {
             foreach (RaycastHit hit in hits)

@@ -99,7 +99,7 @@ public class Lasso : MonoBehaviour
         Ray ray = PlayerCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
         Vector3 maxDistancePos = ray.origin + ray.direction * _anchorDist;
 
-        RaycastHit[] hits = Physics.RaycastAll(ray, _anchorDist);
+        /*RaycastHit[] hits = Physics.RaycastAll(ray, _anchorDist);
         if (hits.Length > 0)
         { 
             Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
@@ -112,7 +112,7 @@ public class Lasso : MonoBehaviour
                     break;
                 }
             }
-        }
+        }*/
 
         return maxDistancePos;
     }
@@ -257,8 +257,9 @@ public class Lasso : MonoBehaviour
         Vector3 angularAcceleration = totalTorque / effectiveMassScale;
 
         //SnaredObject.Rb.AddForceAtPosition(springForce + dampingForce, attachPointWorld, ForceMode.Acceleration); //accel works because the damping already takes into account mass
+        //if (SnaredObject.IsTouchingSurface) linearAcceleration = Vector3.ClampMagnitude(linearForce / effectiveMassScale, centerStrength);
         SnaredObject.ApplyForceInDirection(linearAcceleration.normalized, linearAcceleration.magnitude, ForceMode.Acceleration, transform);
-        SnaredObject.Rb.AddTorque(angularAcceleration, ForceMode.Acceleration);
+        if (!SnaredObject.IsTouchingSurface) SnaredObject.Rb.AddTorque(angularAcceleration, ForceMode.Acceleration); //temp (?)
         SnaredObject.Rb.angularVelocity *= 0.98f; //stop excessive spin
     }
 
