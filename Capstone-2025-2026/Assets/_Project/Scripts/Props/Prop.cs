@@ -5,9 +5,15 @@ using System.Collections.Generic;
 [RequireComponent(typeof(Rigidbody), typeof(Outline))]
 public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
 {
+    [SerializeField] protected bool debugThisProp = false;
+
     //protected means only derived classes can access these values
     protected Rigidbody rb;
-    protected List<GameObject> attachedTethers = new List<GameObject>();
+    protected Lasso playerLasso;
+    [SerializeField] protected List<JointTether> attachedTethers = new List<JointTether>();
+    [SerializeField] protected List<ConfigurableJoint> tetherJoints = new List<ConfigurableJoint>();
+    [SerializeField] protected List<Transform> connectedObject = new List<Transform>();
+    [SerializeField] protected List<Transform> connectedAnchors = new List<Transform>();
     protected float defaultDrag;
     protected float defaultAngularDrag;
 
@@ -28,6 +34,8 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
 
     //virtual functions can be overridden by the derived classes
     //default behaviour is updating IsHeld and parenting the object to a given transform (i.e. player hand)
+
+    public Vector3 totalForceApplied { get; protected set; } = Vector3.zero;
 
     protected virtual void Init()
     {
@@ -52,9 +60,21 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         }
     }
 
+    protected virtual void Update()
+    {
+        HandleOutlineColors();
+    }
+
     protected virtual void OnDestroy()
     {
         OnPropDestroyed?.Invoke();
+    }
+
+    protected virtual void FixedUpdate()
+    {
+        totalForceApplied = Vector3.zero;
+        totalForceApplied += GetForcesFromJoint();
+
     }
 
     #region ISnareable
@@ -93,22 +113,33 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
 
     }
 
-    public virtual void OnTetherPull(GameObject tether)
+    public virtual void OnTetherPull(JointTether tether, Transform targetAnchorTransform, Transform targetObjectTransform, ConfigurableJoint joint)
     {
         isTetherPulled = true;
+        tetherJoints.Add(joint);
         attachedTethers.Add(tether);
+        connectedObject.Add(targetObjectTransform);
+        connectedAnchors.Add(targetAnchorTransform);
         rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
     }
 
-    public virtual void OnDetachTether(GameObject tether)
+    public virtual void OnDetachTether(JointTether tether, Transform targetAnchorTransform, Transform targetObjectTransform, ConfigurableJoint joint)
     {
+        if (attachedTethers.IndexOf(tether) < 0) return;
+        tetherJoints.RemoveAt(attachedTethers.IndexOf(tether));
+        connectedObject.RemoveAt(attachedTethers.IndexOf(tether));
+        connectedAnchors.RemoveAt(attachedTethers.IndexOf((tether)));
         attachedTethers.Remove(tether);
         if (attachedTethers.Count <= 0)
         {
             rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
             isTetherPulled = false;
+            ObjectOutline.enabled = false;
         }
     }
+
+
+
     public virtual void ActivateOutline(bool activate)
     {
         ObjectOutline.enabled = activate;
@@ -122,6 +153,34 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     public virtual void SetOutlineWidth(float newWidth)
     {
         ObjectOutline.OutlineWidth = newWidth;
+    }
+
+    private void HandleOutlineColors()
+    {
+        if (IsSnared || attachedTethers.Count > 0)
+        {
+            ActivateOutline(true);
+            if (attachedTethers.Count > 0)
+            {
+                foreach (JointTether jointTether in attachedTethers)
+                {
+                    if (jointTether.isActivated)
+                    {
+                        if (ObjectOutline.outlineState != Outline.OutlineStates.TetherActive)
+                            ObjectOutline.TetherActiveColor(); return;
+                    }
+                }
+                if (ObjectOutline.outlineState != Outline.OutlineStates.TetherInnactive)
+                    ObjectOutline.TetherInactiveColor(); return;
+            }
+            if (IsSnared)
+            {
+                if (ObjectOutline.outlineState != Outline.OutlineStates.Snare)
+                {
+                    ObjectOutline.SnareColor(); return;
+                }
+            }
+        }
     }
 
     #endregion
@@ -147,11 +206,35 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
 
     #endregion
 
+
     #region Force Addition
 
     public virtual void ApplyForceInDirection(Vector3 direction, float magnitude, ForceMode forceMode, Transform forceApplier = null)
     {
         Rb.AddForce(direction * magnitude, forceMode);
+    }
+
+    protected Vector3 GetForcesFromJoint()
+    {
+        Vector3 totalForce = Vector3.zero;
+
+        for (int i = 0; i < attachedTethers.Count; i++)
+        {
+            ConfigurableJoint joint = tetherJoints[i];
+
+            Vector3 worldAnchor = transform.TransformPoint(joint.anchor);
+            Vector3 worldTargetAnchor = connectedAnchors[i].TransformPoint(joint.connectedAnchor);
+            Vector3 difference = worldTargetAnchor - worldAnchor;
+
+            float springConstant = joint.xDrive.positionSpring;
+            float dampener = joint.xDrive.positionDamper;
+
+            Vector3 forceFromJoint = (springConstant * difference - dampener * rb.linearVelocity) * Time.fixedDeltaTime;
+
+            totalForce += forceFromJoint;
+        }
+
+        return totalForce;
     }
 
     #endregion
@@ -204,5 +287,13 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         IsTouchingSurface = false;
     }
 
+    #endregion
+
+    #region Utility
+    protected void PropDebug(string message) { if (debugThisProp == true) Debug.Log(message); }
+
+    protected void PropWarning(string message) { if (debugThisProp == true) Debug.LogWarning(message); }
+
+    protected void PropError(string message) { if (debugThisProp == true) Debug.LogError(message); }
     #endregion
 }

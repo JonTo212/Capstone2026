@@ -30,10 +30,10 @@ public class JointTetherPlacer : MonoBehaviour
     [SerializeField] private float timeToDestroyAllTethers = 0.8f;
 
     [Header("Hit Properties")]
-    private Transform startTransform;
-    private Transform endTransform;
-    private Vector3 startLocalPosition;
-    private Vector3 endLocalPosition;
+    [SerializeField] private Transform startTransform;
+    [SerializeField] private Transform endTransform;
+    [SerializeField] private Vector3 startLocalPosition;
+    [SerializeField] private Vector3 endLocalPosition;
     [SerializeField] private TMP_Text tetherAmountText;
     [SerializeField] private TMP_Text tetherControlsText;
     public event Action OnTetherStartHit;
@@ -112,6 +112,8 @@ public class JointTetherPlacer : MonoBehaviour
 
     private void SetTetherEndPoint(Transform endTransform, Vector3 endPosition)
     {
+        didStartPointHit = false;
+
         this.endTransform = endTransform;
         endLocalPosition = endTransform.InverseTransformPoint(endPosition);
         

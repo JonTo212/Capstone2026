@@ -5223,7 +5223,7 @@ PrefabInstance:
       objectReference: {fileID: 684436884}
     - target: {fileID: 7350964788239014925, guid: 48d9befe6ae212e4eab1c6e82ac45775, type: 3}
       propertyPath: m_VersionIndex
-      value: 1709
+      value: 1712
       objectReference: {fileID: 0}
     - target: {fileID: 7928148593827152235, guid: 48d9befe6ae212e4eab1c6e82ac45775, type: 3}
       propertyPath: m_Mesh
@@ -5231,7 +5231,7 @@ PrefabInstance:
       objectReference: {fileID: 438194296}
     - target: {fileID: 7928148593827152235, guid: 48d9befe6ae212e4eab1c6e82ac45775, type: 3}
       propertyPath: m_VersionIndex
-      value: 1660
+      value: 1663
       objectReference: {fileID: 0}
     - target: {fileID: 8574682475992122989, guid: 48d9befe6ae212e4eab1c6e82ac45775, type: 3}
       propertyPath: m_Mesh
@@ -5239,7 +5239,7 @@ PrefabInstance:
       objectReference: {fileID: 1744268759}
     - target: {fileID: 8574682475992122989, guid: 48d9befe6ae212e4eab1c6e82ac45775, type: 3}
       propertyPath: m_VersionIndex
-      value: 1660
+      value: 1663
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -13377,6 +13377,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8da93e4e5dee9534a953a3c66c18ff57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnvironmentalProp
+  debugThisProp: 0
+  attachedTethers: []
+  tetherJoints: []
+  connectedObject: []
+  connectedAnchors: []
   <GrabPoints>k__BackingField: []
   <faceRows>k__BackingField: 1
   <faceColumns>k__BackingField: 3
@@ -13392,6 +13397,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Outline
+  outlineState: 0
   outlineMode: 0
   outlineColor: {r: 1, g: 1, b: 1, a: 1}
   outlineWidth: 2
@@ -17032,6 +17038,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MySceneManager
   SceneNames:
   - POC_EndScreen
+  goalScreen: {fileID: 0}
 --- !u!4 &368122729
 Transform:
   m_ObjectHideFlags: 0
@@ -19485,6 +19492,95 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 6e5ca64804d02c542948397dc688941a, type: 3}
   m_PrefabInstance: {fileID: 1207089577}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &422464072
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 422464073}
+  - component: {fileID: 422464075}
+  - component: {fileID: 422464074}
+  m_Layer: 7
+  m_Name: LassoPointEffect
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &422464073
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 422464072}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.75, y: 0.75, z: 0.75}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 1314304406}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!23 &422464074
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 422464072}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 307f3142ca1ac5741ab269e76208758a, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!33 &422464075
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 422464072}
+  m_Mesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!4 &424235431 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 6f40ae530ad8cf446878a44f593b5d56, type: 3}
@@ -20585,6 +20681,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8da93e4e5dee9534a953a3c66c18ff57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnvironmentalProp
+  debugThisProp: 0
+  attachedTethers: []
+  tetherJoints: []
+  connectedObject: []
+  connectedAnchors: []
   <GrabPoints>k__BackingField: []
   <faceRows>k__BackingField: 1
   <faceColumns>k__BackingField: 1
@@ -20600,6 +20701,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Outline
+  outlineState: 0
   outlineMode: 0
   outlineColor: {r: 1, g: 1, b: 1, a: 1}
   outlineWidth: 2
@@ -25499,6 +25601,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8da93e4e5dee9534a953a3c66c18ff57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnvironmentalProp
+  debugThisProp: 0
+  attachedTethers: []
+  tetherJoints: []
+  connectedObject: []
+  connectedAnchors: []
   <GrabPoints>k__BackingField: []
   <faceRows>k__BackingField: 0
   <faceColumns>k__BackingField: 0
@@ -25514,6 +25621,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Outline
+  outlineState: 0
   outlineMode: 0
   outlineColor: {r: 1, g: 1, b: 1, a: 1}
   outlineWidth: 2
@@ -30492,7 +30600,7 @@ PrefabInstance:
       objectReference: {fileID: 1491833918}
     - target: {fileID: 920717974310064955, guid: 480581d9b601c9c449ab865e9fcf5642, type: 3}
       propertyPath: m_VersionIndex
-      value: 3027
+      value: 3030
       objectReference: {fileID: 0}
     - target: {fileID: 1350449778034137183, guid: 480581d9b601c9c449ab865e9fcf5642, type: 3}
       propertyPath: m_Mesh
@@ -30564,7 +30672,7 @@ PrefabInstance:
       objectReference: {fileID: 805074517}
     - target: {fileID: 3218915814891001979, guid: 480581d9b601c9c449ab865e9fcf5642, type: 3}
       propertyPath: m_VersionIndex
-      value: 2048
+      value: 2051
       objectReference: {fileID: 0}
     - target: {fileID: 3281581593543464134, guid: 480581d9b601c9c449ab865e9fcf5642, type: 3}
       propertyPath: m_Mesh
@@ -30572,7 +30680,7 @@ PrefabInstance:
       objectReference: {fileID: 2050178888}
     - target: {fileID: 3281581593543464134, guid: 480581d9b601c9c449ab865e9fcf5642, type: 3}
       propertyPath: m_VersionIndex
-      value: 2884
+      value: 2887
       objectReference: {fileID: 0}
     - target: {fileID: 3535993048903108804, guid: 480581d9b601c9c449ab865e9fcf5642, type: 3}
       propertyPath: m_Mesh
@@ -30584,7 +30692,7 @@ PrefabInstance:
       objectReference: {fileID: 432468199}
     - target: {fileID: 3648500440979186943, guid: 480581d9b601c9c449ab865e9fcf5642, type: 3}
       propertyPath: m_VersionIndex
-      value: 10874
+      value: 10877
       objectReference: {fileID: 0}
     - target: {fileID: 3700698792861210490, guid: 480581d9b601c9c449ab865e9fcf5642, type: 3}
       propertyPath: m_Mesh
@@ -30592,7 +30700,7 @@ PrefabInstance:
       objectReference: {fileID: 396103555}
     - target: {fileID: 3700698792861210490, guid: 480581d9b601c9c449ab865e9fcf5642, type: 3}
       propertyPath: m_VersionIndex
-      value: 2048
+      value: 2051
       objectReference: {fileID: 0}
     - target: {fileID: 3924188543218668109, guid: 480581d9b601c9c449ab865e9fcf5642, type: 3}
       propertyPath: m_Mesh
@@ -30600,7 +30708,7 @@ PrefabInstance:
       objectReference: {fileID: 82698250}
     - target: {fileID: 3924188543218668109, guid: 480581d9b601c9c449ab865e9fcf5642, type: 3}
       propertyPath: m_VersionIndex
-      value: 2884
+      value: 2887
       objectReference: {fileID: 0}
     - target: {fileID: 3977902039821926278, guid: 480581d9b601c9c449ab865e9fcf5642, type: 3}
       propertyPath: m_Mesh
@@ -30608,7 +30716,7 @@ PrefabInstance:
       objectReference: {fileID: 1949743943}
     - target: {fileID: 3977902039821926278, guid: 480581d9b601c9c449ab865e9fcf5642, type: 3}
       propertyPath: m_VersionIndex
-      value: 2884
+      value: 2887
       objectReference: {fileID: 0}
     - target: {fileID: 4931338227248522930, guid: 480581d9b601c9c449ab865e9fcf5642, type: 3}
       propertyPath: m_Mesh
@@ -30632,7 +30740,7 @@ PrefabInstance:
       objectReference: {fileID: 523298939}
     - target: {fileID: 6026572586787464110, guid: 480581d9b601c9c449ab865e9fcf5642, type: 3}
       propertyPath: m_VersionIndex
-      value: 2862
+      value: 2865
       objectReference: {fileID: 0}
     - target: {fileID: 6136900889943273718, guid: 480581d9b601c9c449ab865e9fcf5642, type: 3}
       propertyPath: m_Mesh
@@ -30648,7 +30756,7 @@ PrefabInstance:
       objectReference: {fileID: 1026668985}
     - target: {fileID: 6624792843228617291, guid: 480581d9b601c9c449ab865e9fcf5642, type: 3}
       propertyPath: m_VersionIndex
-      value: 2048
+      value: 2051
       objectReference: {fileID: 0}
     - target: {fileID: 6864971614607639731, guid: 480581d9b601c9c449ab865e9fcf5642, type: 3}
       propertyPath: m_Mesh
@@ -40128,6 +40236,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8da93e4e5dee9534a953a3c66c18ff57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnvironmentalProp
+  debugThisProp: 0
+  attachedTethers: []
+  tetherJoints: []
+  connectedObject: []
+  connectedAnchors: []
   <GrabPoints>k__BackingField: []
   <faceRows>k__BackingField: 1
   <faceColumns>k__BackingField: 1
@@ -40143,6 +40256,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Outline
+  outlineState: 0
   outlineMode: 0
   outlineColor: {r: 1, g: 1, b: 1, a: 1}
   outlineWidth: 2
@@ -42449,6 +42563,95 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8002997897105187826, guid: b16e2cbe9cac7c64697b8d4d2af784ef, type: 3}
   m_PrefabInstance: {fileID: 1961376313}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &881827170
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 881827171}
+  - component: {fileID: 881827173}
+  - component: {fileID: 881827172}
+  m_Layer: 7
+  m_Name: LassoPointRingEffect
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &881827171
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 881827170}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 0.6448605, z: -0, w: 0.76430035}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 1314304406}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!23 &881827172
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 881827170}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 5b48526a25aa0ce478c2902845123343, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!33 &881827173
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 881827170}
+  m_Mesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!43 &883203781
 Mesh:
   m_ObjectHideFlags: 0
@@ -43545,6 +43748,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8da93e4e5dee9534a953a3c66c18ff57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnvironmentalProp
+  debugThisProp: 0
+  attachedTethers: []
+  tetherJoints: []
+  connectedObject: []
+  connectedAnchors: []
   <GrabPoints>k__BackingField: []
   <faceRows>k__BackingField: 0
   <faceColumns>k__BackingField: 0
@@ -43560,6 +43768,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Outline
+  outlineState: 0
   outlineMode: 0
   outlineColor: {r: 1, g: 1, b: 1, a: 1}
   outlineWidth: 2
@@ -61297,6 +61506,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8da93e4e5dee9534a953a3c66c18ff57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnvironmentalProp
+  debugThisProp: 0
+  attachedTethers: []
+  tetherJoints: []
+  connectedObject: []
+  connectedAnchors: []
   <GrabPoints>k__BackingField: []
   <faceRows>k__BackingField: 0
   <faceColumns>k__BackingField: 0
@@ -61312,6 +61526,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Outline
+  outlineState: 0
   outlineMode: 0
   outlineColor: {r: 1, g: 1, b: 1, a: 1}
   outlineWidth: 2
@@ -65736,6 +65951,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8da93e4e5dee9534a953a3c66c18ff57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnvironmentalProp
+  debugThisProp: 0
+  attachedTethers: []
+  tetherJoints: []
+  connectedObject: []
+  connectedAnchors: []
   <GrabPoints>k__BackingField: []
   <faceRows>k__BackingField: 0
   <faceColumns>k__BackingField: 0
@@ -65751,6 +65971,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Outline
+  outlineState: 0
   outlineMode: 0
   outlineColor: {r: 1, g: 1, b: 1, a: 1}
   outlineWidth: 2
@@ -103072,6 +103293,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2cca3732b8614bc40a4f29da5a2156d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PickupProp
+  debugThisProp: 0
+  attachedTethers: []
+  tetherJoints: []
+  connectedObject: []
+  connectedAnchors: []
   <GrabPoints>k__BackingField: []
   <faceRows>k__BackingField: 0
   <faceColumns>k__BackingField: 0
@@ -103087,6 +103313,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Outline
+  outlineState: 0
   outlineMode: 0
   outlineColor: {r: 1, g: 1, b: 1, a: 1}
   outlineWidth: 2
@@ -104707,6 +104934,39 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8856616081034011537, guid: dd3f6c65833d2594184affbf1db2ef92, type: 3}
   m_PrefabInstance: {fileID: 190357515}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1314304405
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1314304406}
+  m_Layer: 7
+  m_Name: LassoPointVisuals
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1314304406
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1314304405}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 422464073}
+  - {fileID: 881827171}
+  m_Father: {fileID: 335018219}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &1316793353 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 9152735094883783535, guid: 3bfd4749f2d649b4eab80a371730b7e3, type: 3}
@@ -110412,9 +110672,16 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -86
       objectReference: {fileID: 0}
+    - target: {fileID: 8994158745920056327, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+      propertyPath: lassoPointVisuals
+      value: 
+      objectReference: {fileID: 1314304406}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 412334985279009504, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1314304406}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 2571145194382551425, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       insertIndex: -1
@@ -113798,6 +114065,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8da93e4e5dee9534a953a3c66c18ff57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnvironmentalProp
+  debugThisProp: 0
+  attachedTethers: []
+  tetherJoints: []
+  connectedObject: []
+  connectedAnchors: []
   <GrabPoints>k__BackingField: []
   <faceRows>k__BackingField: 0
   <faceColumns>k__BackingField: 0
@@ -113813,6 +114085,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Outline
+  outlineState: 0
   outlineMode: 0
   outlineColor: {r: 1, g: 1, b: 1, a: 1}
   outlineWidth: 2
@@ -135115,6 +135388,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8da93e4e5dee9534a953a3c66c18ff57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnvironmentalProp
+  debugThisProp: 0
+  attachedTethers: []
+  tetherJoints: []
+  connectedObject: []
+  connectedAnchors: []
   <GrabPoints>k__BackingField: []
   <faceRows>k__BackingField: 0
   <faceColumns>k__BackingField: 0
@@ -135130,6 +135408,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Outline
+  outlineState: 0
   outlineMode: 0
   outlineColor: {r: 1, g: 1, b: 1, a: 1}
   outlineWidth: 2
@@ -136781,6 +137060,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8da93e4e5dee9534a953a3c66c18ff57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnvironmentalProp
+  debugThisProp: 0
+  attachedTethers: []
+  tetherJoints: []
+  connectedObject: []
+  connectedAnchors: []
   <GrabPoints>k__BackingField: []
   <faceRows>k__BackingField: 0
   <faceColumns>k__BackingField: 0
@@ -136796,6 +137080,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Outline
+  outlineState: 0
   outlineMode: 0
   outlineColor: {r: 1, g: 1, b: 1, a: 1}
   outlineWidth: 2
@@ -139351,6 +139636,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8da93e4e5dee9534a953a3c66c18ff57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnvironmentalProp
+  debugThisProp: 0
+  attachedTethers: []
+  tetherJoints: []
+  connectedObject: []
+  connectedAnchors: []
   <GrabPoints>k__BackingField: []
   <faceRows>k__BackingField: 0
   <faceColumns>k__BackingField: 0
@@ -139366,6 +139656,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Outline
+  outlineState: 0
   outlineMode: 0
   outlineColor: {r: 1, g: 1, b: 1, a: 1}
   outlineWidth: 2
@@ -139952,6 +140243,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8da93e4e5dee9534a953a3c66c18ff57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnvironmentalProp
+  debugThisProp: 0
+  attachedTethers: []
+  tetherJoints: []
+  connectedObject: []
+  connectedAnchors: []
   <GrabPoints>k__BackingField: []
   <faceRows>k__BackingField: 0
   <faceColumns>k__BackingField: 0
@@ -139967,6 +140263,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Outline
+  outlineState: 0
   outlineMode: 0
   outlineColor: {r: 1, g: 1, b: 1, a: 1}
   outlineWidth: 2
@@ -146454,6 +146751,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8da93e4e5dee9534a953a3c66c18ff57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnvironmentalProp
+  debugThisProp: 0
+  attachedTethers: []
+  tetherJoints: []
+  connectedObject: []
+  connectedAnchors: []
   <GrabPoints>k__BackingField: []
   <faceRows>k__BackingField: 0
   <faceColumns>k__BackingField: 0
@@ -146469,6 +146771,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Outline
+  outlineState: 0
   outlineMode: 0
   outlineColor: {r: 1, g: 1, b: 1, a: 1}
   outlineWidth: 2
@@ -147644,6 +147947,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8da93e4e5dee9534a953a3c66c18ff57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnvironmentalProp
+  debugThisProp: 0
+  attachedTethers: []
+  tetherJoints: []
+  connectedObject: []
+  connectedAnchors: []
   <GrabPoints>k__BackingField: []
   <faceRows>k__BackingField: 0
   <faceColumns>k__BackingField: 0
@@ -147659,6 +147967,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Outline
+  outlineState: 0
   outlineMode: 0
   outlineColor: {r: 1, g: 1, b: 1, a: 1}
   outlineWidth: 2
@@ -149319,7 +149628,7 @@ PrefabInstance:
       objectReference: {fileID: 528829522}
     - target: {fileID: 7350964788239014925, guid: 48d9befe6ae212e4eab1c6e82ac45775, type: 3}
       propertyPath: m_VersionIndex
-      value: 1709
+      value: 1712
       objectReference: {fileID: 0}
     - target: {fileID: 7928148593827152235, guid: 48d9befe6ae212e4eab1c6e82ac45775, type: 3}
       propertyPath: m_Mesh
@@ -149327,7 +149636,7 @@ PrefabInstance:
       objectReference: {fileID: 1057512393}
     - target: {fileID: 7928148593827152235, guid: 48d9befe6ae212e4eab1c6e82ac45775, type: 3}
       propertyPath: m_VersionIndex
-      value: 1660
+      value: 1663
       objectReference: {fileID: 0}
     - target: {fileID: 8574682475992122989, guid: 48d9befe6ae212e4eab1c6e82ac45775, type: 3}
       propertyPath: m_Mesh
@@ -149335,7 +149644,7 @@ PrefabInstance:
       objectReference: {fileID: 36782738}
     - target: {fileID: 8574682475992122989, guid: 48d9befe6ae212e4eab1c6e82ac45775, type: 3}
       propertyPath: m_VersionIndex
-      value: 1660
+      value: 1663
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -149420,7 +149729,7 @@ PrefabInstance:
       objectReference: {fileID: 1532611742}
     - target: {fileID: 3079386119377834757, guid: 6fab07457b11dd948a855d4907c88879, type: 3}
       propertyPath: m_VersionIndex
-      value: 1450
+      value: 1453
       objectReference: {fileID: 0}
     - target: {fileID: 3396023398959819231, guid: 6fab07457b11dd948a855d4907c88879, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
@@ -149440,7 +149749,7 @@ PrefabInstance:
       objectReference: {fileID: 1370091172}
     - target: {fileID: 4491870363692607092, guid: 6fab07457b11dd948a855d4907c88879, type: 3}
       propertyPath: m_VersionIndex
-      value: 2494
+      value: 2497
       objectReference: {fileID: 0}
     - target: {fileID: 5113227786403433529, guid: 6fab07457b11dd948a855d4907c88879, type: 3}
       propertyPath: m_Mesh
@@ -149460,7 +149769,7 @@ PrefabInstance:
       objectReference: {fileID: 1149364118}
     - target: {fileID: 5995560736868346975, guid: 6fab07457b11dd948a855d4907c88879, type: 3}
       propertyPath: m_VersionIndex
-      value: 1882
+      value: 1885
       objectReference: {fileID: 0}
     - target: {fileID: 6335875565791392930, guid: 6fab07457b11dd948a855d4907c88879, type: 3}
       propertyPath: m_Name
@@ -149476,7 +149785,7 @@ PrefabInstance:
       objectReference: {fileID: 2061844285}
     - target: {fileID: 8107660424574486279, guid: 6fab07457b11dd948a855d4907c88879, type: 3}
       propertyPath: m_VersionIndex
-      value: 1450
+      value: 1453
       objectReference: {fileID: 0}
     - target: {fileID: 8780650973013614914, guid: 6fab07457b11dd948a855d4907c88879, type: 3}
       propertyPath: m_Mesh
@@ -149492,7 +149801,7 @@ PrefabInstance:
       objectReference: {fileID: 2003818243}
     - target: {fileID: 8885889573677598382, guid: 6fab07457b11dd948a855d4907c88879, type: 3}
       propertyPath: m_VersionIndex
-      value: 1450
+      value: 1453
       objectReference: {fileID: 0}
     - target: {fileID: 8990158519329594777, guid: 6fab07457b11dd948a855d4907c88879, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
