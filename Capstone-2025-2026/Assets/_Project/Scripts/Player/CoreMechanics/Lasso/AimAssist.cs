@@ -53,12 +53,12 @@ public class AimAssist
     #endregion
 
     #region Main Aim Assist Function
-    public RaycastHit? GetAssistHitPoint(Camera cam, Vector3 origin, float range, AimAssistType type, float bufferRadius) //the ? means it can return null
+    public RaycastHit? GetAssistHitPoint(Camera cam, Vector3 origin, float range, AimAssistType type, float bufferRadius, Vector3 camOffset) //the ? means it can return null
     {
         Vector3 screenCenter = new Vector3(Screen.width / 2f, Screen.height / 2f, 0f);
         Ray screenRay = cam.ScreenPointToRay(screenCenter);
 
-        Vector3 aimDir = (screenRay.GetPoint(range) - origin).normalized;
+        Vector3 aimDir = (screenRay.GetPoint(1000f) - origin).normalized;
 
         switch (type)
         {
@@ -76,7 +76,7 @@ public class AimAssist
 
             case AimAssistType.None:
             default:
-                if (GetDirectHit(origin, aimDir, range, out directHit))
+                if (GetDirectHit(origin + camOffset, aimDir, range, out directHit))
                     return directHit;
                 break;
         }
