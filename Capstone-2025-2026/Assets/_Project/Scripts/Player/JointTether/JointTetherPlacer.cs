@@ -16,6 +16,7 @@ public class JointTetherPlacer : MonoBehaviour
 
     [Header("Properties")]
     [SerializeField] private GameObject jointTetherPrefab;
+    [SerializeField] private StaffTetherIndicators staffTetherIndicator;
     [SerializeField] private LayerMask tetherLayerMask;
     [SerializeField] private int numOfTethersPlaced = 0;
     [SerializeField] private bool autoActivateTether = true;
@@ -132,6 +133,8 @@ public class JointTetherPlacer : MonoBehaviour
 
         numOfTethersPlaced++;
 
+        staffTetherIndicator.UpdateTetherIndicatorCount(numOfTethersPlaced);
+
         UpdateTetherAmountText();
     }
     #endregion
@@ -185,6 +188,7 @@ public class JointTetherPlacer : MonoBehaviour
     {
         placedTethers.Remove(jointTether);
         numOfTethersPlaced--;
+        staffTetherIndicator.UpdateTetherIndicatorCount(numOfTethersPlaced);
         UpdateTetherAmountText();
     }
 

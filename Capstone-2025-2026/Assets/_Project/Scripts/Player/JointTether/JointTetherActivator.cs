@@ -6,6 +6,7 @@ public class JointTetherActivator : MonoBehaviour
 {
     [Header("External Components")]
     private Camera _playerCamera;
+    [SerializeField] private GameObject tetherRetrieveVisialsPrefab;
 
     [Header("Properties")]
     [SerializeField] private LayerMask tetherLayerMask;
@@ -116,6 +117,8 @@ public class JointTetherActivator : MonoBehaviour
         JointTether tether = TryGetTether();
         if (tether != null)
         {
+            GameObject tetherRetrievalVisuals = Instantiate(tetherRetrieveVisialsPrefab, tether.transform.position, Quaternion.Euler(Vector3.zero));
+            tetherRetrievalVisuals.GetComponent<TetherRetrievalEffect>().Init(tether.transform.position, transform);
             tether.DestroyTether();
         }
     }
@@ -127,6 +130,8 @@ public class JointTetherActivator : MonoBehaviour
 
         foreach (JointTether tether in allPlacedTethers)
         {
+            GameObject tetherRetrievalVisuals = Instantiate(tetherRetrieveVisialsPrefab, tether.transform.position, Quaternion.Euler(Vector3.zero));
+            tetherRetrievalVisuals.GetComponent<TetherRetrievalEffect>().Init(tether.transform.position, transform);
             tether.DestroyTether();
         }
     }
