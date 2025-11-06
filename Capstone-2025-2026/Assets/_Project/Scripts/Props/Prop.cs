@@ -221,7 +221,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     {
         Rb.AddForce(direction * magnitude, forceMode);
 
-        if(playerLasso == null && forceApplier.GetComponent<Lasso>() != null)
+        if(playerLasso == null && forceApplier != null && forceApplier.GetComponent<Lasso>() != null)
         {
             totalForceApplied += direction * magnitude;
         }
