@@ -9,7 +9,7 @@ public class PlayerMantle : MonoBehaviour
     [SerializeField] private float forwardClimbBuffer = 0.5f;
     [SerializeField] private float climbDuration = 0.3f;
     [SerializeField] private float forwardDuration = 0.2f;
-    [SerializeField] private Transform checkPos;
+    [SerializeField] private Transform forwardRef;
 
     private CapsuleCollider _playerCol;
     private PlayerActions _playerActions;
@@ -21,6 +21,8 @@ public class PlayerMantle : MonoBehaviour
         _playerCol = GetComponent<CapsuleCollider>();
         _playerActions = GetComponent<PlayerActions>();
         _playerController = GetComponent<PlayerController>();
+
+        if (forwardRef == null) forwardRef = Camera.main.transform;
     }
 
     private void Update()
@@ -37,15 +39,15 @@ public class PlayerMantle : MonoBehaviour
 
     private Vector3? TryStartMantle()
     {
-        if (Physics.Raycast(checkPos.position, checkPos.forward, out RaycastHit forwardHit, forwardCheckDistance))
+        if (Physics.Raycast(transform.position, forwardRef.forward, out RaycastHit forwardHit, forwardCheckDistance))
         {
             float secondCheckDist = _playerCol.height;
-            Vector3 secondCheckStartPos = forwardHit.point + (checkPos.forward * _playerCol.radius) + (Vector3.up * verticalCheckDistance * secondCheckDist);
+            Vector3 secondCheckStartPos = forwardHit.point + (forwardRef.forward * _playerCol.radius) + (Vector3.up * verticalCheckDistance * secondCheckDist);
 
             if (Physics.Raycast(secondCheckStartPos, Vector3.down, out RaycastHit topHit, secondCheckDist))
             {
                 Vector3 upOffset = Vector3.up * (_playerCol.height * 0.5f);
-                Vector3 backOffset = -checkPos.forward * _playerCol.radius + checkPos.forward * forwardClimbBuffer;
+                Vector3 backOffset = -forwardRef.forward * _playerCol.radius + forwardRef.forward * forwardClimbBuffer;
                 Vector3 target = topHit.point + upOffset + backOffset;
 
                 return target;

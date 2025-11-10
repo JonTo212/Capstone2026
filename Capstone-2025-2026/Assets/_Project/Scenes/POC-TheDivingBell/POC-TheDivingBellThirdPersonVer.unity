@@ -15289,6 +15289,25 @@ MonoBehaviour:
   jumpBufferDuration: 0
   yawSensitivity: 0
   pitchSensitivity: 0
+--- !u!114 &335018244
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 280864778}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5726bb566f2d59045b174107d2fe05c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerMantle
+  forwardCheckDistance: 1
+  verticalCheckDistance: 1
+  climbHeightBuffer: 0.5
+  forwardClimbBuffer: 0.5
+  climbDuration: 0.3
+  forwardDuration: 0.2
+  forwardRef: {fileID: 514873055}
 --- !u!1 &336604922
 GameObject:
   m_ObjectHideFlags: 0
@@ -22433,6 +22452,11 @@ Transform:
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 8a82ca083b96935458148303c7042e39, type: 3}
   m_PrefabInstance: {fileID: 1778063247}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &514873055 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7779340719812548047, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+  m_PrefabInstance: {fileID: 1452527826}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &514952679
 PrefabInstance:
@@ -110485,6 +110509,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 2571145194382551425, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       insertIndex: -1
       addedObject: {fileID: 335018231}
+    - targetCorrespondingSourceObject: {fileID: 2571145194382551425, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 335018244}
   m_SourcePrefab: {fileID: 100100000, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
 --- !u!43 &1453338280
 Mesh:

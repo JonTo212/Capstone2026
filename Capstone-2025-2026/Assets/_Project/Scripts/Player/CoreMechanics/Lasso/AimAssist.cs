@@ -58,8 +58,6 @@ public class AimAssist
         Vector3 screenCenter = new Vector3(Screen.width / 2f, Screen.height / 2f, 0f);
         Ray screenRay = cam.ScreenPointToRay(screenCenter);
 
-        Vector3 aimDir = (screenRay.GetPoint(1000f) - origin).normalized;
-
         switch (type)
         {
             case AimAssistType.Snap:
@@ -68,15 +66,15 @@ public class AimAssist
                 break;
 
             case AimAssistType.Buffer:
-                if (GetDirectHit(origin, aimDir, range, out RaycastHit directHit))
+                if (GetDirectHit(origin, screenRay.direction, range, out RaycastHit directHit))
                     return directHit;
-                if (GetDynamicBufferHit(cam, new Ray(origin, aimDir), range, bufferRadius, out RaycastHit bufferHit))
+                if (GetDynamicBufferHit(cam, new Ray(origin, screenRay.direction), range, bufferRadius, out RaycastHit bufferHit))
                     return bufferHit;
                 break;
 
             case AimAssistType.None:
             default:
-                if (GetDirectHit(origin + camOffset, aimDir, range, out directHit))
+                if (GetDirectHit(origin + camOffset, screenRay.direction, range, out directHit))
                     return directHit;
                 break;
         }

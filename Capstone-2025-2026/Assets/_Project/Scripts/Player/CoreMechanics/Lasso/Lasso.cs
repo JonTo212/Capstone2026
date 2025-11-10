@@ -113,13 +113,11 @@ public class Lasso : MonoBehaviour
 
     public Vector3 GetAnchoredCenterOfScreen()
     {
-        //Ray ray = PlayerCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
         Vector3 screenCenter = new Vector3(Screen.width / 2f, Screen.height / 2f, 0f);
         Ray screenRay = PlayerCam.ScreenPointToRay(screenCenter);
-        Vector3 aimDir = (screenRay.GetPoint(1000f) - PlayerCamLookPos.position).normalized;
 
         Vector3 camOffset = GetCameraWorldOffset();
-        Ray ray = new Ray(PlayerCamLookPos.position + camOffset, aimDir);
+        Ray ray = new Ray(PlayerCamLookPos.position + camOffset, screenRay.direction);
         Vector3 maxDistancePos = PlayerCamLookPos.position + camOffset + ray.direction * _anchorDist;
 
         return maxDistancePos;
