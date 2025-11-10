@@ -1,12 +1,11 @@
-using System.Collections;
 using UnityEngine;
-using UnityEngine.Windows;
 
 public enum PlayerMoveState
 {
     Walking,
     InAir,
     Swinging,
+    Mantling,
     OnMovingPlatform 
 }
 
