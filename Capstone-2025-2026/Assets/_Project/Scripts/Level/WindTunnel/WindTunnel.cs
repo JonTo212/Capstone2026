@@ -1,25 +1,30 @@
 using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
+using System.Linq;
 
 public class WindTunnel : MonoBehaviour
 {
     [Header("Components")]
     [SerializeField] private ParticleSystem windParticles;
     [SerializeField] private BoxCollider boxCollider;
+    [SerializeField] private BoxCollider tunnelEndCollider;
 
     [Header("Parameters")]
     [SerializeField] private float windStrength = 5f;
     [SerializeField] private float windSpeed = 5f;
-    [SerializeField] private float damping = 2f;
     [SerializeField] private Vector3 tunnelSize = Vector3.one * 3;
 
     [Header("Random Props")]
     [SerializeField] bool preCook;
-    [SerializeField] int spawnNumber = 20;
+    [SerializeField] float spawnRate = 2f;
+    [SerializeField] int maxObjectCount = 20;
     [SerializeField] private GameObject[] propsToSpawn;
 
-    private List<Prop> propsInWindTunnel = new List<Prop>();
+    [SerializeField] private List<Prop> propsInWindTunnel = new List<Prop>();
     private Vector3 windDirection;
+
+    private Coroutine spawnCoroutine;
 
     [Header("Debug Parameters")]
     [SerializeField] private Mesh debugArrow;
@@ -30,16 +35,22 @@ public class WindTunnel : MonoBehaviour
         boxCollider.center = new Vector3(0,0,tunnelSize.z / 2);
         boxCollider.size = tunnelSize;
 
+        tunnelEndCollider.center = new Vector3(0, 0, tunnelSize.z - 0.5f);
+        tunnelEndCollider.size = new Vector3(tunnelSize.x, tunnelSize.y, 1f);
+
         var shapeModule = windParticles.shape;
         shapeModule.scale = new Vector3(tunnelSize.x, tunnelSize.y, 0.1f);
 
-        SpawnRandomAllObject();
+        if(preCook)
+        {
+            SpawnRandomAllObject();
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-
+        SpawnObjectsPeriodically();
     }
 
     private void OnDrawGizmos()
@@ -76,7 +87,6 @@ public class WindTunnel : MonoBehaviour
         if(other.GetComponent<Prop>() != null)
         {
             propsInWindTunnel.Add(other.GetComponent<Prop>());
-
             other.GetComponent<Rigidbody>().useGravity = false;
         }
     }
@@ -86,13 +96,8 @@ public class WindTunnel : MonoBehaviour
         if (other.GetComponent<Prop>() != null)
         {
             Prop prop = other.GetComponent<Prop>();
-            //if(!prop.IsSnared || !prop.isTetherPulled)
-            //{
-            //    other.transform.position = transform.position + GetRandomStartPosition();
-            //    return;
-            //}
-            propsInWindTunnel.Remove(other.GetComponent<Prop>());
-            other.GetComponent<Rigidbody>().useGravity = true;
+            propsInWindTunnel.Remove(prop);
+            prop.rb.useGravity = true;
         }
     }
     private void StabilizeRbSpeed(Prop prop)
@@ -108,13 +113,36 @@ public class WindTunnel : MonoBehaviour
         prop.rb.AddForce(force, ForceMode.Force);
     }
 
+    private void SpawnObjectsPeriodically()
+    {
+        if (propsToSpawn.Length <= 0) return;
+
+        if (propsInWindTunnel.Count < maxObjectCount)
+        {
+            if (spawnCoroutine == null)
+            {
+                spawnCoroutine = StartCoroutine(SpawnObjectAfterDelay(Random.Range(spawnRate * 0.75f, spawnRate * 1.25f)));
+            }
+        }
+    }
+
     private void SpawnRandomAllObject()
     {
-        for (int i = 0; i < spawnNumber; i++)
+        if(propsToSpawn.Length <= 0) return;
+        Prop[] propsSpawned = new Prop[maxObjectCount];
+
+        for (int i = 0; i < maxObjectCount; i++)
         {
             GameObject newProp = Instantiate(GetRandomProp(), transform.position + GetRandomVolumePosition(), Quaternion.identity);
-            //propsInWindTunnel.Add(newProp.GetComponent<Prop>());
+            propsSpawned[i] = newProp.GetComponent<Prop>();
         }
+
+        propsInWindTunnel = new List<Prop>(propsSpawned.ToList());
+    }
+
+    public void RespawnObjectInWindtunnel(Transform objectToRespawn)
+    {
+        objectToRespawn.position = transform.position + GetRandomStartPosition();
     }
 
     private GameObject GetRandomProp()
@@ -147,4 +175,13 @@ public class WindTunnel : MonoBehaviour
         return localX + localY;
     }
 
+    IEnumerator SpawnObjectAfterDelay(float time)
+    {
+        yield return new WaitForSeconds(time);
+
+        GameObject newProp = Instantiate(GetRandomProp(), transform.position + GetRandomStartPosition(), Quaternion.identity);
+        newProp.AddComponent<WindTunnelProp>().Init(this);
+        //propsInWindTunnel.Add(newProp.GetComponent<Prop>());
+        spawnCoroutine = null;
+    }
 }
