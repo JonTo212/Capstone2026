@@ -12,6 +12,7 @@ public class PlayerActions : MonoBehaviour
     private InputAction altAction;
     private InputAction interactAction;
     public InputAction MoveAction { get; set; }
+    private InputAction menuAction;
 
     public Vector2 MoveInput => MoveAction.ReadValue<Vector2>();
     public Vector2 LookInput => lookAction.ReadValue<Vector2>();
@@ -42,6 +43,10 @@ public class PlayerActions : MonoBehaviour
     public bool InteractHeld => interactAction.IsPressed();
     public bool InteractUp => interactAction.WasReleasedThisFrame();
 
+    public bool MenuDown => menuAction.WasPressedThisFrame();
+    public bool MenuHeld => menuAction.IsPressed();
+    public bool MenuUp => menuAction.WasReleasedThisFrame();
+
     private void Awake()
     {
         var map = InputSystem.actions;
@@ -54,6 +59,7 @@ public class PlayerActions : MonoBehaviour
         mainAction = map.FindAction("Main");
         altAction = map.FindAction("Alt");
         interactAction = map.FindAction("Interact");
+        menuAction = map.FindAction("Menu");
     }
 
     private void OnEnable()
@@ -67,6 +73,7 @@ public class PlayerActions : MonoBehaviour
         mainAction.Enable();
         altAction.Enable();
         interactAction.Enable();
+        menuAction.Enable();
     }
 
     private void OnDisable()
@@ -80,5 +87,6 @@ public class PlayerActions : MonoBehaviour
         mainAction.Disable();
         altAction.Disable();
         interactAction.Disable();
+        menuAction.Disable();
     }
 }
