@@ -278,8 +278,6 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     #endregion
 
     #region Utility
-    protected void PropDebug(string message) { if(debugThisProp == true) Debug.Log(message); }
-
     private void OnCollisionEnter(Collision collision)
     {
         IsTouchingSurface = true;
