@@ -5,6 +5,7 @@ using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.ProBuilder.MeshOperations;
+using static CharacterSkinController;
 
 public class JointTetherPlacer : MonoBehaviour
 {
@@ -92,7 +93,6 @@ public class JointTetherPlacer : MonoBehaviour
             if (GetObjectInPlayerFront(out RaycastHit hit) && hit.transform != startTransform)
             {
                 didEndPointHit = true;
-                Debug.Log("HIT");
                 SetTetherEndPoint(hit.transform, hit.point);
                 CreateAndInitTether(startTransform, startLocalPosition, endTransform, endLocalPosition, autoActivate);
             }
@@ -104,9 +104,13 @@ public class JointTetherPlacer : MonoBehaviour
     private void SetTetherStartPoint(Transform startTransform, Vector3 startPosition)
     {
         this.startTransform = startTransform;
+
+        if(startTransform.gameObject.TryGetComponent<Prop>(out Prop propComponent))
+        {
+            startPosition = propComponent.CheckNearestGrabPoint(startPosition).position;
+        }
         startLocalPosition = startTransform.InverseTransformPoint(startPosition);
 
-        
         aManage.PlaySFX(aManage.TetherStart, 4, 1f);
     }
 
@@ -115,6 +119,12 @@ public class JointTetherPlacer : MonoBehaviour
         didStartPointHit = false;
 
         this.endTransform = endTransform;
+
+        if (endTransform.gameObject.TryGetComponent<Prop>(out Prop propComponent))
+        {
+            endPosition = propComponent.CheckNearestGrabPoint(endPosition).position;
+        }
+
         endLocalPosition = endTransform.InverseTransformPoint(endPosition);
         
         aManage.PlaySFX(aManage.TetherEnd, 4, 1f);
@@ -165,7 +175,14 @@ public class JointTetherPlacer : MonoBehaviour
 
         if (GetObjectInPlayerFront(out RaycastHit hit))
         {
-            tetherPreviewLine.SetEndPoint(hit.point);
+            Vector3 endPosition = hit.point;
+
+            if (hit.transform.TryGetComponent<Prop>(out Prop propComponent))
+            {
+                endPosition = propComponent.CheckNearestGrabPoint(endPosition).position;
+            }
+
+            tetherPreviewLine.SetEndPoint(endPosition);
         }
         else
         {
