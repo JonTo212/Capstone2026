@@ -71,7 +71,6 @@ public class ThirdPersonAnimatorController : MonoBehaviour
         if (_jointTetherPlacer.didEndPointHit == true)
         {
             animator.SetBool("TetherEndPointHit", true);
-            Debug.Log("LOCKIN");
         }
         else
         {
