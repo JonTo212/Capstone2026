@@ -16,7 +16,6 @@ public class JointTetherPlacer : MonoBehaviour
 
     [Header("Properties")]
     [SerializeField] private GameObject jointTetherPrefab;
-    [SerializeField] private StaffTetherIndicators staffTetherIndicator;
     [SerializeField] private LayerMask tetherLayerMask;
     [SerializeField] private int numOfTethersPlaced = 0;
     [SerializeField] private bool autoActivateTether = true;
@@ -31,10 +30,10 @@ public class JointTetherPlacer : MonoBehaviour
     [SerializeField] private float timeToDestroyAllTethers = 0.8f;
 
     [Header("Hit Properties")]
-    private Transform startTransform;
-    private Transform endTransform;
-    private Vector3 startLocalPosition;
-    private Vector3 endLocalPosition;
+    [SerializeField] private Transform startTransform;
+    [SerializeField] private Transform endTransform;
+    [SerializeField] private Vector3 startLocalPosition;
+    [SerializeField] private Vector3 endLocalPosition;
     [SerializeField] private TMP_Text tetherAmountText;
     [SerializeField] private TMP_Text tetherControlsText;
     public event Action OnTetherStartHit;
@@ -93,6 +92,7 @@ public class JointTetherPlacer : MonoBehaviour
             if (GetObjectInPlayerFront(out RaycastHit hit) && hit.transform != startTransform)
             {
                 didEndPointHit = true;
+                Debug.Log("HIT");
                 SetTetherEndPoint(hit.transform, hit.point);
                 CreateAndInitTether(startTransform, startLocalPosition, endTransform, endLocalPosition, autoActivate);
             }
@@ -112,6 +112,8 @@ public class JointTetherPlacer : MonoBehaviour
 
     private void SetTetherEndPoint(Transform endTransform, Vector3 endPosition)
     {
+        didStartPointHit = false;
+
         this.endTransform = endTransform;
         endLocalPosition = endTransform.InverseTransformPoint(endPosition);
         
@@ -121,6 +123,7 @@ public class JointTetherPlacer : MonoBehaviour
     //Creates and initializes tether parameters like hit transforms and positions
     private void CreateAndInitTether(Transform startTransform, Vector3 startLocalPosition, Transform endTransform, Vector3 endLocalPosition, bool autoActivate)
     {
+
         GameObject newJointTether = Instantiate(jointTetherPrefab, transform.position, Quaternion.identity);
         JointTether jointTether = newJointTether.GetComponent<JointTether>();
 
@@ -132,8 +135,6 @@ public class JointTetherPlacer : MonoBehaviour
         placedTethers.Add(jointTether);
 
         numOfTethersPlaced++;
-
-        staffTetherIndicator.UpdateTetherIndicatorCount(numOfTethersPlaced);
 
         UpdateTetherAmountText();
     }
@@ -188,7 +189,6 @@ public class JointTetherPlacer : MonoBehaviour
     {
         placedTethers.Remove(jointTether);
         numOfTethersPlaced--;
-        staffTetherIndicator.UpdateTetherIndicatorCount(numOfTethersPlaced);
         UpdateTetherAmountText();
     }
 
@@ -198,8 +198,6 @@ public class JointTetherPlacer : MonoBehaviour
         endTransform = null;
         startLocalPosition = Vector3.zero;
         endLocalPosition = Vector3.zero;
-
-        didStartPointHit = false;
     }
 
     private void UpdateTetherAmountText()

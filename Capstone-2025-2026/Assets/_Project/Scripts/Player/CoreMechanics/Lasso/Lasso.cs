@@ -1,17 +1,22 @@
+using NodeCanvas.Tasks.Actions;
 using System;
 using System.Collections;
+using Unity.Cinemachine;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using static UnityEngine.UI.Image;
 
 public class Lasso : MonoBehaviour
 {
     [Header("External Components")]
     [field: SerializeField] public Transform HoldPos { get; private set; }
+    [field: SerializeField] public Transform PlayerCamLookPos { get; private set; }
+    [field: SerializeField] public Transform CinemachineBrain { get; private set; }
     [field: SerializeField] public Camera PlayerCam { get; private set; }
+
     [SerializeField] private GameObject lassoGrabVisualIndicator;
-    [SerializeField] private GameObject lassoGrabVisual;
 
     [Header("Lasso Properties")]
     [SerializeField] private float reelIncrement = 2f;
@@ -95,25 +100,25 @@ public class Lasso : MonoBehaviour
 
     #region Helper Functions
 
+    private Vector3 GetCameraWorldOffset()
+    {
+        CinemachineCameraOffset cameraOffset = CinemachineBrain.GetComponent<CinemachineCameraOffset>();
+        if (cameraOffset != null)
+        {
+            Vector3 localOffset = cameraOffset.Offset;
+            return PlayerCam.transform.TransformDirection(localOffset);
+        }
+        return Vector3.zero;
+    }
+
     public Vector3 GetAnchoredCenterOfScreen()
     {
-        Ray ray = PlayerCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
-        Vector3 maxDistancePos = ray.origin + ray.direction * _anchorDist;
+        Vector3 screenCenter = new Vector3(Screen.width / 2f, Screen.height / 2f, 0f);
+        Ray screenRay = PlayerCam.ScreenPointToRay(screenCenter);
 
-        /*RaycastHit[] hits = Physics.RaycastAll(ray, _anchorDist);
-        if (hits.Length > 0)
-        { 
-            Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
-
-            foreach (var hit in hits)
-            {
-                if (hit.transform != _snaredObjTransform)
-                {
-                    maxDistancePos = ray.origin + ray.direction * hit.distance;
-                    break;
-                }
-            }
-        }*/
+        Vector3 camOffset = GetCameraWorldOffset();
+        Ray ray = new Ray(PlayerCamLookPos.position + camOffset, screenRay.direction);
+        Vector3 maxDistancePos = PlayerCamLookPos.position + camOffset + ray.direction * _anchorDist;
 
         return maxDistancePos;
     }
@@ -155,7 +160,7 @@ public class Lasso : MonoBehaviour
 
         if (useAimOutline)
         {
-            RaycastHit? hit = _aimAssist.GetAssistHitPoint(PlayerCam, PlayerCam.transform.position, maxLassoRange, aimAssistType, aimAssistBufferRadius);
+            RaycastHit? hit = _aimAssist.GetAssistHitPoint(PlayerCam, PlayerCamLookPos.position, maxLassoRange, aimAssistType, aimAssistBufferRadius, GetCameraWorldOffset());
             if (hit.HasValue)
             {
                 targetProp = hit.Value.transform.GetComponentInParent<Prop>();
@@ -192,26 +197,25 @@ public class Lasso : MonoBehaviour
     #region Start Lasso
     public void HandleLassoStart()
     {
-        RaycastHit? hit = _aimAssist.GetAssistHitPoint(PlayerCam, PlayerCam.transform.position, maxLassoRange, aimAssistType, aimAssistBufferRadius);
+        RaycastHit? hit = _aimAssist.GetAssistHitPoint(PlayerCam, PlayerCamLookPos.position, maxLassoRange, aimAssistType, aimAssistBufferRadius, GetCameraWorldOffset());
         if (hit.HasValue)
         {
             RaycastHit actualHit = hit.Value;
-            Ray noAssistRay = PlayerCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+            //Ray noAssistRay = PlayerCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
             Prop prop = actualHit.transform.GetComponentInParent<Prop>();
 
             Transform closestPointTransform = prop.CheckNearestGrabPoint(actualHit.point);
 
             if (closestPointTransform != null)
             {
-                //prop.EnableAllGrabPoints(true); //apparently it still works while everything is inactive?
-                _anchorDist = Vector3.Distance(closestPointTransform.position, noAssistRay.origin);
+                _anchorDist = Vector3.Distance(closestPointTransform.position, PlayerCamLookPos.position);
                 _attachPointLocal = prop.transform.InverseTransformPoint(closestPointTransform.position);
                 _localFaceNormal = prop.transform.InverseTransformDirection(closestPointTransform.forward);
             }
 
             else
             {
-                _anchorDist = Vector3.Distance(actualHit.point, noAssistRay.origin);
+                _anchorDist = Vector3.Distance(actualHit.point, PlayerCamLookPos.position);
                 _attachPointLocal = prop.transform.InverseTransformPoint(actualHit.point);
             }
 
@@ -257,11 +261,12 @@ public class Lasso : MonoBehaviour
         Vector3 linearAcceleration = linearForce / effectiveMassScale;
         Vector3 angularAcceleration = totalTorque / effectiveMassScale;
 
+
         //SnaredObject.Rb.AddForceAtPosition(springForce + dampingForce, attachPointWorld, ForceMode.Acceleration); //accel works because the damping already takes into account mass
         //if (SnaredObject.IsTouchingSurface) linearAcceleration = Vector3.ClampMagnitude(linearForce / effectiveMassScale, centerStrength);
-        //if (!SnaredObject.IsTouchingSurface) SnaredObject.Rb.AddTorque(angularAcceleration, ForceMode.Acceleration); //temp (?)
+        //if (!SnaredObject.IsTouchingSurface) SnaredObject.Rb.AddTorque(angularAcceleration, ForceMode.Acceleration);
         SnaredObject.ApplyForceInDirection(linearAcceleration.normalized, linearAcceleration.magnitude, ForceMode.Acceleration, transform);
-        SnaredObject.Rb.AddTorque(angularAcceleration, ForceMode.Acceleration);
+        SnaredObject.Rb.AddTorque(angularAcceleration, ForceMode.Acceleration); //temp (?)
         SnaredObject.Rb.angularVelocity *= 0.98f; //stop excessive spin
     }
 
@@ -296,13 +301,11 @@ public class Lasso : MonoBehaviour
     {
         Vector3 lookAtSpringTorque = Vector3.zero;
         Vector3 lookAtDampingTorque = Vector3.zero;
-
         if (_localFaceNormal != Vector3.zero)
         {
             Vector3 worldFaceNormal = SnaredObject.transform.TransformDirection(_localFaceNormal);
-            Vector3 toPlayer = (PlayerCam.transform.position - SnaredObject.Rb.worldCenterOfMass).normalized;
-            float alignment = Mathf.Abs(Vector3.Dot(worldFaceNormal, toPlayer));
-            lookAtSpringTorque = Vector3.Cross(worldFaceNormal, toPlayer) * lookAtStrength * alignment;
+            Vector3 toPlayer = (PlayerCamLookPos.position - SnaredObject.Rb.worldCenterOfMass).normalized;
+            lookAtSpringTorque = Vector3.Cross(worldFaceNormal, toPlayer) * lookAtStrength;
             lookAtDampingTorque = -SnaredObject.Rb.angularVelocity * lookAtDamping;
         }
 
@@ -318,7 +321,6 @@ public class Lasso : MonoBehaviour
 
         return effectiveMassScale;
     }
-
 
     /*public void HandleObjectHoldAtDistance(Vector3 desiredPos)
     {
@@ -424,7 +426,7 @@ public class Lasso : MonoBehaviour
         joint.autoConfigureConnectedAnchor = false;
         joint.connectedAnchor = HitPos;
 
-        float currentDist = Vector3.Distance(HoldPos.position, HitPos);
+        float currentDist = Vector3.Distance(PlayerCamLookPos.position, HitPos);
         joint.maxDistance = _anchorDist * 0.85f;
         joint.minDistance = _anchorDist * 0.15f;
 
@@ -676,7 +678,6 @@ public class Lasso : MonoBehaviour
 
         SnaredObject.OnPropDestroyed -= HandleObjectReleased;
         SnaredObject.ActivateOutline(false);
-        //SnaredObject.EnableAllGrabPoints(false);
         SnaredObject.OnRelease();
         SnaredObject = null;
         _snaredObjTransform = null;

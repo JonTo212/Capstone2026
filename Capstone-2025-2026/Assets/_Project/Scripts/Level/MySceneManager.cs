@@ -21,7 +21,7 @@ public class MySceneManager : MonoBehaviour
         /*SceneManager.LoadScene(SceneNames[sceneIndex]);
         currentScene = SceneNames[sceneIndex];*/
     }
-    
+
     public void QuitToDesktop()
     {
         /*
@@ -39,7 +39,7 @@ public class MySceneManager : MonoBehaviour
 
     }
 
-    public void ReturnToStartMenu ()
+    public void ReturnToStartMenu()
     {
         SceneManager.LoadScene("StartMenu");
         currentScene = "StartMenu";

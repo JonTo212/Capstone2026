@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -20,6 +21,9 @@ public class JointTetherActivator : MonoBehaviour
     private Coroutine destroyAllTethersCoroutine;
 
     public AudioManager aManage;
+
+    //TEMPORARY ANIMATION EVENT
+    public event Action OnTetherActivated;
 
     #region Unity Functions
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -76,6 +80,8 @@ public class JointTetherActivator : MonoBehaviour
             
             aManage.PlaySFX(aManage.TetherTighten, 4, 1f);
             tether.ActivateTether();
+
+            OnTetherActivated?.Invoke();
             tether.gameObject.GetComponent<JointTetherVisuals>().SetLineColorActive();
         }
     }
@@ -89,6 +95,8 @@ public class JointTetherActivator : MonoBehaviour
         {
             aManage.PlaySFX(aManage.TetherTighten, 4, 1f);
             tether.ActivateTether();
+
+            OnTetherActivated?.Invoke();
             tether.gameObject.GetComponent<JointTetherVisuals>().SetLineColorActive();
         }
     }

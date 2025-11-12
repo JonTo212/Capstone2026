@@ -1,7 +1,6 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 
 [RequireComponent(typeof(Rigidbody), typeof(Outline))]
 public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
@@ -13,7 +12,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     protected Lasso playerLasso;
     [SerializeField] protected List<JointTether> attachedTethers = new List<JointTether>();
     [SerializeField] protected List<ConfigurableJoint> tetherJoints = new List<ConfigurableJoint>();
-    [SerializeField] protected List <Transform> connectedObject = new List<Transform>();
+    [SerializeField] protected List<Transform> connectedObject = new List<Transform>();
     [SerializeField] protected List<Transform> connectedAnchors = new List<Transform>();
     protected float defaultDrag;
     protected float defaultAngularDrag;
@@ -23,7 +22,9 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     public virtual bool IsSnared { get; protected set; } = false;
     public virtual bool IsBeingPulled { get; set; } = false;
     public virtual bool isTetherPulled { get; protected set; } = false;
-    public bool IsTouchingSurface { get; protected set; } = false;
+
+    public bool IsTouchingSurface {  get; protected set; } = false;
+
     public Rigidbody Rb => rb;
     public Transform AttachedTransform { get; set; }
     public Outline ObjectOutline { get; set; }
@@ -50,7 +51,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         ObjectOutline.enabled = false;
 
         var generator = GetComponent<IGrabPointGenerator>();
-        if (generator != null)
+        if(generator != null)
         {
             Collider col = GetComponent<Collider>();
             GrabPoints = generator.GeneratePoints(col, faceRows, faceColumns);
@@ -60,26 +61,22 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
             }
         }
     }
-    protected virtual void FixedUpdate()
-    {
-        totalForceApplied = Vector3.zero;
-        totalForceApplied += GetForcesFromJoint();
-
-    }
 
     protected virtual void Update()
     {
         HandleOutlineColors();
     }
 
-    protected virtual void LateUpdate()
-    {
-
-    }
-
     protected virtual void OnDestroy()
     {
         OnPropDestroyed?.Invoke();
+    }
+
+    protected virtual void FixedUpdate()
+    {
+        totalForceApplied = Vector3.zero;
+        totalForceApplied += GetForcesFromJoint();
+
     }
 
     #region ISnareable
@@ -112,35 +109,10 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
 
         if(transform != null) transform.SetParent(null);
     }
-    #endregion
 
-    #region IHoldable
-    public virtual void OnHold(Transform newParent)
-    {
-        IsHeld = true;
-        IsSnared = false;
-        IsBeingPulled = false;
-        rb.isKinematic = true;
-        rb.interpolation = RigidbodyInterpolation.None;
-        rb.constraints = RigidbodyConstraints.FreezePosition;
-        transform.SetParent(newParent);
-        transform.position = newParent.position;
-        ActivateOutline(false);
-    }
-
-    public virtual void OnThrow(Vector3 dir, float magnitude)
-    {
-        OnRelease();
-        rb.isKinematic = false;
-        ApplyForceInDirection(dir, magnitude, ForceMode.Impulse);
-    }
-
-    #endregion
-
-    #region ITetherable
     public virtual void OnAttachTether()
     {
-        
+
     }
 
     public virtual void OnTetherPull(JointTether tether, Transform targetAnchorTransform, Transform targetObjectTransform, ConfigurableJoint joint)
@@ -167,9 +139,9 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
             ObjectOutline.enabled = false;
         }
     }
-    #endregion
 
-    #region Outline
+
+
     public virtual void ActivateOutline(bool activate)
     {
         ObjectOutline.enabled = activate;
@@ -215,6 +187,28 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
 
     #endregion
 
+    #region IHoldable
+    public virtual void OnHold(Transform newParent)
+    {
+        IsHeld = true;
+        IsSnared = false;
+        IsBeingPulled = false;
+        rb.interpolation = RigidbodyInterpolation.None;
+        rb.constraints = RigidbodyConstraints.FreezePosition;
+        transform.SetParent(newParent);
+        transform.position = newParent.position;
+        ActivateOutline(false);
+    }
+
+    public virtual void OnThrow(Vector3 dir, float magnitude)
+    {
+        OnRelease();
+        ApplyForceInDirection(dir, magnitude, ForceMode.Impulse);
+    }
+
+    #endregion
+
+
     #region Force Addition
 
     public virtual void ApplyForceInDirection(Vector3 direction, float magnitude, ForceMode forceMode, Transform forceApplier = null)
@@ -226,6 +220,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
             totalForceApplied += direction * magnitude;
         }
     }
+
     protected Vector3 GetForcesFromJoint()
     {
         Vector3 totalForce = Vector3.zero;
@@ -282,7 +277,8 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
 
     #endregion
 
-    #region OnCollisionEnter
+    #region Utility
+    protected void PropDebug(string message) { if(debugThisProp == true) Debug.Log(message); }
 
     private void OnCollisionEnter(Collision collision)
     {
@@ -302,9 +298,9 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     #endregion
 
     #region Utility
-    protected void PropDebug(string message) { if(debugThisProp == true) Debug.Log(message); }
+    protected void PropDebug(string message) { if (debugThisProp == true) Debug.Log(message); }
 
-    protected void PropWarning(string message){ if(debugThisProp == true) Debug.LogWarning(message); }
+    protected void PropWarning(string message) { if (debugThisProp == true) Debug.LogWarning(message); }
 
     protected void PropError(string message) { if (debugThisProp == true) Debug.LogError(message); }
     #endregion

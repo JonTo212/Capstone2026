@@ -54,6 +54,15 @@ public class LassoTetherController : MonoBehaviour
         TempSetText(LassoState.Empty);
     }
 
+    private void OnDisable()
+    {
+        playerLasso.OnObjectYankCompleted -= OnObjectYankCompleted;
+        playerLasso.OnPlayerYankCompleted -= OnPlayerYankCompleted;
+        playerLasso.OnLassoReleased -= OnLassoReleased;
+        playerLasso.OnObjectHit -= OnLassoHit;
+        playerTether.OnTetherStartHit -= OnTetherStartHit;
+    }
+
     private void Update()
     {
         switch (CurrentLassoState)
