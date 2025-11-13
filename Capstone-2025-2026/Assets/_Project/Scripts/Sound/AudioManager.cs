@@ -19,6 +19,7 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioSource sFXSource7;
 
     [SerializeField] private AudioSource ambienceSource1;
+    [SerializeField] private AudioSource ambienceSource2;
 
     public AudioSource MusicSource1 => musicSource1;
     public AudioSource MusicSource2 => musicSource2;
@@ -32,6 +33,7 @@ public class AudioManager : MonoBehaviour
     public AudioSource SFXSource7 => sFXSource7;
 
     public AudioSource AmbienceSource1 => ambienceSource1;
+    public AudioSource AmbienceSource2 => ambienceSource2;
 
 
     [Header("------------Music Clips------------")]
@@ -333,6 +335,9 @@ public class AudioManager : MonoBehaviour
             {
                 case 1:
                     selectedSource = AmbienceSource1;
+                    break;
+                case 2:
+                    selectedSource = AmbienceSource2;
                     break;
             }
 
