@@ -76,7 +76,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     {
         totalForceApplied = Vector3.zero;
         totalForceApplied += GetForcesFromJoint();
-
+        PropDebug(totalForceApplied.magnitude.ToString());
     }
 
     #region ISnareable
@@ -236,7 +236,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
             float springConstant = joint.xDrive.positionSpring;
             float dampener = joint.xDrive.positionDamper;
 
-            Vector3 forceFromJoint = (springConstant * difference - dampener * rb.linearVelocity) * Time.fixedDeltaTime;
+            Vector3 forceFromJoint = (springConstant * difference - dampener * rb.linearVelocity);
 
             totalForce += forceFromJoint;
         }

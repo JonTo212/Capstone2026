@@ -107,7 +107,11 @@ public class JointTetherPlacer : MonoBehaviour
 
         if(startTransform.gameObject.TryGetComponent<Prop>(out Prop propComponent))
         {
-            startPosition = propComponent.CheckNearestGrabPoint(startPosition).position;
+
+            if (propComponent.CheckNearestGrabPoint(startPosition) != null)
+            {
+                startPosition = propComponent.CheckNearestGrabPoint(startPosition).position;
+            }
         }
         startLocalPosition = startTransform.InverseTransformPoint(startPosition);
 
@@ -122,7 +126,10 @@ public class JointTetherPlacer : MonoBehaviour
 
         if (endTransform.gameObject.TryGetComponent<Prop>(out Prop propComponent))
         {
-            endPosition = propComponent.CheckNearestGrabPoint(endPosition).position;
+            if (propComponent.CheckNearestGrabPoint(endPosition) != null)
+            {
+                endPosition = propComponent.CheckNearestGrabPoint(endPosition).position;
+            }
         }
 
         endLocalPosition = endTransform.InverseTransformPoint(endPosition);
@@ -179,7 +186,10 @@ public class JointTetherPlacer : MonoBehaviour
 
             if (hit.transform.TryGetComponent<Prop>(out Prop propComponent))
             {
-                endPosition = propComponent.CheckNearestGrabPoint(endPosition).position;
+                if (propComponent.CheckNearestGrabPoint(endPosition) != null)
+                {
+                    endPosition = propComponent.CheckNearestGrabPoint(endPosition).position;
+                }
             }
 
             tetherPreviewLine.SetEndPoint(endPosition);

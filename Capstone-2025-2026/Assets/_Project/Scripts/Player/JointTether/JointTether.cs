@@ -17,6 +17,8 @@ public class JointTether : MonoBehaviour
     [Header("Config Joint Parameters")]
     [SerializeField] private float driveStrength = 20f;
     [SerializeField] private float driveDamper = 5f;
+    [SerializeField] private float maxForce = 250
+        ;
     [SerializeField] private float activationDelay = 0.4f;
 
     [Header("Properties")]
@@ -153,15 +155,15 @@ public class JointTether : MonoBehaviour
 
         xDrive.positionSpring = driveStrength;
         xDrive.positionDamper = driveDamper;
-        xDrive.maximumForce = 1000000f;
+        xDrive.maximumForce = maxForce;
 
         yDrive.positionSpring = driveStrength;
         yDrive.positionDamper = driveDamper;
-        yDrive.maximumForce = 1000000f;
+        yDrive.maximumForce = maxForce;
 
         zDrive.positionSpring = driveStrength;
         zDrive.positionDamper = driveDamper;
-        zDrive.maximumForce = 1000000f;
+        zDrive.maximumForce = maxForce;
 
         joint.xDrive = xDrive;
         joint.yDrive = yDrive;
