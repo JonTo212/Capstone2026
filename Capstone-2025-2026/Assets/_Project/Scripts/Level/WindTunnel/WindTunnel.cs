@@ -134,6 +134,7 @@ public class WindTunnel : MonoBehaviour
         for (int i = 0; i < maxObjectCount; i++)
         {
             GameObject newProp = Instantiate(GetRandomProp(), transform.position + GetRandomVolumePosition(), Quaternion.identity);
+            newProp.AddComponent<WindTunnelProp>().Init(this);
             propsSpawned[i] = newProp.GetComponent<Prop>();
         }
 
