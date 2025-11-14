@@ -11,7 +11,6 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     public Rigidbody rb { get; protected set; }
     protected Lasso playerLasso;
     [SerializeField] protected List<JointTether> attachedTethers = new List<JointTether>();
-    [SerializeField] protected List<ConfigurableJoint> tetherJoints = new List<ConfigurableJoint>();
     [SerializeField] protected List<Transform> connectedObject = new List<Transform>();
     [SerializeField] protected List<Transform> connectedAnchors = new List<Transform>();
     protected float defaultDrag;
@@ -76,7 +75,6 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     {
         totalForceApplied = Vector3.zero;
         totalForceApplied += GetForcesFromJoint();
-        PropDebug(totalForceApplied.magnitude.ToString());
     }
 
     #region ISnareable
@@ -115,20 +113,18 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
 
     }
 
-    public virtual void OnTetherPull(JointTether tether, Transform targetAnchorTransform, Transform targetObjectTransform, ConfigurableJoint joint)
+    public virtual void OnTetherPull(JointTether tether, Transform targetAnchorTransform, Transform targetObjectTransform)
     {
         isTetherPulled = true;
-        tetherJoints.Add(joint);
         attachedTethers.Add(tether);
         connectedObject.Add(targetObjectTransform);
         connectedAnchors.Add(targetAnchorTransform);
         rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
     }
 
-    public virtual void OnDetachTether(JointTether tether, Transform targetAnchorTransform, Transform targetObjectTransform, ConfigurableJoint joint)
+    public virtual void OnDetachTether(JointTether tether, Transform targetAnchorTransform, Transform targetObjectTransform)
     {
         if (attachedTethers.IndexOf(tether) < 0) return;
-        tetherJoints.RemoveAt(attachedTethers.IndexOf(tether));
         connectedObject.RemoveAt(attachedTethers.IndexOf(tether));
         connectedAnchors.RemoveAt(attachedTethers.IndexOf((tether)));
         attachedTethers.Remove(tether);
@@ -227,18 +223,20 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
 
         for (int i = 0; i < attachedTethers.Count; i++)
         {
-            ConfigurableJoint joint = tetherJoints[i];
+            //ConfigurableJoint joint = tetherJoints[i];
 
-            Vector3 worldAnchor = transform.TransformPoint(joint.anchor);
-            Vector3 worldTargetAnchor = connectedAnchors[i].TransformPoint(joint.connectedAnchor);
-            Vector3 difference = worldTargetAnchor - worldAnchor;
+            //Vector3 worldAnchor = transform.TransformPoint(joint.anchor);
+            //Vector3 worldTargetAnchor = connectedAnchors[i].TransformPoint(joint.connectedAnchor);
+            //Vector3 difference = worldTargetAnchor - worldAnchor;
 
-            float springConstant = joint.xDrive.positionSpring;
-            float dampener = joint.xDrive.positionDamper;
+            //float springConstant = joint.xDrive.positionSpring;
+            //float dampener = joint.xDrive.positionDamper;
 
-            Vector3 forceFromJoint = (springConstant * difference - dampener * rb.linearVelocity);
+            //Vector3 forceFromJoint = (springConstant * difference - dampener * rb.linearVelocity);
 
-            totalForce += forceFromJoint;
+            totalForce += attachedTethers[i].GetCurrentForce(rb);
+
+            //PropDebug(joint.currentForce.ToString());
         }
 
         return totalForce;
@@ -296,10 +294,10 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     #endregion
 
     #region Utility
-    protected void PropDebug(string message) { if (debugThisProp == true) Debug.Log(message); }
+    protected void PropDebug(object message) { if (debugThisProp == true) Debug.Log(message); }
 
-    protected void PropWarning(string message) { if (debugThisProp == true) Debug.LogWarning(message); }
+    protected void PropWarning(object message) { if (debugThisProp == true) Debug.LogWarning(message); }
 
-    protected void PropError(string message) { if (debugThisProp == true) Debug.LogError(message); }
+    protected void PropError(object message) { if (debugThisProp == true) Debug.LogError(message); }
     #endregion
 }

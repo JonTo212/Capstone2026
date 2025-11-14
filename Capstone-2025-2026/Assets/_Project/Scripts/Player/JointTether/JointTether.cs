@@ -17,15 +17,15 @@ public class JointTether : MonoBehaviour
     [Header("Config Joint Parameters")]
     [SerializeField] private float driveStrength = 20f;
     [SerializeField] private float driveDamper = 5f;
-    [SerializeField] private float maxForce = 250
-        ;
+    [SerializeField] private float maxForce = 250;
+    [SerializeField] private float breakForce = 750;
     [SerializeField] private float activationDelay = 0.4f;
 
     [Header("Properties")]
     [SerializeField] private bool isAutoActivate = false;
     public bool isActivated { get; private set; } = false;
-    [SerializeField] private ConfigurableJoint startJoint;
-    [SerializeField] private ConfigurableJoint endJoint;
+    [SerializeField] private ConfigurableJoint joint;
+    //[SerializeField] private ConfigurableJoint endJoint;
     private Rigidbody startRb;
     private Rigidbody endRb;
     private Transform startTransform;
@@ -65,6 +65,15 @@ public class JointTether : MonoBehaviour
         {
             ActivateTether();
         }
+
+        SoftJointLimit linearLimit = new SoftJointLimit();
+        linearLimit.limit = (startTransform.TransformPoint(startLocalPosition) - endTransform.TransformPoint(endLocalPosition)).magnitude;
+
+        joint.linearLimit = linearLimit;
+
+        joint.xMotion = ConfigurableJointMotion.Limited;
+        joint.yMotion = ConfigurableJointMotion.Limited;
+        joint.zMotion = ConfigurableJointMotion.Limited;
     }
 
     // Update is called once per frame
@@ -82,35 +91,35 @@ public class JointTether : MonoBehaviour
     {
         tetherVisuals.SetLineColorActive();
 
-        startJoint = CreateJoint(startRb, endRb);
-        endJoint = CreateJoint(endRb, startRb);
+        joint = CreateJoint(startRb, endRb);
+        //endJoint = CreateJoint(endRb, startRb);
 
-        CreateJointConnections(startJoint, startLocalPosition, endLocalPosition, startAnchor, endAnchor);
-        CreateJointConnections(endJoint, endLocalPosition, startLocalPosition, endAnchor, startAnchor);
+        CreateJointConnections(joint, startLocalPosition, endLocalPosition, startAnchor, endAnchor);
+        //CreateJointConnections(endJoint, endLocalPosition, startLocalPosition, endAnchor, startAnchor);
 
         if (startTransform.GetComponent<Prop>() != null)
         {
-            startTransform.GetComponent<Prop>().OnTetherPull(this, endAnchor, endTransform, startJoint);
+            startTransform.GetComponent<Prop>().OnTetherPull(this, endAnchor, endTransform);
             startTransform.GetComponent<Prop>().OnPropDestroyed += DestroyTether;
         }
         if (endTransform.GetComponent<Prop>() != null)
         {
-            endTransform.GetComponent<Prop>().OnTetherPull(this, startAnchor, startTransform, endJoint);
+            //endTransform.GetComponent<Prop>().OnTetherPull(this, startAnchor, startTransform, endJoint);
             endTransform.GetComponent<Prop>().OnPropDestroyed += DestroyTether;
         }
     }
 
     public void ActivateTether()
     {
-        if (startJoint == null || endJoint == null) return;
+        if (joint == null /*|| endJoint == null*/) return;
         isActivated = true;
         StartCoroutine(ActivateTetherAfterDelay());
     }
 
     public void DeactivateTether()
     {
-        Destroy(startJoint);
-        Destroy(endJoint);
+        Destroy(joint);
+        //Destroy(endJoint);
 
         isActivated = false;
 
@@ -197,19 +206,45 @@ public class JointTether : MonoBehaviour
         transform.position = worldStartPos + startEndVector / 2;
     }
 
+    public Vector3 GetCurrentForce(Rigidbody rb)
+    {
+        Vector3 startAnchorPos = startTransform.TransformPoint(startLocalPosition); 
+        Vector3 endAnchorPos = endTransform.TransformPoint(endLocalPosition);
+
+        Vector3 dir = endAnchorPos - startAnchorPos;
+        float dist = dir.magnitude;
+        if(dist < 0.0001 || !isActivated) return Vector3.zero;
+        dir /= dist;
+
+        float relativeVelocity = Vector3.Dot(endRb.linearVelocity - startRb.linearVelocity, dir);
+        float scalarForce = Mathf.Clamp((driveStrength * dist) - (driveDamper * relativeVelocity), 0, maxForce);
+
+        Vector3 forceDirection;
+        if (rb == startRb)
+        {
+            forceDirection = (endAnchorPos - startAnchorPos)/dist;
+        }
+        else
+        {
+            forceDirection = (startAnchorPos - endAnchorPos)/dist;
+        }
+        
+        return forceDirection * scalarForce;
+    }
+
     public void DestroyTether()
     {
         if (startTransform != null && startTransform.gameObject != null && startTransform.GetComponent<Prop>() != null)
         {
-            startTransform.GetComponent<Prop>().OnDetachTether(this,endAnchor, endTransform, startJoint);
+            startTransform.GetComponent<Prop>().OnDetachTether(this,endAnchor, endTransform);
         }
         if (endTransform != null && endTransform.gameObject != null && endTransform.GetComponent<Prop>() != null)
         {
-            endTransform.GetComponent<Prop>().OnDetachTether(this, startAnchor, startTransform, endJoint);
+            //endTransform.GetComponent<Prop>().OnDetachTether(this, startAnchor, startTransform, endJoint);
         }
 
-        if(startJoint != null) Destroy(startJoint);
-        if(endJoint != null) Destroy(endJoint);
+        if(joint != null) Destroy(joint);
+        //if(endJoint != null) Destroy(endJoint);
 
         if(startAnchor!= null && startAnchor.GetComponent<TemporaryJointAnchor>() != null) Destroy(startAnchor.gameObject);
         if (endAnchor != null && endAnchor.GetComponent<TemporaryJointAnchor>() != null) Destroy(endAnchor.gameObject);
@@ -226,8 +261,8 @@ public class JointTether : MonoBehaviour
         tetherVisuals.SetLineColorActive();
         yield return new WaitForSeconds(activationDelay);
 
-        ActivateJoint(startJoint);
-        ActivateJoint(endJoint);
+        ActivateJoint(joint);
+        //ActivateJoint(endJoint);
 
         isActivated = true;
     }
