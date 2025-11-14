@@ -36,6 +36,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     //virtual functions can be overridden by the derived classes
     //default behaviour is updating IsHeld and parenting the object to a given transform (i.e. player hand)
 
+    //Gets the total force applied to this objct. NOTE: Should only be read in Update or the value will  be incorrect
     public Vector3 totalForceApplied { get; protected set; } = Vector3.zero;
 
     protected virtual void Init()
@@ -223,20 +224,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
 
         for (int i = 0; i < attachedTethers.Count; i++)
         {
-            //ConfigurableJoint joint = tetherJoints[i];
-
-            //Vector3 worldAnchor = transform.TransformPoint(joint.anchor);
-            //Vector3 worldTargetAnchor = connectedAnchors[i].TransformPoint(joint.connectedAnchor);
-            //Vector3 difference = worldTargetAnchor - worldAnchor;
-
-            //float springConstant = joint.xDrive.positionSpring;
-            //float dampener = joint.xDrive.positionDamper;
-
-            //Vector3 forceFromJoint = (springConstant * difference - dampener * rb.linearVelocity);
-
             totalForce += attachedTethers[i].GetCurrentForce(rb);
-
-            //PropDebug(joint.currentForce.ToString());
         }
 
         return totalForce;
@@ -291,9 +279,6 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         IsTouchingSurface = false;
     }
 
-    #endregion
-
-    #region Utility
     protected void PropDebug(object message) { if (debugThisProp == true) Debug.Log(message); }
 
     protected void PropWarning(object message) { if (debugThisProp == true) Debug.LogWarning(message); }

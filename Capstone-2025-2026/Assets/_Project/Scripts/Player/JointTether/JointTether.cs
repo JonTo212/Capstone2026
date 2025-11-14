@@ -18,7 +18,7 @@ public class JointTether : MonoBehaviour
     [SerializeField] private float driveStrength = 20f;
     [SerializeField] private float driveDamper = 5f;
     [SerializeField] private float maxForce = 250;
-    [SerializeField] private float breakForce = 750;
+    //[SerializeField] private float breakForce = 750;
     [SerializeField] private float activationDelay = 0.4f;
 
     [Header("Properties")]
@@ -208,28 +208,30 @@ public class JointTether : MonoBehaviour
 
     public Vector3 GetCurrentForce(Rigidbody rb)
     {
+
         Vector3 startAnchorPos = startTransform.TransformPoint(startLocalPosition); 
         Vector3 endAnchorPos = endTransform.TransformPoint(endLocalPosition);
 
-        Vector3 dir = endAnchorPos - startAnchorPos;
-        float dist = dir.magnitude;
-        if(dist < 0.0001 || !isActivated) return Vector3.zero;
-        dir /= dist;
-
-        float relativeVelocity = Vector3.Dot(endRb.linearVelocity - startRb.linearVelocity, dir);
-        float scalarForce = Mathf.Clamp((driveStrength * dist) - (driveDamper * relativeVelocity), 0, maxForce);
-
         Vector3 forceDirection;
-        if (rb == startRb)
+        if (rb == startRb) forceDirection = (endAnchorPos - startAnchorPos).normalized;
+        else forceDirection = (startAnchorPos - endAnchorPos).normalized;
+
+        if(isActivated)
         {
-            forceDirection = (endAnchorPos - startAnchorPos)/dist;
+            Vector3 jointDir = endAnchorPos - startAnchorPos;
+            float dist = jointDir.magnitude;
+            if (dist < 0.0001) return Vector3.zero;
+            jointDir /= dist;
+
+            float relativeVelocity = Vector3.Dot(endRb.linearVelocity - startRb.linearVelocity, jointDir);
+            float scalarForce = Mathf.Clamp((driveStrength * dist) - (driveDamper * relativeVelocity), 0, maxForce);
+
+            return forceDirection * scalarForce;
         }
         else
         {
-            forceDirection = (startAnchorPos - endAnchorPos)/dist;
+            return joint.currentForce.magnitude * forceDirection;
         }
-        
-        return forceDirection * scalarForce;
     }
 
     public void DestroyTether()
