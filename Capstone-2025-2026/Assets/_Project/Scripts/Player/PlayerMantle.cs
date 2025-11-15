@@ -10,6 +10,7 @@ public class PlayerMantle : MonoBehaviour
     [SerializeField] private float climbDuration = 0.3f;
     [SerializeField] private float forwardDuration = 0.2f;
     [SerializeField] private Transform forwardRef;
+    [SerializeField] private LayerMask mantleableLayers;
 
     private CapsuleCollider _playerCol;
     private PlayerActions _playerActions;
@@ -39,12 +40,12 @@ public class PlayerMantle : MonoBehaviour
 
     private Vector3? TryStartMantle()
     {
-        if (Physics.Raycast(transform.position, forwardRef.forward, out RaycastHit forwardHit, forwardCheckDistance))
+        if (Physics.Raycast(transform.position, forwardRef.forward, out RaycastHit forwardHit, forwardCheckDistance, mantleableLayers))
         {
             float secondCheckDist = _playerCol.height;
             Vector3 secondCheckStartPos = forwardHit.point + (forwardRef.forward * _playerCol.radius) + (Vector3.up * verticalCheckDistance * secondCheckDist);
 
-            if (Physics.Raycast(secondCheckStartPos, Vector3.down, out RaycastHit topHit, secondCheckDist))
+            if (Physics.Raycast(secondCheckStartPos, Vector3.down, out RaycastHit topHit, secondCheckDist, mantleableLayers))
             {
                 Vector3 upOffset = Vector3.up * (_playerCol.height * 0.5f);
                 Vector3 backOffset = -forwardRef.forward * _playerCol.radius + forwardRef.forward * forwardClimbBuffer;

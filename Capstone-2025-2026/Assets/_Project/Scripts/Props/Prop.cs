@@ -8,7 +8,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     [SerializeField] protected bool debugThisProp = false;
 
     //protected means only derived classes can access these values
-    public Rigidbody rb { get; protected set; }
+    protected Rigidbody rb;
     protected Lasso playerLasso;
     [SerializeField] protected List<JointTether> attachedTethers = new List<JointTether>();
     [SerializeField] protected List<Transform> connectedObject = new List<Transform>();

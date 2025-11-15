@@ -75,7 +75,7 @@ public class WindTunnel : MonoBehaviour
         {
             StabilizeRbSpeed(prop);
 
-            if (prop.rb.linearVelocity.magnitude < windSpeed)
+            if (prop.Rb.linearVelocity.magnitude < windSpeed)
             {
                 prop.ApplyForceInDirection(transform.forward, windSpeed, ForceMode.Force);
             }
@@ -97,12 +97,12 @@ public class WindTunnel : MonoBehaviour
         {
             Prop prop = other.GetComponent<Prop>();
             propsInWindTunnel.Remove(prop);
-            prop.rb.useGravity = true;
+            prop.Rb.useGravity = true;
         }
     }
     private void StabilizeRbSpeed(Prop prop)
     {
-        Vector3 currentSpeed = prop.rb.linearVelocity;
+        Vector3 currentSpeed = prop.Rb.linearVelocity;
 
         Vector3 vectorToTargetSpeed = windDirection * windSpeed - currentSpeed;
 
@@ -110,7 +110,7 @@ public class WindTunnel : MonoBehaviour
 
         Vector3 force = directionToTargetSpeed * windStrength;
 
-        prop.rb.AddForce(force, ForceMode.Force);
+        prop.ApplyForceInDirection(force.normalized, force.magnitude, ForceMode.Force);
     }
 
     private void SpawnObjectsPeriodically()
