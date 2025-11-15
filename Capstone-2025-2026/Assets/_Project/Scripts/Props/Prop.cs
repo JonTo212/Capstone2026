@@ -1,6 +1,7 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 
 [RequireComponent(typeof(Rigidbody), typeof(Outline))]
 public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
@@ -10,9 +11,9 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     //protected means only derived classes can access these values
     public Rigidbody rb { get; protected set; }
     protected Lasso playerLasso;
-    [SerializeField] protected List<JointTether> attachedTethers = new List<JointTether>();
-    [SerializeField] protected List<Transform> connectedObject = new List<Transform>();
-    [SerializeField] protected List<Transform> connectedAnchors = new List<Transform>();
+    protected List<JointTether> attachedTethers = new List<JointTether>();
+    protected List<Transform> connectedObject = new List<Transform>();
+    protected List<Transform> connectedAnchors = new List<Transform>();
     protected float defaultDrag;
     protected float defaultAngularDrag;
 
@@ -65,6 +66,11 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     protected virtual void Update()
     {
         HandleOutlineColors();
+    }
+
+    protected virtual void LateUpdate()
+    {
+        
     }
 
     protected virtual void OnDestroy()
