@@ -116,7 +116,6 @@ public class PlayerMovement : MonoBehaviour
         HandleCoyoteTime();
         HandleJump();
         HandleFOV();
-        HandleMovementState();
         HandleWalkingSFX();
     }
 
@@ -124,12 +123,14 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
+        HandleMovementState();
         HandleForward();
         HandleGravity();
 
         if (_currentMovementState == PlayerMoveState.Swinging)
         {
             _playerSwing.HandleSwingMovement(_wishDir);
+            _playerSwing.ConstrainToRope();
         }
         else
         {
@@ -169,13 +170,13 @@ public class PlayerMovement : MonoBehaviour
 
     private void HandleMovementState()
     {
-        if (IsGrounded())
-        {
-            SwitchMovementState(PlayerMoveState.Walking);
-        }
-        else if (_lassoTetherController.CurrentLassoState == LassoState.Swinging)
+        if (_lassoTetherController.CurrentLassoState == LassoState.Swinging)
         {
             SwitchMovementState(PlayerMoveState.Swinging);
+        }
+        else if (IsGrounded())
+        {
+            SwitchMovementState(PlayerMoveState.Walking);
         }
         else
         {

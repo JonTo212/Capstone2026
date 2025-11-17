@@ -24,7 +24,7 @@ public class PluckOutProp : Prop
     {
         if(!hasBeenPlucked)
         {
-            rb.isKinematic = true;
+            Rb.isKinematic = true;
         }
     }
 
@@ -70,7 +70,7 @@ public class PluckOutProp : Prop
 
     protected virtual void OnPluck()
     {
-        rb.isKinematic = false;
+        Rb.isKinematic = false;
         hasBeenPlucked = true;
     }
 
