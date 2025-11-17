@@ -80,7 +80,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
 
     protected virtual void FixedUpdate()
     {
-        totalForceApplied = Vector3.zero;
+        //totalForceApplied = Vector3.zero;
         totalForceApplied += GetForcesFromJoint();
     }
 
