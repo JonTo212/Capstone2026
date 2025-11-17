@@ -29,10 +29,11 @@ public class Lasso : MonoBehaviour
     [SerializeField] private float aimAssistBufferRadius = 1.5f;
     [SerializeField] private bool useAimOutline = true;
     [SerializeField] private bool usePickupOutline = true;
+    [SerializeField] private bool useGrabPointsForHold = false;
 
     [Header("Swinging")]
-    [SerializeField] private float springRate = 10f;
     [SerializeField] private float swingJumpForce = 5f;
+    [SerializeField] private bool useGrabPointsForSwing = true;
 
     [Header("Internal Variables")]
     private AimAssist _aimAssist;
@@ -146,8 +147,7 @@ public class Lasso : MonoBehaviour
         {
             RaycastHit actualHit = hit.Value;
             Prop prop = actualHit.transform.GetComponentInParent<Prop>();
-
-            GetHoldPoint(prop, actualHit, false); //set to true for grab points
+            GetHoldPoint(prop, actualHit, useGrabPointsForHold);
 
             _snaredObjTransform = prop.transform;
             SnaredObject = prop;
@@ -306,22 +306,7 @@ public class Lasso : MonoBehaviour
 
     public void HandleSwingSetup()
     {
-        /*SpringJoint joint = gameObject.AddComponent<SpringJoint>();
-        joint.autoConfigureConnectedAnchor = false;
-        joint.connectedAnchor = HitPos;
-
-        float currentDist = Vector3.Distance(PlayerCamLookPos.position, HitPos);
-        joint.maxDistance = AnchorDist * 0.85f;
-        joint.minDistance = AnchorDist * 0.15f;
-            
-        joint.spring = springRate;
-        float damping = 2f * Mathf.Sqrt(joint.spring * PlayerController.Rb.mass);
-        joint.damper = damping;
-        joint.massScale = 4.5f;
-
-        swingJoint = joint;*/
-
-        if (SnaredObject.TryGetComponent(out SwingPoint swingPoint))
+        if (useGrabPointsForSwing && SnaredObject.TryGetComponent(out SwingPoint swingPoint))
         {
             _attachPointLocal = _snaredObjTransform.InverseTransformPoint(_nearestGrabPoint.position);
         }
