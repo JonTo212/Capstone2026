@@ -151,6 +151,8 @@ public class JointTetherPlacer : MonoBehaviour
 
         placedTethers.Add(jointTether);
 
+        jointTether.playerTransform = transform;
+
         numOfTethersPlaced++;
 
         UpdateTetherAmountText();
