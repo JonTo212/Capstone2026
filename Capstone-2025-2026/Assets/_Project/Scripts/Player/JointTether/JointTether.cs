@@ -1,3 +1,4 @@
+using NodeCanvas.BehaviourTrees;
 using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -9,6 +10,9 @@ public class JointTether : MonoBehaviour
 
     private JointTetherVisuals tetherVisuals;
     private JointTetherCollider tetherCollider;
+    [SerializeField] GameObject tetherRetrieveVisualsPrefab;
+
+    public Transform playerTransform;
 
     [SerializeField] private GameObject trailRendererPrefab;
     private GameObject startTrailRenderer;
@@ -242,7 +246,7 @@ public class JointTether : MonoBehaviour
         }
         if (endTransform != null && endTransform.gameObject != null && endTransform.GetComponent<Prop>() != null)
         {
-            //endTransform.GetComponent<Prop>().OnDetachTether(this, startAnchor, startTransform, endJoint);
+            endTransform.GetComponent<Prop>().OnDetachTether(this, startAnchor, startTransform);
         }
 
         if(joint != null) Destroy(joint);
@@ -252,7 +256,10 @@ public class JointTether : MonoBehaviour
         if (endAnchor != null && endAnchor.GetComponent<TemporaryJointAnchor>() != null) Destroy(endAnchor.gameObject);
 
         if(startTrailRenderer != null) Destroy(startTrailRenderer);
-        if(endTrailRenderer != null) Destroy(endTrailRenderer); 
+        if(endTrailRenderer != null) Destroy(endTrailRenderer);
+
+        GameObject tetherRetrievalVisuals = Instantiate(tetherRetrieveVisualsPrefab, transform.position, Quaternion.Euler(Vector3.zero));
+        tetherRetrievalVisuals.GetComponent<TetherRetrievalEffect>().Init(transform.position, playerTransform);
 
         OnTetherDestroy(this);
         Destroy(gameObject);

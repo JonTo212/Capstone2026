@@ -130,6 +130,17 @@ public class JointTetherActivator : MonoBehaviour
             tether.DestroyTether();
         }
     }
+
+    public void DestroySelectedTether(JointTether tether)
+    {
+        if (tether != null)
+        {
+            GameObject tetherRetrievalVisuals = Instantiate(tetherRetrieveVisialsPrefab, tether.transform.position, Quaternion.Euler(Vector3.zero));
+            tetherRetrievalVisuals.GetComponent<TetherRetrievalEffect>().Init(tether.transform.position, transform);
+            tether.DestroyTether();
+        }
+    }
+
     IEnumerator DestroyAllTether()
     {
         yield return new WaitForSeconds(timeToDestroyAllTethers);
