@@ -36,6 +36,7 @@ public class Lasso : MonoBehaviour
 
     [Header("Internal Variables")]
     private AimAssist _aimAssist;
+    private PlayerSwing _swingController;
     private Transform _snaredObjTransform;
     private Vector3 _attachPointLocal;
     private Vector3 _localFaceNormal;
@@ -55,6 +56,7 @@ public class Lasso : MonoBehaviour
     private void Awake()
     {
         PlayerController = GetComponent<PlayerMovement>();
+        _swingController = GetComponent<PlayerSwing>();
         _aimAssist = new AimAssist();
     }
 
@@ -295,7 +297,7 @@ public class Lasso : MonoBehaviour
 
     public void HandleSwingSetup()
     {
-        SpringJoint joint = gameObject.AddComponent<SpringJoint>();
+        /*SpringJoint joint = gameObject.AddComponent<SpringJoint>();
         joint.autoConfigureConnectedAnchor = false;
         joint.connectedAnchor = HitPos;
 
@@ -308,7 +310,9 @@ public class Lasso : MonoBehaviour
         joint.damper = damping;
         joint.massScale = 4.5f;
 
-        swingJoint = joint;
+        swingJoint = joint;*/
+
+        _swingController.StartSwing(HitPos, PlayerController.Rb.linearVelocity, AnchorDist);
     }
 
     public void SwingJumpBoost()
