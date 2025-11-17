@@ -1,7 +1,8 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 
-public enum LassoState
+/*public enum LassoState
 {
     Empty,
     Snared,
@@ -12,30 +13,35 @@ public enum LassoState
     ObjectYanking,
     Held,
     Using
-}
+}*/
 
-public class LassoTetherController : MonoBehaviour
+public class OldLassoTetherController : MonoBehaviour
 {
     [Header("TEMPORARY - Control UI")]
     [SerializeField] private TMP_Text controlsText;
 
     [Header("Components")]
     private Lasso playerLasso;
+    private LassoYank playerYankController;
     private PlayerActions playerActions;
     private JointTetherPlacer playerTether;
     private JointTetherActivator playerTetherActivator;
 
     [Header("States")]
     public LassoState CurrentLassoState { get; private set; }
+    private Coroutine _yankCheckCoroutine;
 
     #region Unity Functions
     private void Awake()
     {
         playerLasso = GetComponent<Lasso>();
+        playerYankController = GetComponent<LassoYank>();
         playerActions = GetComponent<PlayerActions>();
         playerTether = GetComponent<JointTetherPlacer>();
         playerTetherActivator = GetComponent<JointTetherActivator>();
 
+        playerYankController.OnObjectYankCompleted += OnObjectYankCompleted;
+        playerYankController.OnPlayerYankCompleted += OnPlayerYankCompleted;
         playerLasso.OnLassoReleased += OnLassoReleased;
         playerLasso.OnObjectHit += OnLassoHit;
         playerTether.OnTetherStartHit += OnTetherStartHit;
@@ -45,6 +51,8 @@ public class LassoTetherController : MonoBehaviour
 
     private void OnDisable()
     {
+        playerYankController.OnObjectYankCompleted -= OnObjectYankCompleted;
+        playerYankController.OnPlayerYankCompleted -= OnPlayerYankCompleted;
         playerLasso.OnLassoReleased -= OnLassoReleased;
         playerLasso.OnObjectHit -= OnLassoHit;
         playerTether.OnTetherStartHit -= OnTetherStartHit;
@@ -73,6 +81,22 @@ public class LassoTetherController : MonoBehaviour
             case LassoState.Swinging:
                 HandleSwingingControls();
                 break;
+
+            case LassoState.PlayerYanking:
+                HandleYankingControls();
+                break;
+
+            case LassoState.ObjectYanking:
+                HandleYankingControls();
+                break;
+
+            case LassoState.Held:
+                HandleHeldControls();
+                break;
+
+            case LassoState.Using:
+                HandleUsingControls();
+                break;
         }
         HandleTetherActivation();
         HandleTetherDestroy();
@@ -82,10 +106,15 @@ public class LassoTetherController : MonoBehaviour
     {
         if (CurrentLassoState == LassoState.Snared)
         {
+            playerYankController.HandleSnapback();
             if (playerActions.MainHeld)
             {
                 playerLasso.MoveObjectToPos(playerLasso.GetAnchoredCenterOfScreen());
             }
+        }
+        else if (CurrentLassoState == LassoState.Using)
+        {         
+            playerLasso.RotateHeldObject();
         }
     }
 
@@ -109,14 +138,53 @@ public class LassoTetherController : MonoBehaviour
                 break;
 
             case WeightComparisonResult.Object2:
-                playerLasso.HandleSwingSetup();
                 SwitchLassoState(LassoState.Swinging);
+                playerLasso.HandleSwingSetup();
                 break;
 
             case WeightComparisonResult.Equal:
                 SwitchLassoState(LassoState.Snared);
                 break;
         }
+    }
+
+    private void CompareWeightsOnYank()
+    {
+        var weight = WeightComparison.CompareObjectWeights(gameObject, playerLasso.SnaredObject.gameObject);
+        switch (weight)
+        {
+            case WeightComparisonResult.Object1:
+                SwitchLassoState(LassoState.ObjectYanking);
+                playerYankController.HandleObjectYank();
+                break;
+
+            case WeightComparisonResult.Object2:
+                SwitchLassoState(LassoState.PlayerYanking);
+                playerYankController.HandlePlayerYank();
+                break;
+
+            case WeightComparisonResult.Equal:
+                SwitchLassoState(LassoState.ObjectYanking);
+                playerYankController.HandleObjectYank();
+                break;
+        }
+    }
+
+    private void OnObjectYankCompleted()
+    {
+        if (playerLasso.SnaredObject == null)
+        {
+            SwitchLassoState(LassoState.Empty);
+            return;
+        }
+
+        if (playerLasso.SnaredObject.TryGetComponent(out IActivatable activatable)) SwitchLassoState(LassoState.Using);
+        else SwitchLassoState(LassoState.Held);
+    }
+
+    private void OnPlayerYankCompleted()
+    {
+        playerLasso.HandleObjectReleased();
     }
 
     private void OnLassoReleased()
@@ -193,14 +261,36 @@ public class LassoTetherController : MonoBehaviour
 
         if (playerActions.AltDown)
         {
-            SwitchLassoState(LassoState.SnaredTether);
-            playerTether.StartTetherPlacement(playerLasso.SnaredObject.transform, playerLasso.HitPos);
-            playerLasso.SnaredObject.Rb.constraints = RigidbodyConstraints.FreezePosition;
+            if (_yankCheckCoroutine != null) StopCoroutine(_yankCheckCoroutine);
+            _yankCheckCoroutine = StartCoroutine(CheckIfTap());
         }
 
         if (playerActions.MainUp)
         {
             playerLasso.HandleObjectReleased();
+        }
+    }
+
+    private IEnumerator CheckIfTap()
+    {
+        yield return new WaitForSeconds(0.175f);
+
+        if (playerLasso.SnaredObject == null)
+        {
+            _yankCheckCoroutine = null;
+            playerLasso.HandleObjectReleased();
+            yield break;
+        }
+
+        if (playerActions.AltHeld)
+        {
+            SwitchLassoState(LassoState.SnaredTether);
+            playerTether.StartTetherPlacement(playerLasso.SnaredObject.transform, playerLasso.HitPos);
+            playerLasso.SnaredObject.Rb.constraints = RigidbodyConstraints.FreezePosition;
+        }
+        else
+        {
+            CompareWeightsOnYank();
         }
     }
 
@@ -227,13 +317,71 @@ public class LassoTetherController : MonoBehaviour
             playerLasso.HandleObjectReleased();
         }
 
+        if (playerActions.AltDown)
+        {
+            CompareWeightsOnYank();
+        }
+
         if (playerActions.JumpDown)
         {
-            //playerLasso.SwingJumpBoost();
+            playerLasso.SwingJumpBoost();
         }
     }
 
     #endregion
+
+    #region Yanking Controls
+
+    private void HandleYankingControls()
+    {
+        if (playerActions.MainDown)
+        {
+            playerLasso.HandleObjectReleased();
+        }
+    }
+
+    #endregion
+
+    #region Held Controls
+
+    private void HandleHeldControls()
+    {
+        if (playerActions.MainDown)
+        {
+            playerLasso.HandleObjectReleased();
+        }
+
+        if (playerActions.AltDown)
+        {
+            playerLasso.HandleObjectThrow();
+        }
+    }
+
+    #endregion
+
+    #region Using Controls
+
+    private void HandleUsingControls()
+    {
+        if (playerLasso.SnaredObject.TryGetComponent(out IActivatable activatable))
+        {
+            if (activatable.IsActive && playerActions.MainDown)
+            {
+                activatable.Activate();
+            }
+            else if (!activatable.IsActive && playerActions.MainDown)
+            {
+                playerLasso.HandleObjectReleased();
+            }
+        }
+
+        if (playerActions.AltDown)
+        {
+            playerLasso.HandleObjectThrow();
+        }
+    }
+
+    #endregion*/
 
     private void TempSetText(LassoState state)
     {
@@ -255,6 +403,26 @@ public class LassoTetherController : MonoBehaviour
         if (state == LassoState.SnaredTether)
         {
             controlsText.text = "Release [RMB]: Set Tether End";
+        }
+
+        if (state == LassoState.Swinging)
+        {
+            controlsText.text = "[LMB]: Release Lasso\n[RMB]: Yank Player";
+        }
+
+        if (state == LassoState.PlayerYanking || state == LassoState.ObjectYanking)
+        {
+            controlsText.text = "[LMB]: Release Lasso";
+        }
+
+        if (state == LassoState.Held)
+        {
+            controlsText.text = "[LMB]: Drop Object\n[RMB]: Throw Object";
+        }
+
+        if (state == LassoState.Using)
+        {
+            controlsText.text = "[LMB]: Activate Object\n[RMB]: Throw Object";
         }
     }
 }

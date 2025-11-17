@@ -5,6 +5,8 @@ using DG.Tweening;
 
 public class AudioManager : MonoBehaviour
 {
+    public static AudioManager Instance { get; private set; }
+
     public bool playOnStart = true;
     [Header("------------Audio Source------------")]
     [SerializeField] private AudioSource musicSource1;
@@ -109,7 +111,18 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioClip empty;
     public AudioClip Empty => empty;
 
-
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+    }
 
     void Start()
     {
