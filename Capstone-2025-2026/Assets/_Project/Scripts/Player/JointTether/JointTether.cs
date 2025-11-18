@@ -104,7 +104,7 @@ public class JointTether : MonoBehaviour
         }
         if (endTransform.GetComponent<Prop>() != null)
         {
-            //endTransform.GetComponent<Prop>().OnTetherPull(this, startAnchor, startTransform, endJoint);
+            endTransform.GetComponent<Prop>().OnTetherPull(this, startAnchor, startTransform);
             endTransform.GetComponent<Prop>().OnPropDestroyed += DestroyTether;
         }
     }

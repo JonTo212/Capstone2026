@@ -62,6 +62,7 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Input")]
     private PlayerActions _playerActions;
+    private PlayerSwing _playerSwing;
     private LassoTetherController _lassoTetherController;
 
     private MovementProperties _currentMultipliers;
@@ -93,12 +94,14 @@ public class PlayerMovement : MonoBehaviour
         _playerCol = GetComponent<CapsuleCollider>();
         _playerActions = GetComponent<PlayerActions>();
         _lassoTetherController = GetComponent<LassoTetherController>();
+        _playerSwing = GetComponent<PlayerSwing>();
 
         _gravity = 2 * apexHeight / Mathf.Pow(apexTime, 2);
         _jumpForce = 2 * apexHeight / apexTime;
         _friction = defaultMaxSpeed / timeToZero;
         _acceleration = defaultMaxSpeed / timeToMaxSpeed;
         _defaultFOV = playerCam.fieldOfView;
+        _currentMovementState = PlayerMoveState.InAir;
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -108,44 +111,39 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
-        
         //HandleCamera();
         HandleJumpBuffer();
         HandleCoyoteTime();
         HandleJump();
         HandleFOV();
+        HandleWalkingSFX();
     }
+
+    public bool enableInput;
 
     private void FixedUpdate()
     {
-        if (IsGrounded())
+        HandleMovementState();
+        HandleForward();
+        HandleGravity();
+
+        if (_currentMovementState == PlayerMoveState.Swinging)
         {
-            SwitchMovementState(PlayerMoveState.Walking);
-        }
-        else if (_lassoTetherController.CurrentLassoState == LassoState.Swinging)
-        {
-            SwitchMovementState(PlayerMoveState.Swinging);
+            _playerSwing.HandleSwingMovement(_wishDir);
+            _playerSwing.ConstrainToRope();
         }
         else
         {
-            SwitchMovementState(PlayerMoveState.InAir);
+            ApplyAcceleration();
         }
 
-        if (_wishDir != Vector3.zero)
-        {
-            aManage.SFXSource7.UnPause();
-        }
-        else
-        {
-            aManage.SFXSource7.Pause(); //PlaySFX(aManage.Walk, 5, 1);
-        }
-
-        HandleMovement();
+        ApplyFriction();
         HandleVelocityOvershoot();
     }
 
-    private void SwitchMovementState(PlayerMoveState newMovementState)
+    public void SwitchMovementState(PlayerMoveState newMovementState)
     {
+        if(_currentMovementState == newMovementState) return;
         _currentMovementState = newMovementState;
 
         switch (_currentMovementState)
@@ -156,12 +154,10 @@ public class PlayerMovement : MonoBehaviour
 
             case PlayerMoveState.InAir:
                 _currentMultipliers = _airMultipliers;
-                HandleGravity();
                 break;
 
             case PlayerMoveState.Swinging:
                 _currentMultipliers = _swingingMultipliers;
-                HandleGravity();
                 break;
         }
     }
@@ -170,6 +166,34 @@ public class PlayerMovement : MonoBehaviour
     {
         feetPos.localPosition = new Vector3(0, -_playerCol.height / 2f, 0);
         return Physics.CheckSphere(feetPos.position, feetRadius, groundLayer);
+    }
+
+    private void HandleMovementState()
+    {
+        if (_lassoTetherController.CurrentLassoState == LassoState.Swinging)
+        {
+            SwitchMovementState(PlayerMoveState.Swinging);
+        }
+        else if (IsGrounded())
+        {
+            SwitchMovementState(PlayerMoveState.Walking);
+        }
+        else
+        {
+            SwitchMovementState(PlayerMoveState.InAir);
+        }
+    }
+
+    private void HandleWalkingSFX()
+    {
+        if (_wishDir != Vector3.zero)
+        {
+            aManage.SFXSource7.UnPause();
+        }
+        else
+        {
+            aManage.SFXSource7.Pause(); //PlaySFX(aManage.Walk, 5, 1);
+        }
     }
 
     private void HandleJumpBuffer()
@@ -221,7 +245,7 @@ public class PlayerMovement : MonoBehaviour
         playerCam.fieldOfView = Mathf.SmoothStep(playerCam.fieldOfView, desiredFOV, Time.deltaTime * changeSpeed);
     }
 
-    private void HandleForward()
+    public void HandleForward()
     {
         Vector3 camForward = playerCam.transform.forward;
         Vector3 camRight = playerCam.transform.right;
@@ -229,18 +253,10 @@ public class PlayerMovement : MonoBehaviour
         camRight.y = 0;
         camForward.y = 0;
 
-        //Multiply camera's directional vectors by inputs
         Vector3 forwardRelative = camForward * _playerActions.MoveInput.y;
         Vector3 rightRelative = camRight * _playerActions.MoveInput.x;
 
-        //Set desired move direction to be based on camera direction
         _wishDir = (forwardRelative + rightRelative).normalized;
-    }
-
-    private void HandleMovement()
-    {
-        ApplyAcceleration();
-        ApplyFriction();
     }
 
     private void HandleJump()
@@ -258,6 +274,8 @@ public class PlayerMovement : MonoBehaviour
 
     private void HandleGravity()
     {
+        if (_currentMovementState == PlayerMoveState.Walking) return;
+
         _rb.AddForce(Vector3.down * _gravity, ForceMode.Acceleration);
     }
 
@@ -326,16 +344,9 @@ public class PlayerMovement : MonoBehaviour
 
     private void ApplyAcceleration()
     {
-        HandleForward();
-
         if (_wishDir == Vector3.zero) return;
 
         Vector3 accelForce = _wishDir * _acceleration * _currentMultipliers.accelMultiplier;
         _rb.AddForce(accelForce, ForceMode.Acceleration);
-    }
-
-    private void HandleMovingPlatforms()
-    {
-
     }
 }

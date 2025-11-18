@@ -20,13 +20,13 @@ public class ShotgunProp : Prop, IActivatable
     public override void OnHold(Transform newParent)
     {
         base.OnHold(newParent);
-        rb.isKinematic = true;
+        Rb.isKinematic = true;
 
     }
 
     public override void OnThrow(Vector3 dir, float magnitude)
     {
-        rb.isKinematic = false;
+        Rb.isKinematic = false;
         base.OnThrow(dir, magnitude);
     }
 

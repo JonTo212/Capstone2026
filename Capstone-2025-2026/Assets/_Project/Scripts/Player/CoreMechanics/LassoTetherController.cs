@@ -69,6 +69,10 @@ public class LassoTetherController : MonoBehaviour
             case LassoState.SnaredTether:
                 HandleSnaredTetherControls();
                 break;
+
+            case LassoState.Swinging:
+                HandleSwingingControls();
+                break;
         }
         HandleTetherActivation();
         HandleTetherDestroy();
@@ -78,10 +82,8 @@ public class LassoTetherController : MonoBehaviour
     {
         if (CurrentLassoState == LassoState.Snared)
         {
-            if (playerActions.MainHeld)
-            {
-                playerLasso.MoveObjectToPos(playerLasso.GetAnchoredCenterOfScreen());
-            }
+            playerLasso.MoveObjectToPos(playerLasso.GetAnchoredCenterOfScreen());
+            playerLasso.AnchorToObject();
         }
     }
 
@@ -102,7 +104,16 @@ public class LassoTetherController : MonoBehaviour
 
     private void OnLassoHit()
     {
-        SwitchLassoState(LassoState.Snared);
+        if(playerLasso.SnaredObject.TryGetComponent(out SwingPoint swingPoint))
+        {
+            playerLasso.HandleSwingSetup();
+            SwitchLassoState(LassoState.Swinging);
+        }
+        else
+        {
+            playerLasso.HandleAnchorStart();
+            SwitchLassoState(LassoState.Snared);
+        }
     }
 
     private void OnTetherStartHit()
@@ -119,7 +130,7 @@ public class LassoTetherController : MonoBehaviour
         {
             playerLasso.HandleLassoStart();
         }
-        if(playerActions.AltDown)
+        if (playerActions.AltDown)
         {
             playerTether.StartTetherPlacement();
         }
@@ -129,7 +140,7 @@ public class LassoTetherController : MonoBehaviour
     #region Tether Controls
     private void HandleTetherPlacementControls()
     {
-        if(playerActions.AltUp)
+        if (playerActions.AltUp)
         {
             playerTether.EndTetherPlacement(false);
             SwitchLassoState(LassoState.Empty);
@@ -150,11 +161,11 @@ public class LassoTetherController : MonoBehaviour
 
     private void HandleTetherDestroy()
     {
-        if(playerActions.CrouchDown)
+        if (playerActions.CrouchDown)
         {
             playerTetherActivator.StartDestroyTether();
         }
-        if( playerActions.CrouchUp)
+        if (playerActions.CrouchUp)
         {
             playerTetherActivator.EndDestroyTether();
         }
@@ -174,7 +185,7 @@ public class LassoTetherController : MonoBehaviour
             playerLasso.SnaredObject.Rb.constraints = RigidbodyConstraints.FreezePosition;
         }
 
-        if (playerActions.MainUp)
+        if (playerActions.MainDown)
         {
             playerLasso.HandleObjectReleased();
         }
@@ -194,24 +205,41 @@ public class LassoTetherController : MonoBehaviour
     }
     #endregion
 
+    #region Swinging Controls
+
+    private void HandleSwingingControls()
+    {
+        if (playerActions.MainDown)
+        {
+            playerLasso.HandleObjectReleased();
+        }
+
+        if (playerActions.JumpDown)
+        {
+            playerLasso.SwingJumpBoost();
+        }
+    }
+
+    #endregion
+
     private void TempSetText(LassoState state)
     {
-        if(state == LassoState.Empty)
+        if (state == LassoState.Empty)
         {
             controlsText.text = "[LMB]: Start Lasso\nHold [RMB]: Start Tether";
         }
 
-        if(state == LassoState.Tethering)
+        if (state == LassoState.Tethering)
         {
             controlsText.text = "Release [RMB]: Set Tether End";
         }
 
-        if(state == LassoState.Snared)
+        if (state == LassoState.Snared)
         {
             controlsText.text = "Hold [LMB]: Move Object\nRelease [LMB]: Drop Object\n[RMB]: Pull Object\nHold [RMB]: Start Tether";
         }
 
-        if(state == LassoState.SnaredTether)
+        if (state == LassoState.SnaredTether)
         {
             controlsText.text = "Release [RMB]: Set Tether End";
         }

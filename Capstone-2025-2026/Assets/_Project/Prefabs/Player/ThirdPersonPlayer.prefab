@@ -5388,7 +5388,6 @@ GameObject:
   - component: {fileID: 7293367271740199632}
   - component: {fileID: 5675880128851751782}
   - component: {fileID: 8041954876065081023}
-  - component: {fileID: 923408444863609070}
   - component: {fileID: 4800881338183066832}
   - component: {fileID: 5704081936607653163}
   - component: {fileID: 187563627807177223}
@@ -5399,6 +5398,7 @@ GameObject:
   - component: {fileID: 1328274438649917707}
   - component: {fileID: 7136094397731902115}
   - component: {fileID: 1355965055874304491}
+  - component: {fileID: 7887010670107607874}
   m_Layer: 7
   m_Name: ThirdPersonPlayer
   m_TagString: Player
@@ -5584,19 +5584,6 @@ MonoBehaviour:
     m_RotationOrder: 4
   snapbackImpulseStrength: 20
   tempVignetteVolume: {fileID: 3271648281358634593}
---- !u!114 &923408444863609070
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2571145194382551425}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c40db6ce47bc7694c9af2eb626d05c83, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::OldLassoTetherController
-  controlsText: {fileID: 5046125116692931103}
 --- !u!114 &4800881338183066832
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5638,8 +5625,9 @@ MonoBehaviour:
   aimAssistBufferRadius: 1.5
   useAimOutline: 1
   usePickupOutline: 1
-  springRate: 10
+  useGrabPointsForHold: 0
   swingJumpForce: 5
+  useGrabPointsForSwing: 0
 --- !u!114 &187563627807177223
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5728,7 +5716,7 @@ MonoBehaviour:
     decelMultiplier: 0
     maxSpeedMultiplier: 1
   _swingingMultipliers:
-    accelMultiplier: 1
+    accelMultiplier: 0.1
     decelMultiplier: 0.1
     maxSpeedMultiplier: 2
   overshootCorrectionMultiplier: 10
@@ -5749,6 +5737,7 @@ MonoBehaviour:
   desiredHoldFOV: 75
   FOVChangeSpeed: 10
   aManage: {fileID: 0}
+  enableInput: 1
 --- !u!114 &9141277693401130519
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5817,6 +5806,22 @@ MonoBehaviour:
   mantleableLayers:
     serializedVersion: 2
     m_Bits: 64
+--- !u!114 &7887010670107607874
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2571145194382551425}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3432f558f63adf14e84ca197f87ff6de, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerSwing
+  playerCam: {fileID: 4270019202238993782}
+  minRopeLength: 5
+  maxRopeLength: 7.5
+  airAccel: 7.5
 --- !u!1 &2965844414402353664
 GameObject:
   m_ObjectHideFlags: 0
@@ -11160,7 +11165,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5396773552799198221}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.000000053173537, y: -0.7643003, z: -0.00000006302223, w: 0.64486057}
+  m_LocalRotation: {x: 0.000000043241275, y: -0.7643004, z: 0.000000051250353, w: 0.6448604}
   m_LocalPosition: {x: 6.003118, y: 1.75, z: 1.0250077}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -11605,7 +11610,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6770766517387362463}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.000000053173537, y: -0.7643003, z: -0.00000006302223, w: 0.64486057}
+  m_LocalRotation: {x: 0.000000043241265, y: -0.7643004, z: 0.000000051250343, w: 0.6448604}
   m_LocalPosition: {x: 6.003118, y: 1.75, z: 1.0250077}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
