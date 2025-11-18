@@ -82,10 +82,8 @@ public class LassoTetherController : MonoBehaviour
     {
         if (CurrentLassoState == LassoState.Snared)
         {
-            if (playerActions.MainHeld)
-            {
-                playerLasso.MoveObjectToPos(playerLasso.GetAnchoredCenterOfScreen());
-            }
+            playerLasso.MoveObjectToPos(playerLasso.GetAnchoredCenterOfScreen());
+            playerLasso.AnchorToObject();
         }
     }
 
@@ -99,26 +97,6 @@ public class LassoTetherController : MonoBehaviour
         TempSetText(newState);
     }
 
-    private void CompareWeightsOnSnare()
-    {
-        var weight = WeightComparison.CompareObjectWeights(gameObject, playerLasso.SnaredObject.gameObject);
-        switch (weight)
-        {
-            case WeightComparisonResult.Object1:
-                SwitchLassoState(LassoState.Snared);
-                break;
-
-            case WeightComparisonResult.Object2:
-                playerLasso.HandleSwingSetup();
-                SwitchLassoState(LassoState.Swinging);
-                break;
-
-            case WeightComparisonResult.Equal:
-                SwitchLassoState(LassoState.Snared);
-                break;
-        }
-    }
-
     private void OnLassoReleased()
     {
         SwitchLassoState(LassoState.Empty);
@@ -126,7 +104,16 @@ public class LassoTetherController : MonoBehaviour
 
     private void OnLassoHit()
     {
-        CompareWeightsOnSnare();
+        if(playerLasso.SnaredObject.TryGetComponent(out SwingPoint swingPoint))
+        {
+            playerLasso.HandleSwingSetup();
+            SwitchLassoState(LassoState.Swinging);
+        }
+        else
+        {
+            playerLasso.HandleAnchorStart();
+            SwitchLassoState(LassoState.Snared);
+        }
     }
 
     private void OnTetherStartHit()
@@ -198,7 +185,7 @@ public class LassoTetherController : MonoBehaviour
             playerLasso.SnaredObject.Rb.constraints = RigidbodyConstraints.FreezePosition;
         }
 
-        if (playerActions.MainUp)
+        if (playerActions.MainDown)
         {
             playerLasso.HandleObjectReleased();
         }
@@ -229,7 +216,7 @@ public class LassoTetherController : MonoBehaviour
 
         if (playerActions.JumpDown)
         {
-            //playerLasso.SwingJumpBoost();
+            playerLasso.SwingJumpBoost();
         }
     }
 

@@ -29,15 +29,17 @@ public class Lasso : MonoBehaviour
     [SerializeField] private float aimAssistBufferRadius = 1.5f;
     [SerializeField] private bool useAimOutline = true;
     [SerializeField] private bool usePickupOutline = true;
+    [SerializeField] private bool useGrabPointsForHold = false;
 
     [Header("Swinging")]
-    [SerializeField] private float springRate = 10f;
     [SerializeField] private float swingJumpForce = 5f;
+    [SerializeField] private bool useGrabPointsForSwing = true;
 
     [Header("Internal Variables")]
     private AimAssist _aimAssist;
     private PlayerSwing _swingController;
     private Transform _snaredObjTransform;
+    private Transform _nearestGrabPoint;
     private Vector3 _attachPointLocal;
     private Vector3 _localFaceNormal;
     private Joint swingJoint;
@@ -145,25 +147,7 @@ public class Lasso : MonoBehaviour
         {
             RaycastHit actualHit = hit.Value;
             Prop prop = actualHit.transform.GetComponentInParent<Prop>();
-
-            //grab point stuff
-            /*Transform closestPointTransform = prop.CheckNearestGrabPoint(actualHit.point);
-
-            if (closestPointTransform != null)
-            {
-                AnchorDist = Vector3.Distance(closestPointTransform.position, PlayerCamLookPos.position);
-                _attachPointLocal = prop.transform.InverseTransformPoint(closestPointTransform.position);
-                _localFaceNormal = prop.transform.InverseTransformDirection(closestPointTransform.forward);
-            }
-
-            else
-            {
-                AnchorDist = Vector3.Distance(actualHit.point, PlayerCamLookPos.position);
-                _attachPointLocal = prop.transform.InverseTransformPoint(actualHit.point);
-            }*/
-
-            AnchorDist = Mathf.Clamp(Vector3.Distance(actualHit.transform.position, PlayerCamLookPos.position), minLassoRange, maxLassoRange);
-            _attachPointLocal = prop.transform.InverseTransformPoint(actualHit.transform.position);
+            GetHoldPoint(prop, actualHit, useGrabPointsForHold);
 
             _snaredObjTransform = prop.transform;
             SnaredObject = prop;
@@ -178,6 +162,31 @@ public class Lasso : MonoBehaviour
 
             OnObjectHit?.Invoke();
             AudioManager.Instance.PlaySFX(AudioManager.Instance.Thrown, 5, 1);
+        }
+    }
+
+    private void GetHoldPoint(Prop prop, RaycastHit hit, bool useGrabPoint)
+    {
+        _nearestGrabPoint = prop.CheckNearestGrabPoint(hit.point);
+
+        if (useGrabPoint) {
+            if (_nearestGrabPoint != null)
+            {
+                AnchorDist = Vector3.Distance(_nearestGrabPoint.position, PlayerCamLookPos.position);
+                _attachPointLocal = prop.transform.InverseTransformPoint(_nearestGrabPoint.position);
+                _localFaceNormal = prop.transform.InverseTransformDirection(_nearestGrabPoint.forward);
+            }
+
+            else
+            {
+                AnchorDist = Vector3.Distance(hit.point, PlayerCamLookPos.position);
+                _attachPointLocal = prop.transform.InverseTransformPoint(hit.point);
+            }
+        }
+        else
+        {
+            AnchorDist = Mathf.Clamp(Vector3.Distance(hit.transform.position, PlayerCamLookPos.position), minLassoRange, maxLassoRange);
+            _attachPointLocal = prop.transform.InverseTransformPoint(hit.transform.position);
         }
     }
 
@@ -297,21 +306,10 @@ public class Lasso : MonoBehaviour
 
     public void HandleSwingSetup()
     {
-        /*SpringJoint joint = gameObject.AddComponent<SpringJoint>();
-        joint.autoConfigureConnectedAnchor = false;
-        joint.connectedAnchor = HitPos;
-
-        float currentDist = Vector3.Distance(PlayerCamLookPos.position, HitPos);
-        joint.maxDistance = AnchorDist * 0.85f;
-        joint.minDistance = AnchorDist * 0.15f;
-
-        joint.spring = springRate;
-        float damping = 2f * Mathf.Sqrt(joint.spring * PlayerController.Rb.mass);
-        joint.damper = damping;
-        joint.massScale = 4.5f;
-
-        swingJoint = joint;*/
-
+        if (useGrabPointsForSwing && SnaredObject.TryGetComponent(out SwingPoint swingPoint))
+        {
+            _attachPointLocal = _snaredObjTransform.InverseTransformPoint(_nearestGrabPoint.position);
+        }
         _swingController.StartSwing(HitPos, PlayerController.Rb.linearVelocity, AnchorDist);
     }
 
@@ -352,5 +350,20 @@ public class Lasso : MonoBehaviour
         OnLassoReleased?.Invoke();
 
     }
+    #endregion
+
+    #region Anchoring
+
+    public void AnchorToObject()
+    {
+        _swingController.UpdateAnchorPoint(HitPos);
+        _swingController.ConstrainToRope();
+    }
+
+    public void HandleAnchorStart()
+    {
+        _swingController.SetRopeLength(maxLassoRange);
+    }
+
     #endregion
 }

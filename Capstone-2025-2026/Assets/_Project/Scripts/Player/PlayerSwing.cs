@@ -2,11 +2,7 @@ using UnityEngine;
 
 public class PlayerSwing : MonoBehaviour
 {
-    private PlayerActions playerInput;
     private PlayerMovement playerMovement;
-    private CapsuleCollider col;
-
-    private Vector3 velocity;
     private Vector3 swingPoint;
 
     private float ropeLength;
@@ -17,11 +13,8 @@ public class PlayerSwing : MonoBehaviour
 
     private void Awake()
     {
-        playerInput = GetComponent<PlayerActions>();
         playerMovement = GetComponent<PlayerMovement>();
-        col = GetComponent<CapsuleCollider>();
     }
-
 
     public void StartSwing(Vector3 anchorPoint, Vector3 startingVel, float startingLength)
     {
@@ -31,7 +24,6 @@ public class PlayerSwing : MonoBehaviour
         Vector3 ropeDir = (swingPoint - transform.position).normalized;
         Vector3 tangentialVel = Vector3.ProjectOnPlane(startingVel, ropeDir);
 
-        velocity = tangentialVel;
         playerMovement.Rb.linearVelocity = tangentialVel;
     }
 
@@ -40,16 +32,10 @@ public class PlayerSwing : MonoBehaviour
         Vector3 directionToGrapple = swingPoint - transform.position;
         Vector3 ropeDir = directionToGrapple.normalized;
 
-        Vector3 rbVel = playerMovement.Rb.linearVelocity;
-        Vector3 tangentialVel = Vector3.ProjectOnPlane(rbVel, ropeDir);
-
         Vector3 tangentialMoveDir = Vector3.ProjectOnPlane(moveDir, ropeDir);
-
         Vector3 swingForce = tangentialMoveDir * airAccel;
 
         playerMovement.Rb.AddForce(swingForce, ForceMode.Acceleration);
-
-        ConstrainToRope();
     }
 
     public void ConstrainToRope()
@@ -59,7 +45,7 @@ public class PlayerSwing : MonoBehaviour
         Vector3 ropeDir = directionToGrapple.normalized;
         Vector3 velocityAlongRope = Vector3.Project(playerMovement.Rb.linearVelocity, ropeDir);
 
-        if (currentDistance != ropeLength)
+        if (currentDistance > ropeLength)
         {
             float stretch = currentDistance - ropeLength;
 
@@ -72,6 +58,16 @@ public class PlayerSwing : MonoBehaviour
 
             playerMovement.Rb.AddForce(correctiveForce, ForceMode.Acceleration);
         }
+    }
+
+    public void SetRopeLength(float newRopeLength)
+    {
+        ropeLength = newRopeLength;
+    }
+
+    public void UpdateAnchorPoint(Vector3 anchorPoint)
+    {
+        swingPoint = anchorPoint;
     }
 
 

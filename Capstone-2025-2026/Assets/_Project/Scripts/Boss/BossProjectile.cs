@@ -31,7 +31,7 @@ public class BossProjectile : MonoBehaviour
         }
         else
         {
-            if (GetComponent<Prop>().isTetherPulled || GetComponent<Prop>().IsSnared)
+            if (GetComponent<Prop>().IsTetherPulled || GetComponent<Prop>().IsSnared)
             {
                 rb.isKinematic = false;
             }
