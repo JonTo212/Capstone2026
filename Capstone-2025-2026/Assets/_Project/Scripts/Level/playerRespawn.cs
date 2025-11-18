@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections;
 using UnityEngine.Rendering;
 using UnityEngine.EventSystems;
+using NodeCanvas.Tasks.Actions;
 
 public class playerRespawn : MonoBehaviour
 {
@@ -20,6 +21,9 @@ public class playerRespawn : MonoBehaviour
     public bool inPlayerView = false;
     public GameObject playerViewAnchor;
     AudioManager aManage;
+
+    //UI Components
+    public FadeToBlack fadeToBlackScript;
 
     void Awake()
     {
@@ -56,6 +60,9 @@ public class playerRespawn : MonoBehaviour
 
     IEnumerator Respawn()
     {
+        //fade to black
+        fadeToBlackScript.blackOut = true;
+
         //Setup 
         rb.isKinematic = true;
         isFalling = true;
@@ -63,6 +70,9 @@ public class playerRespawn : MonoBehaviour
         //play particle effect
         tinyTornado.Play();
         aManage.PlaySFX(aManage.PlayerSaved, 6, 1);
+
+        yield return new WaitUntil(() => fadeToBlackScript.fullBlack == true);
+
 
         // MOVE TOWARDS SPAWN POSITION //
 
@@ -73,7 +83,7 @@ public class playerRespawn : MonoBehaviour
         {
 
             //move towards spawn position
-            transform.position = Vector3.MoveTowards(transform.position, spawnDestination, returnSpeed * Time.deltaTime);
+            transform.position = spawnDestination;
 
             // return when the result is null
             yield return null;
@@ -81,6 +91,10 @@ public class playerRespawn : MonoBehaviour
 
         // DELAY TIMER//
         print("waiting");
+
+        yield return new WaitForSeconds(.5f);
+        //disable black screen
+        fadeToBlackScript.blackOut = false;
         yield return new WaitForSeconds(1f);
 
         //RESET//
