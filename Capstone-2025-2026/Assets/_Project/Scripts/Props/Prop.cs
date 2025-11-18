@@ -20,6 +20,8 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     public virtual bool IsTetherPulled { get; protected set; } = false;
     public virtual bool IsTouchingSurface {  get; protected set; } = false;
 
+    private bool didFixedUpdateRun = true;
+
     public Rigidbody Rb { get; protected set; }
     public Transform AttachedTransform { get; set; }
     public Outline ObjectOutline { get; set; }
@@ -34,7 +36,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
 
     //Gets the total force applied to this objct. NOTE: Should only be read in Update or the value will  be incorrect
     public Vector3 totalForceApplied { get; protected set; } = Vector3.zero;
-
+    private Vector3 storedTotalForce = Vector3.zero;
     protected virtual void Init()
     {
         Rb = GetComponent<Rigidbody>();
@@ -59,6 +61,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     protected virtual void Update()
     {
         HandleOutlineColors();
+        HandleForceAppliedVariable();
     }
 
     protected virtual void LateUpdate()
@@ -73,8 +76,8 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
 
     protected virtual void FixedUpdate()
     {
-        //totalForceApplied = Vector3.zero;
-        totalForceApplied += GetForcesFromJoint();
+        storedTotalForce += GetForcesFromJoint();
+        didFixedUpdateRun = true;
     }
 
     #region ISnareable
@@ -206,7 +209,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
 
         if(forceApplier != null && forceApplier.GetComponent<Lasso>() != null)
         {
-            totalForceApplied += direction * magnitude;
+            storedTotalForce += direction * magnitude;
         }
     }
 
@@ -221,6 +224,17 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
 
         return totalForce;
     }
+
+    protected void HandleForceAppliedVariable()
+    {
+        if (storedTotalForce.sqrMagnitude > 0 || didFixedUpdateRun)
+        {
+            totalForceApplied = storedTotalForce;
+        }
+        storedTotalForce = Vector3.zero;
+
+        didFixedUpdateRun = false;
+    }    
 
     #endregion
 
