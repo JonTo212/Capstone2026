@@ -33,7 +33,7 @@ public class SlugNPC : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if(_prop.IsHeld || _prop.isTetherPulled || _prop.IsSnared)
+        if(_prop.IsHeld || _prop.IsTetherPulled || _prop.IsSnared)
         {
             DeactivateNavMeshAgent();
         }

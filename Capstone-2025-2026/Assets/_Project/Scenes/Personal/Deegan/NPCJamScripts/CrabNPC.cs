@@ -29,7 +29,7 @@ public class CrabNPC : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(_prop.IsSnared || _prop.IsHeld || _prop.isTetherPulled)
+        if(_prop.IsSnared || _prop.IsHeld || _prop.IsTetherPulled)
         {
             if(snipAfterDelayCoroutine == null)
             {
@@ -42,7 +42,7 @@ public class CrabNPC : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if(_prop.IsHeld || _prop.isTetherPulled || _prop.IsSnared)
+        if(_prop.IsHeld || _prop.IsTetherPulled || _prop.IsSnared)
         {
             DeactivateNavMeshAgent();
         }

@@ -185,7 +185,7 @@ public class LassoTetherController : MonoBehaviour
             playerLasso.SnaredObject.Rb.constraints = RigidbodyConstraints.FreezePosition;
         }
 
-        if (playerActions.MainDown)
+        if (playerActions.MainUp)
         {
             playerLasso.HandleObjectReleased();
         }
