@@ -23,7 +23,7 @@ public class CrabNPC : MonoBehaviour
         _agent = GetComponent<NavMeshAgent>();
         _rb = GetComponent<Rigidbody>();
 
-        _agent.SetDestination(target.position);
+        _agent.SetDestination(GetDestinationFromADistance());
     }
 
     // Update is called once per frame
@@ -57,7 +57,7 @@ public class CrabNPC : MonoBehaviour
     {
         if(_agent.isOnNavMesh)
         {
-            _agent.SetDestination(target.position);
+            _agent.SetDestination(GetDestinationFromADistance());
 
             _agent.FindClosestEdge(out NavMeshHit hit);
             if (Vector3.Distance(hit.position, transform.position) < 0.2f)
@@ -107,7 +107,7 @@ public class CrabNPC : MonoBehaviour
         _agent.enabled = true;
         _rb.isKinematic = true;
 
-        _agent.SetDestination(target.position);
+        _agent.SetDestination(GetDestinationFromADistance());
     }
 
     IEnumerator EnableNavAgentAfterDelay(float delay)
@@ -116,6 +116,13 @@ public class CrabNPC : MonoBehaviour
 
         canReEnableAgent = true;
         enableAgentCoroutine = null;
+    }
+
+    private Vector3 GetDestinationFromADistance()
+    {
+        Vector3 direction = (target.position - transform.position).normalized;
+
+        return target.position - direction * 3f;
     }
 
     IEnumerator SnipAfterDelay(float delay)
