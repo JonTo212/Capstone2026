@@ -176,7 +176,7 @@ public class LassoTetherController : MonoBehaviour
     #region Snared Controls
     private void HandleSnaredControls()
     {
-        playerLasso.MoveAnchorPoint(playerActions.ScrollAction);
+        playerLasso.MoveAnchorPoint(playerActions.GetDPadScrollValue());
 
         if (playerActions.AltDown)
         {
