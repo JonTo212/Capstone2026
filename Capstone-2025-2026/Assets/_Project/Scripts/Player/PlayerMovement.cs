@@ -46,11 +46,13 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float feetRadius;
     [SerializeField] private LayerMask groundLayer;
 
-    [Header("Jump Buffer + Coyote Time")]
+    [Header("Jump Buffer + Coyote Time + LedgeScan")]
     [SerializeField] private float jumpBufferTime = 0.2f;
     [SerializeField] private float jumpBufferCounter;
     [SerializeField] private float coyoteTime = 0.2f;
     [SerializeField] private float coyoteTimeCounter;
+    [SerializeField] private float ledgeScanLength;
+    [SerializeField] private float ledgeScanDepth;
 
     [Header("Camera")]
     [SerializeField] private float yawSensitivity;
@@ -348,5 +350,33 @@ public class PlayerMovement : MonoBehaviour
 
         Vector3 accelForce = _wishDir * _acceleration * _currentMultipliers.accelMultiplier;
         _rb.AddForce(accelForce, ForceMode.Acceleration);
+    }
+
+    private Vector2 LedgeCheck()
+    {
+        //If there is a place the player can fall, the check will return where that is
+
+        Vector2 fallOffArea = new Vector2(0, 0);
+        for(int i = -1; i < 2; i++)
+        {
+            for(int j = -1; j < 2; j++)
+            {
+                if(Physics.Raycast(transform.position, new Vector3(i,0,j), out RaycastHit hit, ledgeScanLength))
+                {
+                    if(Physics.Raycast(hit.point, Vector3.down, out RaycastHit hitDown, ledgeScanDepth))
+                    {
+                        //(i,0,j)
+                    }
+                }
+            }
+        }
+
+
+        return fallOffArea;
+    }
+
+    private void TeeterLock()
+    {
+
     }
 }
