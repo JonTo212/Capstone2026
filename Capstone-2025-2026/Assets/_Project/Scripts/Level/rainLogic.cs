@@ -7,12 +7,13 @@ public class rainLogic : MonoBehaviour
     private ParticleSystem rainParticles;
     public Vector3 rainDirection;
 
-    private AudioSource audioSource;
     public AudioClip rainSound;
 
     private float timerMax = 1.5f;
     public float currentTime;
     public bool inTheRain = false;
+
+    public AudioManager aM;
 
 
     //How much rain
@@ -27,8 +28,8 @@ public class rainLogic : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        aM = GameObject.Find("AudioManager").GetComponent<AudioManager>();
         rainParticles = GetComponent<ParticleSystem>();
-        audioSource = GetComponent<AudioSource>();
 
         currentTime = timerMax;
     }
@@ -53,15 +54,15 @@ public class rainLogic : MonoBehaviour
         //set audio level
         if (rainIntensity == RainIntensity.Low)
         {
-            audioSource.volume = 0.4f;
+            aM.AmbienceSource2.volume = 0.4f;
         }
         else if (rainIntensity == RainIntensity.Medium)
         {
-            audioSource.volume = 0.6f;
+            aM.AmbienceSource2.volume = 0.6f;
         }
         else if (rainIntensity == RainIntensity.High)
         {
-            audioSource.volume = 0.8f;
+            aM.AmbienceSource2.volume = 0.8f;
         }
     }
     private void OnParticleCollision(GameObject other)
@@ -88,25 +89,25 @@ public class rainLogic : MonoBehaviour
     void RainAudio()
     {
         //play rainsound
-        if (!audioSource.isPlaying)
+        if (!aM.AmbienceSource2.isPlaying)
         {
-            audioSource.clip = rainSound;
-            audioSource.Play();
+            aM.AmbienceSource2.clip = rainSound;
+            aM.AmbienceSource2.Play();
         }   
 
         //adjust pitch
         if (inTheRain)
         {
-            if (audioSource.pitch < 1f)
+            if (aM.AmbienceSource2.pitch < 1f)
             {
-                audioSource.pitch += Time.deltaTime;
+                aM.AmbienceSource2.pitch += Time.deltaTime;
             }
         }
         else
         {
-            if (audioSource.pitch > .4f)
+            if (aM.AmbienceSource2.pitch > .4f)
             {
-                audioSource.pitch -= Time.deltaTime;
+                aM.AmbienceSource2.pitch -= Time.deltaTime;
             }
         }
         

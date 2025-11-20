@@ -14,6 +14,7 @@ public class PlayerActions : MonoBehaviour
     private InputAction altAction;
     private InputAction interactAction;
     public InputAction MoveAction { get; set; }
+    private InputAction menuAction;
 
     public Vector2 MoveInput => MoveAction.ReadValue<Vector2>();
     public Vector2 LookInput => lookAction.ReadValue<Vector2>();
@@ -50,6 +51,10 @@ public class PlayerActions : MonoBehaviour
     public bool InteractHeld => interactAction.IsPressed();
     public bool InteractUp => interactAction.WasReleasedThisFrame();
 
+    public bool MenuDown => menuAction.WasPressedThisFrame();
+    public bool MenuHeld => menuAction.IsPressed();
+    public bool MenuUp => menuAction.WasReleasedThisFrame();
+
     private void Awake()
     {
         var map = InputSystem.actions;
@@ -65,6 +70,7 @@ public class PlayerActions : MonoBehaviour
         dPadUpAction = map.FindAction("DPadUp");
         dPadDownAction = map.FindAction("DPadDown");
         currentRepeatRate = baseRepeatRate;
+        menuAction = map.FindAction("Menu");
     }
 
     private void OnEnable()
@@ -80,6 +86,7 @@ public class PlayerActions : MonoBehaviour
         interactAction.Enable();
         dPadUpAction.Enable();
         dPadDownAction.Enable();
+        menuAction.Enable();
     }
 
     private void OnDisable()
@@ -95,6 +102,7 @@ public class PlayerActions : MonoBehaviour
         interactAction.Disable();
         dPadUpAction.Disable();
         dPadDownAction.Disable();
+        menuAction.Disable();
     }
 
     //made these numbers up ngl
@@ -151,5 +159,4 @@ public class PlayerActions : MonoBehaviour
 
         return 0f;
     }
-
 }

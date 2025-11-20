@@ -164,6 +164,7 @@ AudioMixerGroupController:
   m_GroupID: 417a3f05c65c14c42a19940a0ecf717b
   m_Children:
   - {fileID: 2039914102226131208}
+  - {fileID: 4202580956860116463}
   m_Volume: 94f67bd11c9da364ea1cb10e322dd383
   m_Pitch: 1e7b22ef7a0de164ea403b31f944835c
   m_Send: 00000000000000000000000000000000
@@ -216,6 +217,20 @@ AudioMixerEffectController:
   m_EffectID: 97c98c7308e8b6145a74a122cf83695e
   m_EffectName: Attenuation
   m_MixLevel: 33109cac83c41fe41b79d4535774e7aa
+  m_Parameters: []
+  m_SendTarget: {fileID: 0}
+  m_EnableWetMix: 0
+  m_Bypass: 0
+--- !u!244 &-1342227699739687561
+AudioMixerEffectController:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_EffectID: 78d60edee870389408617c3afedaa301
+  m_EffectName: Attenuation
+  m_MixLevel: b85ba5f53c6aef84d8bde96e563aadc5
   m_Parameters: []
   m_SendTarget: {fileID: 0}
   m_EnableWetMix: 0
@@ -280,7 +295,15 @@ AudioMixerController:
   m_SuspendThreshold: -80
   m_EnableSuspend: 1
   m_UpdateMode: 0
-  m_ExposedParameters: []
+  m_ExposedParameters:
+  - guid: 94f67bd11c9da364ea1cb10e322dd383
+    name: Ambience
+  - guid: 3676a7c204c34b34191cc42c74de59c8
+    name: Master
+  - guid: a138532087ffc56439327c3d56726bd5
+    name: Music
+  - guid: cbf424816ebeca54182f00f0ba9a3ed1
+    name: Sound
   m_AudioMixerGroupViews:
   - guids:
     - 39c391d069a329749b6534c8371d8c31
@@ -297,6 +320,7 @@ AudioMixerController:
     - ccd18eef26394d34f8be9f0901965728
     - 0bc1191167d691c45bac3c8c68bde4d3
     - d1c78c88031b2ac4c8e1f5600853bc1a
+    - 35b104ae11eb9d543a284aaf50bae25d
     name: View
   m_CurrentViewIndex: 0
   m_TargetSnapshot: {fileID: 24500006}
@@ -428,6 +452,25 @@ AudioMixerEffectController:
   m_SendTarget: {fileID: 0}
   m_EnableWetMix: 0
   m_Bypass: 0
+--- !u!243 &4202580956860116463
+AudioMixerGroupController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Ambience 2
+  m_AudioMixer: {fileID: 24100000}
+  m_GroupID: 35b104ae11eb9d543a284aaf50bae25d
+  m_Children: []
+  m_Volume: 12884875d54f0df4188976a595676cd0
+  m_Pitch: afc77ba386b0beb4a8f4c90c8fb8b97e
+  m_Send: 00000000000000000000000000000000
+  m_Effects:
+  - {fileID: -1342227699739687561}
+  m_UserColorIndex: 0
+  m_Mute: 0
+  m_Solo: 0
+  m_BypassEffects: 0
 --- !u!244 &5538068995581903599
 AudioMixerEffectController:
   m_ObjectHideFlags: 3

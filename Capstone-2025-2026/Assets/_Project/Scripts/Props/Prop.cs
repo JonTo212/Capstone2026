@@ -98,15 +98,22 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         IsSnared = false;
         IsHeld = false;
         IsBeingPulled = false;
-        Rb.useGravity = true;
-        Rb.interpolation = RigidbodyInterpolation.None;
-        Rb.constraints = RigidbodyConstraints.None;
-        Rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
+        rb.useGravity = false;
+        Invoke(nameof(GravDelay), 0.3f);
+        rb.interpolation = RigidbodyInterpolation.None;
+        rb.constraints = RigidbodyConstraints.None;
+        rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
+        rb.linearDamping = defaultDrag;
+        rb.angularDamping = defaultAngularDrag;
         AttachedTransform = null;
 
         if(transform != null) transform.SetParent(null);
     }
 
+    public void GravDelay()
+    {
+        rb.useGravity = true;
+    }
     public virtual void OnAttachTether()
     {
 
