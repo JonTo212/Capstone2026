@@ -380,7 +380,7 @@ public class PlayerMovement : MonoBehaviour
     {
         //If there is a place the player can fall, the check will return where that is
                 
-        if (!Physics.Raycast(feetPos.position + (intendedDirection * ledgeScanLength), Vector3.down, ledgeScanDepth) /*&& 
+        if (!Physics.Raycast(feetPos.position + (intendedDirection * ledgeScanLength), Vector3.down, ledgeScanDepth) && IsGrounded() /*&& 
             _lassoTetherController.CurrentLassoState == LassoState.Held*/)
         {
             intendedDirection = Vector3.zero;
