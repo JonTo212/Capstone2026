@@ -257,8 +257,10 @@ public class PlayerMovement : MonoBehaviour
 
         Vector3 forwardRelative = camForward * _playerActions.MoveInput.y;
         Vector3 rightRelative = camRight * _playerActions.MoveInput.x;
+        
+        _wishDir = LedgeCheckWithoutAForLoop((forwardRelative + rightRelative).normalized);
+        
 
-        _wishDir = (forwardRelative + rightRelative).normalized;
     }
 
     private void HandleJump()
@@ -352,11 +354,11 @@ public class PlayerMovement : MonoBehaviour
         _rb.AddForce(accelForce, ForceMode.Acceleration);
     }
 
-    private Vector2 LedgeCheck()
+    private Vector3 LedgeCheck()
     {
         //If there is a place the player can fall, the check will return where that is
 
-        Vector2 fallOffArea = new Vector2(0, 0);
+        Vector3 fallOffArea = new Vector3(0, 0, 0);
         for(int i = -1; i < 2; i++)
         {
             for(int j = -1; j < 2; j++)
@@ -365,7 +367,7 @@ public class PlayerMovement : MonoBehaviour
                 {
                     if(Physics.Raycast(hit.point, Vector3.down, out RaycastHit hitDown, ledgeScanDepth))
                     {
-                        //(i,0,j)
+                        return fallOffArea = new Vector3(i, 0, j);
                     }
                 }
             }
@@ -374,9 +376,16 @@ public class PlayerMovement : MonoBehaviour
 
         return fallOffArea;
     }
-
-    private void TeeterLock()
+    private Vector3 LedgeCheckWithoutAForLoop(Vector3 intendedDirection)
     {
-
+        //If there is a place the player can fall, the check will return where that is
+                
+        if (!Physics.Raycast(feetPos.position + intendedDirection * ledgeScanLength, Vector3.down, ledgeScanDepth*2))
+        {
+            intendedDirection = Vector3.zero;
+        }
+        print(intendedDirection);
+        return intendedDirection;
     }
+
 }
