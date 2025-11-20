@@ -24,6 +24,8 @@ public class JointTether : MonoBehaviour
     [SerializeField] private float maxForce = 250;
     //[SerializeField] private float breakForce = 750;
     [SerializeField] private float activationDelay = 0.4f;
+    [SerializeField] private float angularDriveStrength = 5f;
+    [SerializeField] private float angularDamper = 2f;
 
     [Header("Properties")]
     [SerializeField] private bool isAutoActivate = false;
@@ -165,6 +167,8 @@ public class JointTether : MonoBehaviour
         JointDrive xDrive = new JointDrive();
         JointDrive yDrive = new JointDrive();
         JointDrive zDrive = new JointDrive();
+        JointDrive angularXDrive = new JointDrive();
+        JointDrive angularYZDrive = new JointDrive();
 
         xDrive.positionSpring = driveStrength;
         xDrive.positionDamper = driveDamper;
@@ -178,9 +182,20 @@ public class JointTether : MonoBehaviour
         zDrive.positionDamper = driveDamper;
         zDrive.maximumForce = maxForce;
 
+        angularXDrive.positionSpring = angularDriveStrength;
+        angularXDrive.positionDamper = angularDamper;
+        angularXDrive.maximumForce = 100f;
+
+        angularYZDrive.positionSpring = angularDriveStrength;
+        angularYZDrive.positionDamper = angularDamper;
+        angularYZDrive.maximumForce = 100f;
+
         joint.xDrive = xDrive;
         joint.yDrive = yDrive;
         joint.zDrive = zDrive;
+
+        joint.angularXDrive = angularXDrive;
+        joint.angularYZDrive = angularYZDrive;
 
         joint.autoConfigureConnectedAnchor = false;
         joint.enableCollision = true;

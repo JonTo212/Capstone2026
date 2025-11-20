@@ -5430,6 +5430,7 @@ Transform:
   - {fileID: 8054164472567743436}
   - {fileID: 6437961505454777765}
   - {fileID: 4576809661034606496}
+  - {fileID: 7991914444222391677}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!136 &5884921806905592161
@@ -5624,13 +5625,15 @@ MonoBehaviour:
   lookAtStrength: 0.5
   lookAtDamping: 0.05
   rotationalDampingStrength: 0.5
+  maxLassoStrength: 0
+  useSizeScale: 0
   aimAssistType: 0
   aimAssistBufferRadius: 1.5
   useAimOutline: 1
   usePickupOutline: 1
   useGrabPointsForHold: 1
   swingJumpForce: 5
-  useGrabPointsForSwing: 0
+  forwardRef: {fileID: 0}
 --- !u!114 &187563627807177223
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11611,6 +11614,66 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1 &6437417013602826926
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7991914444222391677}
+  - component: {fileID: 8712293389557043796}
+  m_Layer: 7
+  m_Name: Decal Projector
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7991914444222391677
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6437417013602826926}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.7071068, y: -0, z: -0, w: 0.7071068}
+  m_LocalPosition: {x: 0.005, y: -0.948, z: 0.09}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 412334985279009504}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8712293389557043796
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6437417013602826926}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0777d029ed3dffa4692f417d4aba19ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.DecalProjector
+  m_Material: {fileID: 2100000, guid: c4f462b1b81e45f49bf62bdb6bfe4fc0, type: 2}
+  m_DrawDistance: 1000
+  m_FadeScale: 0.924
+  m_StartAngleFade: 180
+  m_EndAngleFade: 180
+  m_UVScale: {x: 1, y: 1}
+  m_UVBias: {x: 0, y: 0}
+  m_RenderingLayerMask:
+    serializedVersion: 0
+    m_Bits: 1
+  m_ScaleMode: 0
+  m_Offset: {x: 0, y: 0, z: 5.22}
+  m_Size: {x: 1, y: 1, z: 10.44}
+  m_FadeFactor: 1
+  version: 1
+  m_DecalLayerMask: 1
 --- !u!1 &6568372308314492427
 GameObject:
   m_ObjectHideFlags: 0
@@ -12056,6 +12119,7 @@ MonoBehaviour:
   rainSound: {fileID: 8300000, guid: dee01ec498eaebf43b37ac1ce17a3a8f, type: 3}
   currentTime: 1
   inTheRain: 1
+  aM: {fileID: 0}
   rainIntensity: 1000
 --- !u!82 &372146185241016779
 AudioSource:
