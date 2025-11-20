@@ -152,6 +152,7 @@ public class Lasso : MonoBehaviour
             _snaredObjTransform = prop.transform;
             SnaredObject = prop;
             prop.OnSnare();
+            prop.SetLassoRef(this);
             prop.OnPropDestroyed += HandleObjectReleased;
             if (usePickupOutline) SnaredObject.ActivateOutline(true);
 
@@ -371,6 +372,7 @@ public class Lasso : MonoBehaviour
         SnaredObject.OnPropDestroyed -= HandleObjectReleased;
         SnaredObject.ActivateOutline(false);
         SnaredObject.OnRelease();
+        SnaredObject.SetLassoRef(null);
         SnaredObject = null;
         _snaredObjTransform = null;
         _localFaceNormal = Vector3.zero;

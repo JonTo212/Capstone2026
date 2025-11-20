@@ -7,6 +7,7 @@ using Unity.VisualScripting;
 public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
 {
     [SerializeField] protected bool debugThisProp = false;
+    [SerializeField] protected float coyoteFallDelay = 0.3f;
 
     //protected means only derived classes can access these values
     [SerializeField] protected List<JointTether> attachedTethers = new List<JointTether>();
@@ -21,13 +22,14 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     public virtual bool IsTouchingSurface {  get; protected set; } = false;
 
     private bool didFixedUpdateRun = true;
+    protected Lasso lassoRef;
 
     public Rigidbody Rb { get; protected set; }
     public Transform AttachedTransform { get; set; }
     public Outline ObjectOutline { get; set; }
     [field: SerializeField] public List<Transform> GrabPoints { get; protected set; }
-    [field: SerializeField] public int faceRows { get; protected set; }
-    [field: SerializeField] public int faceColumns { get; protected set; }
+    [field: SerializeField] public int FaceRows { get; protected set; }
+    [field: SerializeField] public int FaceColumns { get; protected set; }
 
     public event Action OnPropDestroyed;
 
@@ -37,6 +39,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     //Gets the total force applied to this objct. NOTE: Should only be read in Update or the value will  be incorrect
     public Vector3 totalForceApplied { get; protected set; } = Vector3.zero;
     private Vector3 storedTotalForce = Vector3.zero;
+
     protected virtual void Init()
     {
         Rb = GetComponent<Rigidbody>();
@@ -50,7 +53,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         if(generator != null)
         {
             Collider col = GetComponent<Collider>();
-            GrabPoints = generator.GeneratePoints(col, faceRows, faceColumns);
+            GrabPoints = generator.GeneratePoints(col, FaceRows, FaceColumns);
             foreach (Transform t in GrabPoints)
             {
                 t.gameObject.SetActive(false);
@@ -86,7 +89,6 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         IsSnared = true;
         IsHeld = false;
         IsBeingPulled = false;
-        //Rb.useGravity = false;
         Rb.interpolation = RigidbodyInterpolation.Interpolate;
         Rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
         Rb.angularVelocity = Vector3.zero;
@@ -98,13 +100,19 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         IsSnared = false;
         IsHeld = false;
         IsBeingPulled = false;
-        Rb.useGravity = true;
         Rb.interpolation = RigidbodyInterpolation.None;
         Rb.constraints = RigidbodyConstraints.None;
         Rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
         AttachedTransform = null;
 
+        Invoke(nameof(CoyoteFall), coyoteFallDelay);
+
         if(transform != null) transform.SetParent(null);
+    }
+
+    public void SetLassoRef(Lasso lasso)
+    {
+        lassoRef = lasso;
     }
 
     public virtual void OnAttachTether()
@@ -283,6 +291,11 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     private void OnCollisionExit(Collision collision)
     {
         IsTouchingSurface = false;
+    }
+
+    private void CoyoteFall()
+    {
+        Rb.useGravity = true;
     }
 
     protected void PropDebug(object message) { if (debugThisProp == true) Debug.Log(message); }
