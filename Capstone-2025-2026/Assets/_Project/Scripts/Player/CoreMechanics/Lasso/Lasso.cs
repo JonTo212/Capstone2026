@@ -371,8 +371,8 @@ public class Lasso : MonoBehaviour
 
         SnaredObject.OnPropDestroyed -= HandleObjectReleased;
         SnaredObject.ActivateOutline(false);
-        SnaredObject.OnRelease();
         SnaredObject.SetLassoRef(null);
+        SnaredObject.OnRelease();
         SnaredObject = null;
         _snaredObjTransform = null;
         _localFaceNormal = Vector3.zero;
@@ -381,6 +381,18 @@ public class Lasso : MonoBehaviour
         OnLassoReleased?.Invoke();
 
     }
+
+    public void HandleHold()
+    {
+        if (SnaredObject == null) return;
+
+        SnaredObject.ActivateOutline(false);
+        SnaredObject = null;
+        _snaredObjTransform = null;
+        _localFaceNormal = Vector3.zero;
+        lassoGrabVisualIndicator.SetActive(false);
+    }
+
     #endregion
 
     #region Anchoring

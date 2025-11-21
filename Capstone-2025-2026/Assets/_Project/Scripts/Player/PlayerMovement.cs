@@ -6,7 +6,7 @@ public enum PlayerMoveState
     InAir,
     Swinging,
     Mantling,
-    OnMovingPlatform 
+    UsingNPC
 }
 
 [System.Serializable]
@@ -72,24 +72,20 @@ public class PlayerMovement : MonoBehaviour
     private RaycastHit _slopeHit;
     private Rigidbody _rb;
     private CapsuleCollider _playerCol;
-    private float _yRot;
-    private float _xRot;
     private float _acceleration;
     private float _gravity;
     private float _jumpForce;
     private float _friction;
-    private float _slopeAngle;
     private float _defaultFOV;
+    private float _maxGravity;
 
     public float ExternalForce { get; set; }
     public float Gravity => _gravity;
     public Vector3 WishDir => _wishDir;
     public Rigidbody Rb => _rb;
-    public AudioManager aManage;
 
     private void Awake()
     {
-        aManage = GameObject.Find("AudioManager").GetComponent<AudioManager>();
         _rb = GetComponent<Rigidbody>();
         _playerCol = GetComponent<CapsuleCollider>();
         _playerActions = GetComponent<PlayerActions>();
@@ -98,6 +94,7 @@ public class PlayerMovement : MonoBehaviour
 
         _gravity = 2 * apexHeight / Mathf.Pow(apexTime, 2);
         _jumpForce = 2 * apexHeight / apexTime;
+        _maxGravity = _gravity;
         _friction = defaultMaxSpeed / timeToZero;
         _acceleration = defaultMaxSpeed / timeToMaxSpeed;
         _defaultFOV = playerCam.fieldOfView;
@@ -105,8 +102,8 @@ public class PlayerMovement : MonoBehaviour
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-        aManage.PlaySFX(aManage.Walk, 7, 1);
-        aManage.SFXSource7.loop = true;
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.Walk, 7, 1);
+        AudioManager.Instance.SFXSource7.loop = true;
     }
 
     private void Update()
@@ -118,8 +115,6 @@ public class PlayerMovement : MonoBehaviour
         HandleFOV();
         HandleWalkingSFX();
     }
-
-    public bool enableInput;
 
     private void FixedUpdate()
     {
@@ -188,11 +183,11 @@ public class PlayerMovement : MonoBehaviour
     {
         if (_wishDir != Vector3.zero)
         {
-            aManage.SFXSource7.UnPause();
+            AudioManager.Instance.SFXSource7.UnPause();
         }
         else
         {
-            aManage.SFXSource7.Pause(); //PlaySFX(aManage.Walk, 5, 1);
+            AudioManager.Instance.SFXSource7.Pause(); //PlaySFX(aManage.Walk, 5, 1);
         }
     }
 
@@ -268,13 +263,19 @@ public class PlayerMovement : MonoBehaviour
 
             coyoteTimeCounter = 0f;
             jumpBufferCounter = 0;
-            aManage.PlaySFX(aManage.Jump, 6, 1f);
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.Jump, 6, 1f);
         }
     }
 
     private void HandleGravity()
     {
         if (_currentMovementState == PlayerMoveState.Walking) return;
+        if (_rb.linearVelocity.y <= 0 && _rb.linearVelocity.y <= - _maxGravity)
+        {
+            _rb.linearVelocity = new Vector3(_rb.linearVelocity.x, -_maxGravity, _rb.linearVelocity.z);
+            print("maxed out");
+            return;
+        }
 
         _rb.AddForce(Vector3.down * _gravity, ForceMode.Acceleration);
     }

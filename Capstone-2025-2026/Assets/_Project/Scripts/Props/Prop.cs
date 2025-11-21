@@ -101,7 +101,6 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         IsHeld = false;
         IsBeingPulled = false;
         Rb.interpolation = RigidbodyInterpolation.None;
-        Rb.constraints = RigidbodyConstraints.None;
         Rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
         AttachedTransform = null;
 
@@ -195,7 +194,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         IsSnared = false;
         IsBeingPulled = false;
         Rb.interpolation = RigidbodyInterpolation.None;
-        Rb.constraints = RigidbodyConstraints.FreezePosition;
+        Rb.constraints = RigidbodyConstraints.FreezeAll;
         transform.SetParent(newParent);
         transform.position = newParent.position;
         ActivateOutline(false);
@@ -293,7 +292,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         IsTouchingSurface = false;
     }
 
-    private void CoyoteFall()
+    protected virtual void CoyoteFall()
     {
         Rb.useGravity = true;
     }
