@@ -54,6 +54,5 @@ public class DevTeleport : MonoBehaviour
     {
         _player.transform.position = teleportLocations[currentTeleportOption].position;
         _player.transform.rotation = teleportLocations[currentTeleportOption].rotation;
-        _player.GetComponent<Rigidbody>().linearVelocity = Vector3.zero;
     }
 }
