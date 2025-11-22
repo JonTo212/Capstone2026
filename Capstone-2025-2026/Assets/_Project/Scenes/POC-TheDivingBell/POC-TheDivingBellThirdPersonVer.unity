@@ -133858,6 +133858,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 187563627807177223, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+      propertyPath: camInput
+      value: 
+      objectReference: {fileID: 1552607963}
     - target: {fileID: 412334985279009504, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       propertyPath: m_LocalPosition.x
       value: 50.6
@@ -133967,6 +133971,14 @@ PrefabInstance:
       value: 175
       objectReference: {fileID: 0}
     - target: {fileID: 5704081936607653163, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+      propertyPath: usePhysicsTorque
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5704081936607653163, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+      propertyPath: useGrabPointsForHold
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5704081936607653163, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       propertyPath: rotationalDampingStrength
       value: 0.25
       objectReference: {fileID: 0}
@@ -133997,6 +134009,9 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 221766064}
     m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2571145194382551425, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1945876742}
     - targetCorrespondingSourceObject: {fileID: 8798080866278135743, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1073961446}
@@ -141604,6 +141619,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: cdc350ff164dedc4e9e63ae2cb1a46bb, type: 3}
+--- !u!114 &1552607963 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1205049040831453663, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+  m_PrefabInstance: {fileID: 1452527826}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89875cdc57c54474a8a74efd9b2a3b5d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineInputAxisController
 --- !u!4 &1552697246 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 1dfeaf88d1461e140a84df7e675899bb, type: 3}
@@ -155358,6 +155384,11 @@ PrefabInstance:
 Transform:
   m_CorrespondingSourceObject: {fileID: 8083058736112565810, guid: e6f824cee609aac44884a712443d1525, type: 3}
   m_PrefabInstance: {fileID: 186948314}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1756292954 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2571145194382551425, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+  m_PrefabInstance: {fileID: 1452527826}
   m_PrefabAsset: {fileID: 0}
 --- !u!4 &1757336214 stripped
 Transform:
@@ -169359,7 +169390,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4800881338183066832, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
   m_PrefabInstance: {fileID: 1452527826}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 1756292954}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 057727ba87d071f41a7a5fa2ff6ee4f0, type: 3}
@@ -169370,12 +169401,27 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7792931581381523645, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
   m_PrefabInstance: {fileID: 1452527826}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 1756292954}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7d774eb208531774288bd82ac6de1218, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::JointTetherPlacer
+--- !u!114 &1945876742
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1756292954}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c81c063091e9b646be9ec51277f130a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ObjectRotate
+  degreesPerSecond: 180
+  yawSens: 1
+  pitchSens: 1
 --- !u!4 &1946025671 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1170426240345609369, guid: 3a4a8d7241019f548b24b3aa7f4606be, type: 3}
