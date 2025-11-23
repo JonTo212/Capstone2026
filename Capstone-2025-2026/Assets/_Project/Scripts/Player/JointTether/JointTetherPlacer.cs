@@ -28,6 +28,7 @@ public class JointTetherPlacer : MonoBehaviour
     [Header("Tether Mode Properties")]
     [SerializeField] private float slowdownFactor = 0.2f;
     [SerializeField] private float slowDownDurationPerTether = 4f;
+    [SerializeField] CinemachineInputAxisController CNInputAxisController;
     private bool isTetherModeActive = false;
     private Prop currentHeldProp;
 
@@ -254,6 +255,27 @@ public class JointTetherPlacer : MonoBehaviour
         CreateTetherPreviewLine();
         Camera.main.GetComponent<CinemachineBrain>().UpdateMethod = CinemachineBrain.UpdateMethods.LateUpdate;
         Camera.main.GetComponent<CinemachineBrain>().IgnoreTimeScale = true;
+
+        foreach (var c in CNInputAxisController.Controllers)
+        {
+            if (c.Name == "Look Orbit X")
+            {
+                c.Input.Gain *= (1f/slowdownFactor);
+                c.Input.Gain *= (1f / 3f);
+                c.Driver.AccelTime *= slowdownFactor;
+                c.Driver.DecelTime *= slowdownFactor;
+                continue;
+            }
+
+            if (c.Name == "Look Orbit Y")
+            {
+                c.Input.Gain *= (1f / slowdownFactor);
+                c.Input.Gain *= (1f / 3f);
+                c.Driver.AccelTime *= slowdownFactor;
+                c.Driver.DecelTime *= slowdownFactor;
+                continue;
+            }
+        }
     }
 
     public void HandleTetherMode()
@@ -299,6 +321,27 @@ public class JointTetherPlacer : MonoBehaviour
         CinemachineImpulseManager.Instance.IgnoreTimeScale = true;
         Camera.main.GetComponent<CinemachineBrain>().UpdateMethod = CinemachineBrain.UpdateMethods.SmartUpdate;
         Camera.main.GetComponent<CinemachineBrain>().IgnoreTimeScale = false;
+
+        foreach(var c in CNInputAxisController.Controllers)
+        {
+            if (c.Name == "Look Orbit X")
+            {
+                c.Input.Gain *= slowdownFactor;
+                c.Input.Gain *= 3f;
+                c.Driver.AccelTime *= (1f/slowdownFactor);
+                c.Driver.DecelTime *= (1f/slowdownFactor);
+                continue;
+            }
+
+            if (c.Name == "Look Orbit Y")
+            {
+                c.Input.Gain *= slowdownFactor;
+                c.Input.Gain *= 3f;
+                c.Driver.AccelTime *= (1f/slowdownFactor);
+                c.Driver.DecelTime *= (1f/slowdownFactor);
+                continue;
+            }
+        }
     }
 
     private Transform GetClosestAttachmentPoint(Prop prop, Vector3 target)
