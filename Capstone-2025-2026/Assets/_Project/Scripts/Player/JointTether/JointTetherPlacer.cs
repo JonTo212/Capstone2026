@@ -21,7 +21,7 @@ public class JointTetherPlacer : MonoBehaviour
     [SerializeField] private LayerMask tetherLayerMask;
     [SerializeField] private int numOfTethersPlaced = 0;
     [SerializeField] public bool autoActivateTether = true;
-    public List<JointTether> placedTethers { get; private set; } = new List<JointTether>();
+    [SerializeField] public List<JointTether> placedTethers;
     public bool didStartPointHit = false;
     public bool didEndPointHit = false;
 
@@ -95,27 +95,21 @@ public class JointTetherPlacer : MonoBehaviour
         didStartPointHit = false;
         didEndPointHit = false;
 
-        if (numOfTethersPlaced < maxNumOfTethers)
+        if (GetObjectInPlayerFront(out RaycastHit hit))
         {
-            if (GetObjectInPlayerFront(out RaycastHit hit))
-            {
-                CreateTetherPreviewLine();
-                SetTetherStartPoint(hit.transform, hit.point);
-                didStartPointHit = true;
-                OnTetherStartHit?.Invoke();
-            }
+            CreateTetherPreviewLine();
+            SetTetherStartPoint(hit.transform, hit.point);
+            didStartPointHit = true;
+            OnTetherStartHit?.Invoke();
         }
     }
 
     public void StartTetherPlacement(Transform transform, Vector3 position)
     {
-        if (numOfTethersPlaced < maxNumOfTethers)
-        {
             CreateTetherPreviewLine();
             SetTetherStartPoint(transform, position);
             didStartPointHit = true;
             //OnTetherStartHit?.Invoke();
-        }
     }
 
     public void EndTetherPlacement(bool autoActivate)
@@ -135,6 +129,12 @@ public class JointTetherPlacer : MonoBehaviour
                 CreateAndInitTether(startTransform, startLocalPosition, endTransform, endLocalPosition, autoActivate);
             }
         }
+
+        if(numOfTethersPlaced > maxNumOfTethers)
+        {
+            placedTethers[0].DestroyTether();
+        }
+
         DeletePreviewTetherLine();
         ResetVariables();
     }
@@ -296,15 +296,17 @@ public class JointTetherPlacer : MonoBehaviour
 
     public void TetherModeQuickPlaceTether()
     {
-        if (numOfTethersPlaced < maxNumOfTethers)
+        if (GetObjectInPlayerFront(out RaycastHit hit) && hit.transform != startTransform)
         {
-            if (GetObjectInPlayerFront(out RaycastHit hit) && hit.transform != startTransform)
-            {
-                SetTetherStartPoint(currentHeldProp.transform, GetClosestAttachmentPoint(currentHeldProp, hit.point).position);
-                SetTetherEndPoint(hit.transform, hit.point);
+            SetTetherStartPoint(currentHeldProp.transform, GetClosestAttachmentPoint(currentHeldProp, hit.point).position);
+            SetTetherEndPoint(hit.transform, hit.point);
 
-                CreateAndInitTether(startTransform, startLocalPosition, endTransform, endLocalPosition, true);
-            }
+            CreateAndInitTether(startTransform, startLocalPosition, endTransform, endLocalPosition, true);
+        }
+
+        if(numOfTethersPlaced > maxNumOfTethers)
+        {
+            placedTethers[0].DestroyTether();
         }
 
         ResetVariables();
