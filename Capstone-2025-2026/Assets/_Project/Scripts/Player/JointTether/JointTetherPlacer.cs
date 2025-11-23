@@ -2,9 +2,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using Unity.VisualScripting;
+using Unity.Cinemachine;
 using UnityEngine;
-using UnityEngine.ProBuilder.MeshOperations;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 using static CharacterSkinController;
 
 public class JointTetherPlacer : MonoBehaviour
@@ -23,6 +24,18 @@ public class JointTetherPlacer : MonoBehaviour
     public List<JointTether> placedTethers { get; private set; } = new List<JointTether>();
     public bool didStartPointHit = false;
     public bool didEndPointHit = false;
+
+    [Header("Tether Mode Properties")]
+    [SerializeField] private float slowdownFactor = 0.2f;
+    [SerializeField] private float slowDownDurationPerTether = 4f;
+    private bool isTetherModeActive = false;
+    private Prop currentHeldProp;
+
+    [Header("Tether Mode Post Process properties")]
+    [SerializeField] private Volume postProcessVolume;
+    DepthOfField tetherModeDepthOfField;
+    ChromaticAberration tetherModeChromaticAberation;
+    PaniniProjection tetherModePaniniProjection;
 
     [Header("Editable Properties")]
     [SerializeField] private float maxTetherStartDist = 50f;
@@ -45,14 +58,32 @@ public class JointTetherPlacer : MonoBehaviour
     {
         aManage = GameObject.Find("AudioManager").GetComponent<AudioManager>();
         _playerCamera = Camera.main;
+
+        postProcessVolume.profile.TryGet(out tetherModeDepthOfField);
+        postProcessVolume.profile.TryGet(out tetherModeChromaticAberation);
+        postProcessVolume.profile.TryGet(out tetherModePaniniProjection);
+    }
+
+    private void Start()
+    {
+        tetherModeChromaticAberation.active = false;
+        tetherModeDepthOfField.active = false;
+        tetherModePaniniProjection.active = false;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(didStartPointHit)
+        if (isTetherModeActive)
         {
-            UpdateTetherPreviewLine();
+           
+        }
+        else
+        {
+            if(didStartPointHit)
+            {
+                UpdateTetherPreviewLine();
+            }
         }
     }
     #endregion
@@ -208,6 +239,115 @@ public class JointTetherPlacer : MonoBehaviour
             tetherPreviewLine.SetEndPoint(previewLocation);
         }
     }
+
+    #endregion
+
+    #region TetherMode
+
+    public void EnterSlowTetherMode(Prop currentHeldProp)
+    {
+        Time.timeScale = slowdownFactor;
+        this.currentHeldProp = currentHeldProp;
+        tetherModeChromaticAberation.active = true;
+        tetherModeDepthOfField.active = true;
+        tetherModePaniniProjection.active = true;
+        CreateTetherPreviewLine();
+        Camera.main.GetComponent<CinemachineBrain>().UpdateMethod = CinemachineBrain.UpdateMethods.LateUpdate;
+        Camera.main.GetComponent<CinemachineBrain>().IgnoreTimeScale = true;
+    }
+
+    public void HandleTetherMode()
+    {
+        Time.fixedDeltaTime = Time.timeScale * 0.02f;
+        if (GetObjectInPlayerFront(out RaycastHit hit) && hit.transform != startTransform)
+        {
+            if(hit.transform == currentHeldProp)
+            {
+
+            }
+            else
+            {
+                UpdateTetherPreviewTetherMode(GetClosestAttachmentPoint(currentHeldProp, hit.point));
+            }
+        }
+    }
+
+    public void TetherModeQuickPlaceTether()
+    {
+        if (numOfTethersPlaced < maxNumOfTethers)
+        {
+            if (GetObjectInPlayerFront(out RaycastHit hit) && hit.transform != startTransform)
+            {
+                SetTetherStartPoint(currentHeldProp.transform, GetClosestAttachmentPoint(currentHeldProp, hit.point).position);
+                SetTetherEndPoint(hit.transform, hit.point);
+
+                CreateAndInitTether(startTransform, startLocalPosition, endTransform, endLocalPosition, true);
+            }
+        }
+
+        ResetVariables();
+    }
+
+    public void ExitTetherMode()
+    {
+        Time.timeScale = 1f;
+        tetherModeChromaticAberation.active = false;
+        tetherModeDepthOfField.active = false;
+        tetherModePaniniProjection.active = false;
+        DeletePreviewTetherLine();
+        ResetVariables();
+        CinemachineImpulseManager.Instance.IgnoreTimeScale = true;
+        Camera.main.GetComponent<CinemachineBrain>().UpdateMethod = CinemachineBrain.UpdateMethods.SmartUpdate;
+        Camera.main.GetComponent<CinemachineBrain>().IgnoreTimeScale = false;
+    }
+
+    private Transform GetClosestAttachmentPoint(Prop prop, Vector3 target)
+    {
+        if (prop.GrabPoints.Count < 1)
+        {
+            return prop.transform;
+        }
+
+        Transform[] points = prop.GrabPoints.ToArray();
+
+        Transform closestPoint = points[0];
+
+        for (int i = 0; i < points.Length; i++)
+        {
+            if (Vector3.Distance(points[i].position, target) < Vector3.Distance(closestPoint.position, target))
+            {
+                closestPoint = points[i];
+            }
+        }
+
+        return closestPoint;
+    }
+
+    private void UpdateTetherPreviewTetherMode(Transform grabPoint)
+    {
+        tetherPreviewLine.SetStartPoint(grabPoint.position);
+
+        if (GetObjectInPlayerFront(out RaycastHit hit))
+        {
+            Vector3 endPosition = hit.point;
+
+            if (hit.transform.TryGetComponent<Prop>(out Prop propComponent))
+            {
+                if (propComponent.CheckNearestGrabPoint(endPosition) != null)
+                {
+                    endPosition = propComponent.CheckNearestGrabPoint(endPosition).position;
+                }
+            }
+
+            tetherPreviewLine.SetEndPoint(endPosition);
+        }
+        else
+        {
+            Vector3 previewLocation = _playerCamera.transform.position + _playerCamera.transform.forward * maxTetherStartDist;
+            tetherPreviewLine.SetEndPoint(previewLocation);
+        }
+    }
+
     #endregion
 
     #region Helper Functions
