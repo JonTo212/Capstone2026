@@ -31,7 +31,10 @@ public class LassoTetherController : MonoBehaviour
 
     [Header("States")]
     public LassoState CurrentLassoState { get; private set; }
+
+    [Header("TetherModeSettings")]
     public bool TetherMode = false;
+    public bool slowMotionTetherMode = true;
 
     #region Unity Functions
     private void Awake()
@@ -197,7 +200,8 @@ public class LassoTetherController : MonoBehaviour
         {
             if(TetherMode)
             {
-                playerTether.EnterSlowTetherMode(playerLasso.SnaredObject);
+                playerTether.EnterTetherMode(playerLasso.SnaredObject, slowMotionTetherMode);
+                playerLasso.SnaredObject.Rb.constraints = RigidbodyConstraints.FreezePosition;
                 SwitchLassoState(LassoState.TetherMode);
             }
             else
@@ -236,7 +240,7 @@ public class LassoTetherController : MonoBehaviour
 
     private void HandleTetherModeControls()
     {
-        playerTether.HandleTetherMode();
+        playerTether.HandleTetherMode(slowMotionTetherMode);
         if(playerActions.AltDown)
         {
             Debug.Log("Alt down");
@@ -249,7 +253,7 @@ public class LassoTetherController : MonoBehaviour
         }
         if(playerActions.MainDown)
         {
-            playerTether.ExitTetherMode();
+            playerTether.ExitTetherMode(slowMotionTetherMode);
             playerLasso.HandleObjectReleased();
             SwitchLassoState(LassoState.Empty);
         }

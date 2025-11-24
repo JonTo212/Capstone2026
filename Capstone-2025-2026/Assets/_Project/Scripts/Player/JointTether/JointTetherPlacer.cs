@@ -32,6 +32,7 @@ public class JointTetherPlacer : MonoBehaviour
     private bool isTetherModeActive = false;
     private Prop currentHeldProp;
     private float defaultTimeDeltaTime;
+    private List<JointTether> placedTethersDuringTetherMode = new List<JointTether>();
 
     [Header("Tether Mode Post Process properties")]
     [SerializeField] private Volume postProcessVolume;
@@ -179,7 +180,7 @@ public class JointTetherPlacer : MonoBehaviour
     }
 
     //Creates and initializes tether parameters like hit transforms and positions
-    private void CreateAndInitTether(Transform startTransform, Vector3 startLocalPosition, Transform endTransform, Vector3 endLocalPosition, bool autoActivate)
+    private JointTether CreateAndInitTether(Transform startTransform, Vector3 startLocalPosition, Transform endTransform, Vector3 endLocalPosition, bool autoActivate)
     {
 
         GameObject newJointTether = Instantiate(jointTetherPrefab, transform.position, Quaternion.identity);
@@ -197,6 +198,8 @@ public class JointTetherPlacer : MonoBehaviour
         numOfTethersPlaced++;
 
         UpdateTetherAmountText();
+
+        return jointTether;
     }
     #endregion
 
@@ -248,42 +251,46 @@ public class JointTetherPlacer : MonoBehaviour
 
     #region TetherMode
 
-    public void EnterSlowTetherMode(Prop currentHeldProp)
+    public void EnterTetherMode(Prop currentHeldProp, bool slowMotionTetherMode)
     {
-        Time.timeScale = slowdownFactor;
         this.currentHeldProp = currentHeldProp;
-        tetherModeChromaticAberation.active = true;
-        tetherModeDepthOfField.active = true;
-        tetherModePaniniProjection.active = true;
         CreateTetherPreviewLine();
-        Camera.main.GetComponent<CinemachineBrain>().UpdateMethod = CinemachineBrain.UpdateMethods.LateUpdate;
-        Camera.main.GetComponent<CinemachineBrain>().IgnoreTimeScale = true;
-
-        foreach (var c in CNInputAxisController.Controllers)
+        if(slowMotionTetherMode) 
         {
-            if (c.Name == "Look Orbit X")
-            {
-                c.Input.Gain *= (1f/slowdownFactor);
-                c.Input.Gain *= (1f / 3f);
-                c.Driver.AccelTime *= slowdownFactor;
-                c.Driver.DecelTime *= slowdownFactor;
-                continue;
-            }
+            Time.timeScale = slowdownFactor;
+            tetherModeChromaticAberation.active = true;
+            tetherModeDepthOfField.active = true;
+            tetherModePaniniProjection.active = true;
+            Camera.main.GetComponent<CinemachineBrain>().UpdateMethod = CinemachineBrain.UpdateMethods.LateUpdate;
+            Camera.main.GetComponent<CinemachineBrain>().IgnoreTimeScale = true;
 
-            if (c.Name == "Look Orbit Y")
+            foreach (var c in CNInputAxisController.Controllers)
             {
-                c.Input.Gain *= (1f / slowdownFactor);
-                c.Input.Gain *= (1f / 3f);
-                c.Driver.AccelTime *= slowdownFactor;
-                c.Driver.DecelTime *= slowdownFactor;
-                continue;
+                if (c.Name == "Look Orbit X")
+                {
+                    c.Input.Gain *= (1f/slowdownFactor);
+                    c.Input.Gain *= (1f / 3f);
+                    c.Driver.AccelTime *= slowdownFactor;
+                    c.Driver.DecelTime *= slowdownFactor;
+                    continue;
+                }
+
+                if (c.Name == "Look Orbit Y")
+                {
+                    c.Input.Gain *= (1f / slowdownFactor);
+                    c.Input.Gain *= (1f / 3f);
+                    c.Driver.AccelTime *= slowdownFactor;
+                    c.Driver.DecelTime *= slowdownFactor;
+                    continue;
+                }
             }
         }
     }
 
-    public void HandleTetherMode()
+    public void HandleTetherMode(bool slowMotionTetherMode)
     {
-        Time.fixedDeltaTime = Time.timeScale * 0.02f;
+        if(slowMotionTetherMode) Time.fixedDeltaTime = Time.timeScale * 0.02f;
+
         if (GetObjectInPlayerFront(out RaycastHit hit) && hit.transform != startTransform)
         {
             if(hit.transform == currentHeldProp)
@@ -314,7 +321,8 @@ public class JointTetherPlacer : MonoBehaviour
             {
                 SetTetherEndPoint(hit.transform, hit.point);
 
-                CreateAndInitTether(startTransform, startLocalPosition, endTransform, endLocalPosition, true);
+                JointTether tether = CreateAndInitTether(startTransform, startLocalPosition, endTransform, endLocalPosition, false);
+                placedTethersDuringTetherMode.Add(tether);
             }
 
             if (numOfTethersPlaced > maxNumOfTethers)
@@ -333,7 +341,7 @@ public class JointTetherPlacer : MonoBehaviour
             SetTetherStartPoint(currentHeldProp.transform, GetClosestAttachmentPoint(currentHeldProp, hit.point).position);
             SetTetherEndPoint(hit.transform, hit.point);
 
-            CreateAndInitTether(startTransform, startLocalPosition, endTransform, endLocalPosition, true);
+            CreateAndInitTether(startTransform, startLocalPosition, endTransform, endLocalPosition, false);
         }
 
         if(numOfTethersPlaced > maxNumOfTethers)
@@ -344,39 +352,50 @@ public class JointTetherPlacer : MonoBehaviour
         ResetVariables();
     }
 
-    public void ExitTetherMode()
+    public void ExitTetherMode(bool slowMotionTetherMode)
     {
-        Time.timeScale = 1f;
-        Time.fixedDeltaTime = defaultTimeDeltaTime;
-        tetherModeChromaticAberation.active = false;
-        tetherModeDepthOfField.active = false;
-        tetherModePaniniProjection.active = false;
-        DeletePreviewTetherLine();
-        ResetVariables();
-        CinemachineImpulseManager.Instance.IgnoreTimeScale = true;
-        Camera.main.GetComponent<CinemachineBrain>().UpdateMethod = CinemachineBrain.UpdateMethods.SmartUpdate;
-        Camera.main.GetComponent<CinemachineBrain>().IgnoreTimeScale = false;
-
-        foreach(var c in CNInputAxisController.Controllers)
+        if(slowMotionTetherMode)
         {
-            if (c.Name == "Look Orbit X")
-            {
-                c.Input.Gain *= slowdownFactor;
-                c.Input.Gain *= 3f;
-                c.Driver.AccelTime *= (1f/slowdownFactor);
-                c.Driver.DecelTime *= (1f/slowdownFactor);
-                continue;
-            }
+            Time.timeScale = 1f;
+            Time.fixedDeltaTime = defaultTimeDeltaTime;
+            tetherModeChromaticAberation.active = false;
+            tetherModeDepthOfField.active = false;
+            tetherModePaniniProjection.active = false;
+            CinemachineImpulseManager.Instance.IgnoreTimeScale = true;
+            Camera.main.GetComponent<CinemachineBrain>().UpdateMethod = CinemachineBrain.UpdateMethods.SmartUpdate;
+            Camera.main.GetComponent<CinemachineBrain>().IgnoreTimeScale = false;
 
-            if (c.Name == "Look Orbit Y")
+            foreach(var c in CNInputAxisController.Controllers)
             {
-                c.Input.Gain *= slowdownFactor;
-                c.Input.Gain *= 3f;
-                c.Driver.AccelTime *= (1f/slowdownFactor);
-                c.Driver.DecelTime *= (1f/slowdownFactor);
-                continue;
+                if (c.Name == "Look Orbit X")
+                {
+                    c.Input.Gain *= slowdownFactor;
+                    c.Input.Gain *= 3f;
+                    c.Driver.AccelTime *= (1f/slowdownFactor);
+                    c.Driver.DecelTime *= (1f/slowdownFactor);
+                    continue;
+                }
+
+                if (c.Name == "Look Orbit Y")
+                {
+                    c.Input.Gain *= slowdownFactor;
+                    c.Input.Gain *= 3f;
+                    c.Driver.AccelTime *= (1f/slowdownFactor);
+                    c.Driver.DecelTime *= (1f/slowdownFactor);
+                    continue;
+                }
             }
         }
+
+        foreach(JointTether tether in placedTethersDuringTetherMode)
+        {
+            tether.ActivateTether();
+        }
+
+        DeletePreviewTetherLine();
+        ResetVariables();
+
+        placedTethersDuringTetherMode.Clear();
     }
 
     private Transform GetClosestAttachmentPoint(Prop prop, Vector3 target)
