@@ -1,3 +1,4 @@
+using System.Collections;
 using TMPro;
 using Unity.Cinemachine;
 using UnityEngine;
@@ -238,7 +239,13 @@ public class LassoTetherController : MonoBehaviour
         playerTether.HandleTetherMode();
         if(playerActions.AltDown)
         {
-            playerTether.TetherModeQuickPlaceTether();
+            Debug.Log("Alt down");
+            playerTether.TetherModeStartTetherPlacement();
+        }
+        if(playerActions.AltUp)
+        {
+            Debug.Log("Alt Up");
+            playerTether.TetherModeEndTetherPlacement();
         }
         if(playerActions.MainDown)
         {
