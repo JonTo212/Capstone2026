@@ -22,7 +22,7 @@ public class LassoTetherController : MonoBehaviour
 
     [Header("Components")]
     private Lasso playerLasso;
-    private PlayerInventory playerInventory;
+    private PlayerNPCHolder playerInventory;
     private PlayerActions playerActions;
     private JointTetherPlacer playerTether;
     private JointTetherActivator playerTetherActivator;
@@ -36,7 +36,7 @@ public class LassoTetherController : MonoBehaviour
     {
         playerLasso = GetComponent<Lasso>();
         playerActions = GetComponent<PlayerActions>();
-        playerInventory = GetComponent<PlayerInventory>();
+        playerInventory = GetComponent<PlayerNPCHolder>();
         playerTether = GetComponent<JointTetherPlacer>();
         playerTetherActivator = GetComponent<JointTetherActivator>();
 
@@ -225,7 +225,7 @@ public class LassoTetherController : MonoBehaviour
         else
         {
             playerInventory.HandleObjectYank();
-            playerInventory.currentNPC.RunAnim();
+            playerInventory.currentNPC.RunCaptureAnim();
             SwitchLassoState(LassoState.ObjectYanking);
         }
     }

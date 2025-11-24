@@ -1,11 +1,11 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 
 [RequireComponent(typeof(Rigidbody), typeof(Outline))]
 public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
 {
+    [Header("Prop Settings")]
     [SerializeField] protected bool debugThisProp = false;
     [SerializeField] protected float coyoteFallDelay = 0.3f;
 
@@ -17,12 +17,10 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     //getters/setters - default value is false (protected set means only derived classes can change IsHeld)
     public virtual bool IsHeld { get; protected set; } = false;
     public virtual bool IsSnared { get; protected set; } = false;
-    public virtual bool IsBeingPulled { get; set; } = false;
     public virtual bool IsTetherPulled { get; protected set; } = false;
-    public virtual bool IsTouchingSurface {  get; protected set; } = false;
+    public virtual bool IsTouchingSurface { get; protected set; } = false;
 
     private bool didFixedUpdateRun = true;
-    protected Lasso lassoRef;
 
     public Rigidbody Rb { get; protected set; }
     public Transform AttachedTransform { get; set; }
@@ -67,9 +65,10 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         HandleForceAppliedVariable();
     }
 
-    protected virtual void LateUpdate()
+    protected virtual void FixedUpdate()
     {
-        
+        storedTotalForce += GetForcesFromJoint();
+        didFixedUpdateRun = true;
     }
 
     protected virtual void OnDestroy()
@@ -77,10 +76,9 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         OnPropDestroyed?.Invoke();
     }
 
-    protected virtual void FixedUpdate()
+    protected virtual bool IsBeingInteractedWith()
     {
-        storedTotalForce += GetForcesFromJoint();
-        didFixedUpdateRun = true;
+        return IsHeld || IsSnared || IsTetherPulled;
     }
 
     #region ISnareable
@@ -88,7 +86,6 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     {
         IsSnared = true;
         IsHeld = false;
-        IsBeingPulled = false;
         Rb.interpolation = RigidbodyInterpolation.Interpolate;
         Rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
         Rb.angularVelocity = Vector3.zero;
@@ -99,7 +96,6 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     {
         IsSnared = false;
         IsHeld = false;
-        IsBeingPulled = false;
         Rb.interpolation = RigidbodyInterpolation.None;
         Rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
         AttachedTransform = null;
@@ -107,11 +103,6 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         Invoke(nameof(CoyoteFall), coyoteFallDelay);
 
         if(transform != null) transform.SetParent(null);
-    }
-
-    public void SetLassoRef(Lasso lasso)
-    {
-        lassoRef = lasso;
     }
 
     public virtual void OnAttachTether()
@@ -192,7 +183,6 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     {
         IsHeld = true;
         IsSnared = false;
-        IsBeingPulled = false;
         Rb.interpolation = RigidbodyInterpolation.None;
         Rb.constraints = RigidbodyConstraints.FreezeAll;
         transform.SetParent(newParent);

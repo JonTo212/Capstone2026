@@ -34609,7 +34609,9 @@ MonoBehaviour:
   idleFloatSpeed: 3
   idleFloatRange: 0.5
   floatStrength: 5
-  inflateCooldown: 0
+  inflateDuration: 0
+  deflateDuration: 0
+  returnToIdleSpeed: 0
   tempAnimCurve:
     serializedVersion: 2
     m_Curve:
@@ -34635,8 +34637,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   animDuration: 0.5
-  inflationMultiplier: 0.2
-  tempInputRef: {fileID: 1943832981}
+  deflatedScaleMultiplier: 0.2
 --- !u!114 &634227118
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -170978,17 +170979,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 2571145194382551425, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
   m_PrefabInstance: {fileID: 1452527826}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1943832981 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4800881338183066832, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
-  m_PrefabInstance: {fileID: 1452527826}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1943832968}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 057727ba87d071f41a7a5fa2ff6ee4f0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: '::'
 --- !u!114 &1943832986
 MonoBehaviour:
   m_ObjectHideFlags: 0

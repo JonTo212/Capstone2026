@@ -102,6 +102,10 @@ public class PlayerMovement : MonoBehaviour
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+    }
+
+    private void Start()
+    {
         AudioManager.Instance.PlaySFX(AudioManager.Instance.Walk, 7, 1);
         AudioManager.Instance.SFXSource7.loop = true;
     }
@@ -161,6 +165,26 @@ public class PlayerMovement : MonoBehaviour
     {
         feetPos.localPosition = new Vector3(0, -_playerCol.height / 2f, 0);
         return Physics.CheckSphere(feetPos.position, feetRadius, groundLayer);
+    }
+
+    public void ApplySlowFall(float multiplier)
+    {
+        _gravity = _maxGravity * multiplier;
+
+        if (_rb.linearVelocity.y < -_gravity)
+        {
+            _rb.linearVelocity = new Vector3(_rb.linearVelocity.x, -_gravity, _rb.linearVelocity.z);
+        }
+    }
+
+    public void ApplyJumpBoost()
+    {
+
+    }
+
+    public void ResetGravity()
+    {
+        _gravity = _maxGravity;
     }
 
     private void HandleMovementState()
@@ -273,7 +297,6 @@ public class PlayerMovement : MonoBehaviour
         if (_rb.linearVelocity.y <= 0 && _rb.linearVelocity.y <= - _maxGravity)
         {
             _rb.linearVelocity = new Vector3(_rb.linearVelocity.x, -_maxGravity, _rb.linearVelocity.z);
-            print("maxed out");
             return;
         }
 

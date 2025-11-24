@@ -1,94 +1,179 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
-public class PufferFishNPC : NPCBase
+public class PufferFishNPC : Prop, INPC
 {
     [Header("Pufferfish Properties")]
     [SerializeField] private float idleFloatSpeed;
     [SerializeField] private float idleFloatRange;
     [SerializeField] private float floatStrength;
-    [SerializeField] private float inflateCooldown;
+    [SerializeField] private float inflateDuration;
+    [SerializeField] private float deflateDuration;
+    [SerializeField] private float returnToIdleSpeed;
 
-    [Header("TEMP - Anim")]
+    [Header("States/Type")]
+    public NPCState CurrentNPCState { get; private set; } = NPCState.Idle;
+    [field: SerializeField] public NPCType type { get; }
+
+    private Transform attachedObject;
+
+    [Header("TEMP - Inflation Anim")]
     [SerializeField] private AnimationCurve tempAnimCurve;
     [SerializeField] private float animDuration = 0.2f;
-    [SerializeField] private float inflationMultiplier = 0.2f;
+    [SerializeField] private float deflatedScaleMultiplier = 0.2f;
     private Coroutine animCoroutine;
-    [SerializeField] private PlayerActions tempInputRef;
     private Vector3 inflatedScale;
     private Vector3 deflatedScale;
+    private bool inflated;
+    private float inflationTimer;
 
-    protected override void Awake()
+    public event Action OnAnimComplete;
+
+    private void Awake()
     {
-        base.Awake();
+        Init();
         Rb.useGravity = false;
 
         inflatedScale = transform.localScale;
-        deflatedScale = inflatedScale * inflationMultiplier;
+        deflatedScale = inflatedScale * deflatedScaleMultiplier;
+        inflated = true;
     }
 
     protected override void Update()
     {
-        if(tempInputRef.SprintDown)
-        {
-            if (transform.localScale == inflatedScale)
-            {
-                animCoroutine = StartCoroutine(Deflate());
-            }
-            else if (transform.localScale == deflatedScale)
-            {
-                animCoroutine = StartCoroutine(Inflate());
-            }
-        }
+        base.Update();
+        HandleNPCStateMachineUpdate();
     }
 
     protected override void FixedUpdate()
     {
         base.FixedUpdate();
-        if (!IsTetherPulled && !IsHeld && !IsSnared)
+        HandleNPCStateMachineFixedUpdate();
+    }
+
+    public void SwitchNPCState(NPCState newState)
+    {
+        CurrentNPCState = newState;
+    }
+
+    private void HandleNPCStateMachineUpdate()
+    {
+        switch (CurrentNPCState)
         {
-            BobUpAndDown();
+            case NPCState.Idle:
+                HandleInflation();
+                break;
+
+            case NPCState.UsingAbility:
+
+                break;
+
+            case NPCState.Attached:
+
+                break;
+
+            case NPCState.Disturbed:
+
+                break;
+        }
+    }
+
+    private void HandleNPCStateMachineFixedUpdate()
+    {
+        switch (CurrentNPCState)
+        {
+            case NPCState.Idle:
+                BobUpAndDown();
+                break;
+
+            case NPCState.UsingAbility:
+                UseAbility();
+                break;
+
+            case NPCState.Attached:
+
+                break;
+                
+            case NPCState.Disturbed:
+                
+                break;
+        }
+    }
+
+    #region Idle
+    private void BobUpAndDown()
+    {
+        float sin = Mathf.Sin(Time.time * idleFloatSpeed) * Time.fixedDeltaTime;
+        float sinWaveVel = Mathf.Cos(Time.time * idleFloatSpeed) * idleFloatSpeed * idleFloatRange;
+
+        float RbXVel = Mathf.Lerp(Rb.linearVelocity.x, 0f, Time.fixedDeltaTime * returnToIdleSpeed);
+        float RbZVel = Mathf.Lerp(Rb.linearVelocity.z, 0f, Time.fixedDeltaTime * returnToIdleSpeed);
+        Rb.linearVelocity = new Vector3(RbXVel, sinWaveVel, RbZVel);
+    }
+
+    private void HandleInflation()
+    {
+        if (inflationTimer > 0f)
+        {
+            inflationTimer -= Time.deltaTime;
+            return;
+        }
+
+        if (animCoroutine == null)
+        {
+            if (inflated)
+                animCoroutine = StartCoroutine(Deflate());
+            else
+                animCoroutine = StartCoroutine(Inflate());
+        }
+    }
+
+    #endregion
+
+    #region Ability
+    private void PullAttachedObjects()
+    {
+        foreach(var t in connectedObject)
+        {
+            if(t.TryGetComponent(out Rigidbody connectedRb))
+            {
+                connectedRb.AddForce(Vector3.up * floatStrength, ForceMode.Force);
+            }
+        }
+    }
+
+    public void AttachObject(Transform objTransform)
+    {
+        attachedObject = objTransform;
+    }
+
+    public void UseAbility()
+    {
+        if(attachedObject == null) return;
+
+        if(attachedObject.TryGetComponent(out PlayerMovement playerMovement))
+        {
+            playerMovement.ApplySlowFall(0.33f);
         }
         else
         {
-            PullAttachedObject();
+            PullAttachedObjects();
         }
     }
+    #endregion
 
-    private void BobUpAndDown()
+
+    #region TEMP - Anim
+
+    public void RunCaptureAnim()
     {
-        float sin = Mathf.Sin(Time.time * idleFloatSpeed) * Time.deltaTime;
-        float sinWaveVel = Mathf.Cos(Time.time * idleFloatSpeed) * idleFloatSpeed * idleFloatRange;
-        Rb.linearVelocity = new Vector3(0f, sinWaveVel, 0f);
+        if (animCoroutine != null)
+            StopCoroutine(animCoroutine);
+
+        animCoroutine = StartCoroutine(Deflate());
     }
 
-    private void PullAttachedObject()
-    {
-        if(lassoRef != null)
-        {
-            PullIntoBag(lassoRef.transform);
-        }
-        if (connectedObject.Count > 0)
-        {
-            foreach(var t in connectedObject)
-            {
-                t.GetComponent<Rigidbody>().AddForce(Vector3.up * floatStrength, ForceMode.Acceleration);
-            }
-        }
-
-        Rb.AddForce(Vector3.up * floatStrength, ForceMode.Acceleration);
-    }
-
-    public override void UseAbility()
-    {
-        PlayerMovement playerController = playerRef.GetComponent<PlayerMovement>();
-
-        if (playerController != null)
-        {
-            float halfGrav = playerController.Gravity / 1.5f; 
-            playerController.Rb.AddForce(Vector3.up * halfGrav, ForceMode.Acceleration);
-        }
-    }
 
     private IEnumerator Inflate()
     {
@@ -106,15 +191,9 @@ public class PufferFishNPC : NPCBase
         }
 
         transform.localScale = inflatedScale;
+        inflationTimer = inflateDuration;
+        inflated = true;
         animCoroutine = null;
-    }
-
-    public override void RunAnim()
-    {
-        if(animCoroutine != null)
-            StopCoroutine(animCoroutine);
-
-        animCoroutine = StartCoroutine(Deflate());
     }
 
     private IEnumerator Deflate()
@@ -134,8 +213,12 @@ public class PufferFishNPC : NPCBase
 
         transform.localScale = deflatedScale;
         animCoroutine = null;
-        RunAnimEvent();
+        inflationTimer = deflateDuration;
+        inflated = false;
+        OnAnimComplete?.Invoke();
     }
+
+    #endregion
 
     public void InflateBoost()
     {

@@ -2,9 +2,9 @@ using System;
 using System.Collections;
 using UnityEngine;
 
-public class PlayerInventory : MonoBehaviour
+public class PlayerNPCHolder : MonoBehaviour
 {
-    public NPCBase currentNPC { get; set; }
+    public INPC currentNPC { get; set; }
     private PlayerActions _playerInput;
     private Lasso _playerLasso;
     private Coroutine _objectYankCoroutine;
@@ -20,15 +20,22 @@ public class PlayerInventory : MonoBehaviour
     {
         _playerInput = GetComponent<PlayerActions>();
         _playerLasso = GetComponent<Lasso>();
+
+        _playerLasso.OnNPCHit += SetConnectedNPC;
     }
 
-    private void FixedUpdate()
+    private void Update()
     {
         if(currentNPC != null)
         {
-            if(_playerInput.JumpHeld)
+            if(_playerInput.JumpDown)
             {
-               currentNPC.UseAbility();
+               currentNPC.SwitchNPCState(NPCState.UsingAbility);
+            }
+            if (_playerInput.JumpUp)
+            {
+                _playerLasso.PlayerController.ResetGravity();
+                currentNPC.SwitchNPCState(NPCState.Attached);
             }
         }
     }
@@ -52,7 +59,7 @@ public class PlayerInventory : MonoBehaviour
     #region Object Yank
     public void HandleObjectYank()
     {
-        if (!_playerLasso.SnaredObject.transform.TryGetComponent(out NPCBase npc)) return;
+        if (!_playerLasso.SnaredObject.transform.TryGetComponent(out INPC npc)) return;
         else
         {
             _playerLasso.SnaredObject.transform.GetComponent<Collider>().enabled = false;
@@ -121,6 +128,18 @@ public class PlayerInventory : MonoBehaviour
 
         OnObjectYankCompleted?.Invoke();
         _objectYankCoroutine = null;
+    }
+
+    #endregion
+
+    #region NPC Handling
+
+    private void SetConnectedNPC()
+    {
+        INPC npc = _playerLasso.SnaredObject as INPC;
+        currentNPC = npc;
+        npc.AttachObject(transform);
+        npc.SwitchNPCState(NPCState.Disturbed);
     }
 
     #endregion

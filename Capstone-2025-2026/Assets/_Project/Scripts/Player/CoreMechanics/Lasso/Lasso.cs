@@ -51,6 +51,7 @@ public class Lasso : MonoBehaviour
     public float AnchorDist { get; private set; }
 
     public event Action OnObjectHit;
+    public event Action OnNPCHit;
     public event Action OnLassoReleased;
 
 
@@ -152,13 +153,17 @@ public class Lasso : MonoBehaviour
             _snaredObjTransform = prop.transform;
             SnaredObject = prop;
             prop.OnSnare();
-            prop.SetLassoRef(this);
             prop.OnPropDestroyed += HandleObjectReleased;
             if (usePickupOutline) SnaredObject.ActivateOutline(true);
 
             if (prop.TryGetComponent(out IActivatable activatable))
             {
                 activatable.Activate();
+            }
+
+            if(prop.TryGetComponent(out INPC npc))
+            {
+                OnNPCHit?.Invoke();
             }
 
             OnObjectHit?.Invoke();
@@ -371,7 +376,6 @@ public class Lasso : MonoBehaviour
 
         SnaredObject.OnPropDestroyed -= HandleObjectReleased;
         SnaredObject.ActivateOutline(false);
-        SnaredObject.SetLassoRef(null);
         SnaredObject.OnRelease();
         SnaredObject = null;
         _snaredObjTransform = null;
