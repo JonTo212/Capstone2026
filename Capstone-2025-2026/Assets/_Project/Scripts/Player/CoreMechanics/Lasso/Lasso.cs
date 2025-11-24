@@ -30,6 +30,7 @@ public class Lasso : MonoBehaviour
     [SerializeField] private bool useAimOutline = true;
     [SerializeField] private bool usePickupOutline = true;
     [SerializeField] private bool useGrabPointsForHold = false;
+    [SerializeField] private bool usePhysicsTorque = true;
 
     [Header("Swinging")]
     [SerializeField] private float swingJumpForce = 5f;
@@ -169,7 +170,7 @@ public class Lasso : MonoBehaviour
     {
         _nearestGrabPoint = prop.CheckNearestGrabPoint(hit.point);
 
-        if (useGrabPoint) 
+        if (useGrabPoint)
         {
             if (_nearestGrabPoint != null)
             {
@@ -224,7 +225,12 @@ public class Lasso : MonoBehaviour
         //if (!SnaredObject.IsTouchingSurface) SnaredObject.Rb.AddTorque(angularAcceleration, ForceMode.Acceleration);
 
         SnaredObject.ApplyForceInDirection(linearForce.normalized, linearForce.magnitude, ForceMode.Force, transform);
-        SnaredObject.Rb.AddTorque(totalTorque, ForceMode.Force); //temp (?)
+
+        if (usePhysicsTorque)
+        {
+            SnaredObject.Rb.AddTorque(totalTorque, ForceMode.Force); //temp (?)
+        }
+
         SnaredObject.Rb.angularVelocity *= 0.975f; //stop excessive spin
     }
 
@@ -247,9 +253,7 @@ public class Lasso : MonoBehaviour
         float scale = 1f / (1f + leverArmLength);
 
         Vector3 dampingTorque = -SnaredObject.Rb.angularVelocity * rotationalDampingStrength;
-
-        Vector3 torque = Vector3.Cross(r, linearForce);
-        Vector3 correctiveTorque = torque * scale;
+        Vector3 correctiveTorque = Vector3.Cross(r, linearForce);
 
         if (SnaredObject.IsTouchingSurface) return (correctiveTorque * scale) + dampingTorque;
         else return correctiveTorque * scale;
@@ -379,6 +383,18 @@ public class Lasso : MonoBehaviour
         OnLassoReleased?.Invoke();
 
     }
+
+    public void HandleHold()
+    {
+        if (SnaredObject == null) return;
+
+        SnaredObject.ActivateOutline(false);
+        SnaredObject = null;
+        _snaredObjTransform = null;
+        _localFaceNormal = Vector3.zero;
+        lassoGrabVisualIndicator.SetActive(false);
+    }
+
     #endregion
 
     #region Anchoring

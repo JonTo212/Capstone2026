@@ -86,10 +86,8 @@ public class PlayerMovement : MonoBehaviour
     public Vector3 WishDir => _wishDir;
     public Rigidbody Rb => _rb;
 
-
     private void Awake()
     {
-        
         _rb = GetComponent<Rigidbody>();
         _playerCol = GetComponent<CapsuleCollider>();
         _playerActions = GetComponent<PlayerActions>();
@@ -105,6 +103,10 @@ public class PlayerMovement : MonoBehaviour
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+    }
+
+    private void Start()
+    {
         AudioManager.Instance.PlaySFX(AudioManager.Instance.Walk, 7, 1);
         AudioManager.Instance.SFXSource7.loop = true;
     }
@@ -118,8 +120,6 @@ public class PlayerMovement : MonoBehaviour
         HandleFOV();
         HandleWalkingSFX();
     }
-
-    public bool enableInput;
 
     private void FixedUpdate()
     {
@@ -192,7 +192,7 @@ public class PlayerMovement : MonoBehaviour
         }
         else
         {
-            AudioManager.Instance.SFXSource7.Pause(); //PlaySFX(AudioManager.Instance.Walk, 5, 1);
+            AudioManager.Instance.SFXSource7.Pause(); //PlaySFX(aManage.Walk, 5, 1);
         }
     }
 
@@ -313,7 +313,7 @@ public class PlayerMovement : MonoBehaviour
 
         if (speed <= 0f)
         {
-            //AudioManager.Instance.SFXSource6.Stop();
+            //aManage.SFXSource6.Stop();
             return;
         }
 
@@ -326,7 +326,7 @@ public class PlayerMovement : MonoBehaviour
             Vector3 frictionForce = -horizontalVel.normalized * finalAccel;
             _rb.AddForce(frictionForce, ForceMode.Acceleration);
             
-            //AudioManager.Instance.SFXSource6.Stop();
+            //aManage.SFXSource6.Stop();
 
         }
         else

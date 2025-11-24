@@ -15,6 +15,9 @@ public class PlayerActions : MonoBehaviour
     private InputAction interactAction;
     public InputAction MoveAction { get; set; }
     private InputAction menuAction;
+    private InputAction controlAction;
+    private InputAction devMenuAction;
+    private InputAction respawnAction;
 
     public Vector2 MoveInput => MoveAction.ReadValue<Vector2>();
     public Vector2 LookInput => lookAction.ReadValue<Vector2>();
@@ -55,6 +58,19 @@ public class PlayerActions : MonoBehaviour
     public bool MenuHeld => menuAction.IsPressed();
     public bool MenuUp => menuAction.WasReleasedThisFrame();
 
+    public bool ControlDown => controlAction.WasPressedThisFrame();
+    public bool ControlHeld => controlAction.IsPressed();
+    public bool ControlUp => controlAction.WasReleasedThisFrame();
+
+    public bool DevMenuDown => devMenuAction.WasPressedThisFrame();
+    public bool DevMenuHeld => devMenuAction.IsPressed();
+    public bool DevMenuUp => devMenuAction.WasReleasedThisFrame();
+
+    public bool RespawnDown => respawnAction.WasPressedThisFrame();
+    public bool RespawnHeld => respawnAction.IsPressed();
+    public bool RespawnUp => respawnAction.WasReleasedThisFrame();
+
+
     private void Awake()
     {
         var map = InputSystem.actions;
@@ -71,6 +87,9 @@ public class PlayerActions : MonoBehaviour
         dPadDownAction = map.FindAction("DPadDown");
         currentRepeatRate = baseRepeatRate;
         menuAction = map.FindAction("Menu");
+        controlAction = map.FindAction("Control");
+        devMenuAction = map.FindAction("DevMenu");
+        respawnAction = map.FindAction("Respawn");
     }
 
     private void OnEnable()
@@ -87,6 +106,9 @@ public class PlayerActions : MonoBehaviour
         dPadUpAction.Enable();
         dPadDownAction.Enable();
         menuAction.Enable();
+        controlAction.Enable(); 
+        devMenuAction.Enable();
+        respawnAction.Enable();
     }
 
     private void OnDisable()
@@ -103,6 +125,9 @@ public class PlayerActions : MonoBehaviour
         dPadUpAction.Disable();
         dPadDownAction.Disable();
         menuAction.Disable();
+        controlAction.Disable();
+        devMenuAction.Disable();
+        respawnAction.Disable();
     }
 
     //made these numbers up ngl
