@@ -31,6 +31,7 @@ public class PluckOutProp : Prop
     // Update is called once per frame
     protected override void Update()
     {
+        base.Update();
         if(!hasBeenPlucked) TryPluckProp();
     }
 

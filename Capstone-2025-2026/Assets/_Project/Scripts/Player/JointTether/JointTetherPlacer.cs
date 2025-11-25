@@ -19,7 +19,7 @@ public class JointTetherPlacer : MonoBehaviour
     [SerializeField] private GameObject jointTetherPrefab;
     [SerializeField] private LayerMask tetherLayerMask;
     [SerializeField] private int numOfTethersPlaced = 0;
-    [SerializeField] private bool autoActivateTether = true;
+    [SerializeField] public bool autoActivateTether = true;
     public List<JointTether> placedTethers { get; private set; } = new List<JointTether>();
     public bool didStartPointHit = false;
     public bool didEndPointHit = false;
@@ -94,6 +94,12 @@ public class JointTetherPlacer : MonoBehaviour
             {
                 didEndPointHit = true;
                 SetTetherEndPoint(hit.transform, hit.point);
+
+                if(autoActivateTether)
+                {
+                    autoActivate = true;
+                }
+
                 CreateAndInitTether(startTransform, startLocalPosition, endTransform, endLocalPosition, autoActivate);
             }
         }
@@ -150,6 +156,8 @@ public class JointTetherPlacer : MonoBehaviour
         jointTether.OnTetherDestroy += DecreasePlacedTetherCount;
 
         placedTethers.Add(jointTether);
+
+        jointTether.playerTransform = transform;
 
         numOfTethersPlaced++;
 
@@ -244,5 +252,13 @@ public class JointTetherPlacer : MonoBehaviour
             tetherControlsText.SetText("[E]: Activate Selected Tether\nHold [E]: Activate All Tethers\n[C]: Deactivate Selected Tether\nHold [C]: Deactivate all Tethers");
         }
     }
+    #endregion
+
+    #region Dev Functions
+    public void ToggleAutoActivateTether()
+    {
+        autoActivateTether = !autoActivateTether;
+    }
+
     #endregion
 }

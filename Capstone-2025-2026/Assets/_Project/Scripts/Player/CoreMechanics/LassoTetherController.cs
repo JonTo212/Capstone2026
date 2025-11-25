@@ -176,16 +176,16 @@ public class LassoTetherController : MonoBehaviour
     #region Snared Controls
     private void HandleSnaredControls()
     {
-        playerLasso.MoveAnchorPoint(playerActions.ScrollAction);
+        playerLasso.MoveAnchorPoint(playerActions.GetDPadScrollValue());
 
         if (playerActions.AltDown)
         {
-            SwitchLassoState(LassoState.SnaredTether);
             playerTether.StartTetherPlacement(playerLasso.SnaredObject.transform, playerLasso.HitPos);
             playerLasso.SnaredObject.Rb.constraints = RigidbodyConstraints.FreezePosition;
+            SwitchLassoState(LassoState.SnaredTether);
         }
 
-        if (playerActions.MainDown)
+        if (playerActions.MainUp)
         {
             playerLasso.HandleObjectReleased();
         }

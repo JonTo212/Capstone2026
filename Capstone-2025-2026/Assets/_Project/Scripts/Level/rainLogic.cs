@@ -7,13 +7,11 @@ public class rainLogic : MonoBehaviour
     private ParticleSystem rainParticles;
     public Vector3 rainDirection;
 
-    private AudioSource audioSource;
     public AudioClip rainSound;
 
     private float timerMax = 1.5f;
     public float currentTime;
     public bool inTheRain = false;
-
 
     //How much rain
     public enum RainIntensity
@@ -28,7 +26,6 @@ public class rainLogic : MonoBehaviour
     void Start()
     {
         rainParticles = GetComponent<ParticleSystem>();
-        audioSource = GetComponent<AudioSource>();
 
         currentTime = timerMax;
     }
@@ -53,15 +50,15 @@ public class rainLogic : MonoBehaviour
         //set audio level
         if (rainIntensity == RainIntensity.Low)
         {
-            audioSource.volume = 0.4f;
+            AudioManager.Instance.AmbienceSource2.volume = 0.4f;
         }
         else if (rainIntensity == RainIntensity.Medium)
         {
-            audioSource.volume = 0.6f;
+            AudioManager.Instance.AmbienceSource2.volume = 0.6f;
         }
         else if (rainIntensity == RainIntensity.High)
         {
-            audioSource.volume = 0.8f;
+            AudioManager.Instance.AmbienceSource2.volume = 0.8f;
         }
     }
     private void OnParticleCollision(GameObject other)
@@ -88,25 +85,25 @@ public class rainLogic : MonoBehaviour
     void RainAudio()
     {
         //play rainsound
-        if (!audioSource.isPlaying)
+        if (!AudioManager.Instance.AmbienceSource2.isPlaying)
         {
-            audioSource.clip = rainSound;
-            audioSource.Play();
+            AudioManager.Instance.AmbienceSource2.clip = rainSound;
+            AudioManager.Instance.AmbienceSource2.Play();
         }   
 
         //adjust pitch
         if (inTheRain)
         {
-            if (audioSource.pitch < 1f)
+            if (AudioManager.Instance.AmbienceSource2.pitch < 1f)
             {
-                audioSource.pitch += Time.deltaTime;
+                AudioManager.Instance.AmbienceSource2.pitch += Time.deltaTime;
             }
         }
         else
         {
-            if (audioSource.pitch > .4f)
+            if (AudioManager.Instance.AmbienceSource2.pitch > .4f)
             {
-                audioSource.pitch -= Time.deltaTime;
+                AudioManager.Instance.AmbienceSource2.pitch -= Time.deltaTime;
             }
         }
         

@@ -85,11 +85,9 @@ public class PlayerMovement : MonoBehaviour
     public float Gravity => _gravity;
     public Vector3 WishDir => _wishDir;
     public Rigidbody Rb => _rb;
-    public AudioManager aManage;
 
     private void Awake()
     {
-        aManage = GameObject.Find("AudioManager").GetComponent<AudioManager>();
         _rb = GetComponent<Rigidbody>();
         _playerCol = GetComponent<CapsuleCollider>();
         _playerActions = GetComponent<PlayerActions>();
@@ -105,8 +103,12 @@ public class PlayerMovement : MonoBehaviour
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-        aManage.PlaySFX(aManage.Walk, 7, 1);
-        aManage.SFXSource7.loop = true;
+    }
+
+    private void Start()
+    {
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.Walk, 7, 1);
+        AudioManager.Instance.SFXSource7.loop = true;
     }
 
     private void Update()
@@ -118,8 +120,6 @@ public class PlayerMovement : MonoBehaviour
         HandleFOV();
         HandleWalkingSFX();
     }
-
-    public bool enableInput;
 
     private void FixedUpdate()
     {
@@ -188,11 +188,11 @@ public class PlayerMovement : MonoBehaviour
     {
         if (_wishDir != Vector3.zero)
         {
-            aManage.SFXSource7.UnPause();
+            AudioManager.Instance.SFXSource7.UnPause();
         }
         else
         {
-            aManage.SFXSource7.Pause(); //PlaySFX(aManage.Walk, 5, 1);
+            AudioManager.Instance.SFXSource7.Pause(); //PlaySFX(aManage.Walk, 5, 1);
         }
     }
 
@@ -268,7 +268,7 @@ public class PlayerMovement : MonoBehaviour
 
             coyoteTimeCounter = 0f;
             jumpBufferCounter = 0;
-            aManage.PlaySFX(aManage.Jump, 6, 1f);
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.Jump, 6, 1f);
         }
     }
 
