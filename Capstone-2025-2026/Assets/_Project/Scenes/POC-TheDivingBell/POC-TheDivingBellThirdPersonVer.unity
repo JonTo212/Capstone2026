@@ -34599,19 +34599,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PufferFishNPC
   debugThisProp: 0
-  coyoteFallDelay: 0.3
+  coyoteFallDelay: 0
   attachedTethers: []
   connectedObject: []
   connectedAnchors: []
   <GrabPoints>k__BackingField: []
   <FaceRows>k__BackingField: 0
   <FaceColumns>k__BackingField: 0
-  idleFloatSpeed: 3
-  idleFloatRange: 0.5
-  floatStrength: 5
-  inflateDuration: 0
-  deflateDuration: 0
-  returnToIdleSpeed: 0
+  timeToCycle: 3
+  idleBobRange: 0.5
+  inflateDuration: 4
+  deflateDuration: 4
+  carryStrength: 5
+  timeToMaxCarryStrength: 2.5
+  floatMaxHeight: 0
+  carryMaxHeight: 5
+  carryStrengthBuffer: 0
+  uprightOrientationStrength: 5
+  returnToIdleDelay: 2.5
+  <CurrentNPCState>k__BackingField: 0
   tempAnimCurve:
     serializedVersion: 2
     m_Curve:
@@ -34682,7 +34688,7 @@ Rigidbody:
   m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 80
   m_CollisionDetection: 0
 --- !u!135 &634227120
 SphereCollider:
@@ -34770,7 +34776,7 @@ Transform:
   m_GameObject: {fileID: 634227116}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 53.59, y: 7.5, z: 153.97}
+  m_LocalPosition: {x: 61.27, y: 7.5, z: 157.04}
   m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -135286,7 +135292,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 412334985279009504, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 50.6
+      value: 54.18
       objectReference: {fileID: 0}
     - target: {fileID: 412334985279009504, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       propertyPath: m_LocalPosition.y
@@ -135294,7 +135300,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 412334985279009504, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 154.7
+      value: 152.03
       objectReference: {fileID: 0}
     - target: {fileID: 412334985279009504, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       propertyPath: m_LocalRotation.w
@@ -135340,6 +135346,10 @@ PrefabInstance:
       propertyPath: maxLassoStrength
       value: 175
       objectReference: {fileID: 0}
+    - target: {fileID: 7293367271740199632, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+      propertyPath: m_Constraints
+      value: 126
+      objectReference: {fileID: 0}
     - target: {fileID: 7887010670107607874, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       propertyPath: airAccel
       value: 12.5
@@ -135347,6 +135357,10 @@ PrefabInstance:
     - target: {fileID: 8608974983609837561, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       propertyPath: apexTime
       value: 0.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8608974983609837561, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+      propertyPath: m_Enabled
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8608974983609837561, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       propertyPath: timeToZero

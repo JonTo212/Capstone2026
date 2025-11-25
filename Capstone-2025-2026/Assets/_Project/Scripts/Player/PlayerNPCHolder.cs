@@ -22,6 +22,13 @@ public class PlayerNPCHolder : MonoBehaviour
         _playerLasso = GetComponent<Lasso>();
 
         _playerLasso.OnNPCHit += SetConnectedNPC;
+        _playerLasso.OnLassoReleased += ReleaseNPC;
+    }
+
+    private void OnDisable()
+    {
+        _playerLasso.OnNPCHit -= SetConnectedNPC;
+        _playerLasso.OnLassoReleased -= ReleaseNPC;
     }
 
     private void Update()
@@ -136,10 +143,16 @@ public class PlayerNPCHolder : MonoBehaviour
 
     private void SetConnectedNPC()
     {
-        INPC npc = _playerLasso.SnaredObject as INPC;
-        currentNPC = npc;
-        npc.AttachObject(transform);
-        npc.SwitchNPCState(NPCState.Disturbed);
+        currentNPC = _playerLasso.SnaredObject as INPC;
+        currentNPC.AttachObject(transform);
+    }
+
+    private void ReleaseNPC()
+    {
+        if (currentNPC == null) return;
+
+        currentNPC.AttachObject(null);
+        currentNPC = null;
     }
 
     #endregion

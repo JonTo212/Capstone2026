@@ -29,6 +29,9 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     [field: SerializeField] public int FaceRows { get; protected set; }
     [field: SerializeField] public int FaceColumns { get; protected set; }
 
+    public event Action OnPropSnared;
+    public event Action OnPropTethered;
+    public event Action OnPropReleased;
     public event Action OnPropDestroyed;
 
     //virtual functions can be overridden by the derived classes
@@ -90,6 +93,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         Rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
         Rb.angularVelocity = Vector3.zero;
         Rb.linearVelocity = Vector3.zero;
+        OnPropSnared?.Invoke();
     }
 
     public virtual void OnRelease()
@@ -101,6 +105,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         AttachedTransform = null;
 
         Invoke(nameof(CoyoteFall), coyoteFallDelay);
+        OnPropReleased?.Invoke();
 
         if(transform != null) transform.SetParent(null);
     }
@@ -117,6 +122,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         connectedObject.Add(targetObjectTransform);
         connectedAnchors.Add(targetAnchorTransform);
         Rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+        OnPropTethered?.Invoke();
     }
 
     public virtual void OnDetachTether(JointTether tether, Transform targetAnchorTransform, Transform targetObjectTransform)
@@ -131,6 +137,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
             IsTetherPulled = false;
             ObjectOutline.enabled = false;
         }
+        OnPropReleased?.Invoke();
     }
 
     public virtual void ActivateOutline(bool activate)

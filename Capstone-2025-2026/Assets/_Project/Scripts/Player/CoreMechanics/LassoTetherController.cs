@@ -226,6 +226,7 @@ public class LassoTetherController : MonoBehaviour
         {
             playerInventory.HandleObjectYank();
             playerInventory.currentNPC.RunCaptureAnim();
+            playerInventory.currentNPC.SwitchNPCState(NPCState.Attached);
             SwitchLassoState(LassoState.ObjectYanking);
         }
     }
