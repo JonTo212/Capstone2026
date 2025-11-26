@@ -6024,6 +6024,7 @@ MonoBehaviour:
   useAimOutline: 1
   usePickupOutline: 1
   useGrabPointsForHold: 1
+  usePhysicsTorque: 1
   swingJumpForce: 5
   forwardRef: {fileID: 0}
 --- !u!114 &187563627807177223
@@ -6077,10 +6078,13 @@ MonoBehaviour:
   tetherLayerMask:
     serializedVersion: 2
     m_Bits: 128
+  untetherableMaterials:
+  - {fileID: 2100000, guid: 487ffca7304e6d743af0d0242bf2c7c9, type: 2}
   numOfTethersPlaced: 0
   autoActivateTether: 0
   didStartPointHit: 0
   didEndPointHit: 0
+  isStartPointValid: 0
   maxTetherStartDist: 50
   maxNumOfTethers: 3
   timeToActivateAllTethers: 0.8
@@ -6134,8 +6138,6 @@ MonoBehaviour:
   desiredSwingFOV: 90
   desiredHoldFOV: 75
   FOVChangeSpeed: 10
-  aManage: {fileID: 0}
-  enableInput: 1
 --- !u!114 &9141277693401130519
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13583,7 +13585,6 @@ MonoBehaviour:
   rainSound: {fileID: 8300000, guid: dee01ec498eaebf43b37ac1ce17a3a8f, type: 3}
   currentTime: 1
   inTheRain: 1
-  aM: {fileID: 0}
   rainIntensity: 1000
 --- !u!82 &372146185241016779
 AudioSource:

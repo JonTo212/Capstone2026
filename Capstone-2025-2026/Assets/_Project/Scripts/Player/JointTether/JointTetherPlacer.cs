@@ -50,6 +50,12 @@ public class JointTetherPlacer : MonoBehaviour
         _playerCamera = Camera.main;
     }
 
+    private void Start()
+    {
+        GameObject tetherPreview = Instantiate(tetherPreviewLinePrefab, transform.position, Quaternion.identity);
+        tetherPreviewLine = tetherPreview.GetComponent<TetherPreviewLine>();
+    }
+
     // Update is called once per frame
     void Update()
     {
@@ -180,18 +186,21 @@ public class JointTetherPlacer : MonoBehaviour
     //Create a tether preview line when player camera raycast hits 
     private void CreateTetherPreviewLine()
     {
-        GameObject tetherPreview = Instantiate(tetherPreviewLinePrefab, transform.position, Quaternion.identity);
-        tetherPreviewLine = tetherPreview.GetComponent<TetherPreviewLine>();
+        //GameObject tetherPreview = Instantiate(tetherPreviewLinePrefab, transform.position, Quaternion.identity);
+        //tetherPreviewLine = tetherPreview.GetComponent<TetherPreviewLine>();
+        tetherPreviewLine.gameObject.SetActive(true);
     }
 
     //Deletes tether preview line. Called when tether placement ends
     private void DeletePreviewTetherLine()
     {
-        if (tetherPreviewLine != null)
-        {
-            Destroy(tetherPreviewLine.gameObject);
-            tetherPreviewLine = null;
-        }
+        //if (tetherPreviewLine != null)
+        //{
+        //    Destroy(tetherPreviewLine.gameObject);
+        //    tetherPreviewLine = null;
+        //}
+
+        tetherPreviewLine.gameObject.SetActive(false);
     }
 
     //Updates the tether preview line start point and end point

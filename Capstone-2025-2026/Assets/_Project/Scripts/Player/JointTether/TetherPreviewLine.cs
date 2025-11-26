@@ -24,12 +24,14 @@ public class TetherPreviewLine : MonoBehaviour
 
     private void Start()
     {
+        Debug.Log("Start run");
         tetherPreviewMaterials = new Material[5];
         tetherPreviewMaterials[0] = lineRenderer.material;
         tetherPreviewMaterials[1] = startPointVisuals.GetChild(0).GetComponent<Renderer>().material;
         tetherPreviewMaterials[2] = startPointVisuals.GetChild(1).GetComponent<Renderer>().material;
         tetherPreviewMaterials[3] = endPointVisuals.GetChild(0).GetComponent<Renderer>().material;
         tetherPreviewMaterials[4] = endPointVisuals.GetChild(1).GetComponent<Renderer>().material;
+        gameObject.SetActive(false);
     }
 
     private void Update()
