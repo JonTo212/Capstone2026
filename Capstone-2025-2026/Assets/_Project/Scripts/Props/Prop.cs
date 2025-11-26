@@ -9,9 +9,12 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     [SerializeField] protected bool debugThisProp = false;
 
     //protected means only derived classes can access these values
+    [SerializeField] protected bool slowFall = true;
+
     [SerializeField] protected List<JointTether> attachedTethers = new List<JointTether>();
     [SerializeField] protected List<Transform> connectedObject = new List<Transform>();
     [SerializeField] protected List<Transform> connectedAnchors = new List<Transform>();
+
 
     //getters/setters - default value is false (protected set means only derived classes can change IsHeld)
     public virtual bool IsHeld { get; protected set; } = false;
@@ -19,6 +22,8 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     public virtual bool IsBeingPulled { get; set; } = false;
     public virtual bool IsTetherPulled { get; protected set; } = false;
     public virtual bool IsTouchingSurface {  get; protected set; } = false;
+
+
 
     private bool didFixedUpdateRun = true;
 
@@ -30,6 +35,8 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     [field: SerializeField] public int faceColumns { get; protected set; }
 
     public event Action OnPropDestroyed;
+
+
 
     //virtual functions can be overridden by the derived classes
     //default behaviour is updating IsHeld and parenting the object to a given transform (i.e. player hand)
@@ -98,7 +105,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         IsSnared = false;
         IsHeld = false;
         IsBeingPulled = false;
-        Rb.useGravity = false;
+        if (slowFall) Rb.useGravity = false;
         Invoke(nameof(GravDelay), 0.3f);
         Rb.interpolation = RigidbodyInterpolation.None;
         Rb.constraints = RigidbodyConstraints.None;
