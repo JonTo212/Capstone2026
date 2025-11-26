@@ -39,7 +39,7 @@ public class Lasso : MonoBehaviour
     [SerializeField] private Transform forwardRef;
 
     [Header("Rotation")]
-    [SerializeField] private float degreesPerSecond = 180f;
+    [field: SerializeField] public bool useSnapRotation { get; private set; } = false;
     [field: SerializeField] public CinemachineInputAxisController camInputController { get; private set; }
     public bool Rotated { get; private set; }
 
@@ -323,6 +323,8 @@ public class Lasso : MonoBehaviour
 
     #region Rotation
 
+    [Header("Free Rotation")]
+    [SerializeField] private float degreesPerSecond = 180f;
     public void RotateWithInput(Vector2 input)
     {
         if (SnaredObject == null || SnaredObject.Rb == null) return;
@@ -346,6 +348,85 @@ public class Lasso : MonoBehaviour
         SnaredObject.Rb.MovePosition(nextPosition);
 
         SnaredObject.Rb.angularVelocity = Vector3.zero;
+        Rotated = true;
+    }
+
+    #endregion
+
+    #region Snap Rotation
+
+    [Header("Snap Rotation")]
+    [SerializeField] private float snapAngle = 45f;
+    [SerializeField] private float rotationSpring = 50f;
+    private float yaw;
+    private float pitch;
+
+    private Quaternion GetBaseLookRotation()
+    {
+        if (PlayerCam == null) return Quaternion.identity;
+
+        //flatten the Y of camera's forward so it's only on XZ plane
+        Vector3 lookDirection = PlayerCam.transform.forward;
+        lookDirection.y = 0;
+
+        //this just makes a rotation with the Z axis aligned with player's look direction
+        return Quaternion.LookRotation(lookDirection.normalized, Vector3.up);
+    }
+
+    public void InitializeRotationToClosestSnap()
+    {
+        if (SnaredObject == null || SnaredObject.Rb == null) return;
+
+        Quaternion baseLookRotation = GetBaseLookRotation();
+        Quaternion currentObjectRotation = SnaredObject.Rb.rotation;
+
+        //find the relative rotation of the object to the player's look direction
+        Quaternion relativeRotation = Quaternion.Inverse(baseLookRotation) * currentObjectRotation;
+
+        //align normalized angles
+        float currentYaw = Mathf.DeltaAngle(0, relativeRotation.eulerAngles.y);
+        float currentPitch = Mathf.DeltaAngle(0, relativeRotation.eulerAngles.x);
+
+        //get the nearest multiple of snapAngle
+        yaw = Mathf.Round(currentYaw / snapAngle) * snapAngle;
+        pitch = Mathf.Round(currentPitch / snapAngle) * snapAngle;
+    }
+
+    public void MaintainObjectRotation()
+    {
+        if (SnaredObject == null || SnaredObject.Rb == null) return;
+
+        //look at player + accumulated rotation
+        Quaternion baseLookRotation = GetBaseLookRotation();
+
+        Quaternion yawRotation = Quaternion.AngleAxis(yaw, Vector3.up);
+        Quaternion pitchRotation = Quaternion.AngleAxis(pitch, Vector3.right);
+
+        Quaternion combinedTargetRotation = baseLookRotation * pitchRotation * yawRotation; //accumulatedSnapRotation;
+
+        //rotation required to get to the desired rotation
+        Quaternion delta = combinedTargetRotation * Quaternion.Inverse(SnaredObject.Rb.rotation);
+        delta.ToAngleAxis(out float angle, out Vector3 axis);
+        if (angle > 180f) angle -= 360f;
+
+        Vector3 angularDisplacement = axis.normalized * Mathf.Deg2Rad * angle;
+
+        //spring + critical damping
+        Vector3 springTorque = rotationSpring * angularDisplacement;
+        Vector3 dampingTorque = -2f * Mathf.Sqrt(rotationSpring) * SnaredObject.Rb.angularVelocity;
+
+        SnaredObject.Rb.AddTorque(springTorque + dampingTorque, ForceMode.Acceleration);
+    }
+
+    public void ApplySnapRotation(Vector3 axis)
+    {
+        if (SnaredObject == null || axis == Vector3.zero) return;
+
+        if (axis == Vector3.up)  yaw += snapAngle;
+        else if (axis == Vector3.down) yaw -= snapAngle;
+        else if (axis == Vector3.right) pitch += snapAngle;
+        else if (axis == Vector3.left) pitch -= snapAngle;
+
         Rotated = true;
     }
 

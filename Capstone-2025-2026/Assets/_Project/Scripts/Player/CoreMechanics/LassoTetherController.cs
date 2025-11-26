@@ -92,12 +92,19 @@ public class LassoTetherController : MonoBehaviour
 
             if(!playerLasso.Rotated && !playerLasso.usePhysicsTorque)
             {
-                playerLasso.LookAtPlayer();
+                //playerLasso.LookAtPlayer();
             }    
         }
         else if(CurrentLassoState == LassoState.Rotating)
         {
-            playerLasso.RotateWithInput(playerActions.LookInput);
+            if (playerLasso.useSnapRotation)
+            {
+                playerLasso.MaintainObjectRotation();
+            }
+            else
+            {
+                playerLasso.RotateWithInput(playerActions.LookInput);
+            }
             playerLasso.MoveObjectToPos(playerLasso.GetAnchoredCenterOfScreen());
 
         }
@@ -208,7 +215,14 @@ public class LassoTetherController : MonoBehaviour
 
         if(playerActions.SprintDown)
         {
-            playerLasso.camInputController.enabled = false;
+            if (playerLasso.useSnapRotation)
+            {
+                playerLasso.InitializeRotationToClosestSnap();
+            }
+            else
+            {
+                playerLasso.camInputController.enabled = false;
+            }
             SwitchLassoState(LassoState.Rotating);
         }
     }
@@ -248,6 +262,18 @@ public class LassoTetherController : MonoBehaviour
     private void HandleRotatingControls()
     {
         playerLasso.MoveAnchorPoint(playerActions.GetDPadScrollValue());
+
+        if(playerLasso.useSnapRotation)
+        {
+            if (playerActions.AltDown)
+            {
+                playerLasso.ApplySnapRotation(Vector3.right);
+            }
+            if (playerActions.InteractDown)
+            {
+                playerLasso.ApplySnapRotation(Vector3.up);
+            }
+        }
 
         if (playerActions.SprintUp)
         {
