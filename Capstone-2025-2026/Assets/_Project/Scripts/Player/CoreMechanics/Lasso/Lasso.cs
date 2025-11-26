@@ -1,5 +1,6 @@
 using NodeCanvas.Tasks.Actions;
 using System;
+using System.Collections;
 using Unity.Cinemachine;
 using UnityEngine;
 
@@ -31,7 +32,7 @@ public class Lasso : MonoBehaviour
     [SerializeField] private bool useAimOutline = true;
     [SerializeField] private bool usePickupOutline = true;
     [SerializeField] private bool useGrabPointsForHold = false;
-    [SerializeField] private bool usePhysicsLasso = true;
+    [field: SerializeField] public bool usePhysicsLasso { get; set; } = true;
     [field: SerializeField] public bool usePhysicsTorque { get; private set; } = true;
 
     [Header("Swinging")]
@@ -55,7 +56,11 @@ public class Lasso : MonoBehaviour
     [Header("Getters")]
     public Prop SnaredObject { get; private set; }
     public PlayerMovement PlayerController { get; private set; }
-    public Vector3 HitPos => _snaredObjTransform.transform.TransformPoint(_attachPointLocal);
+    public Vector3 HitPos
+    {
+        get => _snaredObjTransform.TransformPoint(_attachPointLocal);
+        set => _attachPointLocal = _snaredObjTransform.InverseTransformPoint(value);
+    }
     public float AnchorDist { get; private set; }
 
     public event Action OnObjectHit;
@@ -360,6 +365,8 @@ public class Lasso : MonoBehaviour
     [SerializeField] private float rotationSpring = 50f;
     private float yaw;
     private float pitch;
+    private Coroutine finishSnapRoutine;
+    public Action OnSnapFinished;
 
     private Quaternion GetBaseLookRotation()
     {
@@ -380,17 +387,38 @@ public class Lasso : MonoBehaviour
         Quaternion baseLookRotation = GetBaseLookRotation();
         Quaternion currentObjectRotation = SnaredObject.Rb.rotation;
 
-        //find the relative rotation of the object to the player's look direction
-        Quaternion relativeRotation = Quaternion.Inverse(baseLookRotation) * currentObjectRotation;
+        //simulate every angle from -180 to 180 and choose the closest one
+        //just deriving from eulerAngles makes the pitch flip, this was the only way that worked
+        int steps = Mathf.RoundToInt(360f / snapAngle);
+        float bestYaw = 0f;
+        float bestPitch = 0f;
+        float bestAngle = float.MaxValue;
 
-        //align normalized angles
-        float currentYaw = Mathf.DeltaAngle(0, relativeRotation.eulerAngles.y);
-        float currentPitch = Mathf.DeltaAngle(0, relativeRotation.eulerAngles.x);
+        for (int p = 0; p < steps; p++)
+        {
+            float candidatePitch = -180f + p * snapAngle;
+            Quaternion pitchRot = Quaternion.AngleAxis(candidatePitch, Vector3.right);
 
-        //get the nearest multiple of snapAngle
-        yaw = Mathf.Round(currentYaw / snapAngle) * snapAngle;
-        pitch = Mathf.Round(currentPitch / snapAngle) * snapAngle;
+            for (int y = 0; y < steps; y++)
+            {
+                float candidateYaw = -180f + y * snapAngle;
+                Quaternion yawRot = Quaternion.AngleAxis(candidateYaw, Vector3.up);
+                Quaternion candidateRotation = baseLookRotation * pitchRot * yawRot;
+
+                float angleBetween = Quaternion.Angle(candidateRotation, currentObjectRotation);
+                if (angleBetween < bestAngle)
+                {
+                    bestAngle = angleBetween;
+                    bestYaw = candidateYaw;
+                    bestPitch = candidatePitch;
+                }
+            }
+        }
+
+        yaw = Mathf.Round(bestYaw / snapAngle) * snapAngle;
+        pitch = Mathf.Round(bestPitch / snapAngle) * snapAngle;
     }
+
 
     public void MaintainObjectRotation()
     {
@@ -428,6 +456,50 @@ public class Lasso : MonoBehaviour
         else if (axis == Vector3.left) pitch -= snapAngle;
 
         Rotated = true;
+    }
+
+    public void StartFinishSnap()
+    {
+        if (finishSnapRoutine != null)
+            StopCoroutine(finishSnapRoutine);
+
+        finishSnapRoutine = StartCoroutine(FinishSnapCoroutine());
+    }
+
+    public void StopFinishSnap()
+    {
+        if (finishSnapRoutine != null)
+        {
+            StopCoroutine(finishSnapRoutine);
+            finishSnapRoutine = null;
+        }
+    }
+
+    private IEnumerator FinishSnapCoroutine()
+    {
+        if (SnaredObject == null)
+            yield break;
+
+        //runs until the angle's close enough to completion or cancelled externally
+        while (true)
+        {
+            MaintainObjectRotation();
+
+            Quaternion baseLook = GetBaseLookRotation();
+            Quaternion yawRot = Quaternion.AngleAxis(yaw, Vector3.up);
+            Quaternion pitchRot = Quaternion.AngleAxis(pitch, Vector3.right);
+            Quaternion targetRot = baseLook * pitchRot * yawRot;
+
+            float angle = Quaternion.Angle(SnaredObject.Rb.rotation, targetRot);
+
+            if (angle < 0.5f)
+                break;
+
+            yield return new WaitForFixedUpdate();
+        }
+
+        finishSnapRoutine = null;
+        OnSnapFinished?.Invoke();
     }
 
     #endregion
@@ -515,6 +587,7 @@ public class Lasso : MonoBehaviour
 
         Rotated = false;
         lassoGrabVisualIndicator.SetActive(false);
+        StopFinishSnap();
         OnLassoReleased?.Invoke();
 
     }

@@ -25,6 +25,7 @@ public class LassoTetherController : MonoBehaviour
     private PlayerActions playerActions;
     private JointTetherPlacer playerTether;
     private JointTetherActivator playerTetherActivator;
+    private bool wasUsingPhysicsLasso;
 
     [Header("States")]
     public LassoState CurrentLassoState { get; private set; }
@@ -39,7 +40,10 @@ public class LassoTetherController : MonoBehaviour
 
         playerLasso.OnLassoReleased += OnLassoReleased;
         playerLasso.OnObjectHit += OnLassoHit;
+        playerLasso.OnSnapFinished += HandleSnapFinish;
         playerTether.OnTetherStartHit += OnTetherStartHit;
+
+        wasUsingPhysicsLasso = playerLasso.usePhysicsLasso;
 
         TempSetText(LassoState.Empty);
     }
@@ -210,6 +214,7 @@ public class LassoTetherController : MonoBehaviour
 
         if (playerActions.MainUp)
         {
+            //playerLasso.usePhysicsLasso = wasUsingPhysicsLasso;
             playerLasso.HandleObjectReleased();
         }
 
@@ -218,6 +223,9 @@ public class LassoTetherController : MonoBehaviour
             if (playerLasso.useSnapRotation)
             {
                 playerLasso.InitializeRotationToClosestSnap();
+                //playerLasso.HitPos = playerLasso.SnaredObject.transform.position;
+                //wasUsingPhysicsLasso = playerLasso.usePhysicsLasso;
+                //playerLasso.usePhysicsLasso = false;
             }
             else
             {
@@ -277,18 +285,27 @@ public class LassoTetherController : MonoBehaviour
 
         if (playerActions.SprintUp)
         {
-            playerLasso.camInputController.enabled = true;
-            SwitchLassoState(LassoState.Snared);
+            playerLasso.StartFinishSnap();
         }
 
         if (playerActions.MainUp)
         {
             playerLasso.camInputController.enabled = true;
+            //playerLasso.usePhysicsLasso = wasUsingPhysicsLasso;
             playerLasso.HandleObjectReleased();
         }
     }
 
-#endregion
+    private void HandleSnapFinish()
+    {
+        if (CurrentLassoState == LassoState.Rotating)
+        {
+            playerLasso.camInputController.enabled = true;
+            SwitchLassoState(LassoState.Snared);
+        }
+    }
+
+    #endregion
 
     private void TempSetText(LassoState state)
     {
