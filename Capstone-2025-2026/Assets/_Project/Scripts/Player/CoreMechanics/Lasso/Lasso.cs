@@ -1,3 +1,4 @@
+using NodeCanvas.Tasks.Actions;
 using System;
 using Unity.Cinemachine;
 using UnityEngine;
@@ -30,11 +31,17 @@ public class Lasso : MonoBehaviour
     [SerializeField] private bool useAimOutline = true;
     [SerializeField] private bool usePickupOutline = true;
     [SerializeField] private bool useGrabPointsForHold = false;
-    [SerializeField] private bool usePhysicsTorque = true;
+    [SerializeField] private bool usePhysicsLasso = true;
+    [field: SerializeField] public bool usePhysicsTorque { get; private set; } = true;
 
     [Header("Swinging")]
     [SerializeField] private float swingJumpForce = 5f;
     [SerializeField] private Transform forwardRef;
+
+    [Header("Rotation")]
+    [SerializeField] private float degreesPerSecond = 180f;
+    [field: SerializeField] public CinemachineInputAxisController camInputController { get; private set; }
+    public bool Rotated { get; private set; }
 
     [Header("Internal Variables")]
     private AimAssist _aimAssist;
@@ -203,42 +210,69 @@ public class Lasso : MonoBehaviour
 
     public void MoveObjectToPos(Vector3 desiredPos)
     {
-        Vector3 attachPointWorld = SnaredObject.transform.TransformPoint(_attachPointLocal);
-        Vector3 pointVelocity = SnaredObject.Rb.GetPointVelocity(attachPointWorld);
-        Vector3 displacement = desiredPos - attachPointWorld;
-
-        Vector3 linearForce = CalculateLinearForce(displacement, pointVelocity);
-        Vector3 torqueForce = CalculateTorqueForce(attachPointWorld, linearForce);
-        Vector3 lookAtTorque = CalculateLookAtTorque();
-
-        Vector3 totalTorque = torqueForce + lookAtTorque;
-
-        if (useSizeScale)
+        if (usePhysicsLasso)
         {
-            float effectiveMassScale = CalculateScale();
-            linearForce /= effectiveMassScale;
-            totalTorque /= effectiveMassScale;
+            Vector3 attachPointWorld = SnaredObject.transform.TransformPoint(_attachPointLocal);
+            Vector3 pointVelocity = SnaredObject.Rb.GetPointVelocity(attachPointWorld);
+            Vector3 displacement = desiredPos - attachPointWorld;
+
+            Vector3 linearForce = CalculateLinearForce(displacement, pointVelocity);
+            Vector3 torqueForce = CalculateTorqueForce(attachPointWorld, linearForce);
+            Vector3 lookAtTorque = CalculateLookAtTorque();
+
+            Vector3 totalTorque = torqueForce + lookAtTorque;
+
+            if (useSizeScale)
+            {
+                float effectiveMassScale = CalculateScale();
+                linearForce /= effectiveMassScale;
+                totalTorque /= effectiveMassScale;
+            }
+
+            //SnaredObject.Rb.AddForceAtPosition(linearForce, attachPointWorld, ForceMode.Force); //accel works because the damping already takes into account mass
+            //if (SnaredObject.IsTouchingSurface) linearAcceleration = Vector3.ClampMagnitude(linearForce / effectiveMassScale, centerStrength);
+            //if (!SnaredObject.IsTouchingSurface) SnaredObject.Rb.AddTorque(angularAcceleration, ForceMode.Acceleration);
+
+            SnaredObject.ApplyForceInDirection(linearForce.normalized, linearForce.magnitude, ForceMode.Force, transform);
+
+            if (usePhysicsTorque)
+            {
+                SnaredObject.Rb.AddTorque(totalTorque, ForceMode.Force); //temp (?)
+            }
+
+            SnaredObject.Rb.angularVelocity *= 0.975f; //stop excessive spin
         }
 
-        //SnaredObject.Rb.AddForceAtPosition(linearForce, attachPointWorld, ForceMode.Force); //accel works because the damping already takes into account mass
-        //if (SnaredObject.IsTouchingSurface) linearAcceleration = Vector3.ClampMagnitude(linearForce / effectiveMassScale, centerStrength);
-        //if (!SnaredObject.IsTouchingSurface) SnaredObject.Rb.AddTorque(angularAcceleration, ForceMode.Acceleration);
-
-        SnaredObject.ApplyForceInDirection(linearForce.normalized, linearForce.magnitude, ForceMode.Force, transform);
-
-        if (usePhysicsTorque)
+        else
         {
-            SnaredObject.Rb.AddTorque(totalTorque, ForceMode.Force); //temp (?)
-        }
+            if (SnaredObject == null) return;
 
-        SnaredObject.Rb.angularVelocity *= 0.975f; //stop excessive spin
+            float currentDist = Vector3.Distance(desiredPos, HitPos);
+            float currentSpeed = Mathf.SmoothStep(0f, centerStrength, currentDist / 5f) * Time.fixedDeltaTime;
+            Vector3 direction = desiredPos - HitPos;
+            SnaredObject.Rb.linearVelocity = direction.normalized * currentSpeed;
+        }
+    }
+
+    public void LookAtPlayer()
+    {
+        Vector3 targetDir = (PlayerCamLookPos.position - SnaredObject.transform.position).normalized;
+        Vector3 currentFaceDir = _localFaceNormal != Vector3.zero ? SnaredObject.transform.TransformDirection(_localFaceNormal) : SnaredObject.transform.forward;
+
+        Quaternion deltaRot = Quaternion.FromToRotation(currentFaceDir, targetDir);
+        deltaRot.ToAngleAxis(out float angle, out Vector3 axis);
+        if (angle > 180f) angle -= 360f;
+
+        float currentAngularSpeed = Mathf.SmoothStep(0f, centerStrength * 5f, Mathf.Abs(angle) / 45f) * Time.fixedDeltaTime;
+        SnaredObject.Rb.angularVelocity = axis.normalized * (Mathf.Sign(angle) * currentAngularSpeed * Mathf.Deg2Rad);
     }
 
     private Vector3 CalculateLinearForce(Vector3 displacement, Vector3 pointVelocity)
     {
         //linear force
-        Vector3 springForce = centerStrength * displacement; //F = -springRate * displacement
-        float damping = 2f * Mathf.Sqrt(centerStrength * SnaredObject.Rb.mass); //critical damping = 2 * sqrt(springRate * mass)
+        float springStrength = centerStrength / 10f;
+        Vector3 springForce = springStrength * displacement; //F = -springRate * displacement
+        float damping = 2f * Mathf.Sqrt(springStrength * SnaredObject.Rb.mass); //critical damping = 2 * sqrt(springRate * mass)
         Vector3 dampingForce = -pointVelocity * damping;
         Vector3 totalForce = springForce + dampingForce;
 
@@ -285,16 +319,35 @@ public class Lasso : MonoBehaviour
         return effectiveMassScale;
     }
 
-    /*public void MoveObjectToPos(Vector3 desiredPos)
-    {
-        if (SnaredObject == null) return;
+    #endregion
 
-        float currentDist = Vector3.Distance(desiredPos, HitPos);
-        float currentSpeed = Mathf.SmoothStep(0f, centerStrength, currentDist / 5f) * Time.fixedDeltaTime;
-        Vector3 direction = desiredPos - HitPos;
-        SnaredObject.Rb.linearVelocity = direction.normalized * currentSpeed;
-        SnaredObject.Rb.angularVelocity *= 0.99f;
-    }*/
+    #region Rotation
+
+    public void RotateWithInput(Vector2 input)
+    {
+        if (SnaredObject == null || SnaredObject.Rb == null) return;
+
+        float stepX = input.x * degreesPerSecond * 0.05f * Time.fixedDeltaTime;
+        float stepY = input.y * degreesPerSecond * 0.05f * Time.fixedDeltaTime;
+
+        Quaternion yawRot = Quaternion.AngleAxis(stepX, Vector3.up);
+        Quaternion pitchRot = Quaternion.AngleAxis(-stepY, PlayerCam.transform.right);
+
+        Quaternion rotationStep = pitchRot * yawRot;
+        Quaternion nextRotation = rotationStep * SnaredObject.Rb.rotation;
+
+        Vector3 pivotPoint = HitPos;
+        Vector3 currentPos = SnaredObject.transform.position;
+        Vector3 offsetFromPivot = currentPos - pivotPoint;
+        Vector3 rotatedOffset = rotationStep * offsetFromPivot;
+        Vector3 nextPosition = pivotPoint + rotatedOffset;
+
+        SnaredObject.Rb.MoveRotation(nextRotation);
+        SnaredObject.Rb.MovePosition(nextPosition);
+
+        SnaredObject.Rb.angularVelocity = Vector3.zero;
+        Rotated = true;
+    }
 
     #endregion
 
@@ -379,6 +432,7 @@ public class Lasso : MonoBehaviour
         _snaredObjTransform = null;
         _localFaceNormal = Vector3.zero;
 
+        Rotated = false;
         lassoGrabVisualIndicator.SetActive(false);
         OnLassoReleased?.Invoke();
 

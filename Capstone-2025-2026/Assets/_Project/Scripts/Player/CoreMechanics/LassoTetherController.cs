@@ -11,6 +11,7 @@ public enum LassoState
     PlayerYanking,
     ObjectYanking,
     Held,
+    Rotating,
     Using
 }
 
@@ -73,6 +74,10 @@ public class LassoTetherController : MonoBehaviour
             case LassoState.Swinging:
                 HandleSwingingControls();
                 break;
+
+            case LassoState.Rotating:
+                HandleRotatingControls();
+                break;
         }
         HandleTetherActivation();
         HandleTetherDestroy();
@@ -84,6 +89,17 @@ public class LassoTetherController : MonoBehaviour
         {
             playerLasso.MoveObjectToPos(playerLasso.GetAnchoredCenterOfScreen());
             playerLasso.AnchorToObject();
+
+            if(!playerLasso.Rotated && !playerLasso.usePhysicsTorque)
+            {
+                playerLasso.LookAtPlayer();
+            }    
+        }
+        else if(CurrentLassoState == LassoState.Rotating)
+        {
+            playerLasso.RotateWithInput(playerActions.LookInput);
+            playerLasso.MoveObjectToPos(playerLasso.GetAnchoredCenterOfScreen());
+
         }
     }
 
@@ -189,6 +205,12 @@ public class LassoTetherController : MonoBehaviour
         {
             playerLasso.HandleObjectReleased();
         }
+
+        if(playerActions.SprintDown)
+        {
+            playerLasso.camInputController.enabled = false;
+            SwitchLassoState(LassoState.Rotating);
+        }
     }
 
     #endregion
@@ -221,6 +243,26 @@ public class LassoTetherController : MonoBehaviour
     }
 
     #endregion
+
+    #region Rotating Controls
+    private void HandleRotatingControls()
+    {
+        playerLasso.MoveAnchorPoint(playerActions.GetDPadScrollValue());
+
+        if (playerActions.SprintUp)
+        {
+            playerLasso.camInputController.enabled = true;
+            SwitchLassoState(LassoState.Snared);
+        }
+
+        if (playerActions.MainUp)
+        {
+            playerLasso.camInputController.enabled = true;
+            playerLasso.HandleObjectReleased();
+        }
+    }
+
+#endregion
 
     private void TempSetText(LassoState state)
     {
