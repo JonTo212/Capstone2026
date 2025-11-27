@@ -214,7 +214,7 @@ public class LassoTetherController : MonoBehaviour
 
         if (playerActions.MainUp)
         {
-            //playerLasso.usePhysicsLasso = wasUsingPhysicsLasso;
+            playerLasso.usePhysicsLasso = wasUsingPhysicsLasso;
             playerLasso.HandleObjectReleased();
         }
 
@@ -223,9 +223,9 @@ public class LassoTetherController : MonoBehaviour
             if (playerLasso.useSnapRotation)
             {
                 playerLasso.InitializeRotationToClosestSnap();
-                //playerLasso.HitPos = playerLasso.SnaredObject.transform.position;
-                //wasUsingPhysicsLasso = playerLasso.usePhysicsLasso;
-                //playerLasso.usePhysicsLasso = false;
+                playerLasso.HitPos = playerLasso.SnaredObject.transform.position;
+                wasUsingPhysicsLasso = playerLasso.usePhysicsLasso;
+                playerLasso.usePhysicsLasso = false;
             }
             else
             {
