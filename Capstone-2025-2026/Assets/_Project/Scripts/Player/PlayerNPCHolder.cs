@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlayerNPCHolder : MonoBehaviour
 {
     public INPC currentNPC { get; set; }
+    [field: SerializeField] public Transform npcRemovePos { get; private set; }
     private PlayerActions _playerInput;
     private Lasso _playerLasso;
     private Coroutine _objectYankCoroutine;
@@ -43,6 +44,11 @@ public class PlayerNPCHolder : MonoBehaviour
             {
                 _playerLasso.PlayerController.ResetGravity();
                 currentNPC.SwitchNPCState(NPCState.Attached);
+            }
+
+            if(_playerInput.SprintDown)
+            {
+                currentNPC.RemoveFromPlayerBag();
             }
         }
     }
@@ -144,7 +150,7 @@ public class PlayerNPCHolder : MonoBehaviour
     private void SetConnectedNPC()
     {
         currentNPC = _playerLasso.SnaredObject as INPC;
-        currentNPC.AttachObject(transform);
+        currentNPC.AttachToPlayer(transform);
         OnObjectYankCompleted += currentNPC.OnEnteredPlayerBag;
     }
 
@@ -153,7 +159,7 @@ public class PlayerNPCHolder : MonoBehaviour
         if (currentNPC == null) return;
 
         OnObjectYankCompleted -= currentNPC.OnEnteredPlayerBag;
-        currentNPC.AttachObject(null);
+        currentNPC.AttachToPlayer(null);
         currentNPC = null;
     }
 

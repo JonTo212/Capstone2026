@@ -30,15 +30,11 @@ public class PufferFishNPC : Prop, INPC
     [Header("Ability Properties")]
     [SerializeField] private float carryStrength;
     [SerializeField] private float timeToMaxCarryStrength;
-    [SerializeField] private float floatMaxHeight;
     [SerializeField] private float carryMaxHeight;
-    [SerializeField] private float carryStrengthBuffer;
     [SerializeField] private float abilityDuration;
     private float abilityCooldownTimer;
     private bool abilityActive;
     private bool abilityOnCooldown;
-
-    [Header("Attached Properties")]
 
 
     [Header("Disturbed Properties")]
@@ -51,7 +47,7 @@ public class PufferFishNPC : Prop, INPC
     [field: SerializeField] public NPCState CurrentNPCState { get; private set; } = NPCState.Idle;
     [field: SerializeField] public NPCType type { get; }
 
-    private Transform attachedObject;
+    private Transform playerTransform;
 
     [Header("TEMP - Inflation Anim")]
     [SerializeField] private AnimationCurve tempAnimCurve;
@@ -62,8 +58,6 @@ public class PufferFishNPC : Prop, INPC
     private Vector3 deflatedScale;
     private bool inflated;
     private float inflationTimer;
-
-    public event Action OnAnimComplete;
 
     #region Unity Functions
     private void Awake()
@@ -76,14 +70,12 @@ public class PufferFishNPC : Prop, INPC
         inflated = true;
 
         OnPropTethered += OnInteractedResponse;
-        OnPropSnared += OnInteractedResponse;
         OnPropReleased += CheckOnRelease;
     }
 
     private void OnDisable()
     {
         OnPropTethered -= OnInteractedResponse;
-        OnPropSnared -= OnInteractedResponse;
         OnPropReleased -= CheckOnRelease;
     }
 
@@ -98,6 +90,13 @@ public class PufferFishNPC : Prop, INPC
         base.FixedUpdate();
         HandleNPCStateMachineFixedUpdate();
     }
+
+    public override void OnSnare()
+    {
+        base.OnSnare();
+        OnInteractedResponse();
+    }
+
     #endregion
 
     #region Helper Functions
@@ -108,6 +107,8 @@ public class PufferFishNPC : Prop, INPC
 
     private void OnInteractedResponse()
     {
+        if (CurrentNPCState == NPCState.UsingAbility) return;
+
         SwitchNPCState(NPCState.Disturbed);
         Rb.linearVelocity = Vector3.zero;
     }
@@ -115,6 +116,23 @@ public class PufferFishNPC : Prop, INPC
     public void OnEnteredPlayerBag()
     {
         SwitchNPCState(NPCState.Attached);
+    }
+
+    public void RemoveFromPlayerBag()
+    {
+        transform.parent = null;
+        transform.rotation = playerTransform.GetComponent<PlayerNPCHolder>().npcRemovePos.rotation;
+        transform.position = playerTransform.GetComponent<PlayerNPCHolder>().npcRemovePos.position;
+        GetComponent<Collider>().enabled = true;
+
+        Rb.constraints = RigidbodyConstraints.FreezeRotation;
+        Rb.useGravity = false;
+        
+        if(animCoroutine != null) StopCoroutine(animCoroutine);
+        animCoroutine = StartCoroutine(Inflate());
+
+        playerTransform = null;
+        SwitchNPCState(NPCState.Disturbed);
     }
 
     private void CheckOnRelease()
@@ -168,7 +186,8 @@ public class PufferFishNPC : Prop, INPC
                 break;
                 
             case NPCState.Disturbed:
-                OrientUpwards();
+                //OrientUpwards();
+                Rb.angularVelocity = Vector3.zero;
                 break;
         }
     }
@@ -255,14 +274,14 @@ public class PufferFishNPC : Prop, INPC
         }
     }
 
-    public void AttachObject(Transform objTransform)
+    public void AttachToPlayer(Transform player)
     {
-        attachedObject = objTransform;
+        playerTransform = player;
     }   
 
     public void UseAbility()
     {
-        if(attachedObject != null && attachedObject.TryGetComponent(out PlayerMovement playerMovement))
+        if(playerTransform != null && playerTransform.TryGetComponent(out PlayerMovement playerMovement))
         {
             playerMovement.ApplySlowFall(0.33f);
         }
@@ -273,27 +292,23 @@ public class PufferFishNPC : Prop, INPC
     }
     private void HandleAbilityTimers()
     {
-        // If ability is active, tick duration
         if (abilityActive)
         {
             abilityCooldownTimer += Time.deltaTime;
             if (abilityCooldownTimer >= abilityDuration)
             {
-                // End ability
                 abilityActive = false;
                 abilityOnCooldown = true;
                 abilityCooldownTimer = 0f;
 
-                // Reset state safely
                 SwitchNPCState(NPCState.Disturbed);
             }
         }
 
-        // If on cooldown, tick cooldown
         if (abilityOnCooldown)
         {
             abilityCooldownTimer += Time.deltaTime;
-            if (abilityCooldownTimer >= returnToIdleDelay) // or a dedicated cooldown variable
+            if (abilityCooldownTimer >= returnToIdleDelay)
             {
                 abilityOnCooldown = false;
             }
@@ -368,7 +383,6 @@ public class PufferFishNPC : Prop, INPC
         animCoroutine = null;
         inflationTimer = deflateDuration;
         inflated = false;
-        OnAnimComplete?.Invoke();
     }
 
     #endregion

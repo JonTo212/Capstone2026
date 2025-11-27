@@ -18,11 +18,11 @@ public enum NPCState
 
 public interface INPC
 {
-    void AttachObject(Transform attachedObj);
+    void AttachToPlayer(Transform player);
     void UseAbility();
     void RunCaptureAnim();
     void SwitchNPCState(NPCState newState);
     void OnEnteredPlayerBag();
-    event Action OnAnimComplete;
+    void RemoveFromPlayerBag();
     NPCState CurrentNPCState { get; }
 }
