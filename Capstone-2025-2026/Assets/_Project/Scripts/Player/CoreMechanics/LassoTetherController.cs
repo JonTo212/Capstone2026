@@ -26,6 +26,7 @@ public class LassoTetherController : MonoBehaviour
     private JointTetherPlacer playerTether;
     private JointTetherActivator playerTetherActivator;
     private bool wasUsingPhysicsLasso;
+    [SerializeField] private bool useObjectManipulationMode;
 
     [Header("States")]
     public LassoState CurrentLassoState { get; private set; }
@@ -214,7 +215,10 @@ public class LassoTetherController : MonoBehaviour
 
         if (playerActions.MainUp)
         {
-            //playerLasso.usePhysicsLasso = wasUsingPhysicsLasso;
+            if (useObjectManipulationMode)
+            {
+                playerLasso.usePhysicsLasso = wasUsingPhysicsLasso;
+            }
             playerLasso.HandleObjectReleased();
         }
 
@@ -223,9 +227,12 @@ public class LassoTetherController : MonoBehaviour
             if (playerLasso.useSnapRotation)
             {
                 playerLasso.InitializeRotationToClosestSnap();
-                //playerLasso.HitPos = playerLasso.SnaredObject.transform.position;
-                //wasUsingPhysicsLasso = playerLasso.usePhysicsLasso;
-                //playerLasso.usePhysicsLasso = false;
+                if (useObjectManipulationMode)
+                {
+                    playerLasso.HitPos = playerLasso.SnaredObject.transform.position;
+                    wasUsingPhysicsLasso = playerLasso.usePhysicsLasso;
+                    playerLasso.usePhysicsLasso = false;
+                }
             }
             else
             {
@@ -291,7 +298,10 @@ public class LassoTetherController : MonoBehaviour
         if (playerActions.MainUp)
         {
             playerLasso.camInputController.enabled = true;
-            //playerLasso.usePhysicsLasso = wasUsingPhysicsLasso;
+            if (useObjectManipulationMode)
+            {
+                playerLasso.usePhysicsLasso = wasUsingPhysicsLasso;
+            }
             playerLasso.HandleObjectReleased();
         }
     }
