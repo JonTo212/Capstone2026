@@ -145,12 +145,14 @@ public class PlayerNPCHolder : MonoBehaviour
     {
         currentNPC = _playerLasso.SnaredObject as INPC;
         currentNPC.AttachObject(transform);
+        OnObjectYankCompleted += currentNPC.OnEnteredPlayerBag;
     }
 
     private void ReleaseNPC()
     {
         if (currentNPC == null) return;
 
+        OnObjectYankCompleted -= currentNPC.OnEnteredPlayerBag;
         currentNPC.AttachObject(null);
         currentNPC = null;
     }

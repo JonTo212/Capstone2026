@@ -22,6 +22,7 @@ public interface INPC
     void UseAbility();
     void RunCaptureAnim();
     void SwitchNPCState(NPCState newState);
+    void OnEnteredPlayerBag();
     event Action OnAnimComplete;
     NPCState CurrentNPCState { get; }
 }

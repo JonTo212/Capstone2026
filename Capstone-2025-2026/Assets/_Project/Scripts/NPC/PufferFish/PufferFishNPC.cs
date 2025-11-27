@@ -33,6 +33,10 @@ public class PufferFishNPC : Prop, INPC
     [SerializeField] private float floatMaxHeight;
     [SerializeField] private float carryMaxHeight;
     [SerializeField] private float carryStrengthBuffer;
+    [SerializeField] private float abilityDuration;
+    private float abilityCooldownTimer;
+    private bool abilityActive;
+    private bool abilityOnCooldown;
 
     [Header("Attached Properties")]
 
@@ -61,6 +65,7 @@ public class PufferFishNPC : Prop, INPC
 
     public event Action OnAnimComplete;
 
+    #region Unity Functions
     private void Awake()
     {
         Init();
@@ -70,18 +75,16 @@ public class PufferFishNPC : Prop, INPC
         deflatedScale = inflatedScale * deflatedScaleMultiplier;
         inflated = true;
 
-        OnPropTethered += OnTetherResponse;
-        OnPropSnared += OnSnareResponse;
+        OnPropTethered += OnInteractedResponse;
+        OnPropSnared += OnInteractedResponse;
         OnPropReleased += CheckOnRelease;
-        OnAnimComplete += SwitchToUsingAbility;
     }
 
     private void OnDisable()
     {
-        OnPropTethered -= OnTetherResponse;
-        OnPropSnared -= OnSnareResponse;
+        OnPropTethered -= OnInteractedResponse;
+        OnPropSnared -= OnInteractedResponse;
         OnPropReleased -= CheckOnRelease;
-        OnAnimComplete -= SwitchToUsingAbility;
     }
 
     protected override void Update()
@@ -95,38 +98,30 @@ public class PufferFishNPC : Prop, INPC
         base.FixedUpdate();
         HandleNPCStateMachineFixedUpdate();
     }
+    #endregion
 
+    #region Helper Functions
     public void SwitchNPCState(NPCState newState)
     {
         CurrentNPCState = newState;
     }
 
-    private void OnTetherResponse()
+    private void OnInteractedResponse()
     {
-        SwitchNPCState(NPCState.Attached);
+        SwitchNPCState(NPCState.Disturbed);
         Rb.linearVelocity = Vector3.zero;
     }
 
-    private void OnSnareResponse()
+    public void OnEnteredPlayerBag()
     {
-        switch (CurrentNPCState)
-        {
-            case NPCState.UsingAbility:
-                SwitchNPCState(NPCState.Attached);
-                break;
-        }
-    }
-
-    public void SwitchToUsingAbility()
-    {
-        SwitchNPCState(NPCState.UsingAbility);
+        SwitchNPCState(NPCState.Attached);
     }
 
     private void CheckOnRelease()
     {
         if (connectedObject.Count > 0)
         {
-            if (CurrentNPCState == NPCState.Attached)
+            if (CurrentNPCState == NPCState.Disturbed)
             {
                 SwitchNPCState(NPCState.UsingAbility);
                 StartRise();
@@ -138,13 +133,19 @@ public class PufferFishNPC : Prop, INPC
             SwitchNPCState(NPCState.Disturbed);
         }
     }
+    #endregion
 
+    #region State Machine
     private void HandleNPCStateMachineUpdate()
     {
         switch (CurrentNPCState)
         {
             case NPCState.Idle:
-                //HandleInflation();
+                //InflateDeflate();
+                break;
+
+            case NPCState.UsingAbility:
+                
                 break;
 
             case NPCState.Disturbed:
@@ -171,6 +172,36 @@ public class PufferFishNPC : Prop, INPC
                 break;
         }
     }
+    #endregion
+
+    #region Idle
+    private void BobUpAndDown()
+    {
+        float bobSpeed = (Mathf.PI * 2f) / timeToCycle;
+        float sin = Mathf.Sin(Time.time * bobSpeed) * Time.fixedDeltaTime;
+        float sinWaveVel = Mathf.Cos(Time.time * bobSpeed) * bobSpeed * idleBobRange;
+
+        float RbXVel = Mathf.Lerp(Rb.linearVelocity.x, 0f, Time.fixedDeltaTime * 2f);
+        float RbZVel = Mathf.Lerp(Rb.linearVelocity.z, 0f, Time.fixedDeltaTime * 2f);
+        Rb.linearVelocity = new Vector3(RbXVel, sinWaveVel, RbZVel);
+    }
+
+    private void InflateDeflate()
+    {
+        if (inflationTimer > 0f)
+        {
+            inflationTimer -= Time.deltaTime;
+            return;
+        }
+
+        if (animCoroutine == null)
+        {
+            if (inflated)
+                animCoroutine = StartCoroutine(Deflate(animDuration));
+            else
+                animCoroutine = StartCoroutine(Inflate());
+        }
+    }
 
     private void OrientUpwards()
     {
@@ -188,36 +219,6 @@ public class PufferFishNPC : Prop, INPC
 
         Rb.AddTorque(totalTorque, ForceMode.Acceleration);
     }
-
-    #region Idle
-    private void BobUpAndDown()
-    {
-        float bobSpeed = (Mathf.PI * 2f) / timeToCycle;
-        float sin = Mathf.Sin(Time.time * bobSpeed) * Time.fixedDeltaTime;
-        float sinWaveVel = Mathf.Cos(Time.time * bobSpeed) * bobSpeed * idleBobRange;
-
-        float RbXVel = Mathf.Lerp(Rb.linearVelocity.x, 0f, Time.fixedDeltaTime * 2f);
-        float RbZVel = Mathf.Lerp(Rb.linearVelocity.z, 0f, Time.fixedDeltaTime * 2f);
-        Rb.linearVelocity = new Vector3(RbXVel, sinWaveVel, RbZVel);
-    }
-
-    private void HandleInflation()
-    {
-        if (inflationTimer > 0f)
-        {
-            inflationTimer -= Time.deltaTime;
-            return;
-        }
-
-        if (animCoroutine == null)
-        {
-            if (inflated)
-                animCoroutine = StartCoroutine(Deflate(animDuration));
-            else
-                animCoroutine = StartCoroutine(Inflate());
-        }
-    }
-
     #endregion
 
     #region Ability
@@ -250,16 +251,17 @@ public class PufferFishNPC : Prop, INPC
         {
             Rb.position = new Vector3(Rb.position.x, targetPosY, Rb.position.z);
             Rb.linearVelocity = Vector3.zero;
+            SwitchNPCState(NPCState.Disturbed);
         }
     }
 
     public void AttachObject(Transform objTransform)
     {
         attachedObject = objTransform;
-    }
+    }   
 
     public void UseAbility()
-    {   
+    {
         if(attachedObject != null && attachedObject.TryGetComponent(out PlayerMovement playerMovement))
         {
             playerMovement.ApplySlowFall(0.33f);
@@ -269,12 +271,42 @@ public class PufferFishNPC : Prop, INPC
             MoveUp();
         }
     }
+    private void HandleAbilityTimers()
+    {
+        // If ability is active, tick duration
+        if (abilityActive)
+        {
+            abilityCooldownTimer += Time.deltaTime;
+            if (abilityCooldownTimer >= abilityDuration)
+            {
+                // End ability
+                abilityActive = false;
+                abilityOnCooldown = true;
+                abilityCooldownTimer = 0f;
+
+                // Reset state safely
+                SwitchNPCState(NPCState.Disturbed);
+            }
+        }
+
+        // If on cooldown, tick cooldown
+        if (abilityOnCooldown)
+        {
+            abilityCooldownTimer += Time.deltaTime;
+            if (abilityCooldownTimer >= returnToIdleDelay) // or a dedicated cooldown variable
+            {
+                abilityOnCooldown = false;
+            }
+        }
+    }
     #endregion
 
     #region Disturbed
 
     private void RunIdleCooldown()
     {
+        if(connectedObject.Count > 0) return;
+
         returnToIdleTimer += Time.deltaTime;
         if(returnToIdleTimer >= returnToIdleDelay)
         {
