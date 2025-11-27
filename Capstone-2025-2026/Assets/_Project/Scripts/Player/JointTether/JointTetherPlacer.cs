@@ -62,18 +62,18 @@ public class JointTetherPlacer : MonoBehaviour
         aManage = GameObject.Find("AudioManager").GetComponent<AudioManager>();
         _playerCamera = Camera.main;
 
-        postProcessVolume.profile.TryGet(out tetherModeDepthOfField);
-        postProcessVolume.profile.TryGet(out tetherModeChromaticAberation);
-        postProcessVolume.profile.TryGet(out tetherModePaniniProjection);
+        //postProcessVolume.profile.TryGet(out tetherModeDepthOfField);
+        //postProcessVolume.profile.TryGet(out tetherModeChromaticAberation);
+        //postProcessVolume.profile.TryGet(out tetherModePaniniProjection);
 
         defaultTimeDeltaTime = Time.fixedDeltaTime;
     }
 
     private void Start()
     {
-        tetherModeChromaticAberation.active = false;
-        tetherModeDepthOfField.active = false;
-        tetherModePaniniProjection.active = false;
+        //tetherModeChromaticAberation.active = false;
+        //tetherModeDepthOfField.active = false;
+        //tetherModePaniniProjection.active = false;
     }
 
     // Update is called once per frame

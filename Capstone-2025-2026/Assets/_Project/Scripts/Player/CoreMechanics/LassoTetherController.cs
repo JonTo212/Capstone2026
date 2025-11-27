@@ -348,6 +348,7 @@ public class LassoTetherController : MonoBehaviour
             playerLasso.camInputController.enabled = true;
             SwitchLassoState(LassoState.Snared);
         }
+    }
 
     private void HandleRotationControls()
     {
