@@ -1,4 +1,6 @@
+using System.Collections;
 using TMPro;
+using Unity.Cinemachine;
 using UnityEngine;
 
 public enum LassoState
@@ -7,6 +9,7 @@ public enum LassoState
     Snared,
     Tethering,
     SnaredTether,
+    TetherMode,
     Swinging,
     PlayerYanking,
     ObjectYanking,
@@ -29,6 +32,10 @@ public class LassoTetherController : MonoBehaviour
 
     [Header("States")]
     public LassoState CurrentLassoState { get; private set; }
+
+    [Header("TetherModeSettings")]
+    public bool TetherMode = false;
+    public bool slowMotionTetherMode = true;
 
     #region Unity Functions
     private void Awake()
@@ -75,6 +82,10 @@ public class LassoTetherController : MonoBehaviour
                 HandleSnaredTetherControls();
                 break;
 
+            case LassoState.TetherMode:
+                HandleTetherModeControls();
+                break;
+
             case LassoState.Swinging:
                 HandleSwingingControls();
                 break;
@@ -89,7 +100,7 @@ public class LassoTetherController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (CurrentLassoState == LassoState.Snared)
+        if (CurrentLassoState == LassoState.Snared || CurrentLassoState == LassoState.Rotating)
         {
             playerLasso.MoveObjectToPos(playerLasso.GetAnchoredCenterOfScreen());
             playerLasso.AnchorToObject();
@@ -201,15 +212,26 @@ public class LassoTetherController : MonoBehaviour
     #endregion
 
     #region Snared Controls
+
+    public CinemachineInputAxisController camInput;
     private void HandleSnaredControls()
     {
         playerLasso.MoveAnchorPoint(playerActions.GetDPadScrollValue());
 
         if (playerActions.AltDown)
         {
-            playerTether.StartTetherPlacement(playerLasso.SnaredObject.transform, playerLasso.HitPos);
-            playerLasso.SnaredObject.Rb.constraints = RigidbodyConstraints.FreezePosition;
-            SwitchLassoState(LassoState.SnaredTether);
+            if(TetherMode)
+            {
+                playerTether.EnterTetherMode(playerLasso.SnaredObject, slowMotionTetherMode);
+                playerLasso.SnaredObject.Rb.constraints = RigidbodyConstraints.FreezePosition;
+                SwitchLassoState(LassoState.TetherMode);
+            }
+            else
+            {
+                playerTether.StartTetherPlacement(playerLasso.SnaredObject.transform, playerLasso.HitPos);
+                playerLasso.SnaredObject.Rb.constraints = RigidbodyConstraints.FreezePosition;
+                SwitchLassoState(LassoState.SnaredTether);
+            }
         }
 
         if (playerActions.MainUp)
@@ -231,6 +253,8 @@ public class LassoTetherController : MonoBehaviour
             {
                 playerLasso.camInputController.enabled = false;
             }
+            playerLasso.SnaredObject.Rb.angularVelocity = Vector3.zero;
+            camInput.enabled = false;
             SwitchLassoState(LassoState.Rotating);
         }
     }
@@ -243,6 +267,27 @@ public class LassoTetherController : MonoBehaviour
         if (playerActions.AltUp)
         {
             playerTether.EndTetherPlacement(true);
+            playerLasso.HandleObjectReleased();
+            SwitchLassoState(LassoState.Empty);
+        }
+    }
+
+    private void HandleTetherModeControls()
+    {
+        playerTether.HandleTetherMode(slowMotionTetherMode);
+        if(playerActions.AltDown)
+        {
+            Debug.Log("Alt down");
+            playerTether.TetherModeStartTetherPlacement();
+        }
+        if(playerActions.AltUp)
+        {
+            Debug.Log("Alt Up");
+            playerTether.TetherModeEndTetherPlacement();
+        }
+        if(playerActions.MainDown)
+        {
+            playerTether.ExitTetherMode(slowMotionTetherMode);
             playerLasso.HandleObjectReleased();
             SwitchLassoState(LassoState.Empty);
         }
@@ -302,6 +347,22 @@ public class LassoTetherController : MonoBehaviour
         {
             playerLasso.camInputController.enabled = true;
             SwitchLassoState(LassoState.Snared);
+        }
+
+    private void HandleRotationControls()
+    {
+        ObjectRotate.Instance.RotateWithInput(playerLasso.SnaredObject.transform, playerActions.LookInput, Vector3.up, Camera.main.transform.right, false);
+
+        if (playerActions.SprintUp)
+        {
+            camInput.enabled = true;
+            SwitchLassoState(LassoState.Snared);
+        }
+
+        if(playerActions.MainUp)
+        {
+            camInput.enabled = true;
+            playerLasso.HandleObjectReleased();
         }
     }
 

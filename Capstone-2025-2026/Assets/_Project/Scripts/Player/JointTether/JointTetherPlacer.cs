@@ -2,9 +2,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using Unity.VisualScripting;
+using Unity.Cinemachine;
 using UnityEngine;
-using UnityEngine.ProBuilder.MeshOperations;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 using static CharacterSkinController;
 
 public class JointTetherPlacer : MonoBehaviour
@@ -20,9 +21,24 @@ public class JointTetherPlacer : MonoBehaviour
     [SerializeField] private LayerMask tetherLayerMask;
     [SerializeField] private int numOfTethersPlaced = 0;
     [SerializeField] public bool autoActivateTether = true;
-    public List<JointTether> placedTethers { get; private set; } = new List<JointTether>();
+    [SerializeField] public List<JointTether> placedTethers;
     public bool didStartPointHit = false;
     public bool didEndPointHit = false;
+
+    [Header("Tether Mode Properties")]
+    [SerializeField] private float slowdownFactor = 0.2f;
+    [SerializeField] private float slowDownDurationPerTether = 4f;
+    [SerializeField] CinemachineInputAxisController CNInputAxisController;
+    private bool isTetherModeActive = false;
+    private Prop currentHeldProp;
+    private float defaultTimeDeltaTime;
+    private List<JointTether> placedTethersDuringTetherMode = new List<JointTether>();
+
+    [Header("Tether Mode Post Process properties")]
+    [SerializeField] private Volume postProcessVolume;
+    DepthOfField tetherModeDepthOfField;
+    ChromaticAberration tetherModeChromaticAberation;
+    PaniniProjection tetherModePaniniProjection;
 
     [Header("Editable Properties")]
     [SerializeField] private float maxTetherStartDist = 50f;
@@ -45,14 +61,34 @@ public class JointTetherPlacer : MonoBehaviour
     {
         aManage = GameObject.Find("AudioManager").GetComponent<AudioManager>();
         _playerCamera = Camera.main;
+
+        postProcessVolume.profile.TryGet(out tetherModeDepthOfField);
+        postProcessVolume.profile.TryGet(out tetherModeChromaticAberation);
+        postProcessVolume.profile.TryGet(out tetherModePaniniProjection);
+
+        defaultTimeDeltaTime = Time.fixedDeltaTime;
+    }
+
+    private void Start()
+    {
+        tetherModeChromaticAberation.active = false;
+        tetherModeDepthOfField.active = false;
+        tetherModePaniniProjection.active = false;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(didStartPointHit)
+        if (isTetherModeActive)
         {
-            UpdateTetherPreviewLine();
+           
+        }
+        else
+        {
+            if(didStartPointHit)
+            {
+                UpdateTetherPreviewLine();
+            }
         }
     }
     #endregion
@@ -63,27 +99,21 @@ public class JointTetherPlacer : MonoBehaviour
         didStartPointHit = false;
         didEndPointHit = false;
 
-        if (numOfTethersPlaced < maxNumOfTethers)
+        if (GetObjectInPlayerFront(out RaycastHit hit))
         {
-            if (GetObjectInPlayerFront(out RaycastHit hit))
-            {
-                CreateTetherPreviewLine();
-                SetTetherStartPoint(hit.transform, hit.point);
-                didStartPointHit = true;
-                OnTetherStartHit?.Invoke();
-            }
+            CreateTetherPreviewLine();
+            SetTetherStartPoint(hit.transform, hit.point);
+            didStartPointHit = true;
+            OnTetherStartHit?.Invoke();
         }
     }
 
     public void StartTetherPlacement(Transform transform, Vector3 position)
     {
-        if (numOfTethersPlaced < maxNumOfTethers)
-        {
             CreateTetherPreviewLine();
             SetTetherStartPoint(transform, position);
             didStartPointHit = true;
             //OnTetherStartHit?.Invoke();
-        }
     }
 
     public void EndTetherPlacement(bool autoActivate)
@@ -103,6 +133,12 @@ public class JointTetherPlacer : MonoBehaviour
                 CreateAndInitTether(startTransform, startLocalPosition, endTransform, endLocalPosition, autoActivate);
             }
         }
+
+        if(numOfTethersPlaced > maxNumOfTethers)
+        {
+            placedTethers[0].DestroyTether();
+        }
+
         DeletePreviewTetherLine();
         ResetVariables();
     }
@@ -144,7 +180,7 @@ public class JointTetherPlacer : MonoBehaviour
     }
 
     //Creates and initializes tether parameters like hit transforms and positions
-    private void CreateAndInitTether(Transform startTransform, Vector3 startLocalPosition, Transform endTransform, Vector3 endLocalPosition, bool autoActivate)
+    private JointTether CreateAndInitTether(Transform startTransform, Vector3 startLocalPosition, Transform endTransform, Vector3 endLocalPosition, bool autoActivate)
     {
 
         GameObject newJointTether = Instantiate(jointTetherPrefab, transform.position, Quaternion.identity);
@@ -162,6 +198,8 @@ public class JointTetherPlacer : MonoBehaviour
         numOfTethersPlaced++;
 
         UpdateTetherAmountText();
+
+        return jointTether;
     }
     #endregion
 
@@ -208,6 +246,212 @@ public class JointTetherPlacer : MonoBehaviour
             tetherPreviewLine.SetEndPoint(previewLocation);
         }
     }
+
+    #endregion
+
+    #region TetherMode
+
+    public void EnterTetherMode(Prop currentHeldProp, bool slowMotionTetherMode)
+    {
+        this.currentHeldProp = currentHeldProp;
+        CreateTetherPreviewLine();
+        if(slowMotionTetherMode) 
+        {
+            Time.timeScale = slowdownFactor;
+            tetherModeChromaticAberation.active = true;
+            tetherModeDepthOfField.active = true;
+            tetherModePaniniProjection.active = true;
+            Camera.main.GetComponent<CinemachineBrain>().UpdateMethod = CinemachineBrain.UpdateMethods.LateUpdate;
+            Camera.main.GetComponent<CinemachineBrain>().IgnoreTimeScale = true;
+
+            foreach (var c in CNInputAxisController.Controllers)
+            {
+                if (c.Name == "Look Orbit X")
+                {
+                    c.Input.Gain *= (1f/slowdownFactor);
+                    c.Input.Gain *= (1f / 3f);
+                    c.Driver.AccelTime *= slowdownFactor;
+                    c.Driver.DecelTime *= slowdownFactor;
+                    continue;
+                }
+
+                if (c.Name == "Look Orbit Y")
+                {
+                    c.Input.Gain *= (1f / slowdownFactor);
+                    c.Input.Gain *= (1f / 3f);
+                    c.Driver.AccelTime *= slowdownFactor;
+                    c.Driver.DecelTime *= slowdownFactor;
+                    continue;
+                }
+            }
+        }
+    }
+
+    public void HandleTetherMode(bool slowMotionTetherMode)
+    {
+        if(slowMotionTetherMode) Time.fixedDeltaTime = Time.timeScale * 0.02f;
+
+        if (GetObjectInPlayerFront(out RaycastHit hit) && hit.transform != startTransform)
+        {
+            if(hit.transform == currentHeldProp)
+            {
+
+            }
+            else
+            {
+                UpdateTetherPreviewTetherMode(GetClosestAttachmentPoint(currentHeldProp, hit.point));
+            }
+        }
+    }
+
+    public void TetherModeStartTetherPlacement()
+    {
+        if (GetObjectInPlayerFront(out RaycastHit hit))
+        {
+            SetTetherStartPoint(currentHeldProp.transform, GetClosestAttachmentPoint(currentHeldProp, hit.point).position);
+            didStartPointHit = true;
+        }
+    }
+
+    public void TetherModeEndTetherPlacement()
+    {
+        if(didStartPointHit)
+        {
+            if (GetObjectInPlayerFront(out RaycastHit hit) && hit.transform != startTransform)
+            {
+                SetTetherEndPoint(hit.transform, hit.point);
+
+                JointTether tether = CreateAndInitTether(startTransform, startLocalPosition, endTransform, endLocalPosition, false);
+                placedTethersDuringTetherMode.Add(tether);
+            }
+
+            if (numOfTethersPlaced > maxNumOfTethers)
+            {
+                placedTethers[0].DestroyTether();
+            }
+        }
+
+        ResetVariables();
+    }
+
+    public void TetherModeQuickPlaceTether()
+    {
+        if (GetObjectInPlayerFront(out RaycastHit hit) && hit.transform != startTransform)
+        {
+            SetTetherStartPoint(currentHeldProp.transform, GetClosestAttachmentPoint(currentHeldProp, hit.point).position);
+            SetTetherEndPoint(hit.transform, hit.point);
+
+            CreateAndInitTether(startTransform, startLocalPosition, endTransform, endLocalPosition, false);
+        }
+
+        if(numOfTethersPlaced > maxNumOfTethers)
+        {
+            placedTethers[0].DestroyTether();
+        }
+
+        ResetVariables();
+    }
+
+    public void ExitTetherMode(bool slowMotionTetherMode)
+    {
+        if(slowMotionTetherMode)
+        {
+            Time.timeScale = 1f;
+            Time.fixedDeltaTime = defaultTimeDeltaTime;
+            tetherModeChromaticAberation.active = false;
+            tetherModeDepthOfField.active = false;
+            tetherModePaniniProjection.active = false;
+            CinemachineImpulseManager.Instance.IgnoreTimeScale = true;
+            Camera.main.GetComponent<CinemachineBrain>().UpdateMethod = CinemachineBrain.UpdateMethods.SmartUpdate;
+            Camera.main.GetComponent<CinemachineBrain>().IgnoreTimeScale = false;
+
+            foreach(var c in CNInputAxisController.Controllers)
+            {
+                if (c.Name == "Look Orbit X")
+                {
+                    c.Input.Gain *= slowdownFactor;
+                    c.Input.Gain *= 3f;
+                    c.Driver.AccelTime *= (1f/slowdownFactor);
+                    c.Driver.DecelTime *= (1f/slowdownFactor);
+                    continue;
+                }
+
+                if (c.Name == "Look Orbit Y")
+                {
+                    c.Input.Gain *= slowdownFactor;
+                    c.Input.Gain *= 3f;
+                    c.Driver.AccelTime *= (1f/slowdownFactor);
+                    c.Driver.DecelTime *= (1f/slowdownFactor);
+                    continue;
+                }
+            }
+        }
+
+        foreach(JointTether tether in placedTethersDuringTetherMode)
+        {
+            tether.ActivateTether();
+        }
+
+        DeletePreviewTetherLine();
+        ResetVariables();
+
+        placedTethersDuringTetherMode.Clear();
+    }
+
+    private Transform GetClosestAttachmentPoint(Prop prop, Vector3 target)
+    {
+        if (prop.GrabPoints.Count < 1)
+        {
+            return prop.transform;
+        }
+
+        Transform[] points = prop.GrabPoints.ToArray();
+
+        Transform closestPoint = points[0];
+
+        for (int i = 0; i < points.Length; i++)
+        {
+            if (Vector3.Distance(points[i].position, target) < Vector3.Distance(closestPoint.position, target))
+            {
+                closestPoint = points[i];
+            }
+        }
+
+        return closestPoint;
+    }
+
+    private void UpdateTetherPreviewTetherMode(Transform grabPoint)
+    {
+        if(startTransform == null)
+        {
+            tetherPreviewLine.SetStartPoint(grabPoint.position);
+        }
+        else
+        {
+            tetherPreviewLine.SetStartPoint(startTransform.TransformPoint(startLocalPosition));
+        }
+
+        if (GetObjectInPlayerFront(out RaycastHit hit))
+        {
+            Vector3 endPosition = hit.point;
+
+            if (hit.transform.TryGetComponent<Prop>(out Prop propComponent))
+            {
+                if (propComponent.CheckNearestGrabPoint(endPosition) != null)
+                {
+                    endPosition = propComponent.CheckNearestGrabPoint(endPosition).position;
+                }
+            }
+
+            tetherPreviewLine.SetEndPoint(endPosition);
+        }
+        else
+        {
+            Vector3 previewLocation = _playerCamera.transform.position + _playerCamera.transform.forward * maxTetherStartDist;
+            tetherPreviewLine.SetEndPoint(previewLocation);
+        }
+    }
+
     #endregion
 
     #region Helper Functions
@@ -217,6 +461,7 @@ public class JointTetherPlacer : MonoBehaviour
         Ray ray = _playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
 
         Physics.Raycast(ray, out hit, maxTetherStartDist, -1, QueryTriggerInteraction.Ignore);
+
         return hit.collider != null;
     }
 
@@ -233,6 +478,7 @@ public class JointTetherPlacer : MonoBehaviour
         endTransform = null;
         startLocalPosition = Vector3.zero;
         endLocalPosition = Vector3.zero;
+        didStartPointHit = false;
     }
 
     private void UpdateTetherAmountText()

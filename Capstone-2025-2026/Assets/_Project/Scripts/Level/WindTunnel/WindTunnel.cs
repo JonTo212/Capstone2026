@@ -133,7 +133,7 @@ public class WindTunnel : MonoBehaviour
 
         for (int i = 0; i < maxObjectCount; i++)
         {
-            GameObject newProp = Instantiate(GetRandomProp(), transform.position + GetRandomVolumePosition(), Quaternion.identity);
+            GameObject newProp = Instantiate(GetRandomProp(), transform.position + GetRandomVolumePosition(), Quaternion.Euler(GetRandomEulerRotation()));
             newProp.AddComponent<WindTunnelProp>().Init(this);
             propsSpawned[i] = newProp.GetComponent<Prop>();
         }
@@ -163,6 +163,15 @@ public class WindTunnel : MonoBehaviour
         Vector3 localZ = randZ * transform.forward;
 
         return localX + localY + localZ;
+    }
+
+    private Vector3 GetRandomEulerRotation()
+    {
+        float randX = Random.Range(0, 360);
+        float randY = Random.Range(0, 360);
+        float randZ = Random.Range(0, 360);
+
+        return new Vector3 (randX,randY,randZ);
     }
 
     private Vector3 GetRandomStartPosition()

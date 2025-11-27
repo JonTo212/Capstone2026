@@ -21,13 +21,13 @@ public class RespawnNPC : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(transform.position.y < -15f)
+        if(transform.position.y < -20f)
         {
             transform.position = spawnPosition;
 
             if(transform.GetComponent<Rigidbody>() != null )
             {
-                transform.GetComponent<Rigidbody>().linearVelocity = Vector3.zero;
+                transform.GetComponent<Rigidbody>().linearVelocity = Vector3.one  * 0.1f;
             }
         }
     }
