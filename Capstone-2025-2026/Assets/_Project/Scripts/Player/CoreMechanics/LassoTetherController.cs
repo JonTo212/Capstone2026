@@ -253,8 +253,6 @@ public class LassoTetherController : MonoBehaviour
             {
                 playerLasso.camInputController.enabled = false;
             }
-            playerLasso.SnaredObject.Rb.angularVelocity = Vector3.zero;
-            camInput.enabled = false;
             SwitchLassoState(LassoState.Rotating);
         }
     }
@@ -349,24 +347,6 @@ public class LassoTetherController : MonoBehaviour
             SwitchLassoState(LassoState.Snared);
         }
     }
-
-    private void HandleRotationControls()
-    {
-        ObjectRotate.Instance.RotateWithInput(playerLasso.SnaredObject.transform, playerActions.LookInput, Vector3.up, Camera.main.transform.right, false);
-
-        if (playerActions.SprintUp)
-        {
-            camInput.enabled = true;
-            SwitchLassoState(LassoState.Snared);
-        }
-
-        if(playerActions.MainUp)
-        {
-            camInput.enabled = true;
-            playerLasso.HandleObjectReleased();
-        }
-    }
-
     #endregion
 
     private void TempSetText(LassoState state)
