@@ -292,15 +292,14 @@ public class JointTetherPlacer : MonoBehaviour
     {
         if(transform.TryGetComponent<Renderer>(out Renderer renderer))
         {
-            foreach(Material mat in renderer.sharedMaterials)
+            foreach(Material objectMat in renderer.sharedMaterials)
             {
-                if (untetherableMaterials.Contains<Material>(mat))
+                foreach(Material untetherableMat in untetherableMaterials)
                 {
-                    return false;
-                }
-                if (untetherableMaterials.Contains<Material>(mat.parent))
-                {
-                    return false;
+                    if(objectMat == untetherableMat)
+                    {
+                        return false;
+                    }
                 }
             }
         }

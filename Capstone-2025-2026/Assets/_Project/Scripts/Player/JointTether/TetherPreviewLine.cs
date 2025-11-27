@@ -58,7 +58,6 @@ public class TetherPreviewLine : MonoBehaviour
 
         if (isValidPlacement == true)
         {
-            Debug.Log("Invalid");
             foreach(Material mat in tetherPreviewMaterials)
             {
                 mat.SetColor("_Emissive", invalidColor);
