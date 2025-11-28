@@ -25,6 +25,7 @@ public class Lasso : MonoBehaviour
     [SerializeField] private float rotationalDampingStrength = 0.5f;
     [SerializeField] private float maxLassoStrength;
     [SerializeField] private bool useSizeScale;
+    [SerializeField, Range(0, 1)] private float angularVelMultiplier = 1f;
 
     [Header("Aim Assist Properties")]
     [SerializeField] private AimAssistType aimAssistType;
@@ -242,10 +243,10 @@ public class Lasso : MonoBehaviour
 
             if (usePhysicsTorque)
             {
-                SnaredObject.Rb.AddTorque(totalTorque, ForceMode.Force); //temp (?)
+                SnaredObject.Rb.AddTorque(totalTorque / CalculateScale(), ForceMode.Force);
             }
 
-            SnaredObject.Rb.angularVelocity *= 0.975f; //stop excessive spin
+            SnaredObject.Rb.angularVelocity *= angularVelMultiplier; //stop excessive spin
         }
 
         else
@@ -275,13 +276,13 @@ public class Lasso : MonoBehaviour
     private Vector3 CalculateLinearForce(Vector3 displacement, Vector3 pointVelocity)
     {
         //linear force
-        float springStrength = centerStrength / 10f;
+        float springStrength = centerStrength / 15f;
         Vector3 springForce = springStrength * displacement; //F = -springRate * displacement
         float damping = 2f * Mathf.Sqrt(springStrength * SnaredObject.Rb.mass); //critical damping = 2 * sqrt(springRate * mass)
         Vector3 dampingForce = -pointVelocity * damping;
         Vector3 totalForce = springForce + dampingForce;
 
-        totalForce = totalForce.normalized * Mathf.Clamp(totalForce.magnitude, 0f, maxLassoStrength);
+        //totalForce = totalForce.normalized * Mathf.Clamp(totalForce.magnitude, 0f, maxLassoStrength);
         return totalForce;
     }
 
@@ -293,10 +294,10 @@ public class Lasso : MonoBehaviour
 
         Vector3 dampingTorque = -SnaredObject.Rb.angularVelocity * rotationalDampingStrength;
         Vector3 correctiveTorque = Vector3.Cross(r, linearForce);
+        Vector3 finalTorque = correctiveTorque * scale;
 
-        if (SnaredObject.IsTouchingSurface) return (correctiveTorque * scale) + dampingTorque;
-        else return correctiveTorque * scale;
-
+        if (SnaredObject.IsTouchingSurface) return finalTorque + dampingTorque;
+        else return finalTorque;
     }
 
     private Vector3 CalculateLookAtTorque()
@@ -306,7 +307,7 @@ public class Lasso : MonoBehaviour
         if (_localFaceNormal != Vector3.zero)
         {
             Vector3 worldFaceNormal = SnaredObject.transform.TransformDirection(_localFaceNormal);
-            Vector3 toPlayer = (PlayerCamLookPos.position - SnaredObject.Rb.worldCenterOfMass).normalized;
+            Vector3 toPlayer = (PlayerCamLookPos.position - worldFaceNormal).normalized;
             lookAtSpringTorque = Vector3.Cross(worldFaceNormal, toPlayer) * lookAtStrength;
             lookAtDampingTorque = -SnaredObject.Rb.angularVelocity * lookAtDamping;
         }
