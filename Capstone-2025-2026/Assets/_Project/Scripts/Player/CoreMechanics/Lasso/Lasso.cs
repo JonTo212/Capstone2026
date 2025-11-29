@@ -54,6 +54,12 @@ public class Lasso : MonoBehaviour
     private Vector3 _localFaceNormal;
     private Joint swingJoint;
 
+    //for object manipulation mode
+    private Vector3 _cachedAttachLocal;
+    private Vector3 _cachedLocalFaceNormal;
+    private float _cachedAnchorDist;
+    private bool _hasCachedAttach;
+
     [Header("Getters")]
     public Prop SnaredObject { get; private set; }
     public PlayerMovement PlayerController { get; private set; }
@@ -150,6 +156,41 @@ public class Lasso : MonoBehaviour
         _aimAssist.HighlightSelectedProp(targetProp, false);
     }
 
+    public void BeginCenterPivot()
+    {
+        if (SnaredObject == null || _snaredObjTransform == null) return;
+
+        _cachedAttachLocal = _attachPointLocal;
+        _cachedLocalFaceNormal = _localFaceNormal;
+        _cachedAnchorDist = AnchorDist;
+        _hasCachedAttach = true;
+
+        _attachPointLocal = Vector3.zero;
+        _localFaceNormal = Vector3.zero;
+
+        AnchorDist = Mathf.Clamp(Vector3.Distance(_snaredObjTransform.position, PlayerCamLookPos.position), minLassoRange, maxLassoRange);
+    }
+
+    public void RestorePivot()
+    {
+        if (!_hasCachedAttach || SnaredObject == null || _snaredObjTransform == null) return;
+
+        Transform nearest = SnaredObject.CheckNearestGrabPoint(PlayerCamLookPos.position);
+
+        if (nearest != null)
+        {
+            AnchorDist = Mathf.Clamp(Vector3.Distance(nearest.position, PlayerCamLookPos.position), minLassoRange, maxLassoRange);
+            _attachPointLocal = SnaredObject.transform.InverseTransformPoint(nearest.position);
+            _localFaceNormal = SnaredObject.transform.InverseTransformDirection(nearest.forward);
+        }
+        else
+        {
+            _attachPointLocal = _cachedAttachLocal;
+            _localFaceNormal = _cachedLocalFaceNormal;
+            AnchorDist = _cachedAnchorDist;
+            _hasCachedAttach = false;
+        }
+    }
 
     #endregion
 
@@ -493,7 +534,7 @@ public class Lasso : MonoBehaviour
 
             float angle = Quaternion.Angle(SnaredObject.Rb.rotation, targetRot);
 
-            if (angle < 0.5f)
+            if (angle < 1f)
                 break;
 
             yield return new WaitForFixedUpdate();

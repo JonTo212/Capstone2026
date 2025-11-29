@@ -25,11 +25,14 @@ public class LassoTetherController : MonoBehaviour
     private PlayerActions playerActions;
     private JointTetherPlacer playerTether;
     private JointTetherActivator playerTetherActivator;
-    private bool wasUsingPhysicsLasso;
+
+    [Header("Object Manipulation Mode")]
     [SerializeField] private bool useObjectManipulationMode;
+    private bool wasUsingPhysicsLasso;
+    private Vector3 cachedHitPos;
 
     [Header("States")]
-    public LassoState CurrentLassoState { get; private set; }
+    [field: SerializeField] public LassoState CurrentLassoState { get; private set; }
 
     #region Unity Functions
     private void Awake()
@@ -229,6 +232,7 @@ public class LassoTetherController : MonoBehaviour
                 playerLasso.InitializeRotationToClosestSnap();
                 if (useObjectManipulationMode)
                 {
+                    playerLasso.BeginCenterPivot();
                     playerLasso.HitPos = playerLasso.SnaredObject.transform.position;
                     wasUsingPhysicsLasso = playerLasso.usePhysicsLasso;
                     playerLasso.usePhysicsLasso = false;
@@ -290,7 +294,7 @@ public class LassoTetherController : MonoBehaviour
             }
         }
 
-        if (playerActions.SprintUp)
+        if (playerActions.SprintDown)
         {
             playerLasso.StartFinishSnap();
         }
@@ -310,11 +314,16 @@ public class LassoTetherController : MonoBehaviour
     {
         if (CurrentLassoState == LassoState.Rotating)
         {
+            if (useObjectManipulationMode)
+            {
+                playerLasso.usePhysicsLasso = wasUsingPhysicsLasso;
+            }
+
             playerLasso.camInputController.enabled = true;
+            playerLasso.RestorePivot();
             SwitchLassoState(LassoState.Snared);
         }
     }
-
     #endregion
 
     private void TempSetText(LassoState state)
