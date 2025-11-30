@@ -405,6 +405,8 @@ public class Lasso : MonoBehaviour
     [Header("Snap Rotation")]
     [SerializeField] private float snapAngle = 45f;
     [SerializeField] private float rotationSpring = 50f;
+    [SerializeField] private float snapRatePerSecond = 360f;
+    private float snapAccum;
     private float yaw;
     private float pitch;
     private Coroutine finishSnapRoutine;
@@ -542,6 +544,24 @@ public class Lasso : MonoBehaviour
 
         finishSnapRoutine = null;
         OnSnapFinished?.Invoke();
+    }
+
+    public void ContinuousSnapStep(Vector3 axis)
+    {
+        if (SnaredObject == null) return;
+
+        snapAccum += snapRatePerSecond * Time.fixedDeltaTime;
+        while (snapAccum >= snapAngle)
+        {
+            snapAccum -= snapAngle;
+
+            if (axis == Vector3.up) yaw += snapAngle;
+            else if (axis == Vector3.down) yaw -= snapAngle;
+            else if (axis == Vector3.right) pitch += snapAngle;
+            else if (axis == Vector3.left) pitch -= snapAngle;
+
+            Rotated = true;
+        }
     }
 
     #endregion
