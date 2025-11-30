@@ -284,7 +284,7 @@ public class Lasso : MonoBehaviour
 
             if (usePhysicsTorque)
             {
-                SnaredObject.Rb.AddTorque(totalTorque / CalculateScale(), ForceMode.Force);
+                SnaredObject.Rb.AddTorque(totalTorque, ForceMode.Force);
             }
 
             SnaredObject.Rb.angularVelocity *= angularVelMultiplier; //stop excessive spin
@@ -317,13 +317,13 @@ public class Lasso : MonoBehaviour
     private Vector3 CalculateLinearForce(Vector3 displacement, Vector3 pointVelocity)
     {
         //linear force
-        float springStrength = centerStrength / 15f;
+        float springStrength = centerStrength / 12.5f;
         Vector3 springForce = springStrength * displacement; //F = -springRate * displacement
         float damping = 2f * Mathf.Sqrt(springStrength * SnaredObject.Rb.mass); //critical damping = 2 * sqrt(springRate * mass)
         Vector3 dampingForce = -pointVelocity * damping;
         Vector3 totalForce = springForce + dampingForce;
 
-        //totalForce = totalForce.normalized * Mathf.Clamp(totalForce.magnitude, 0f, maxLassoStrength);
+        totalForce = totalForce.normalized * Mathf.Clamp(totalForce.magnitude, 0f, maxLassoStrength);
         return totalForce;
     }
 

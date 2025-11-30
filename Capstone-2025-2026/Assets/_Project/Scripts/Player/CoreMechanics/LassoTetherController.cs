@@ -97,11 +97,6 @@ public class LassoTetherController : MonoBehaviour
         {
             playerLasso.MoveObjectToPos(playerLasso.GetAnchoredCenterOfScreen());
             playerLasso.AnchorToObject();
-
-            if(!playerLasso.Rotated && !playerLasso.usePhysicsTorque)
-            {
-                //playerLasso.LookAtPlayer();
-            }    
         }
         else if(CurrentLassoState == LassoState.Rotating)
         {
@@ -114,7 +109,13 @@ public class LassoTetherController : MonoBehaviour
                 playerLasso.RotateWithInput(playerActions.LookInput);
             }
             playerLasso.MoveObjectToPos(playerLasso.GetAnchoredCenterOfScreen());
-
+        }
+        else if(CurrentLassoState == LassoState.SnaredTether)
+        {
+            if (playerLasso.Rotated)
+            {
+                playerLasso.MaintainObjectRotation();
+            }
         }
     }
 
@@ -284,11 +285,11 @@ public class LassoTetherController : MonoBehaviour
 
         if(playerLasso.useSnapRotation)
         {
-            if (playerActions.AltDown)
+            if (playerActions.InteractDown)
             {
                 playerLasso.ApplySnapRotation(Vector3.right);
             }
-            if (playerActions.InteractDown)
+            if (playerActions.PreviousDown)
             {
                 playerLasso.ApplySnapRotation(Vector3.up);
             }
@@ -307,6 +308,13 @@ public class LassoTetherController : MonoBehaviour
                 playerLasso.usePhysicsLasso = wasUsingPhysicsLasso;
             }
             playerLasso.HandleObjectReleased();
+        }
+
+        if (playerActions.AltDown)
+        {
+            playerTether.StartTetherPlacement(playerLasso.SnaredObject.transform, playerLasso.HitPos);
+            playerLasso.SnaredObject.Rb.constraints = RigidbodyConstraints.FreezePosition;
+            SwitchLassoState(LassoState.SnaredTether);
         }
     }
 

@@ -13,6 +13,7 @@ public class PlayerActions : MonoBehaviour
     private InputAction mainAction;
     private InputAction altAction;
     private InputAction interactAction;
+    private InputAction previousAction;
     public InputAction MoveAction { get; set; }
     private InputAction menuAction;
     private InputAction controlAction;
@@ -54,6 +55,10 @@ public class PlayerActions : MonoBehaviour
     public bool InteractHeld => interactAction.IsPressed();
     public bool InteractUp => interactAction.WasReleasedThisFrame();
 
+    public bool PreviousDown => previousAction.WasPressedThisFrame();
+    public bool PreviousHeld => previousAction.IsPressed();
+    public bool PreviousUp => previousAction.WasReleasedThisFrame();
+
     public bool MenuDown => menuAction.WasPressedThisFrame();
     public bool MenuHeld => menuAction.IsPressed();
     public bool MenuUp => menuAction.WasReleasedThisFrame();
@@ -90,6 +95,7 @@ public class PlayerActions : MonoBehaviour
         controlAction = map.FindAction("Control");
         devMenuAction = map.FindAction("DevMenu");
         respawnAction = map.FindAction("Respawn");
+        previousAction = map.FindAction("Previous");
     }
 
     private void OnEnable()
@@ -109,6 +115,7 @@ public class PlayerActions : MonoBehaviour
         controlAction.Enable(); 
         devMenuAction.Enable();
         respawnAction.Enable();
+        previousAction.Enable();
     }
 
     private void OnDisable()
@@ -128,6 +135,7 @@ public class PlayerActions : MonoBehaviour
         controlAction.Disable();
         devMenuAction.Disable();
         respawnAction.Disable();
+        previousAction.Disable();
     }
 
     //made these numbers up ngl
