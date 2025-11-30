@@ -13,6 +13,8 @@ public class PlayerActions : MonoBehaviour
     private InputAction mainAction;
     private InputAction altAction;
     private InputAction interactAction;
+    private InputAction previousAction;
+
     public InputAction MoveAction { get; set; }
 
     public Vector2 MoveInput => MoveAction.ReadValue<Vector2>();
@@ -50,6 +52,10 @@ public class PlayerActions : MonoBehaviour
     public bool InteractHeld => interactAction.IsPressed();
     public bool InteractUp => interactAction.WasReleasedThisFrame();
 
+    public bool PreviousDown => previousAction.WasPressedThisFrame();
+    public bool PreviousHeld => previousAction.IsPressed();
+    public bool PreviousUp => previousAction.WasReleasedThisFrame();
+
     private void Awake()
     {
         var map = InputSystem.actions;
@@ -64,6 +70,7 @@ public class PlayerActions : MonoBehaviour
         interactAction = map.FindAction("Interact");
         dPadUpAction = map.FindAction("DPadUp");
         dPadDownAction = map.FindAction("DPadDown");
+        previousAction = map.FindAction("Previous");
         currentRepeatRate = baseRepeatRate;
     }
 
@@ -78,6 +85,7 @@ public class PlayerActions : MonoBehaviour
         mainAction.Enable();
         altAction.Enable();
         interactAction.Enable();
+        previousAction.Enable();
         dPadUpAction.Enable();
         dPadDownAction.Enable();
     }
@@ -93,6 +101,7 @@ public class PlayerActions : MonoBehaviour
         mainAction.Disable();
         altAction.Disable();
         interactAction.Disable();
+        previousAction.Disable();
         dPadUpAction.Disable();
         dPadDownAction.Disable();
     }

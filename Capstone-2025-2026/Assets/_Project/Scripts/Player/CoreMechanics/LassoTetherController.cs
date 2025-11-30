@@ -28,7 +28,7 @@ public class LassoTetherController : MonoBehaviour
     private JointTetherActivator playerTetherActivator;
 
     [Header("States")]
-    public LassoState CurrentLassoState { get; private set; }
+    [field: SerializeField] public LassoState CurrentLassoState { get; private set; }
     private Coroutine _yankCheckCoroutine;
 
     #region Unity Functions
@@ -57,6 +57,13 @@ public class LassoTetherController : MonoBehaviour
 
     private void Update()
     {
+        if (playerActions.PreviousDown)
+        {
+            playerInventory.HandleObjectYank();
+            SwitchLassoState(LassoState.ObjectYanking);
+            return;
+        }
+
         switch (CurrentLassoState)
         {
             case LassoState.Empty:
@@ -193,10 +200,11 @@ public class LassoTetherController : MonoBehaviour
     {
         playerLasso.MoveAnchorPoint(playerActions.ScrollAction);
 
-        if (playerActions.AltDown)
+        if (playerActions.AltHeld)
         {
-            if (_yankCheckCoroutine != null) StopCoroutine(_yankCheckCoroutine);
-            _yankCheckCoroutine = StartCoroutine(CheckIfTap());
+            SwitchLassoState(LassoState.SnaredTether);
+            playerTether.StartTetherPlacement(playerLasso.SnaredObject.transform, playerLasso.HitPos);
+            playerLasso.SnaredObject.Rb.constraints = RigidbodyConstraints.FreezePosition;
         }
 
         if (playerActions.MainUp)
@@ -221,13 +229,6 @@ public class LassoTetherController : MonoBehaviour
             SwitchLassoState(LassoState.SnaredTether);
             playerTether.StartTetherPlacement(playerLasso.SnaredObject.transform, playerLasso.HitPos);
             playerLasso.SnaredObject.Rb.constraints = RigidbodyConstraints.FreezePosition;
-        }
-        else
-        {
-            playerInventory.HandleObjectYank();
-            playerInventory.currentNPC.RunCaptureAnim();
-            playerInventory.currentNPC.SwitchNPCState(NPCState.Attached);
-            SwitchLassoState(LassoState.ObjectYanking);
         }
     }
 

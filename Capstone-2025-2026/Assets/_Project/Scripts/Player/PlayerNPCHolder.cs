@@ -9,10 +9,11 @@ public class PlayerNPCHolder : MonoBehaviour
     private PlayerActions _playerInput;
     private Lasso _playerLasso;
     private Coroutine _objectYankCoroutine;
+    private Transform connectedNPC;
 
     [Header("Object Yank Properties")]
     [SerializeField] private float handAttachThreshold = 0.2f;
-    [SerializeField] private float objectYankDuration = 0.5f;
+    [field: SerializeField] public float objectYankDuration { get; private set; } = 0.5f;
     [SerializeField] private Transform holdPos;
 
     public event Action OnObjectYankCompleted;
@@ -23,13 +24,11 @@ public class PlayerNPCHolder : MonoBehaviour
         _playerLasso = GetComponent<Lasso>();
 
         _playerLasso.OnNPCHit += SetConnectedNPC;
-        _playerLasso.OnLassoReleased += ReleaseNPC;
     }
 
     private void OnDisable()
     {
         _playerLasso.OnNPCHit -= SetConnectedNPC;
-        _playerLasso.OnLassoReleased -= ReleaseNPC;
     }
 
     private void Update()
@@ -38,18 +37,14 @@ public class PlayerNPCHolder : MonoBehaviour
         {
             if(_playerInput.JumpDown)
             {
-               currentNPC.SwitchNPCState(NPCState.UsingAbility);
+                currentNPC.UseAbility();
             }
             if (_playerInput.JumpUp)
             {
-                _playerLasso.PlayerController.ResetGravity();
-                currentNPC.SwitchNPCState(NPCState.Attached);
+                currentNPC.StopAbility();
             }
 
-            if(_playerInput.SprintDown)
-            {
-                currentNPC.RemoveFromPlayerBag();
-            }
+
         }
     }
 
@@ -72,71 +67,98 @@ public class PlayerNPCHolder : MonoBehaviour
     #region Object Yank
     public void HandleObjectYank()
     {
-        if (!_playerLasso.SnaredObject.transform.TryGetComponent(out INPC npc)) return;
-        else
+        if(currentNPC != null)
         {
-            _playerLasso.SnaredObject.transform.GetComponent<Collider>().enabled = false;
-
-            if (_objectYankCoroutine != null)
+            if (currentNPC.CurrentNPCState != NPCState.InBag)
             {
-                StopCoroutine(_objectYankCoroutine);
-            }
+                connectedNPC.GetComponent<Collider>().enabled = false;
 
-            _objectYankCoroutine = StartCoroutine(YankObjectCoroutine());
+                if (_objectYankCoroutine != null)
+                    StopCoroutine(_objectYankCoroutine);
+
+                _objectYankCoroutine = StartCoroutine(YankObjectCoroutine(connectedNPC, connectedNPC, holdPos, true));
+                currentNPC.OnCaptureStart();
+            }
+            else
+            {
+                if (_objectYankCoroutine != null)
+                    StopCoroutine(_objectYankCoroutine);
+
+                _objectYankCoroutine = StartCoroutine(YankObjectCoroutine(connectedNPC, holdPos, npcRemovePos, false));
+                currentNPC.OnReleaseStart();
+            }
         }
     }
 
-    private IEnumerator YankObjectCoroutine()
+    private IEnumerator YankObjectCoroutine(Transform yankObj, Transform startPos, Transform endPos, bool attach)
     {
-        _playerLasso.SnaredObject.Rb.useGravity = true;
-        _playerLasso.SnaredObject.Rb.linearDamping = 0f;
+        Prop prop = yankObj.GetComponent<Prop>();
+        if (prop == null) yield break;
 
-        Vector3 startPosition = _playerLasso.SnaredObject.transform.position;
-        Vector3 toPlayer = holdPos.position - startPosition;
+        float attachThreshold = handAttachThreshold;
+        Vector3 staticEndPos = endPos.position;
+        if (!attach)
+        {
+            attachThreshold *= 5f;
+            prop.OnRelease();
+        }
+        prop.Rb.constraints = RigidbodyConstraints.None;
+        prop.Rb.useGravity = true;
+
+        Vector3 startPosition = startPos.position;
+        Vector3 toPlayer = endPos.position - startPosition;
         float startTime = Time.time;
 
         //apply initial velocity
         AudioManager.Instance.PlaySFX(AudioManager.Instance.Pull, 5, 1);
-        Vector3 startVel = CalculateObjectYankVelocity(startPosition, holdPos.position, objectYankDuration);
-        _playerLasso.SnaredObject.Rb.linearVelocity = Vector3.zero;
-        _playerLasso.SnaredObject.Rb.AddForce(startVel * _playerLasso.SnaredObject.Rb.mass, ForceMode.Impulse);
+        Vector3 startVel = CalculateObjectYankVelocity(startPosition, attach ? endPos.position : staticEndPos, objectYankDuration);
+        prop.Rb.linearVelocity = Vector3.zero;
+        prop.Rb.angularVelocity = Vector3.zero;
+        prop.Rb.AddForce(startVel * prop.Rb.mass, ForceMode.Impulse);
 
 
-        while (Vector3.Distance(_playerLasso.SnaredObject.transform.position, holdPos.position) > handAttachThreshold)
+        while (Vector3.Distance(yankObj.position, attach ? endPos.position : staticEndPos) > handAttachThreshold)
         {
-            if (_playerLasso.SnaredObject == null) break;
+            if (yankObj == null) break;
 
             //calculate correctional pull velocity
             float elapsedTime = Time.time - startTime;
             float remainingTime = objectYankDuration - elapsedTime;
             float clampedRemainingTime = Mathf.Max(remainingTime, 0.05f);
 
-            Vector3 idealVelocity = CalculateObjectYankVelocity(_playerLasso.SnaredObject.transform.position, holdPos.position, clampedRemainingTime);
-            Vector3 velocityError = idealVelocity - _playerLasso.SnaredObject.Rb.linearVelocity;
+            Vector3 idealVelocity = CalculateObjectYankVelocity(yankObj.position, attach ? endPos.position : staticEndPos, clampedRemainingTime);
+            Vector3 velocityError = idealVelocity - prop.Rb.linearVelocity;
 
-            _playerLasso.SnaredObject.Rb.AddForce(velocityError * _playerLasso.SnaredObject.Rb.mass, ForceMode.Impulse);
+            prop.Rb.AddForce(velocityError * prop.Rb.mass, ForceMode.Impulse);
 
 
             //calculate correctional torque
-            Quaternion targetRotation = Quaternion.LookRotation(holdPos.forward, Vector3.up);
-            Quaternion deltaRotation = targetRotation * Quaternion.Inverse(_playerLasso.SnaredObject.transform.rotation);
+            Quaternion targetRotation = Quaternion.LookRotation(endPos.forward, Vector3.up);
+            Quaternion deltaRotation = targetRotation * Quaternion.Inverse(yankObj.rotation);
 
             deltaRotation.ToAngleAxis(out float angle, out Vector3 axis);
             if (angle > 180f) angle -= 360f;
 
             Vector3 angularVelocity = axis * angle * Mathf.Deg2Rad / clampedRemainingTime;
-            Vector3 angularError = angularVelocity - _playerLasso.SnaredObject.Rb.angularVelocity;
+            Vector3 angularError = angularVelocity - prop.Rb.angularVelocity;
 
-            _playerLasso.SnaredObject.Rb.AddTorque(angularError, ForceMode.VelocityChange);
-
+            prop.Rb.AddTorque(angularError, ForceMode.VelocityChange);
 
             yield return new WaitForFixedUpdate();
         }
 
-        if (_playerLasso.SnaredObject != null)
+        if (attach)
         {
-            _playerLasso.SnaredObject.OnHold(holdPos);
-            _playerLasso.SnaredObject.AttachedTransform = transform;
+            prop.OnHold(holdPos);
+            prop.AttachedTransform = transform;
+            currentNPC.OnCaptureComplete();
+        }
+        else
+        {
+            prop.Rb.useGravity = false;
+            prop.Rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+            ReleaseNPC();
+            currentNPC.OnReleaseComplete();
         }
 
         OnObjectYankCompleted?.Invoke();
@@ -150,16 +172,16 @@ public class PlayerNPCHolder : MonoBehaviour
     private void SetConnectedNPC()
     {
         currentNPC = _playerLasso.SnaredObject as INPC;
-        currentNPC.AttachToPlayer(transform);
-        OnObjectYankCompleted += currentNPC.OnEnteredPlayerBag;
+        currentNPC.SetPlayerRef(transform);
+        connectedNPC = _playerLasso.SnaredObject.transform;
     }
 
     private void ReleaseNPC()
     {
-        if (currentNPC == null) return;
+        if (currentNPC == null || _objectYankCoroutine != null) return;
 
-        OnObjectYankCompleted -= currentNPC.OnEnteredPlayerBag;
-        currentNPC.AttachToPlayer(null);
+        currentNPC.SetPlayerRef(null);
+        connectedNPC = null;
         currentNPC = null;
     }
 

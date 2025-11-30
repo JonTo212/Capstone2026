@@ -383,7 +383,6 @@ public class Lasso : MonoBehaviour
 
         lassoGrabVisualIndicator.SetActive(false);
         OnLassoReleased?.Invoke();
-
     }
 
     public void HandleHold()

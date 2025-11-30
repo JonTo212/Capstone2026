@@ -10,19 +10,21 @@ public enum NPCType
 
 public enum NPCState
 {
-    Idle,
-    UsingAbility,
-    Attached,
-    Disturbed
+    Activated,
+    Deactivated,
+    PlayerInteracting,
+    InBag
 }
 
 public interface INPC
 {
-    void AttachToPlayer(Transform player);
+    void SetPlayerRef(Transform player);
     void UseAbility();
-    void RunCaptureAnim();
+    void StopAbility();
+    void OnCaptureStart();
+    void OnCaptureComplete();
+    void OnReleaseStart();
+    void OnReleaseComplete();
     void SwitchNPCState(NPCState newState);
-    void OnEnteredPlayerBag();
-    void RemoveFromPlayerBag();
     NPCState CurrentNPCState { get; }
 }
