@@ -120,7 +120,16 @@ public class NPC_Pufferfish : Prop, INPC
 
         if(playerTransform.TryGetComponent(out PlayerMovement playerMovement))
         {
-            playerMovement.ApplySlowFall(playerSlowfallGravMultiplier);
+            if (EnvironmentalForce != null)
+            {
+                playerMovement.OverrideMovement(EnvironmentalForce.CalculateForce(playerMovement.Rb));
+                playerMovement.EnableGravity(false);
+            }
+            else
+            {
+                playerMovement.OverrideMovement(Vector3.zero);
+                playerMovement.ApplySlowFall(playerSlowfallGravMultiplier);
+            }
         }
     }
 
@@ -128,6 +137,8 @@ public class NPC_Pufferfish : Prop, INPC
     {
         if(playerTransform.TryGetComponent(out PlayerMovement playerMovement))
         {
+            playerMovement.OverrideMovement(Vector3.zero);
+            playerMovement.EnableGravity(true);
             playerMovement.ResetGravity();
         }
     }

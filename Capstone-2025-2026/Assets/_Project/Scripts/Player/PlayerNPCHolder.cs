@@ -35,7 +35,7 @@ public class PlayerNPCHolder : MonoBehaviour
     {
         if(currentNPC != null)
         {
-            if(_playerInput.JumpDown)
+            if(_playerInput.JumpHeld)
             {
                 currentNPC.UseAbility();
             }
@@ -43,8 +43,6 @@ public class PlayerNPCHolder : MonoBehaviour
             {
                 currentNPC.StopAbility();
             }
-
-
         }
     }
 

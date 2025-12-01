@@ -19,6 +19,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     public virtual bool IsSnared { get; protected set; } = false;
     public virtual bool IsTetherPulled { get; protected set; } = false;
     public virtual bool IsTouchingSurface { get; protected set; } = false;
+    public virtual IEnvironmentalElement EnvironmentalForce { get; protected set; }
 
     private bool didFixedUpdateRun = true;
 
@@ -239,6 +240,11 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
 
         didFixedUpdateRun = false;
     }    
+
+    public virtual void SetInEnvironmentalElement(IEnvironmentalElement environmentalForce)
+    {
+        EnvironmentalForce = environmentalForce;
+    }
 
     #endregion
 
