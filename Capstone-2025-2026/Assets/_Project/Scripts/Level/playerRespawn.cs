@@ -20,6 +20,7 @@ public class playerRespawn : MonoBehaviour
 
     public bool inPlayerView = false;
     public GameObject playerViewAnchor;
+    public RespawnPointVisuals currentRespawnPoint;
     AudioManager aManage;
 
     //UI Components
@@ -53,6 +54,12 @@ public class playerRespawn : MonoBehaviour
 
         if (other.gameObject.tag == "Checkpoint")
         {
+            if (currentRespawnPoint != null)
+            {
+                currentRespawnPoint.SetObjectActive();
+            }
+            currentRespawnPoint = other.GetComponent<RespawnPointVisuals>();
+            currentRespawnPoint.SetObjectActive();
             spawnPosition = other.transform.position;
             print("Checkpoint Set!");
         }
