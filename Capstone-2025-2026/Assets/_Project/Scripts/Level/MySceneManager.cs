@@ -2,6 +2,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using DG.Tweening;
 
 public class MySceneManager : MonoBehaviour
 {
@@ -12,9 +13,18 @@ public class MySceneManager : MonoBehaviour
 
     public GameObject goalScreen;
 
+    public ScreenTransitions transitions;
+    private void Start()
+    {
+        transitions = FindAnyObjectByType<ScreenTransitions>();
+    }
+
     public void LoadNewScene(int sceneIndex)
     {
+        transitions.gameObject.transform.parent = goalScreen.transform;
         goalScreen.SetActive(true);
+
+        
 
         StartCoroutine(switchLevel(sceneIndex));
 
@@ -52,7 +62,9 @@ public class MySceneManager : MonoBehaviour
 
     IEnumerator switchLevel(int sceneIndex)
     {
-        yield return new WaitForSeconds(5);
+        yield return new WaitForSeconds(3);
+        transitions.FadeToBlack();
+        yield return new WaitForSeconds(2);
         SceneManager.LoadScene(SceneNames[sceneIndex]);
         currentScene = SceneNames[sceneIndex];
     }
