@@ -1,6 +1,7 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 
 [RequireComponent(typeof(Rigidbody), typeof(Outline))]
 public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
@@ -8,22 +9,20 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     [SerializeField] protected bool debugThisProp = false;
 
     //protected means only derived classes can access these values
-    protected Rigidbody rb;
-    protected Lasso playerLasso;
     [SerializeField] protected List<JointTether> attachedTethers = new List<JointTether>();
-    [SerializeField] protected List<ConfigurableJoint> tetherJoints = new List<ConfigurableJoint>();
     [SerializeField] protected List<Transform> connectedObject = new List<Transform>();
     [SerializeField] protected List<Transform> connectedAnchors = new List<Transform>();
-    protected float defaultDrag;
-    protected float defaultAngularDrag;
 
     //getters/setters - default value is false (protected set means only derived classes can change IsHeld)
     public virtual bool IsHeld { get; protected set; } = false;
     public virtual bool IsSnared { get; protected set; } = false;
     public virtual bool IsBeingPulled { get; set; } = false;
-    public virtual bool isTetherPulled { get; protected set; } = false;
-    public bool IsTouchingSurface {  get; protected set; } = false;
-    public Rigidbody Rb => rb;
+    public virtual bool IsTetherPulled { get; protected set; } = false;
+    public virtual bool IsTouchingSurface {  get; protected set; } = false;
+
+    private bool didFixedUpdateRun = true;
+
+    public Rigidbody Rb { get; protected set; }
     public Transform AttachedTransform { get; set; }
     public Outline ObjectOutline { get; set; }
     [field: SerializeField] public List<Transform> GrabPoints { get; protected set; }
@@ -35,13 +34,12 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     //virtual functions can be overridden by the derived classes
     //default behaviour is updating IsHeld and parenting the object to a given transform (i.e. player hand)
 
+    //Gets the total force applied to this objct. NOTE: Should only be read in Update or the value will  be incorrect
     public Vector3 totalForceApplied { get; protected set; } = Vector3.zero;
-
+    private Vector3 storedTotalForce = Vector3.zero;
     protected virtual void Init()
     {
-        rb = GetComponent<Rigidbody>();
-        defaultDrag = rb.linearDamping;
-        defaultAngularDrag = rb.angularDamping;
+        Rb = GetComponent<Rigidbody>();
 
         ObjectOutline = GetComponent<Outline>();
         ObjectOutline.OutlineColor = Color.green;
@@ -63,6 +61,12 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     protected virtual void Update()
     {
         HandleOutlineColors();
+        HandleForceAppliedVariable();
+    }
+
+    protected virtual void LateUpdate()
+    {
+        
     }
 
     protected virtual void OnDestroy()
@@ -72,9 +76,8 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
 
     protected virtual void FixedUpdate()
     {
-        totalForceApplied = Vector3.zero;
-        totalForceApplied += GetForcesFromJoint();
-
+        storedTotalForce += GetForcesFromJoint();
+        didFixedUpdateRun = true;
     }
 
     #region ISnareable
@@ -83,13 +86,11 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         IsSnared = true;
         IsHeld = false;
         IsBeingPulled = false;
-        //rb.useGravity = false;
-        rb.interpolation = RigidbodyInterpolation.Interpolate;
-        rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
-        rb.angularVelocity = Vector3.zero;
-        rb.linearVelocity = Vector3.zero;
-        //rb.linearDamping = 25f;
-        //rb.angularDamping = 25f;
+        //Rb.useGravity = false;
+        Rb.interpolation = RigidbodyInterpolation.Interpolate;
+        Rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+        Rb.angularVelocity = Vector3.zero;
+        Rb.linearVelocity = Vector3.zero;
     }
 
     public virtual void OnRelease()
@@ -97,13 +98,11 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         IsSnared = false;
         IsHeld = false;
         IsBeingPulled = false;
-        rb.useGravity = false;
+        Rb.useGravity = false;
         Invoke(nameof(GravDelay), 0.3f);
-        rb.interpolation = RigidbodyInterpolation.None;
-        rb.constraints = RigidbodyConstraints.None;
-        rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
-        rb.linearDamping = defaultDrag;
-        rb.angularDamping = defaultAngularDrag;
+        Rb.interpolation = RigidbodyInterpolation.None;
+        Rb.constraints = RigidbodyConstraints.None;
+        Rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
         AttachedTransform = null;
 
         if(transform != null) transform.SetParent(null);
@@ -111,39 +110,35 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
 
     public void GravDelay()
     {
-        rb.useGravity = true;
+        Rb.useGravity = true;
     }
     public virtual void OnAttachTether()
     {
 
     }
 
-    public virtual void OnTetherPull(JointTether tether, Transform targetAnchorTransform, Transform targetObjectTransform, ConfigurableJoint joint)
+    public virtual void OnTetherPull(JointTether tether, Transform targetAnchorTransform, Transform targetObjectTransform)
     {
-        isTetherPulled = true;
-        tetherJoints.Add(joint);
+        IsTetherPulled = true;
         attachedTethers.Add(tether);
         connectedObject.Add(targetObjectTransform);
         connectedAnchors.Add(targetAnchorTransform);
-        rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+        Rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
     }
 
-    public virtual void OnDetachTether(JointTether tether, Transform targetAnchorTransform, Transform targetObjectTransform, ConfigurableJoint joint)
+    public virtual void OnDetachTether(JointTether tether, Transform targetAnchorTransform, Transform targetObjectTransform)
     {
         if (attachedTethers.IndexOf(tether) < 0) return;
-        tetherJoints.RemoveAt(attachedTethers.IndexOf(tether));
         connectedObject.RemoveAt(attachedTethers.IndexOf(tether));
         connectedAnchors.RemoveAt(attachedTethers.IndexOf((tether)));
         attachedTethers.Remove(tether);
         if (attachedTethers.Count <= 0)
         {
-            rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
-            isTetherPulled = false;
+            Rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
+            IsTetherPulled = false;
             ObjectOutline.enabled = false;
         }
     }
-
-
 
     public virtual void ActivateOutline(bool activate)
     {
@@ -196,8 +191,8 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         IsHeld = true;
         IsSnared = false;
         IsBeingPulled = false;
-        rb.interpolation = RigidbodyInterpolation.None;
-        rb.constraints = RigidbodyConstraints.FreezePosition;
+        Rb.interpolation = RigidbodyInterpolation.None;
+        Rb.constraints = RigidbodyConstraints.FreezePosition;
         transform.SetParent(newParent);
         transform.position = newParent.position;
         ActivateOutline(false);
@@ -211,12 +206,16 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
 
     #endregion
 
-
     #region Force Addition
 
     public virtual void ApplyForceInDirection(Vector3 direction, float magnitude, ForceMode forceMode, Transform forceApplier = null)
     {
         Rb.AddForce(direction * magnitude, forceMode);
+
+        if(forceApplier != null && forceApplier.GetComponent<Lasso>() != null)
+        {
+            storedTotalForce += direction * magnitude;
+        }
     }
 
     protected Vector3 GetForcesFromJoint()
@@ -225,22 +224,22 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
 
         for (int i = 0; i < attachedTethers.Count; i++)
         {
-            ConfigurableJoint joint = tetherJoints[i];
-
-            Vector3 worldAnchor = transform.TransformPoint(joint.anchor);
-            Vector3 worldTargetAnchor = connectedAnchors[i].TransformPoint(joint.connectedAnchor);
-            Vector3 difference = worldTargetAnchor - worldAnchor;
-
-            float springConstant = joint.xDrive.positionSpring;
-            float dampener = joint.xDrive.positionDamper;
-
-            Vector3 forceFromJoint = (springConstant * difference - dampener * rb.linearVelocity) * Time.fixedDeltaTime;
-
-            totalForce += forceFromJoint;
+            totalForce += attachedTethers[i].GetCurrentForce(Rb);
         }
 
         return totalForce;
     }
+
+    protected void HandleForceAppliedVariable()
+    {
+        if (storedTotalForce.sqrMagnitude > 0 || didFixedUpdateRun)
+        {
+            totalForceApplied = storedTotalForce;
+        }
+        storedTotalForce = Vector3.zero;
+
+        didFixedUpdateRun = false;
+    }    
 
     #endregion
 
@@ -275,8 +274,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
 
     #endregion
 
-    #region OnCollisionEnter
-
+    #region Utility
     private void OnCollisionEnter(Collision collision)
     {
         IsTouchingSurface = true;
@@ -292,13 +290,10 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         IsTouchingSurface = false;
     }
 
-    #endregion
+    protected void PropDebug(object message) { if (debugThisProp == true) Debug.Log(message); }
 
-    #region Utility
-    protected void PropDebug(string message) { if (debugThisProp == true) Debug.Log(message); }
+    protected void PropWarning(object message) { if (debugThisProp == true) Debug.LogWarning(message); }
 
-    protected void PropWarning(string message) { if (debugThisProp == true) Debug.LogWarning(message); }
-
-    protected void PropError(string message) { if (debugThisProp == true) Debug.LogError(message); }
+    protected void PropError(object message) { if (debugThisProp == true) Debug.LogError(message); }
     #endregion
 }

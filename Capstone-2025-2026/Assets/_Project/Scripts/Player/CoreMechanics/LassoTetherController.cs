@@ -1,7 +1,4 @@
-using System;
-using System.Collections;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public enum LassoState
@@ -20,12 +17,7 @@ public enum LassoState
 public class LassoTetherController : MonoBehaviour
 {
     [Header("TEMPORARY - Control UI")]
-    [SerializeField] private TMP_Text m0TapText;
-    [SerializeField] private TMP_Text m0HoldText;
-    [SerializeField] private TMP_Text m0ReleaseText;
-    [SerializeField] private TMP_Text m1TapText;
-    [SerializeField] private TMP_Text m1HoldText;
-    [SerializeField] private TMP_Text m1ReleaseText;
+    [SerializeField] private TMP_Text controlsText;
 
     [Header("Components")]
     private Lasso playerLasso;
@@ -35,7 +27,6 @@ public class LassoTetherController : MonoBehaviour
 
     [Header("States")]
     public LassoState CurrentLassoState { get; private set; }
-    private Coroutine _yankCheckCoroutine;
 
     #region Unity Functions
     private void Awake()
@@ -45,8 +36,6 @@ public class LassoTetherController : MonoBehaviour
         playerTether = GetComponent<JointTetherPlacer>();
         playerTetherActivator = GetComponent<JointTetherActivator>();
 
-        playerLasso.OnObjectYankCompleted += OnObjectYankCompleted;
-        playerLasso.OnPlayerYankCompleted += OnPlayerYankCompleted;
         playerLasso.OnLassoReleased += OnLassoReleased;
         playerLasso.OnObjectHit += OnLassoHit;
         playerTether.OnTetherStartHit += OnTetherStartHit;
@@ -56,8 +45,6 @@ public class LassoTetherController : MonoBehaviour
 
     private void OnDisable()
     {
-        playerLasso.OnObjectYankCompleted -= OnObjectYankCompleted;
-        playerLasso.OnPlayerYankCompleted -= OnPlayerYankCompleted;
         playerLasso.OnLassoReleased -= OnLassoReleased;
         playerLasso.OnObjectHit -= OnLassoHit;
         playerTether.OnTetherStartHit -= OnTetherStartHit;
@@ -86,22 +73,6 @@ public class LassoTetherController : MonoBehaviour
             case LassoState.Swinging:
                 HandleSwingingControls();
                 break;
-
-            case LassoState.PlayerYanking:
-                HandleYankingControls();
-                break;
-
-            case LassoState.ObjectYanking:
-                HandleYankingControls();
-                break;
-
-            case LassoState.Held:
-                HandleHeldControls();
-                break;
-
-            case LassoState.Using:
-                HandleUsingControls();
-                break;
         }
         HandleTetherActivation();
         HandleTetherDestroy();
@@ -111,15 +82,8 @@ public class LassoTetherController : MonoBehaviour
     {
         if (CurrentLassoState == LassoState.Snared)
         {
-            playerLasso.HandleSnapback();
-            if (playerActions.MainHeld)
-            {
-                playerLasso.MoveObjectToPos(playerLasso.GetAnchoredCenterOfScreen());
-            }
-        }
-        else if (CurrentLassoState == LassoState.Using)
-        {         
-            playerLasso.RotateHeldObject();
+            playerLasso.MoveObjectToPos(playerLasso.GetAnchoredCenterOfScreen());
+            playerLasso.AnchorToObject();
         }
     }
 
@@ -133,65 +97,6 @@ public class LassoTetherController : MonoBehaviour
         TempSetText(newState);
     }
 
-    private void CompareWeightsOnSnare()
-    {
-        var weight = WeightComparison.CompareObjectWeights(gameObject, playerLasso.SnaredObject.gameObject);
-        switch (weight)
-        {
-            case WeightComparisonResult.Object1:
-                SwitchLassoState(LassoState.Snared);
-                break;
-
-            case WeightComparisonResult.Object2:
-                SwitchLassoState(LassoState.Swinging);
-                playerLasso.HandleSwingSetup();
-                break;
-
-            case WeightComparisonResult.Equal:
-                SwitchLassoState(LassoState.Snared);
-                break;
-        }
-    }
-
-    private void CompareWeightsOnYank()
-    {
-        var weight = WeightComparison.CompareObjectWeights(gameObject, playerLasso.SnaredObject.gameObject);
-        switch (weight)
-        {
-            case WeightComparisonResult.Object1:
-                SwitchLassoState(LassoState.ObjectYanking);
-                playerLasso.HandleObjectYank();
-                break;
-
-            case WeightComparisonResult.Object2:
-                SwitchLassoState(LassoState.PlayerYanking);
-                playerLasso.HandlePlayerYank();
-                break;
-
-            case WeightComparisonResult.Equal:
-                SwitchLassoState(LassoState.ObjectYanking);
-                playerLasso.HandleObjectYank();
-                break;
-        }
-    }
-
-    private void OnObjectYankCompleted()
-    {
-        if (playerLasso.SnaredObject == null)
-        {
-            SwitchLassoState(LassoState.Empty);
-            return;
-        }
-
-        if (playerLasso.SnaredObject.TryGetComponent(out IActivatable activatable)) SwitchLassoState(LassoState.Using);
-        else SwitchLassoState(LassoState.Held);
-    }
-
-    private void OnPlayerYankCompleted()
-    {
-        playerLasso.HandleObjectReleased();
-    }
-
     private void OnLassoReleased()
     {
         SwitchLassoState(LassoState.Empty);
@@ -199,7 +104,16 @@ public class LassoTetherController : MonoBehaviour
 
     private void OnLassoHit()
     {
-        CompareWeightsOnSnare();
+        if(playerLasso.SnaredObject.TryGetComponent(out SwingPoint swingPoint))
+        {
+            playerLasso.HandleSwingSetup();
+            SwitchLassoState(LassoState.Swinging);
+        }
+        else
+        {
+            playerLasso.HandleAnchorStart();
+            SwitchLassoState(LassoState.Snared);
+        }
     }
 
     private void OnTetherStartHit()
@@ -216,7 +130,7 @@ public class LassoTetherController : MonoBehaviour
         {
             playerLasso.HandleLassoStart();
         }
-        if(playerActions.AltDown)
+        if (playerActions.AltDown)
         {
             playerTether.StartTetherPlacement();
         }
@@ -226,7 +140,7 @@ public class LassoTetherController : MonoBehaviour
     #region Tether Controls
     private void HandleTetherPlacementControls()
     {
-        if(playerActions.AltUp)
+        if (playerActions.AltUp)
         {
             playerTether.EndTetherPlacement(false);
             SwitchLassoState(LassoState.Empty);
@@ -247,11 +161,11 @@ public class LassoTetherController : MonoBehaviour
 
     private void HandleTetherDestroy()
     {
-        if(playerActions.CrouchDown)
+        if (playerActions.CrouchDown)
         {
             playerTetherActivator.StartDestroyTether();
         }
-        if( playerActions.CrouchUp)
+        if (playerActions.CrouchUp)
         {
             playerTetherActivator.EndDestroyTether();
         }
@@ -262,40 +176,18 @@ public class LassoTetherController : MonoBehaviour
     #region Snared Controls
     private void HandleSnaredControls()
     {
-        playerLasso.MoveAnchorPoint(playerActions.ScrollAction);
+        playerLasso.MoveAnchorPoint(playerActions.GetDPadScrollValue());
 
         if (playerActions.AltDown)
         {
-            if (_yankCheckCoroutine != null) StopCoroutine(_yankCheckCoroutine);
-            _yankCheckCoroutine = StartCoroutine(CheckIfTap());
+            playerTether.StartTetherPlacement(playerLasso.SnaredObject.transform, playerLasso.HitPos);
+            playerLasso.SnaredObject.Rb.constraints = RigidbodyConstraints.FreezePosition;
+            SwitchLassoState(LassoState.SnaredTether);
         }
 
         if (playerActions.MainUp)
         {
             playerLasso.HandleObjectReleased();
-        }
-    }
-
-    private IEnumerator CheckIfTap()
-    {
-        yield return new WaitForSeconds(0.175f);
-
-        if (playerLasso.SnaredObject == null)
-        {
-            _yankCheckCoroutine = null;
-            playerLasso.HandleObjectReleased();
-            yield break;
-        }
-
-        if (playerActions.AltHeld)
-        {
-            SwitchLassoState(LassoState.SnaredTether);
-            playerTether.StartTetherPlacement(playerLasso.SnaredObject.transform, playerLasso.HitPos);
-            playerLasso.SnaredObject.Rb.constraints = RigidbodyConstraints.FreezePosition;
-        }
-        else
-        {
-            CompareWeightsOnYank();
         }
     }
 
@@ -322,11 +214,6 @@ public class LassoTetherController : MonoBehaviour
             playerLasso.HandleObjectReleased();
         }
 
-        if (playerActions.AltDown)
-        {
-            CompareWeightsOnYank();
-        }
-
         if (playerActions.JumpDown)
         {
             playerLasso.SwingJumpBoost();
@@ -335,139 +222,26 @@ public class LassoTetherController : MonoBehaviour
 
     #endregion
 
-    #region Yanking Controls
-
-    private void HandleYankingControls()
-    {
-        if (playerActions.MainDown)
-        {
-            playerLasso.HandleObjectReleased();
-        }
-    }
-
-    #endregion
-
-    #region Held Controls
-
-    private void HandleHeldControls()
-    {
-        if (playerActions.MainDown)
-        {
-            playerLasso.HandleObjectReleased();
-        }
-
-        if (playerActions.AltDown)
-        {
-            playerLasso.HandleObjectThrow();
-        }
-    }
-
-    #endregion
-
-    #region Using Controls
-
-    private void HandleUsingControls()
-    {
-        if (playerLasso.SnaredObject.TryGetComponent(out IActivatable activatable))
-        {
-            if (activatable.IsActive && playerActions.MainDown)
-            {
-                activatable.Activate();
-            }
-            else if (!activatable.IsActive && playerActions.MainDown)
-            {
-                playerLasso.HandleObjectReleased();
-            }
-        }
-
-        if (playerActions.AltDown)
-        {
-            playerLasso.HandleObjectThrow();
-        }
-    }
-
-    #endregion
-
     private void TempSetText(LassoState state)
     {
-        if(state == LassoState.Empty)
+        if (state == LassoState.Empty)
         {
-            m0TapText.text = "[LMB]: Start Lasso\nHold [RMB]: Start Tether";
-            /*m0HoldText.text = "M0 (hold): N/A";
-            m0ReleaseText.text = "M0 (release): N/A";
-            m1TapText.text = "M1 (tap): N/A";
-            m1HoldText.text = "M1 (hold): Start Tether";
-            m1ReleaseText.text = "M1 (release): N/A";*/
+            controlsText.text = "[LMB]: Start Lasso\nHold [RMB]: Start Tether";
         }
 
-        if(state == LassoState.Tethering)
+        if (state == LassoState.Tethering)
         {
-            m0TapText.text = "Release [RMB]: Set Tether End";
-            /*m0HoldText.text = "M0 (hold): N/A";
-            m0ReleaseText.text = "M0 (release): N/A";
-            m1TapText.text = "M1 (tap): N/A";
-            m1HoldText.text = "M1 (hold): N/A";
-            m1ReleaseText.text = "M1 (release): Set Tether Target";*/
+            controlsText.text = "Release [RMB]: Set Tether End";
         }
 
-        if(state == LassoState.Snared)
+        if (state == LassoState.Snared)
         {
-            m0TapText.text = "Hold [LMB]: Move Object\nRelease [LMB]: Drop Object\n[RMB]: Pull Object\nHold [RMB]: Start Tether";
-            /*m0HoldText.text = "M0 (hold): Move Object";
-            m0ReleaseText.text = "M0 (release): Release Object";
-            m1TapText.text = "M1 (tap): Yank Object";
-            m1HoldText.text = "M1 (hold): Start Tether";
-            m1ReleaseText.text = "M1 (release): N/A";*/
+            controlsText.text = "Hold [LMB]: Move Object\nRelease [LMB]: Drop Object\n[RMB]: Pull Object\nHold [RMB]: Start Tether";
         }
 
-        if(state == LassoState.SnaredTether)
+        if (state == LassoState.SnaredTether)
         {
-            m0TapText.text = "Release [RMB]: Set Tether End";
-            /*m0HoldText.text = "M0 (hold): N/A";
-            m0ReleaseText.text = "M0 (release): N/A";
-            m1TapText.text = "M1 (tap): N/A";
-            m1HoldText.text = "M1 (hold): N/A";
-            m1ReleaseText.text = "M1 (release): Set Tether Target";*/
-        }
-
-        if(state == LassoState.Swinging)
-        {
-            m0TapText.text = "[LMB]: Release Lasso\n[RMB]: Yank Player";
-            /*m0HoldText.text = "M0 (hold): N/A";
-            m0ReleaseText.text = "M0 (release): N/A";
-            m1TapText.text = "M1 (tap): Yank Player";
-            m1HoldText.text = "M1 (hold): N/A";
-            m1ReleaseText.text = "M1 (release): N/A";*/
-        }
-
-        if(state == LassoState.PlayerYanking || state == LassoState.ObjectYanking)
-        {
-            m0TapText.text = "[LMB]: Release Lasso";
-            /*m0HoldText.text = "M0 (hold): N/A";
-            m0ReleaseText.text = "M0 (release): N/A";
-            m1TapText.text = "M1 (tap): N/A";
-            m1HoldText.text = "M1 (hold): N/A";
-            m1ReleaseText.text = "M1 (release): N/A";*/
-        }
-
-        if(state == LassoState.Held)
-        {
-            m0TapText.text = "[LMB]: Drop Object\n[RMB]: Throw Object";
-            /*m0HoldText.text = "M0 (hold): N/A";
-            m0ReleaseText.text = "M0 (release): N/A";
-            m1TapText.text = "M1 (tap): Throw Object";
-            m1HoldText.text = "M1 (hold): N/A";
-            m1ReleaseText.text = "M1 (release): N/A";*/
-        }
-
-        if(state == LassoState.Using)
-        {
-            m0TapText.text = "[LMB]: Activate Object\n[RMB]: Throw Object";
-            /*m0HoldText.text = "M0 (hold): N/A";
-            m0ReleaseText.text = "M0 (release): N/A";
-            m1TapText.text = "M1 (tap): Throw Object";
-            m1HoldText.text = "M1 (hold): N/A";
-            m1ReleaseText.text = "M1 (release): N/A";*/
+            controlsText.text = "Release [RMB]: Set Tether End";
         }
     }
 }

@@ -10,7 +10,6 @@ public enum AimAssistType
 public class AimAssist
 {
     private Prop _currentlyHighlightedProp;
-    private LayerMask tetherLayerIgnore = ~(1 << LayerMask.NameToLayer("Tether"));
 
     #region Closest Target (for snap)
     public Prop GetClosestTarget(Camera cam, Vector3 origin, float range)
@@ -53,10 +52,12 @@ public class AimAssist
     #endregion
 
     #region Main Aim Assist Function
-    public RaycastHit? GetAssistHitPoint(Camera cam, Vector3 origin, float range, AimAssistType type, float bufferRadius, Vector3 camOffset) //the ? means it can return null
+    public RaycastHit? GetAssistHitPoint(Camera cam, Vector3 origin, float range, AimAssistType type, float bufferRadius) //the ? means it can return null
     {
-        Vector3 screenCenter = new Vector3(Screen.width / 2f, Screen.height / 2f, 0f);
-        Ray screenRay = cam.ScreenPointToRay(screenCenter);
+        //Vector3 screenCenter = new Vector3(Screen.width / 2f, Screen.height / 2f, 0f);
+        //Ray screenRay = cam.ScreenPointToRay(screenCenter);
+
+        Ray midPointRay = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
 
         switch (type)
         {
@@ -66,15 +67,15 @@ public class AimAssist
                 break;
 
             case AimAssistType.Buffer:
-                if (GetDirectHit(origin, screenRay.direction, range, out RaycastHit directHit))
+                if (GetDirectHit(midPointRay, range, out RaycastHit directHit))
                     return directHit;
-                if (GetDynamicBufferHit(cam, new Ray(origin, screenRay.direction), range, bufferRadius, out RaycastHit bufferHit))
+                if (GetDynamicBufferHit(cam, midPointRay, range, bufferRadius, out RaycastHit bufferHit))
                     return bufferHit;
                 break;
 
             case AimAssistType.None:
             default:
-                if (GetDirectHit(origin + camOffset, screenRay.direction, range, out directHit))
+                if (GetDirectHit(midPointRay, range, out directHit))
                     return directHit;
                 break;
         }
@@ -105,10 +106,10 @@ public class AimAssist
 
     #region Direct Hit
 
-    private bool GetDirectHit(Vector3 origin, Vector3 direction, float range, out RaycastHit hit)
+    private bool GetDirectHit(Ray ray, float range, out RaycastHit hit)
     {
         hit = new RaycastHit();
-        if (Physics.Raycast(origin, direction, out RaycastHit bufferHit, range, Physics.AllLayers, QueryTriggerInteraction.Ignore))
+        if (Physics.Raycast(ray, out RaycastHit bufferHit, range, Physics.AllLayers, QueryTriggerInteraction.Ignore))
         {
             if (bufferHit.transform.GetComponentInParent<Prop>() != null)
             {
