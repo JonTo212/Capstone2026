@@ -66,6 +66,5 @@ public class PauseMenu : MonoBehaviour
         settingsUI.SetActive(false);
         pauseMenuUI.SetActive(true);
     }
-
     #endregion
 }

@@ -138,7 +138,7 @@ public class WindTunnel : MonoBehaviour
             propsSpawned[i] = newProp.GetComponent<Prop>();
         }
 
-        propsInWindTunnel = new List<Prop>(propsSpawned.ToList());
+        //propsInWindTunnel = new List<Prop>(propsSpawned.ToList());
     }
 
     public void RespawnObjectInWindtunnel(Transform objectToRespawn)
