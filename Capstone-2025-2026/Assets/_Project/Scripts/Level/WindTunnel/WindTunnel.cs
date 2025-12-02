@@ -28,6 +28,7 @@ public class WindTunnel : MonoBehaviour
 
     [Header("Debug Parameters")]
     [SerializeField] private Mesh debugArrow;
+    private Mesh cube;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -39,7 +40,7 @@ public class WindTunnel : MonoBehaviour
         tunnelEndCollider.size = new Vector3(tunnelSize.x, tunnelSize.y, 1f);
 
         var shapeModule = windParticles.shape;
-        shapeModule.scale = new Vector3(tunnelSize.x, tunnelSize.y, 0.1f);
+        shapeModule.scale = new Vector3(tunnelSize.x, tunnelSize.y, tunnelSize.z);
 
         if(preCook)
         {
@@ -53,21 +54,22 @@ public class WindTunnel : MonoBehaviour
         SpawnObjectsPeriodically();
     }
 
-    private void OnDrawGizmos()
-    {
-        for (int i = 0; i < tunnelSize.z / 6; i++)
-        {
-            Gizmos.color = new Color(Mathf.Abs(transform.forward.x), Mathf.Abs(transform.forward.y), Mathf.Abs(transform.forward.z)) ;
-            Gizmos.DrawWireMesh(debugArrow, transform.position + i * transform.forward * 6, transform.rotation, Vector3.one * 0.5f);
-        }
-        DrawDebugShape.DrawCube(transform.position, transform.forward, transform.right, tunnelSize, Color.red, DrawDebugShape.DebugShapeDrawMode.Edge);
+    //private void OnDrawGizmos()
+    //{
+    //    for (int i = 0; i < tunnelSize.z / 6; i++)
+    //    {
+    //        Gizmos.color = new Color(Mathf.Abs(transform.forward.x), Mathf.Abs(transform.forward.y), Mathf.Abs(transform.forward.z));
+    //        Gizmos.DrawWireMesh(debugArrow, transform.position + i * transform.forward * 6, transform.rotation, Vector3.one * 0.5f);
+    //    }
 
-        var shapeModule = windParticles.shape;
-        shapeModule.scale = new Vector3(tunnelSize.x, tunnelSize.y, 0.1f);
+    //    DrawDebugShape.DrawCube(transform.position, transform.forward, transform.right, tunnelSize, Color.red, DrawDebugShape.DebugShapeDrawMode.Edge);
 
-        var mainModule = windParticles.main;
-        mainModule.startLifetime =  tunnelSize.z / windParticles.main.startSpeed.constant;
-    }
+    //    var shapeModule = windParticles.shape;
+    //    shapeModule.scale = new Vector3(tunnelSize.x, tunnelSize.y, tunnelSize.z);
+
+    //    var mainModule = windParticles.main;
+    //    mainModule.startLifetime = tunnelSize.z / windParticles.main.startSpeed.constant;
+    //}
 
     private void FixedUpdate()
     {
