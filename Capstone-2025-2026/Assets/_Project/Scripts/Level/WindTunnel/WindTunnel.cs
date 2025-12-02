@@ -6,7 +6,8 @@ using System.Linq;
 public class WindTunnel : MonoBehaviour
 {
     [Header("Components")]
-    [SerializeField] private ParticleSystem windParticles;
+    [SerializeField] private ParticleSystem windTrailParticles;
+    [SerializeField] private ParticleSystem windLineParticles;
     [SerializeField] private BoxCollider boxCollider;
     [SerializeField] private BoxCollider tunnelEndCollider;
 
@@ -39,8 +40,10 @@ public class WindTunnel : MonoBehaviour
         tunnelEndCollider.center = new Vector3(0, 0, tunnelSize.z - 0.5f);
         tunnelEndCollider.size = new Vector3(tunnelSize.x, tunnelSize.y, 1f);
 
-        var shapeModule = windParticles.shape;
-        shapeModule.scale = new Vector3(tunnelSize.x, tunnelSize.y, tunnelSize.z);
+        var trailShapeModule = windTrailParticles.shape;
+        var lineShapeModule = windLineParticles.shape;
+        trailShapeModule.scale = new Vector3(tunnelSize.x, tunnelSize.y, 0.1f);
+        lineShapeModule.scale = new Vector3(tunnelSize.x, tunnelSize.y, 0.1f);
 
         if(preCook)
         {
@@ -54,22 +57,28 @@ public class WindTunnel : MonoBehaviour
         SpawnObjectsPeriodically();
     }
 
-    //private void OnDrawGizmos()
-    //{
-    //    for (int i = 0; i < tunnelSize.z / 6; i++)
-    //    {
-    //        Gizmos.color = new Color(Mathf.Abs(transform.forward.x), Mathf.Abs(transform.forward.y), Mathf.Abs(transform.forward.z));
-    //        Gizmos.DrawWireMesh(debugArrow, transform.position + i * transform.forward * 6, transform.rotation, Vector3.one * 0.5f);
-    //    }
+    private void OnDrawGizmos()
+    {
+        for (int i = 0; i < tunnelSize.z / 6; i++)
+        {
+            Gizmos.color = new Color(Mathf.Abs(transform.forward.x), Mathf.Abs(transform.forward.y), Mathf.Abs(transform.forward.z));
+            Gizmos.DrawWireMesh(debugArrow, transform.position + i * transform.forward * 6, transform.rotation, Vector3.one * 0.5f);
+        }
 
-    //    DrawDebugShape.DrawCube(transform.position, transform.forward, transform.right, tunnelSize, Color.red, DrawDebugShape.DebugShapeDrawMode.Edge);
+        DrawDebugShape.DrawCube(transform.position, transform.forward, transform.right, tunnelSize, Color.red, DrawDebugShape.DebugShapeDrawMode.Edge);
 
-    //    var shapeModule = windParticles.shape;
-    //    shapeModule.scale = new Vector3(tunnelSize.x, tunnelSize.y, tunnelSize.z);
+        var trailShapeModule = windTrailParticles.shape;
+        trailShapeModule.scale = new Vector3(tunnelSize.x, tunnelSize.y, 0.1f);
 
-    //    var mainModule = windParticles.main;
-    //    mainModule.startLifetime = tunnelSize.z / windParticles.main.startSpeed.constant;
-    //}
+        var trailMainModule = windTrailParticles.main;
+        trailMainModule.startLifetime = tunnelSize.z / windTrailParticles.main.startSpeed.constant;
+
+        var lineShapeModule = windTrailParticles.shape;
+        lineShapeModule.scale = new Vector3(tunnelSize.x, tunnelSize.y, 0.1f);
+
+        var lineMainModule = windTrailParticles.main;
+        lineMainModule.startLifetime = tunnelSize.z / windTrailParticles.main.startSpeed.constant;
+    }
 
     private void FixedUpdate()
     {
