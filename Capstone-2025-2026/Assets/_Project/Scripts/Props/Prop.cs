@@ -40,8 +40,6 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     public event Action OnPropReleased;
     public event Action OnPropDestroyed;
 
-
-
     //virtual functions can be overridden by the derived classes
     //default behaviour is updating IsHeld and parenting the object to a given transform (i.e. player hand)
 
@@ -108,7 +106,6 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     {
         IsSnared = false;
         IsHeld = false;
-        IsBeingPulled = false;
         if (slowFall) Rb.useGravity = false;
         Rb.interpolation = RigidbodyInterpolation.None;
         Rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
