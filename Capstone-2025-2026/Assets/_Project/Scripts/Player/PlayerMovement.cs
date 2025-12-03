@@ -6,7 +6,7 @@ public enum PlayerMoveState
     InAir,
     Swinging,
     Mantling,
-    OnMovingPlatform 
+    UsingNPC
 }
 
 [System.Serializable]
@@ -72,16 +72,15 @@ public class PlayerMovement : MonoBehaviour
     private RaycastHit _slopeHit;
     private Rigidbody _rb;
     private CapsuleCollider _playerCol;
-    private float _yRot;
-    private float _xRot;
     private float _acceleration;
     private float _gravity;
     private float _jumpForce;
     private float _friction;
-    private float _slopeAngle;
     private float _defaultFOV;
+    private float _maxGravity;
+    private bool _useGravity;
 
-    public float ExternalForce { get; set; }
+    public Vector3 ExternalForce { get; set; }
     public float Gravity => _gravity;
     public Vector3 WishDir => _wishDir;
     public Rigidbody Rb => _rb;
@@ -96,10 +95,12 @@ public class PlayerMovement : MonoBehaviour
 
         _gravity = 2 * apexHeight / Mathf.Pow(apexTime, 2);
         _jumpForce = 2 * apexHeight / apexTime;
+        _maxGravity = _gravity;
         _friction = defaultMaxSpeed / timeToZero;
         _acceleration = defaultMaxSpeed / timeToMaxSpeed;
         _defaultFOV = playerCam.fieldOfView;
         _currentMovementState = PlayerMoveState.InAir;
+        _useGravity = true;
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -125,7 +126,15 @@ public class PlayerMovement : MonoBehaviour
     {
         HandleMovementState();
         HandleForward();
-        HandleGravity();
+
+        if (_useGravity)
+        {
+            HandleGravity();
+        }
+        else
+        {
+            Rb.linearVelocity = new Vector3(Rb.linearVelocity.x, 0f, Rb.linearVelocity.z);
+        }
 
         if (_currentMovementState == PlayerMoveState.Swinging)
         {
@@ -166,6 +175,31 @@ public class PlayerMovement : MonoBehaviour
     {
         feetPos.localPosition = new Vector3(0, -_playerCol.height / 2f, 0);
         return Physics.CheckSphere(feetPos.position, feetRadius, groundLayer);
+    }
+
+    public void ApplySlowFall(float multiplier)
+    {
+        _gravity = _maxGravity * multiplier;
+
+        if (_rb.linearVelocity.y <= -_gravity)
+        {
+            _rb.linearVelocity = new Vector3(_rb.linearVelocity.x, -_gravity, _rb.linearVelocity.z);
+        }
+    }
+
+    public void ApplyJumpBoost()
+    {
+
+    }
+
+    public void EnableGravity(bool enable)
+    {
+        _useGravity = enable;
+    }
+
+    public void ResetGravity()
+    {
+        _gravity = _maxGravity;
     }
 
     private void HandleMovementState()
@@ -275,6 +309,11 @@ public class PlayerMovement : MonoBehaviour
     private void HandleGravity()
     {
         if (_currentMovementState == PlayerMoveState.Walking) return;
+        if (_rb.linearVelocity.y <= 0 && _rb.linearVelocity.y <= - _maxGravity)
+        {
+            _rb.linearVelocity = new Vector3(_rb.linearVelocity.x, -_maxGravity, _rb.linearVelocity.z);
+            return;
+        }
 
         _rb.AddForce(Vector3.down * _gravity, ForceMode.Acceleration);
     }
@@ -347,6 +386,13 @@ public class PlayerMovement : MonoBehaviour
         if (_wishDir == Vector3.zero) return;
 
         Vector3 accelForce = _wishDir * _acceleration * _currentMultipliers.accelMultiplier;
+        if (ExternalForce != Vector3.zero) accelForce = ExternalForce;
+
         _rb.AddForce(accelForce, ForceMode.Acceleration);
+    }
+
+    public void OverrideMovement(Vector3 force)
+    {
+        ExternalForce = new Vector3(force.x, 0, force.z);
     }
 }

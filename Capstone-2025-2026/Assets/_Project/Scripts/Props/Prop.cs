@@ -1,12 +1,13 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 
 [RequireComponent(typeof(Rigidbody), typeof(Outline))]
 public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
 {
+    [Header("Prop Settings")]
     [SerializeField] protected bool debugThisProp = false;
+    [SerializeField] protected float coyoteFallDelay = 0.3f;
 
     //protected means only derived classes can access these values
     [SerializeField] protected bool slowFall = true;
@@ -19,9 +20,9 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     //getters/setters - default value is false (protected set means only derived classes can change IsHeld)
     public virtual bool IsHeld { get; protected set; } = false;
     public virtual bool IsSnared { get; protected set; } = false;
-    public virtual bool IsBeingPulled { get; set; } = false;
     public virtual bool IsTetherPulled { get; protected set; } = false;
-    public virtual bool IsTouchingSurface {  get; protected set; } = false;
+    public virtual bool IsTouchingSurface { get; protected set; } = false;
+    public virtual IEnvironmentalElement EnvironmentalForce { get; protected set; }
 
 
 
@@ -31,9 +32,12 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     public Transform AttachedTransform { get; set; }
     public Outline ObjectOutline { get; set; }
     [field: SerializeField] public List<Transform> GrabPoints { get; protected set; }
-    [field: SerializeField] public int faceRows { get; protected set; }
-    [field: SerializeField] public int faceColumns { get; protected set; }
+    [field: SerializeField] public int FaceRows { get; protected set; }
+    [field: SerializeField] public int FaceColumns { get; protected set; }
 
+    public event Action OnPropSnared;
+    public event Action OnPropTethered;
+    public event Action OnPropReleased;
     public event Action OnPropDestroyed;
 
 
@@ -44,6 +48,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     //Gets the total force applied to this objct. NOTE: Should only be read in Update or the value will  be incorrect
     public Vector3 totalForceApplied { get; protected set; } = Vector3.zero;
     private Vector3 storedTotalForce = Vector3.zero;
+
     protected virtual void Init()
     {
         Rb = GetComponent<Rigidbody>();
@@ -57,7 +62,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         if(generator != null)
         {
             Collider col = GetComponent<Collider>();
-            GrabPoints = generator.GeneratePoints(col, faceRows, faceColumns);
+            GrabPoints = generator.GeneratePoints(col, FaceRows, FaceColumns);
             foreach (Transform t in GrabPoints)
             {
                 t.gameObject.SetActive(false);
@@ -71,9 +76,10 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         HandleForceAppliedVariable();
     }
 
-    protected virtual void LateUpdate()
+    protected virtual void FixedUpdate()
     {
-        
+        storedTotalForce += GetForcesFromJoint();
+        didFixedUpdateRun = true;
     }
 
     protected virtual void OnDestroy()
@@ -81,10 +87,9 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         OnPropDestroyed?.Invoke();
     }
 
-    protected virtual void FixedUpdate()
+    protected virtual bool IsBeingInteractedWith()
     {
-        storedTotalForce += GetForcesFromJoint();
-        didFixedUpdateRun = true;
+        return IsHeld || IsSnared || IsTetherPulled;
     }
 
     #region ISnareable
@@ -92,12 +97,11 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     {
         IsSnared = true;
         IsHeld = false;
-        IsBeingPulled = false;
-        //Rb.useGravity = false;
         Rb.interpolation = RigidbodyInterpolation.Interpolate;
         Rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
         Rb.angularVelocity = Vector3.zero;
         Rb.linearVelocity = Vector3.zero;
+        OnPropSnared?.Invoke();
     }
 
     public virtual void OnRelease()
@@ -106,11 +110,12 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         IsHeld = false;
         IsBeingPulled = false;
         if (slowFall) Rb.useGravity = false;
-        Invoke(nameof(GravDelay), 0.3f);
         Rb.interpolation = RigidbodyInterpolation.None;
-        Rb.constraints = RigidbodyConstraints.None;
         Rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
         AttachedTransform = null;
+
+        Invoke(nameof(CoyoteFall), coyoteFallDelay);
+        OnPropReleased?.Invoke();
 
         if(transform != null) transform.SetParent(null);
     }
@@ -131,6 +136,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         connectedObject.Add(targetObjectTransform);
         connectedAnchors.Add(targetAnchorTransform);
         Rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+        OnPropTethered?.Invoke();
     }
 
     public virtual void OnDetachTether(JointTether tether, Transform targetAnchorTransform, Transform targetObjectTransform)
@@ -145,6 +151,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
             IsTetherPulled = false;
             ObjectOutline.enabled = false;
         }
+        OnPropReleased?.Invoke();
     }
 
     public virtual void ActivateOutline(bool activate)
@@ -197,9 +204,8 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     {
         IsHeld = true;
         IsSnared = false;
-        IsBeingPulled = false;
         Rb.interpolation = RigidbodyInterpolation.None;
-        Rb.constraints = RigidbodyConstraints.FreezePosition;
+        Rb.constraints = RigidbodyConstraints.FreezeAll;
         transform.SetParent(newParent);
         transform.position = newParent.position;
         ActivateOutline(false);
@@ -248,6 +254,11 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         didFixedUpdateRun = false;
     }    
 
+    public virtual void SetInEnvironmentalElement(IEnvironmentalElement environmentalForce)
+    {
+        EnvironmentalForce = environmentalForce;
+    }
+
     #endregion
 
     #region Grab Points
@@ -295,6 +306,11 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     private void OnCollisionExit(Collision collision)
     {
         IsTouchingSurface = false;
+    }
+
+    protected virtual void CoyoteFall()
+    {
+        Rb.useGravity = true;
     }
 
     protected void PropDebug(object message) { if (debugThisProp == true) Debug.Log(message); }
