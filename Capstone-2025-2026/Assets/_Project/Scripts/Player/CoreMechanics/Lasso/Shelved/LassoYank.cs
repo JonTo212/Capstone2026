@@ -11,7 +11,6 @@ public class LassoYank : MonoBehaviour
     [SerializeField] private float objectYankDuration = 0.5f;
     [SerializeField] private float consideredStuckVel = 0.1f;
     [SerializeField] private float equalWeightYankForce = 15f;
-    [SerializeField] private float velocityDistanceThreshold = 2f;
 
     [Header("Player Yank Properties")]
     [SerializeField] private float playerYankStopBuffer = 0.3f;

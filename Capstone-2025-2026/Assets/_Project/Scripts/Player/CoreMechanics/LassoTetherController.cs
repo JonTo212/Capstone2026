@@ -1,3 +1,4 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 
@@ -21,25 +22,29 @@ public class LassoTetherController : MonoBehaviour
 
     [Header("Components")]
     private Lasso playerLasso;
+    private PlayerNPCHolder playerInventory;
     private PlayerActions playerActions;
     private JointTetherPlacer playerTether;
     private JointTetherActivator playerTetherActivator;
 
     [Header("States")]
-    public LassoState CurrentLassoState { get; private set; }
     public bool rodPickedUp = true;
+    [field: SerializeField] public LassoState CurrentLassoState { get; private set; }
+    private Coroutine _yankCheckCoroutine;
 
     #region Unity Functions
     private void Awake()
     {
         playerLasso = GetComponent<Lasso>();
         playerActions = GetComponent<PlayerActions>();
+        playerInventory = GetComponent<PlayerNPCHolder>();
         playerTether = GetComponent<JointTetherPlacer>();
         playerTetherActivator = GetComponent<JointTetherActivator>();
 
         playerLasso.OnLassoReleased += OnLassoReleased;
         playerLasso.OnObjectHit += OnLassoHit;
         playerTether.OnTetherStartHit += OnTetherStartHit;
+        playerInventory.OnObjectYankCompleted += OnObjectYankCompleted;
 
         TempSetText(LassoState.Empty);
     }
@@ -55,6 +60,13 @@ public class LassoTetherController : MonoBehaviour
     {
         if (rodPickedUp)
         {
+            if (playerActions.PreviousDown)
+            {
+                playerInventory.HandleObjectYank();
+                SwitchLassoState(LassoState.ObjectYanking);
+                return;
+            }
+
             switch (CurrentLassoState)
             {
                 case LassoState.Empty:
@@ -73,13 +85,15 @@ public class LassoTetherController : MonoBehaviour
                     HandleSnaredTetherControls();
                     break;
 
-                case LassoState.Swinging:
-                    HandleSwingingControls();
-                    break;
+            case LassoState.Swinging:
+                HandleSwingingControls();
+                break;
+            case LassoState.ObjectYanking:
+                HandleYankingControls();
+                break;
             }
-            HandleTetherActivation();
-            HandleTetherDestroy();
-        }
+        HandleTetherActivation();
+        HandleTetherDestroy();
     }
 
     private void FixedUpdate()
@@ -123,6 +137,12 @@ public class LassoTetherController : MonoBehaviour
     private void OnTetherStartHit()
     {
         SwitchLassoState(LassoState.Tethering);
+    }
+
+    private void OnObjectYankCompleted()
+    {
+        playerLasso.HandleHold();
+        SwitchLassoState(LassoState.Empty);
     }
 
     #endregion
@@ -180,9 +200,9 @@ public class LassoTetherController : MonoBehaviour
     #region Snared Controls
     private void HandleSnaredControls()
     {
-        playerLasso.MoveAnchorPoint(playerActions.GetDPadScrollValue());
+        playerLasso.MoveAnchorPoint(playerActions.ScrollAction);
 
-        if (playerActions.AltDown)
+        if (playerActions.AltHeld)
         {
             playerTether.StartTetherPlacement(playerLasso.SnaredObject.transform, playerLasso.HitPos);
             playerLasso.SnaredObject.Rb.constraints = RigidbodyConstraints.FreezePosition;
@@ -192,6 +212,25 @@ public class LassoTetherController : MonoBehaviour
         if (playerActions.MainUp)
         {
             playerLasso.HandleObjectReleased();
+        }
+    }
+
+    private IEnumerator CheckIfTap()
+    {
+        yield return new WaitForSeconds(0.175f);
+
+        if (playerLasso.SnaredObject == null)
+        {
+            _yankCheckCoroutine = null;
+            playerLasso.HandleObjectReleased();
+            yield break;
+        }
+        
+        if (playerActions.AltHeld)
+        {
+            SwitchLassoState(LassoState.SnaredTether);
+            playerTether.StartTetherPlacement(playerLasso.SnaredObject.transform, playerLasso.HitPos);
+            playerLasso.SnaredObject.Rb.constraints = RigidbodyConstraints.FreezePosition;
         }
     }
 
@@ -221,6 +260,18 @@ public class LassoTetherController : MonoBehaviour
         if (playerActions.JumpDown)
         {
             playerLasso.SwingJumpBoost();
+        }
+    }
+
+    #endregion
+
+    #region Yanking Controls
+
+    private void HandleYankingControls()
+    {
+        if (playerActions.MainDown)
+        {
+            playerLasso.HandleObjectReleased();
         }
     }
 

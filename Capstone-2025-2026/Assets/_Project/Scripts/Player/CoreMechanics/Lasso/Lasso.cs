@@ -52,6 +52,7 @@ public class Lasso : MonoBehaviour
     public float AnchorDist { get; private set; }
 
     public event Action OnObjectHit;
+    public event Action OnNPCHit;
     public event Action OnLassoReleased;
 
 
@@ -159,6 +160,11 @@ public class Lasso : MonoBehaviour
             if (prop.TryGetComponent(out IActivatable activatable))
             {
                 activatable.Activate();
+            }
+
+            if(prop.TryGetComponent(out INPC npc))
+            {
+                OnNPCHit?.Invoke();
             }
 
             OnObjectHit?.Invoke();
@@ -381,7 +387,6 @@ public class Lasso : MonoBehaviour
 
         lassoGrabVisualIndicator.SetActive(false);
         OnLassoReleased?.Invoke();
-
     }
 
     public void HandleHold()
