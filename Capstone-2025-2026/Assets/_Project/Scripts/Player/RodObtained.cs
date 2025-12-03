@@ -23,7 +23,7 @@ public class RodObtained : MonoBehaviour
     public void ActivateRod()
     {
         tutorialText.SetActive(true);
-        rodController.enabled = true;
+        rodController.rodPickedUp = true;
         rodVisuals.SetActive(true);
         //InsertVisuals
     }
@@ -31,7 +31,7 @@ public class RodObtained : MonoBehaviour
     public void DeActivateRod()
     {
         tutorialText.SetActive(false);
-        rodController.enabled = false;
+        rodController.rodPickedUp = false;
         rodVisuals.SetActive(false);
     }
 

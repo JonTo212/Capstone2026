@@ -27,6 +27,7 @@ public class LassoTetherController : MonoBehaviour
 
     [Header("States")]
     public LassoState CurrentLassoState { get; private set; }
+    public bool rodPickedUp = true;
 
     #region Unity Functions
     private void Awake()
@@ -52,30 +53,33 @@ public class LassoTetherController : MonoBehaviour
 
     private void Update()
     {
-        switch (CurrentLassoState)
+        if (rodPickedUp)
         {
-            case LassoState.Empty:
-                HandleEmptyControls();
-                break;
+            switch (CurrentLassoState)
+            {
+                case LassoState.Empty:
+                    HandleEmptyControls();
+                    break;
 
-            case LassoState.Snared:
-                HandleSnaredControls();
-                break;
+                case LassoState.Snared:
+                    HandleSnaredControls();
+                    break;
 
-            case LassoState.Tethering:
-                HandleTetherPlacementControls();
-                break;
+                case LassoState.Tethering:
+                    HandleTetherPlacementControls();
+                    break;
 
-            case LassoState.SnaredTether:
-                HandleSnaredTetherControls();
-                break;
+                case LassoState.SnaredTether:
+                    HandleSnaredTetherControls();
+                    break;
 
-            case LassoState.Swinging:
-                HandleSwingingControls();
-                break;
+                case LassoState.Swinging:
+                    HandleSwingingControls();
+                    break;
+            }
+            HandleTetherActivation();
+            HandleTetherDestroy();
         }
-        HandleTetherActivation();
-        HandleTetherDestroy();
     }
 
     private void FixedUpdate()
