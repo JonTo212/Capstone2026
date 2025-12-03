@@ -85,15 +85,16 @@ public class LassoTetherController : MonoBehaviour
                     HandleSnaredTetherControls();
                     break;
 
-            case LassoState.Swinging:
-                HandleSwingingControls();
-                break;
-            case LassoState.ObjectYanking:
-                HandleYankingControls();
-                break;
+                case LassoState.Swinging:
+                    HandleSwingingControls();
+                    break;
+                case LassoState.ObjectYanking:
+                    HandleYankingControls();
+                    break;
             }
-        HandleTetherActivation();
-        HandleTetherDestroy();
+            HandleTetherActivation();
+            HandleTetherDestroy();
+        }
     }
 
     private void FixedUpdate()
