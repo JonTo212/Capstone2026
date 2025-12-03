@@ -13,6 +13,8 @@ public class PlayerActions : MonoBehaviour
     private InputAction mainAction;
     private InputAction altAction;
     private InputAction interactAction;
+    private InputAction previousAction;
+
     public InputAction MoveAction { get; set; }
     private InputAction menuAction;
     private InputAction controlAction;
@@ -70,6 +72,9 @@ public class PlayerActions : MonoBehaviour
     public bool RespawnHeld => respawnAction.IsPressed();
     public bool RespawnUp => respawnAction.WasReleasedThisFrame();
 
+    public bool PreviousDown => previousAction.WasPressedThisFrame();
+    public bool PreviousHeld => previousAction.IsPressed();
+    public bool PreviousUp => previousAction.WasReleasedThisFrame();
 
     private void Awake()
     {
@@ -85,6 +90,7 @@ public class PlayerActions : MonoBehaviour
         interactAction = map.FindAction("Interact");
         dPadUpAction = map.FindAction("DPadUp");
         dPadDownAction = map.FindAction("DPadDown");
+        previousAction = map.FindAction("Previous");
         currentRepeatRate = baseRepeatRate;
         menuAction = map.FindAction("Menu");
         controlAction = map.FindAction("Control");
@@ -103,6 +109,7 @@ public class PlayerActions : MonoBehaviour
         mainAction.Enable();
         altAction.Enable();
         interactAction.Enable();
+        previousAction.Enable();
         dPadUpAction.Enable();
         dPadDownAction.Enable();
         menuAction.Enable();
@@ -122,6 +129,7 @@ public class PlayerActions : MonoBehaviour
         mainAction.Disable();
         altAction.Disable();
         interactAction.Disable();
+        previousAction.Disable();
         dPadUpAction.Disable();
         dPadDownAction.Disable();
         menuAction.Disable();

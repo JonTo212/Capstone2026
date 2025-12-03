@@ -3,7 +3,7 @@ using System.Collections;
 using UnityEngine;
 using System.Linq;
 
-public class WindTunnel : MonoBehaviour
+public class WindTunnel : MonoBehaviour, IEnvironmentalElement
 {
     [Header("Components")]
     [SerializeField] private ParticleSystem windParticles;
@@ -77,7 +77,7 @@ public class WindTunnel : MonoBehaviour
 
             if (prop.Rb.linearVelocity.magnitude < windSpeed)
             {
-                prop.ApplyForceInDirection(transform.forward, windSpeed, ForceMode.Force);
+                prop.ApplyForceInDirection(transform.forward, windSpeed, ForceMode.Force, transform);
             }
         }
     }
@@ -88,6 +88,20 @@ public class WindTunnel : MonoBehaviour
         {
             propsInWindTunnel.Add(other.GetComponent<Prop>());
             other.GetComponent<Rigidbody>().useGravity = false;
+            other.GetComponent<Prop>().SetInEnvironmentalElement(this);
+        }
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        if (other.GetComponent<Prop>() != null)
+        {
+            if (!propsInWindTunnel.Contains(other.GetComponent<Prop>()))
+            {
+                propsInWindTunnel.Add(other.GetComponent<Prop>());
+                other.GetComponent<Rigidbody>().useGravity = false;
+                other.GetComponent<Prop>().SetInEnvironmentalElement(this);
+            }
         }
     }
 
@@ -98,19 +112,23 @@ public class WindTunnel : MonoBehaviour
             Prop prop = other.GetComponent<Prop>();
             propsInWindTunnel.Remove(prop);
             prop.Rb.useGravity = true;
+            other.GetComponent<Prop>().SetInEnvironmentalElement(null);
         }
     }
     private void StabilizeRbSpeed(Prop prop)
     {
-        Vector3 currentSpeed = prop.Rb.linearVelocity;
+        Vector3 force = CalculateForce(prop.Rb);
+        prop.ApplyForceInDirection(force.normalized, force.magnitude, ForceMode.Force);
+    }
 
+    public Vector3 CalculateForce(Rigidbody rb)
+    {
+        Vector3 currentSpeed = rb.linearVelocity;
         Vector3 vectorToTargetSpeed = windDirection * windSpeed - currentSpeed;
-
         Vector3 directionToTargetSpeed = vectorToTargetSpeed.normalized;
 
         Vector3 force = directionToTargetSpeed * windStrength;
-
-        prop.ApplyForceInDirection(force.normalized, force.magnitude, ForceMode.Force);
+        return force;
     }
 
     private void SpawnObjectsPeriodically()
@@ -138,7 +156,7 @@ public class WindTunnel : MonoBehaviour
             propsSpawned[i] = newProp.GetComponent<Prop>();
         }
 
-        propsInWindTunnel = new List<Prop>(propsSpawned.ToList());
+        //propsInWindTunnel = new List<Prop>(propsSpawned.ToList());
     }
 
     public void RespawnObjectInWindtunnel(Transform objectToRespawn)
