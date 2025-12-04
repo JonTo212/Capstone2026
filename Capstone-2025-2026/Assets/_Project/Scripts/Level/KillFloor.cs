@@ -3,6 +3,13 @@ using UnityEngine;
 public class KillFloor : MonoBehaviour
 {
     public Vector3 checkPoint;
+    private RespawnPointVisuals respawnPointVisuals;
+
+
+    public void Start()    
+    {
+        respawnPointVisuals = GetComponent<RespawnPointVisuals>();
+    }
 
     public void OnTriggerStay(Collider other)
     {
