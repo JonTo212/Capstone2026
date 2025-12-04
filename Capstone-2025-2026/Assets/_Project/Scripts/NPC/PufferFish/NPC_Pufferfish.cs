@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.ProBuilder.MeshOperations;
 
 [Serializable]
 public struct NPCMultipliers
@@ -19,10 +21,10 @@ public struct NPCMultipliers
 
 public class NPC_Pufferfish : Prop, INPC
 {
-    public NPCState CurrentNPCState { get; private set; }
-    public NPCType Type { get; private set; }
+    [field: SerializeField] public NPCState CurrentNPCState { get; private set; }
+    [field: SerializeField] public NPCType Type { get; private set; }
 
-
+    [Header("Deactivated")]
     [SerializeField] private float timeToCycle;
     [SerializeField] private float idleBobRange;
     [SerializeField] private float settleSpeed;
@@ -46,12 +48,24 @@ public class NPC_Pufferfish : Prop, INPC
         Init();
         Rb.useGravity = false;
         defaultLocalScale = Vector3.one;
-        SwitchNPCState(NPCState.Activated);
+        SwitchNPCState(NPCState.Deactivated);
+
+        OnPropTethered += OnTethersAttached;
+        OnPropReleased += OnSnareTetherDetached;
+        OnTetherDetached += OnSnareTetherDetached;
+    }
+
+    private void OnDisable()
+    {
+        OnPropTethered -= OnTethersAttached;
+        OnPropReleased -= OnSnareTetherDetached;
+        OnTetherDetached -= OnSnareTetherDetached;
     }
 
     protected override void FixedUpdate()
     {
         base.FixedUpdate();
+        CounteractTetherForces();
         HandleNPCStateMachine();
     }
 
@@ -59,15 +73,39 @@ public class NPC_Pufferfish : Prop, INPC
     {
         switch (CurrentNPCState)
         {
-            case NPCState.Activated:
+            case NPCState.Deactivated:
                 BobUpAndDown();
                 break;
+
+            case NPCState.Activated:
+                DampenYVel();
+                break;
         }
+
+        DampenXZVel();
     }
 
     public void SwitchNPCState(NPCState newState)
     {
+        if(CurrentNPCState == newState) return;
         CurrentNPCState = newState;
+    }
+
+    #region Activated/Deactivated 
+
+    private void DampenXZVel()
+    {
+        float RbXVel = Mathf.Lerp(Rb.linearVelocity.x, 0f, Time.fixedDeltaTime * settleSpeed);
+        float RbZVel = Mathf.Lerp(Rb.linearVelocity.z, 0f, Time.fixedDeltaTime * settleSpeed);
+
+        Rb.linearVelocity = new Vector3(RbXVel, Rb.linearVelocity.y, RbZVel);
+        Rb.angularVelocity *= 0.975f;
+    }
+
+    private void DampenYVel()
+    {
+        float RbYVel = Mathf.Lerp(Rb.linearVelocity.y, 0f, Time.fixedDeltaTime * settleSpeed * 5f);
+        Rb.linearVelocity = new Vector3(Rb.linearVelocity.x, RbYVel, Rb.linearVelocity.z);
     }
 
     private void BobUpAndDown()
@@ -75,12 +113,12 @@ public class NPC_Pufferfish : Prop, INPC
         float bobSpeed = (Mathf.PI * 2f) / timeToCycle;
         float sinWaveVel = Mathf.Cos(Time.time * bobSpeed) * bobSpeed * idleBobRange;
 
-        float RbXVel = Mathf.Lerp(Rb.linearVelocity.x, 0f, Time.fixedDeltaTime * settleSpeed);
-        float RbZVel = Mathf.Lerp(Rb.linearVelocity.z, 0f, Time.fixedDeltaTime * settleSpeed);
-
-        Rb.linearVelocity = new Vector3(RbXVel, sinWaveVel, RbZVel);
-        Rb.angularVelocity *= 0.975f;
+        Rb.linearVelocity = new Vector3(Rb.linearVelocity.x, sinWaveVel, Rb.linearVelocity.z);
     }
+
+    #endregion
+
+    #region Helper Functions
 
     public void SetPlayerRef(Transform player)
     {
@@ -91,6 +129,8 @@ public class NPC_Pufferfish : Prop, INPC
     {
         if (animCoroutine != null) StopCoroutine(animCoroutine);
         animCoroutine = StartCoroutine(Deflate(animDuration));
+
+        DestroyAllAttachedTethers();
         SwitchNPCState(NPCState.PlayerInteracting);
     }
 
@@ -103,6 +143,7 @@ public class NPC_Pufferfish : Prop, INPC
     {
         if(animCoroutine != null) StopCoroutine(animCoroutine);
         animCoroutine = StartCoroutine(Inflate(animDuration));
+
         SwitchNPCState(NPCState.PlayerInteracting);
     }
 
@@ -111,6 +152,59 @@ public class NPC_Pufferfish : Prop, INPC
         SwitchNPCState(NPCState.Activated);
     }
 
+    public override void OnSnare()
+    {
+        base.OnSnare();
+        Rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+        SwitchNPCState(NPCState.Activated);
+    }
+
+    private void OnTethersAttached()
+    {
+        //Rb.constraints = RigidbodyConstraints.FreezePosition | RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+        SwitchNPCState(NPCState.Activated);
+    }
+
+    private void OnSnareTetherDetached()
+    {
+        if (IsSnared) return;
+        if (attachedTethers.Count > 0)
+        {
+            //Rb.constraints = RigidbodyConstraints.FreezePosition | RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ; //this needs to change -> find a new way to stop tether forces
+            return;
+        }
+
+        Rb.constraints =  RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+        SwitchNPCState(NPCState.Deactivated);
+    }
+
+    private void CounteractTetherForces()
+    {
+        Vector3 netJointForce = Vector3.zero;
+        for (int i = 0; i < attachedTethers.Count; i++)
+        {
+            if (attachedTethers[i] == null) continue;
+            netJointForce += attachedTethers[i].GetCurrentForce(Rb);
+        }
+
+        float mag = netJointForce.magnitude;
+
+        if (mag > 0f)
+        {
+            Rb.AddForce(Vector3.down * netJointForce.y, ForceMode.Force);
+        }
+    }
+
+    private void DestroyAllAttachedTethers()
+    {
+        List<JointTether> tetherCopies = new List<JointTether>(attachedTethers);
+        foreach(var tether in tetherCopies)
+        {
+            tether.DestroyTether();
+        }
+    }
+
+    #endregion
 
     #region Ability
 

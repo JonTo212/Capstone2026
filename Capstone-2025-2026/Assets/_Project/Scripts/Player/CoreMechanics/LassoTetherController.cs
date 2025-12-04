@@ -62,6 +62,8 @@ public class LassoTetherController : MonoBehaviour
         {
             if (playerActions.PreviousDown)
             {
+                if (playerInventory.currentNPC == null) return;
+
                 playerInventory.HandleObjectYank();
                 SwitchLassoState(LassoState.ObjectYanking);
                 return;
@@ -242,6 +244,7 @@ public class LassoTetherController : MonoBehaviour
     {
         if (playerActions.AltUp)
         {
+            playerLasso.SnaredObject.Rb.constraints = RigidbodyConstraints.None;
             playerTether.EndTetherPlacement(true);
             playerLasso.HandleObjectReleased();
             SwitchLassoState(LassoState.Empty);

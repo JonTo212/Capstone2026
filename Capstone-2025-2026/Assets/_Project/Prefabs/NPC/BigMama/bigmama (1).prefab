@@ -160,6 +160,7 @@ Transform:
   m_Children:
   - {fileID: 8229754198339487772}
   - {fileID: 396755988222962529}
+  - {fileID: 546198438500652769}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
 --- !u!33 &890361726692963464
@@ -299,14 +300,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::NPC_Pufferfish
   debugThisProp: 0
   coyoteFallDelay: 0.3
+  slowFall: 1
   attachedTethers: []
   connectedObject: []
   connectedAnchors: []
-  <GrabPoints>k__BackingField: []
+  <GrabPoints>k__BackingField:
+  - {fileID: 546198438500652769}
   <FaceRows>k__BackingField: 0
   <FaceColumns>k__BackingField: 0
+  <CurrentNPCState>k__BackingField: 0
+  <Type>k__BackingField: 0
   timeToCycle: 3
-  idleBobRange: 0.5
+  idleBobRange: 0.35
   settleSpeed: 3.5
   playerSlowfallGravMultiplier: 0.3
   bagScale: 0.2
@@ -448,6 +453,37 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1 &2288312863973880819
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 546198438500652769}
+  m_Layer: 0
+  m_Name: GrabPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &546198438500652769
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2288312863973880819}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.7, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4704397887358896655}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2925708667893694165
 GameObject:
   m_ObjectHideFlags: 0

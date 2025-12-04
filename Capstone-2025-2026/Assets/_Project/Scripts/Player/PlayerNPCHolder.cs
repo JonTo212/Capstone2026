@@ -122,7 +122,7 @@ public class PlayerNPCHolder : MonoBehaviour
             //calculate correctional pull velocity
             float elapsedTime = Time.time - startTime;
             float remainingTime = objectYankDuration - elapsedTime;
-            float clampedRemainingTime = Mathf.Max(remainingTime, 0.05f);
+            float clampedRemainingTime = Mathf.Max(remainingTime, 0.0125f);
 
             Vector3 idealVelocity = CalculateObjectYankVelocity(yankObj.position, attach ? endPos.position : staticEndPos, clampedRemainingTime);
             Vector3 velocityError = idealVelocity - prop.Rb.linearVelocity;

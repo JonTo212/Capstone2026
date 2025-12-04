@@ -179,17 +179,19 @@ public class PlayerMovement : MonoBehaviour
 
     public void ApplySlowFall(float multiplier)
     {
-        _gravity = _maxGravity * multiplier;
-
-        if (_rb.linearVelocity.y <= -_gravity)
+        if (_rb.linearVelocity.y < 0)
         {
-            _rb.linearVelocity = new Vector3(_rb.linearVelocity.x, -_gravity, _rb.linearVelocity.z);
+            _gravity = _maxGravity * multiplier;
+
+            if (_rb.linearVelocity.y <= -_gravity)
+            {
+                _rb.linearVelocity = new Vector3(_rb.linearVelocity.x, -_gravity, _rb.linearVelocity.z);
+            }
         }
-    }
-
-    public void ApplyJumpBoost()
-    {
-
+        else
+        {
+            _gravity = _maxGravity;
+        }
     }
 
     public void EnableGravity(bool enable)

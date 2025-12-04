@@ -24,8 +24,6 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     public virtual bool IsTouchingSurface { get; protected set; } = false;
     public virtual IEnvironmentalElement EnvironmentalForce { get; protected set; }
 
-
-
     private bool didFixedUpdateRun = true;
 
     public Rigidbody Rb { get; protected set; }
@@ -38,6 +36,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     public event Action OnPropSnared;
     public event Action OnPropTethered;
     public event Action OnPropReleased;
+    public event Action OnTetherDetached;
     public event Action OnPropDestroyed;
 
     //virtual functions can be overridden by the derived classes
@@ -148,7 +147,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
             IsTetherPulled = false;
             ObjectOutline.enabled = false;
         }
-        OnPropReleased?.Invoke();
+        OnTetherDetached?.Invoke();
     }
 
     public virtual void ActivateOutline(bool activate)
