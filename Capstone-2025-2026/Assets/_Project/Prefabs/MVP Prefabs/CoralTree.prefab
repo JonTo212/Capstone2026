@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 827568239192460050}
   - component: {fileID: 7069178707142293625}
   - component: {fileID: 1695702566112378695}
-  - component: {fileID: 6724710477635565615}
+  - component: {fileID: 300088065009941998}
   m_Layer: 6
   m_Name: CoralTree
   m_TagString: Untagged
@@ -31,7 +31,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 23.97, y: -11.13, z: 53.95}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 2, y: 1, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -2117,7 +2117,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 7ab977a21c92388468ee65ad1c0e5a78, type: 2}
+  - {fileID: 2100000, guid: f03f887def90715448218440d7f5e2cd, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2148,8 +2148,8 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2457854203598225675}
   m_Mesh: {fileID: 0}
---- !u!64 &6724710477635565615
-MeshCollider:
+--- !u!136 &300088065009941998
+CapsuleCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -2166,7 +2166,8 @@ MeshCollider:
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 0}
+  serializedVersion: 2
+  m_Radius: 1
+  m_Height: 100
+  m_Direction: 1
+  m_Center: {x: 0, y: 0, z: 0}
