@@ -107,7 +107,7 @@ public class Lasso : MonoBehaviour
 
         if (useAimOutline)
         {
-            RaycastHit? hit = _aimAssist.GetAssistHitPoint(PlayerCam, PlayerCamLookPos.position, maxLassoRange, aimAssistType, aimAssistBufferRadius);
+            RaycastHit? hit = _aimAssist.GetAssistHitPoint(PlayerCam, PlayerCamLookPos.position, maxLassoRange * 1.2f, aimAssistType, aimAssistBufferRadius);
             if (hit.HasValue)
             {
                 targetProp = hit.Value.transform.GetComponentInParent<Prop>();

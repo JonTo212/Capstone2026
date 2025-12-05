@@ -43,11 +43,6 @@ public class JointTether : MonoBehaviour
     private Vector3 startLocalPosition;
     private Vector3 endLocalPosition;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        //StartCoroutine(DestroyTetherAfterTime());
-    }
     public void Init(Transform startTransform, Vector3 startLocalPosition, Transform endTransform, Vector3 endLocalPosition, bool autoActivate)
     {
         this.startTransform = startTransform;
@@ -80,12 +75,6 @@ public class JointTether : MonoBehaviour
         joint.xMotion = ConfigurableJointMotion.Limited;
         joint.yMotion = ConfigurableJointMotion.Limited;
         joint.zMotion = ConfigurableJointMotion.Limited;
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
     }
 
     private void FixedUpdate()

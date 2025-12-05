@@ -1,3 +1,4 @@
+using NodeCanvas.BehaviourTrees;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -31,6 +32,7 @@ public class NPC_Pufferfish : Prop, INPC
 
     [Header("InBag")]
     [SerializeField] private float playerSlowfallGravMultiplier;
+    [SerializeField] private float playerWindForceMultiplier = 2f;
     [SerializeField] private float bagScale;
     private Transform playerTransform;
 
@@ -184,6 +186,8 @@ public class NPC_Pufferfish : Prop, INPC
         for (int i = 0; i < attachedTethers.Count; i++)
         {
             if (attachedTethers[i] == null) continue;
+            if (connectedObject[i].TryGetComponent(out Prop prop) && prop.IsSnared) continue;
+
             netJointForce += attachedTethers[i].GetCurrentForce(Rb);
         }
 
@@ -212,16 +216,19 @@ public class NPC_Pufferfish : Prop, INPC
     {
         if (playerTransform == null || CurrentNPCState != NPCState.InBag) return;
 
-        if(playerTransform.TryGetComponent(out PlayerMovement playerMovement))
+        if (playerTransform.TryGetComponent(out PlayerMovement playerMovement))
         {
             if (EnvironmentalForce != null)
             {
-                playerMovement.OverrideMovement(EnvironmentalForce.CalculateForce(playerMovement.Rb));
                 playerMovement.EnableGravity(false);
+                Vector3 force = EnvironmentalForce.CalculateForce() * playerWindForceMultiplier;
+                playerMovement.Rb.AddForce(force, ForceMode.Acceleration);
+
+                playerMovement.ApplyFriction(Vector3.up); //needa do this to match sideways/vertical movement
             }
             else
             {
-                playerMovement.OverrideMovement(Vector3.zero);
+                playerMovement.EnableGravity(true);
                 playerMovement.ApplySlowFall(playerSlowfallGravMultiplier);
             }
         }
@@ -231,7 +238,6 @@ public class NPC_Pufferfish : Prop, INPC
     {
         if(playerTransform.TryGetComponent(out PlayerMovement playerMovement))
         {
-            playerMovement.OverrideMovement(Vector3.zero);
             playerMovement.EnableGravity(true);
             playerMovement.ResetGravity();
         }

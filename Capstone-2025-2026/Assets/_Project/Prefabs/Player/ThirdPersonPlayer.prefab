@@ -5795,7 +5795,6 @@ GameObject:
   - component: {fileID: 6363763804076954650}
   - component: {fileID: 7760591848601245013}
   - component: {fileID: 8924538367377645381}
-  - component: {fileID: 797284633440951836}
   m_Layer: 7
   m_Name: ThirdPersonPlayer
   m_TagString: Player
@@ -6027,7 +6026,7 @@ MonoBehaviour:
   usePickupOutline: 1
   useGrabPointsForHold: 1
   usePhysicsTorque: 1
-  swingJumpForce: 5
+  swingJumpForce: 10
   forwardRef: {fileID: 7779340719812548047}
 --- !u!114 &187563627807177223
 MonoBehaviour:
@@ -6042,6 +6041,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LassoTetherController
   controlsText: {fileID: 5046125116692931103}
+  rodPickedUp: 1
   <CurrentLassoState>k__BackingField: 0
 --- !u!114 &4060152108413697281
 MonoBehaviour:
@@ -6083,6 +6083,11 @@ MonoBehaviour:
     m_Bits: 128
   untetherableMaterials:
   - {fileID: 2100000, guid: 487ffca7304e6d743af0d0242bf2c7c9, type: 2}
+  - {fileID: 2100000, guid: f6c1d7e078c35214b841eae987ffebd6, type: 2}
+  - {fileID: 2100000, guid: 33cd0781ee0c889458319b4432538761, type: 2}
+  - {fileID: 2100000, guid: f03f887def90715448218440d7f5e2cd, type: 2}
+  - {fileID: 2100000, guid: 77343b7229599434cbe07b1e7f37d229, type: 2}
+  - {fileID: 2100000, guid: 627d08ea549b5664e82989432366dc9c, type: 2}
   numOfTethersPlaced: 0
   autoActivateTether: 0
   didStartPointHit: 0
@@ -6362,18 +6367,6 @@ MonoBehaviour:
   handAttachThreshold: 0.5
   <objectYankDuration>k__BackingField: 0.5
   holdPos: {fileID: 3124176947568131111}
---- !u!114 &797284633440951836
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2571145194382551425}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a9642588e6acac14599b8cd6b6ee4589, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::fakeglide
 --- !u!1 &2965844414402353664
 GameObject:
   m_ObjectHideFlags: 0
@@ -12117,7 +12110,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: -25.000244}
+  m_AnchoredPosition: {x: 0, y: -25.000366}
   m_SizeDelta: {x: 300, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &5302983167377062615
@@ -12670,7 +12663,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 141.68909}
+  m_AnchoredPosition: {x: 0, y: -0.000030517578}
   m_SizeDelta: {x: 0, y: 874}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!1 &5892058441005799527
@@ -12793,7 +12786,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 4091486024729698376}
   m_HandleRect: {fileID: 1493070891470726906}
   m_Direction: 2
-  m_Value: 0.77892166
+  m_Value: 1
   m_Size: 0.2667048
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -19114,6 +19107,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DevTeleport
   _player: {fileID: 412334985279009504}
   teleportLocations:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
