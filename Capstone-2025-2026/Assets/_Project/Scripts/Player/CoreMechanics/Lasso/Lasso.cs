@@ -372,7 +372,7 @@ public class Lasso : MonoBehaviour
 
     [Header("Free Rotation")]
     [SerializeField] private float degreesPerSecond = 180f;
-    public void RotateWithInput(Vector2 input)
+    public void RotateWithInput(Vector2 input, bool centerPivot)
     {
         if (SnaredObject == null || SnaredObject.Rb == null) return;
 
@@ -391,10 +391,25 @@ public class Lasso : MonoBehaviour
         Vector3 rotatedOffset = rotationStep * offsetFromPivot;
         Vector3 nextPosition = pivotPoint + rotatedOffset;
 
-        SnaredObject.Rb.MoveRotation(nextRotation);
-        SnaredObject.Rb.MovePosition(nextPosition);
 
-        SnaredObject.Rb.angularVelocity = Vector3.zero;
+        if (centerPivot)
+        {
+            rotationStep.ToAngleAxis(out float angle, out Vector3 axis);
+            if (angle > 180f) angle -= 360f; // normalize
+
+            Vector3 targetAngularVelocity = axis * Mathf.Deg2Rad * angle / Time.fixedDeltaTime;
+            Vector3 angularVelocityError = targetAngularVelocity - SnaredObject.Rb.angularVelocity;
+            Vector3 correctiveTorque = angularVelocityError / Time.fixedDeltaTime;
+
+            SnaredObject.Rb.AddTorque(correctiveTorque, ForceMode.Acceleration);
+        }
+        else
+        {
+            SnaredObject.Rb.MoveRotation(nextRotation);
+            SnaredObject.Rb.MovePosition(nextPosition);
+            SnaredObject.Rb.angularVelocity = Vector3.zero;
+        }
+
         Rotated = true;
     }
 

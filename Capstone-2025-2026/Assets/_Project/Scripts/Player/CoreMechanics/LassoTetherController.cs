@@ -106,7 +106,7 @@ public class LassoTetherController : MonoBehaviour
             }
             else
             {
-                playerLasso.RotateWithInput(playerActions.LookInput);
+                playerLasso.RotateWithInput(playerActions.LookInput, useObjectManipulationMode);
             }
             playerLasso.MoveObjectToPos(playerLasso.GetAnchoredCenterOfScreen());
         }
@@ -228,15 +228,20 @@ public class LassoTetherController : MonoBehaviour
 
         if(playerActions.SprintDown)
         {
-            if (playerLasso.useSnapRotation)
+            if (useObjectManipulationMode)
             {
-                playerLasso.InitializeRotationToClosestSnap();
-                if (useObjectManipulationMode)
+                playerLasso.BeginCenterPivot();
+                playerLasso.HitPos = playerLasso.SnaredObject.transform.position;
+                wasUsingPhysicsLasso = playerLasso.usePhysicsLasso;
+                playerLasso.usePhysicsLasso = false;
+
+                if (playerLasso.useSnapRotation)
                 {
-                    playerLasso.BeginCenterPivot();
-                    playerLasso.HitPos = playerLasso.SnaredObject.transform.position;
-                    wasUsingPhysicsLasso = playerLasso.usePhysicsLasso;
-                    playerLasso.usePhysicsLasso = false;
+                    playerLasso.InitializeRotationToClosestSnap();
+                }
+                else
+                {
+                    playerLasso.camInputController.enabled = false;
                 }
             }
             else
@@ -301,11 +306,12 @@ public class LassoTetherController : MonoBehaviour
         }
         else
         {
-            if (playerActions.SprintUp)
+            if (playerActions.SprintDown)
             {
                 if (useObjectManipulationMode)
                 {
                     playerLasso.usePhysicsLasso = wasUsingPhysicsLasso;
+                    playerLasso.RestorePivot();
                 }
                 playerLasso.camInputController.enabled = true;
                 SwitchLassoState(LassoState.Snared);
