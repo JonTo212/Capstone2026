@@ -7,6 +7,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.ProBuilder.MeshOperations;
 using static CharacterSkinController;
+using DG.Tweening;
 
 public class JointTetherPlacer : MonoBehaviour
 {
@@ -40,6 +41,7 @@ public class JointTetherPlacer : MonoBehaviour
     [SerializeField] private Vector3 endLocalPosition;
     [SerializeField] private TMP_Text tetherAmountText;
     [SerializeField] private TMP_Text tetherControlsText;
+    public float originalAmountTextPosition;
     public event Action OnTetherStartHit;
     public AudioManager aManage;
 
@@ -48,12 +50,14 @@ public class JointTetherPlacer : MonoBehaviour
     {
         aManage = GameObject.Find("AudioManager").GetComponent<AudioManager>();
         _playerCamera = Camera.main;
+        originalAmountTextPosition = tetherAmountText.gameObject.transform.position.y;
     }
 
     private void Start()
     {
         GameObject tetherPreview = Instantiate(tetherPreviewLinePrefab, transform.position, Quaternion.identity);
         tetherPreviewLine = tetherPreview.GetComponent<TetherPreviewLine>();
+        Invoke(nameof(TextOffScreen),5f);
     }
 
     // Update is called once per frame
@@ -252,6 +256,16 @@ public class JointTetherPlacer : MonoBehaviour
         return hit.collider != null;
     }
 
+    public void TextOnScreen()
+    {
+        tetherAmountText.gameObject.transform.DOMoveY(originalAmountTextPosition, 2);
+    }
+
+    public void TextOffScreen()
+    {
+        tetherAmountText.gameObject.transform.DOMoveY(-211,2);
+    }
+
     private void DecreasePlacedTetherCount(JointTether jointTether)
     {
         placedTethers.Remove(jointTether);
@@ -275,10 +289,12 @@ public class JointTetherPlacer : MonoBehaviour
         if (numOfTethersPlaced == 0)
         {
             tetherControlsText.SetText("");
+            TextOffScreen();
         }
         else if (numOfTethersPlaced == 1)
         {
             tetherControlsText.SetText("[E]: Activate Selected Tether\n[C]: Deactivate Selected Tether");
+            TextOnScreen();
         }
         else if (numOfTethersPlaced > 1)
         {
