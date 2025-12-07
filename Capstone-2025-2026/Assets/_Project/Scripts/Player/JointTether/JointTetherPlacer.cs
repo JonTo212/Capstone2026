@@ -264,9 +264,16 @@ public class JointTetherPlacer : MonoBehaviour
         startTransform = null;
         endTransform = null;
         didStartPointHit = false;
-        didEndPointHit = false;
         startLocalPosition = Vector3.zero;
         endLocalPosition = Vector3.zero;
+
+        Invoke(nameof(ResetEndPointHit), 0.25f);
+    }
+
+    private void ResetEndPointHit()
+    {
+        //for animation
+        didEndPointHit = false;
     }
 
     private void UpdateTetherAmountText()
