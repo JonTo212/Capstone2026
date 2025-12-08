@@ -30,6 +30,11 @@ public class NPC_Pufferfish : Prop, INPC
     [SerializeField] private float idleBobRange;
     [SerializeField] private float settleSpeed;
 
+    [Header("Activated")]
+    [SerializeField] private float freezeThreshold = 0.05f;
+    [SerializeField] private float freezeDampSpeed = 2f;
+    private bool pendingFreeze = false;
+
     [Header("InBag")]
     [SerializeField] private float playerSlowfallGravMultiplier;
     [SerializeField] private float playerWindForceMultiplier = 2f;
@@ -45,6 +50,7 @@ public class NPC_Pufferfish : Prop, INPC
     private Coroutine animCoroutine;
     private Vector3 defaultLocalScale;
 
+    #region Unity Functions
     private void Awake()
     {
         Init();
@@ -52,16 +58,12 @@ public class NPC_Pufferfish : Prop, INPC
         defaultLocalScale = Vector3.one;
         SwitchNPCState(NPCState.Deactivated);
 
-        OnPropTethered += OnTethersAttached;
-        OnPropReleased += OnSnareTetherDetached;
-        OnTetherDetached += OnSnareTetherDetached;
+        OnEnvironmentalForceSet += CheckIfInEnvironmentalForce;
     }
 
     private void OnDisable()
     {
-        OnPropTethered -= OnTethersAttached;
-        OnPropReleased -= OnSnareTetherDetached;
-        OnTetherDetached -= OnSnareTetherDetached;
+        OnEnvironmentalForceSet -= CheckIfInEnvironmentalForce;
     }
 
     protected override void FixedUpdate()
@@ -69,6 +71,7 @@ public class NPC_Pufferfish : Prop, INPC
         base.FixedUpdate();
         CounteractTetherForces();
         HandleNPCStateMachine();
+        HandleFreezeDamping();
     }
 
     private void HandleNPCStateMachine()
@@ -92,6 +95,8 @@ public class NPC_Pufferfish : Prop, INPC
         if(CurrentNPCState == newState) return;
         CurrentNPCState = newState;
     }
+
+    #endregion
 
     #region Activated/Deactivated 
 
@@ -153,31 +158,67 @@ public class NPC_Pufferfish : Prop, INPC
     {
         SwitchNPCState(NPCState.Activated);
     }
+    #endregion
+
+    #region Overrides / Temp EnvironmentalForce Stuff
 
     public override void OnSnare()
     {
         base.OnSnare();
         Rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+        pendingFreeze = false;
         SwitchNPCState(NPCState.Activated);
     }
 
-    private void OnTethersAttached()
+    public override void OnTetherPull(JointTether tether, Transform targetAnchorTransform, Transform targetObjectTransform)
     {
-        //Rb.constraints = RigidbodyConstraints.FreezePosition | RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+        base.OnTetherPull(tether, targetAnchorTransform, targetObjectTransform);
+        if (EnvironmentalForce == null)
+        {
+            pendingFreeze = true;
+        }
         SwitchNPCState(NPCState.Activated);
     }
 
-    private void OnSnareTetherDetached()
+    public override void OnRelease()
     {
-        if (IsSnared) return;
+        base.OnRelease();
         if (attachedTethers.Count > 0)
         {
-            //Rb.constraints = RigidbodyConstraints.FreezePosition | RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ; //this needs to change -> find a new way to stop tether forces
-            return;
+            if (EnvironmentalForce == null)
+            {
+                pendingFreeze = true;
+                return;
+            }
         }
 
-        Rb.constraints =  RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+        Rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
         SwitchNPCState(NPCState.Deactivated);
+    }
+
+    public override void OnDetachTether(JointTether tether, Transform targetAnchorTransform, Transform targetObjectTransform)
+    {
+        base.OnDetachTether(tether, targetAnchorTransform, targetObjectTransform);
+        if (attachedTethers.Count > 0)
+        {
+            if (EnvironmentalForce == null)
+            {
+                pendingFreeze = true; //this needs to change -> find a new way to stop tether forces
+                return;
+            }
+        }
+
+        Rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+        SwitchNPCState(NPCState.Deactivated);
+    }
+
+    private void DestroyAllAttachedTethers()
+    {
+        List<JointTether> tetherCopies = new List<JointTether>(attachedTethers);
+        foreach (var tether in tetherCopies)
+        {
+            tether.DestroyTether();
+        }
     }
 
     private void CounteractTetherForces()
@@ -199,12 +240,39 @@ public class NPC_Pufferfish : Prop, INPC
         }
     }
 
-    private void DestroyAllAttachedTethers()
+    private void CheckIfInEnvironmentalForce()
     {
-        List<JointTether> tetherCopies = new List<JointTether>(attachedTethers);
-        foreach(var tether in tetherCopies)
+        if (CurrentNPCState == NPCState.InBag)
         {
-            tether.DestroyTether();
+            pendingFreeze = false;
+            Rb.linearVelocity = Vector3.zero;
+            Rb.angularVelocity = Vector3.zero;
+            return;
+        }
+
+        if (EnvironmentalForce == null && attachedTethers.Count > 0 && !IsSnared)
+        {
+            pendingFreeze = true;
+        }
+        else
+        {
+            Rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+        }
+    }
+
+    private void HandleFreezeDamping()
+    {
+        if (!pendingFreeze) return;
+
+        Rb.linearVelocity = Vector3.MoveTowards(Rb.linearVelocity, Vector3.zero, Time.fixedDeltaTime * freezeDampSpeed);
+        Rb.angularVelocity = Vector3.MoveTowards(Rb.angularVelocity, Vector3.zero, Time.fixedDeltaTime * freezeDampSpeed);
+
+        if (Rb.linearVelocity.magnitude < freezeThreshold)
+        {
+            Rb.linearVelocity = Vector3.zero;
+            Rb.angularVelocity = Vector3.zero;
+            Rb.constraints = RigidbodyConstraints.FreezePosition | RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+            pendingFreeze = false;
         }
     }
 
