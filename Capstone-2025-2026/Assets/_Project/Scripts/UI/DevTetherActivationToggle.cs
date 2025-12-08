@@ -1,38 +1,68 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class DevTetherActivationToggle : MonoBehaviour
 {
     [SerializeField] JointTetherPlacer jointTetherPlacer;
+    [SerializeField] LassoTetherController lassoTetherController;
+    [SerializeField] Color onColor = Color.green;
+    [SerializeField] Color offColor = Color.red;
     [SerializeField] RectTransform tetherActivationToggleButton;
-    [SerializeField] Color autoActivateOn = Color.green;
-    [SerializeField] Color autoActivateOff = Color.red;
-    private Image toggleButtonImage; 
-    private TMPro.TextMeshProUGUI text;
+    [SerializeField] RectTransform tetherModeToggleButton;
+    private Image autoActivateTetherImage;
+    private Image tetherModeToggleImage;
+    private TextMeshProUGUI autoActivateTetherText;
+    private TextMeshProUGUI tetherModeToggleText;
     private void Start()
     {
-        toggleButtonImage = tetherActivationToggleButton.GetComponent<Image>();
-        text = tetherActivationToggleButton.GetChild(0).GetComponent<TMPro.TextMeshProUGUI>();
-        SetButtonColor();
+        autoActivateTetherImage = tetherActivationToggleButton.GetComponent<Image>();
+        autoActivateTetherText = tetherActivationToggleButton.GetChild(0).GetComponent<TextMeshProUGUI>();
+
+        tetherModeToggleImage = tetherModeToggleButton.GetComponent<Image>();
+        tetherModeToggleText = tetherModeToggleButton.GetChild(0).GetComponent<TextMeshProUGUI>();
+
+        SetAutoActivateButtonColor();
+        SetTetherModeButtonColor();
     }
 
     public void ToggleAutoActivateTether()
     {
         jointTetherPlacer.ToggleAutoActivateTether();
-        SetButtonColor();
+        SetAutoActivateButtonColor();
     }
 
-    private void SetButtonColor()
+    public void ToggletTetherMode()
+    {
+        lassoTetherController.ToggleAlowTetherModeActivation();
+        SetTetherModeButtonColor();
+    }
+
+    private void SetAutoActivateButtonColor()
     {
         if(jointTetherPlacer.autoActivateTether)
         {
-            toggleButtonImage.color = autoActivateOn;
-            text.SetText("Auto Activate Tether: On");
+            autoActivateTetherImage.color = onColor;
+            autoActivateTetherText.SetText("Auto Activate Tether: On");
         }
         else
         {
-            toggleButtonImage.color = autoActivateOff;
-            text.SetText("Auto Activate Tether: Off");
+            autoActivateTetherImage.color = offColor;
+            autoActivateTetherText.SetText("Auto Activate Tether: Off");
+        }
+    }
+
+    private void SetTetherModeButtonColor()
+    {
+        if (lassoTetherController.TetherMode)
+        {
+            tetherModeToggleImage.color = onColor;
+            tetherModeToggleText.SetText("Tether Mode: On");
+        }
+        else
+        {
+            tetherModeToggleImage.color = offColor;
+            tetherModeToggleText.SetText("Tether Mode: Off");
         }
     }
 }

@@ -8,6 +8,7 @@ public enum LassoState
     Snared,
     Tethering,
     SnaredTether,
+    TetherMode,
     Swinging,
     PlayerYanking,
     ObjectYanking,
@@ -26,6 +27,8 @@ public class LassoTetherController : MonoBehaviour
     private PlayerActions playerActions;
     private JointTetherPlacer playerTether;
     private JointTetherActivator playerTetherActivator;
+
+    public bool TetherMode = false;
 
     [Header("States")]
     public bool rodPickedUp = true;
@@ -85,6 +88,10 @@ public class LassoTetherController : MonoBehaviour
 
                 case LassoState.SnaredTether:
                     HandleSnaredTetherControls();
+                    break;
+
+                case LassoState.TetherMode:
+                    HandleTetherModeControls();
                     break;
 
                 case LassoState.Swinging:
@@ -207,9 +214,18 @@ public class LassoTetherController : MonoBehaviour
 
         if (playerActions.AltHeld)
         {
-            playerTether.StartTetherPlacement(playerLasso.SnaredObject.transform, playerLasso.HitPos);
-            playerLasso.SnaredObject.Rb.constraints = RigidbodyConstraints.FreezePosition;
-            SwitchLassoState(LassoState.SnaredTether);
+            if (TetherMode)
+            {
+                playerTether.EnterTetherMode(playerLasso.SnaredObject);
+                playerLasso.SnaredObject.Rb.constraints = RigidbodyConstraints.FreezePosition;
+                SwitchLassoState(LassoState.TetherMode);
+            }
+            else
+            {
+                playerTether.StartTetherPlacement(playerLasso.SnaredObject.transform, playerLasso.HitPos);
+                playerLasso.SnaredObject.Rb.constraints = RigidbodyConstraints.FreezePosition;
+                SwitchLassoState(LassoState.SnaredTether);
+            }
         }
 
         if (playerActions.MainUp)
@@ -249,6 +265,33 @@ public class LassoTetherController : MonoBehaviour
             playerLasso.HandleObjectReleased();
             SwitchLassoState(LassoState.Empty);
         }
+    }
+
+    private void HandleTetherModeControls()
+    {
+        playerTether.HandleTetherMode();
+        if (playerActions.AltDown)
+        {
+            Debug.Log("Alt down");
+            playerTether.TetherModeStartTetherPlacement();
+        }
+        if (playerActions.AltUp)
+        {
+            Debug.Log("Alt Up");
+            playerTether.TetherModeEndTetherPlacement();
+        }
+        if (playerActions.MainUp)
+        {
+            playerLasso.SnaredObject.Rb.constraints = RigidbodyConstraints.None;
+            playerTether.ExitTetherMode();
+            playerLasso.HandleObjectReleased();
+            SwitchLassoState(LassoState.Empty);
+        }
+    }
+
+    public void ToggleAlowTetherModeActivation()
+    {
+        TetherMode = !TetherMode;
     }
     #endregion
 
