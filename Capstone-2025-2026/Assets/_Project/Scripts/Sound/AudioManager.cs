@@ -61,6 +61,9 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioClip tetherStart;
     [SerializeField] private AudioClip tetherEnd;
     [SerializeField] private AudioClip tetherTighten;
+    [SerializeField] private AudioClip lightClense;
+    [SerializeField] private AudioClip fanFare;
+    [SerializeField] private AudioClip collection;
     //[SerializeField]  private AudioClip claspSolid;
     //[SerializeField]  private AudioClip claspSoft;
     public AudioClip PlayerHurt => playerHurt;
@@ -73,6 +76,11 @@ public class AudioManager : MonoBehaviour
     public AudioClip TetherStart => tetherStart;
     public AudioClip TetherEnd => tetherEnd;
     public AudioClip TetherTighten => tetherTighten;
+    public AudioClip LightClense => lightClense;
+    public AudioClip FanFare => fanFare;
+    public AudioClip Collection => collection;
+
+
     //public AudioClip ClaspSolid => claspSolid;
     //public AudioClip ClaspSoft => claspSoft ;
     [Header("------------Environment Clips------------")]

@@ -67,6 +67,9 @@ public class NPC_Pufferfish : Prop, INPC
         base.FixedUpdate();
         CounteractTetherForces();
         HandleNPCStateMachine();
+
+        //face player
+        transform.LookAt(playerTransform.position);
     }
 
     private void HandleNPCStateMachine()
