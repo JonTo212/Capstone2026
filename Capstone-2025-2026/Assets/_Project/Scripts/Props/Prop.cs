@@ -38,6 +38,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     public event Action OnPropReleased;
     public event Action OnTetherDetached;
     public event Action OnPropDestroyed;
+    public event Action OnEnvironmentalForceSet;
 
     //virtual functions can be overridden by the derived classes
     //default behaviour is updating IsHeld and parenting the object to a given transform (i.e. player hand)
@@ -253,6 +254,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     public virtual void SetInEnvironmentalElement(IEnvironmentalElement environmentalForce)
     {
         EnvironmentalForce = environmentalForce;
+        OnEnvironmentalForceSet?.Invoke();
     }
 
     #endregion

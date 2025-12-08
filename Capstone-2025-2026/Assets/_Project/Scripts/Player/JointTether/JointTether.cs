@@ -224,6 +224,8 @@ public class JointTether : MonoBehaviour
         if (rb == startRb) forceDirection = (endAnchorPos - startAnchorPos).normalized;
         else forceDirection = (startAnchorPos - endAnchorPos).normalized;
 
+        float mass = rb.mass;
+
         if(isActivated)
         {
             Vector3 jointDir = endAnchorPos - startAnchorPos;
@@ -234,11 +236,11 @@ public class JointTether : MonoBehaviour
             float relativeVelocity = Vector3.Dot(endRb.linearVelocity - startRb.linearVelocity, jointDir);
             float scalarForce = Mathf.Clamp((driveStrength * dist) - (driveDamper * relativeVelocity), 0, maxForce);
 
-            return forceDirection * scalarForce;
+            return forceDirection * scalarForce * mass;
         }
         else
         {
-            return joint.currentForce.magnitude * forceDirection;
+            return joint.currentForce.magnitude * forceDirection * mass;
         }
     }
 
