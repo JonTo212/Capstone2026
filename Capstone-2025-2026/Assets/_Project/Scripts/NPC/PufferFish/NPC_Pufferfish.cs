@@ -23,7 +23,8 @@ public struct NPCMultipliers
 public class NPC_Pufferfish : Prop, INPC
 {
     [field: SerializeField] public NPCState CurrentNPCState { get; private set; }
-    [field: SerializeField] public NPCType Type { get; private set; }
+    [field: SerializeField] public NPCType NPCType { get; private set; }
+    public Transform NPCTransform { get; private set; }
 
     [Header("Deactivated")]
     [SerializeField] private float timeToCycle;
@@ -57,6 +58,7 @@ public class NPC_Pufferfish : Prop, INPC
         Rb.useGravity = false;
         defaultLocalScale = Vector3.one;
         SwitchNPCState(NPCState.Deactivated);
+        NPCTransform = transform;
 
         OnEnvironmentalForceSet += CheckIfInEnvironmentalForce;
     }
