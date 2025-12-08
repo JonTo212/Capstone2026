@@ -12,6 +12,7 @@ public enum LassoState
     PlayerYanking,
     ObjectYanking,
     Held,
+    Rotating,
     Using
 }
 
@@ -27,10 +28,14 @@ public class LassoTetherController : MonoBehaviour
     private JointTetherPlacer playerTether;
     private JointTetherActivator playerTetherActivator;
 
+    [Header("Object Manipulation Mode")]
+    [SerializeField] private bool useObjectManipulationMode;
+    private bool wasUsingPhysicsLasso;
+    private Vector3 cachedHitPos;
+
     [Header("States")]
     public bool rodPickedUp = true;
     [field: SerializeField] public LassoState CurrentLassoState { get; private set; }
-    private Coroutine _yankCheckCoroutine;
 
     #region Unity Functions
     private void Awake()
@@ -43,8 +48,11 @@ public class LassoTetherController : MonoBehaviour
 
         playerLasso.OnLassoReleased += OnLassoReleased;
         playerLasso.OnObjectHit += OnLassoHit;
+        playerLasso.OnSnapFinished += HandleSnapFinish;
         playerTether.OnTetherStartHit += OnTetherStartHit;
         playerInventory.OnObjectYankCompleted += OnObjectYankCompleted;
+
+        wasUsingPhysicsLasso = playerLasso.usePhysicsLasso;
 
         TempSetText(LassoState.Empty);
     }
@@ -90,8 +98,13 @@ public class LassoTetherController : MonoBehaviour
                 case LassoState.Swinging:
                     HandleSwingingControls();
                     break;
+
                 case LassoState.ObjectYanking:
                     HandleYankingControls();
+                    break;
+
+                case LassoState.Rotating:
+                    HandleRotatingControls();
                     break;
             }
             HandleTetherActivation();
@@ -105,6 +118,25 @@ public class LassoTetherController : MonoBehaviour
         {
             playerLasso.MoveObjectToPos(playerLasso.GetAnchoredCenterOfScreen());
             playerLasso.AnchorToObject();
+        }
+        else if(CurrentLassoState == LassoState.Rotating)
+        {
+            if (playerLasso.useSnapRotation)
+            {
+                playerLasso.MaintainObjectRotation();
+            }
+            else
+            {
+                playerLasso.RotateWithInput(playerActions.LookInput, useObjectManipulationMode);
+            }
+            playerLasso.MoveObjectToPos(playerLasso.GetAnchoredCenterOfScreen());
+        }
+        else if(CurrentLassoState == LassoState.SnaredTether)
+        {
+            if (playerLasso.Rotated)
+            {
+                playerLasso.MaintainObjectRotation();
+            }
         }
     }
 
@@ -214,7 +246,36 @@ public class LassoTetherController : MonoBehaviour
 
         if (playerActions.MainUp)
         {
+            if (useObjectManipulationMode)
+            {
+                playerLasso.usePhysicsLasso = wasUsingPhysicsLasso;
+            }
             playerLasso.HandleObjectReleased();
+        }
+
+        if(playerActions.SprintDown)
+        {
+            if (useObjectManipulationMode)
+            {
+                playerLasso.BeginCenterPivot();
+                playerLasso.HitPos = playerLasso.SnaredObject.transform.position;
+                wasUsingPhysicsLasso = playerLasso.usePhysicsLasso;
+                playerLasso.usePhysicsLasso = false;
+
+                if (playerLasso.useSnapRotation)
+                {
+                    playerLasso.InitializeRotationToClosestSnap();
+                }
+                else
+                {
+                    playerLasso.camInputController.enabled = false;
+                }
+            }
+            else
+            {
+                playerLasso.camInputController.enabled = false;
+            }
+            SwitchLassoState(LassoState.Rotating);
         }
     }
 
@@ -279,6 +340,77 @@ public class LassoTetherController : MonoBehaviour
         }
     }
 
+    #region Rotating Controls
+    private void HandleRotatingControls()
+    {
+        playerLasso.MoveAnchorPoint(playerActions.GetDPadScrollValue());
+
+        if (playerLasso.useSnapRotation)
+        {
+            if (playerActions.InteractDown)
+            {
+                playerLasso.ApplySnapRotation(Vector3.right);
+            }
+            if (playerActions.PreviousDown)
+            {
+                playerLasso.ApplySnapRotation(Vector3.up);
+            }
+
+            if (playerActions.SprintDown)
+            {
+                playerLasso.StartFinishSnap();
+            }
+        }
+        else
+        {
+            if (playerActions.SprintDown)
+            {
+                if (useObjectManipulationMode)
+                {
+                    playerLasso.usePhysicsLasso = wasUsingPhysicsLasso;
+                    playerLasso.RestorePivot();
+                }
+                playerLasso.camInputController.enabled = true;
+                SwitchLassoState(LassoState.Snared);
+            }
+        }
+
+        if (playerActions.MainUp)
+        {
+            if (useObjectManipulationMode)
+            {
+                playerLasso.usePhysicsLasso = wasUsingPhysicsLasso;
+            }
+            playerLasso.camInputController.enabled = true;
+            playerLasso.HandleObjectReleased();
+        }
+
+        if (playerActions.AltDown)
+        {
+            if (useObjectManipulationMode)
+            {
+                playerLasso.usePhysicsLasso = wasUsingPhysicsLasso;
+            }
+            playerTether.StartTetherPlacement(playerLasso.SnaredObject.transform, playerLasso.HitPos);
+            playerLasso.SnaredObject.Rb.constraints = RigidbodyConstraints.FreezePosition;
+            SwitchLassoState(LassoState.SnaredTether);
+        }
+    }
+
+    private void HandleSnapFinish()
+    {
+        if (CurrentLassoState == LassoState.Rotating)
+        {
+            if (useObjectManipulationMode)
+            {
+                playerLasso.usePhysicsLasso = wasUsingPhysicsLasso;
+            }
+
+            playerLasso.camInputController.enabled = true;
+            playerLasso.RestorePivot();
+            SwitchLassoState(LassoState.Snared);
+        }
+    }
     #endregion
 
     private void TempSetText(LassoState state)

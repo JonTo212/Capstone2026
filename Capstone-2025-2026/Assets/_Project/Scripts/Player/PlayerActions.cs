@@ -56,6 +56,10 @@ public class PlayerActions : MonoBehaviour
     public bool InteractHeld => interactAction.IsPressed();
     public bool InteractUp => interactAction.WasReleasedThisFrame();
 
+    public bool PreviousDown => previousAction.WasPressedThisFrame();
+    public bool PreviousHeld => previousAction.IsPressed();
+    public bool PreviousUp => previousAction.WasReleasedThisFrame();
+
     public bool MenuDown => menuAction.WasPressedThisFrame();
     public bool MenuHeld => menuAction.IsPressed();
     public bool MenuUp => menuAction.WasReleasedThisFrame();
@@ -72,9 +76,6 @@ public class PlayerActions : MonoBehaviour
     public bool RespawnHeld => respawnAction.IsPressed();
     public bool RespawnUp => respawnAction.WasReleasedThisFrame();
 
-    public bool PreviousDown => previousAction.WasPressedThisFrame();
-    public bool PreviousHeld => previousAction.IsPressed();
-    public bool PreviousUp => previousAction.WasReleasedThisFrame();
 
     private void Awake()
     {
