@@ -412,17 +412,18 @@ public class PlayerMovement : MonoBehaviour
     }
 
     private Vector3 LedgeCheckWithoutAForLoop(Vector3 intendedDirection)
-    {/*
+    { 
         //If there is a place the player can fall, the check will return where that is
-                
-        if (!Physics.Raycast(feetPos.position + (intendedDirection * ledgeScanLength), Vector3.down, ledgeScanDepth) && IsGrounded() && 
-            _lassoTetherController.CurrentLassoState == LassoState.Held)
+        
+        if (!Physics.Raycast(feetPos.position + Vector3.up * 1.9f + (intendedDirection * ledgeScanLength), Vector3.down, ledgeScanDepth) && IsGrounded()
+            && (_lassoTetherController.CurrentLassoState == LassoState.Snared || _lassoTetherController.CurrentLassoState == LassoState.Tethering || 
+            _lassoTetherController.CurrentLassoState == LassoState.SnaredTether))
         {
             intendedDirection = Vector3.zero;
         }
 
         Debug.DrawLine(feetPos.position + (intendedDirection * ledgeScanLength), feetPos.position + (intendedDirection * ledgeScanLength) + (Vector3.down * ledgeScanDepth), Color.red);
-        print(intendedDirection);*/
+        print(intendedDirection);
         return intendedDirection;
     }
 
