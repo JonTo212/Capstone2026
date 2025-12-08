@@ -206,6 +206,36 @@ public class AudioManager : MonoBehaviour
         }
     }
 
+    public void StopSFX(int channel)
+    {
+        AudioSource selectedSource = null;
+        switch (channel)
+        {
+            case 1:
+                selectedSource = SFXSource1;
+                break;
+            case 2:
+                selectedSource = SFXSource2;
+                break;
+            case 3:
+                selectedSource = SFXSource3;
+                break;
+            case 4:
+                selectedSource = SFXSource4;
+                break;
+            case 5:
+                selectedSource = SFXSource5;
+                break;
+            case 6:
+                selectedSource = SFXSource6;
+                break;
+            case 7:
+                selectedSource = SFXSource7;
+                break;
+        }
+        selectedSource.Stop();
+    }
+
     //Choose CLIP, Choose CHANNEL, Choose RANGE. It'll play one loop of the clip at full volume with pitch varied between given range. If the clip isn't filled out properly, error noise will play
     public void PlaySFXVaried(AudioClip clip, int channel, float range, float? volume = 1)
     {

@@ -10,6 +10,8 @@ public class PlayerNPCHolder : MonoBehaviour
     private Lasso _playerLasso;
     private Coroutine _objectYankCoroutine;
     private Transform connectedNPC;
+    private bool useAbilityRequested;
+    private bool stopAbilityRequested;
 
     [Header("Object Yank Properties")]
     [SerializeField] private float handAttachThreshold = 0.2f;
@@ -37,11 +39,28 @@ public class PlayerNPCHolder : MonoBehaviour
         {
             if(_playerInput.JumpHeld)
             {
-                currentNPC.UseAbility();
+                useAbilityRequested = true;
             }
             if (_playerInput.JumpUp)
             {
+                stopAbilityRequested = true;
+            }
+        }
+    }
+
+    private void FixedUpdate()
+    {
+        if (currentNPC != null)
+        {
+            if (useAbilityRequested)
+            {
+                currentNPC.UseAbility();
+                useAbilityRequested = false;
+            }
+            if (stopAbilityRequested)
+            {
                 currentNPC.StopAbility();
+                stopAbilityRequested = false; 
             }
         }
     }

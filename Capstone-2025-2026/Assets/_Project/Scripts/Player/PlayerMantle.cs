@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -16,6 +17,8 @@ public class PlayerMantle : MonoBehaviour
     private PlayerActions _playerActions;
     private PlayerController _playerController;
     private Coroutine _mantleCoroutine;
+
+    public event Action<bool> OnMantle;
 
     private void Awake()
     {
@@ -60,9 +63,10 @@ public class PlayerMantle : MonoBehaviour
     private IEnumerator MantleCoroutine(Vector3 targetPos)
     {
         _playerController.Rb.isKinematic = true;
+        OnMantle?.Invoke(true);
 
         Vector3 startPos = transform.position;
-        Vector3 climbPos = new Vector3(startPos.x, targetPos.y + climbHeightBuffer, startPos.z + forwardClimbBuffer);
+        Vector3 climbPos = new Vector3(startPos.x, targetPos.y + climbHeightBuffer, startPos.z);
 
         //first half -> climb upwards
         float timer = 0;
@@ -87,6 +91,8 @@ public class PlayerMantle : MonoBehaviour
         _playerController.Rb.position = targetPos;
         _playerController.Rb.isKinematic = false;
         _mantleCoroutine = null;
+
+        OnMantle?.Invoke(false);
     }
 
 }

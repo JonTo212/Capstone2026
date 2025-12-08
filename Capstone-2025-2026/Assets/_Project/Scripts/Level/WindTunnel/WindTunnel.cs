@@ -117,17 +117,17 @@ public class WindTunnel : MonoBehaviour, IEnvironmentalElement
     }
     private void StabilizeRbSpeed(Prop prop)
     {
-        Vector3 force = CalculateForce(prop.Rb);
-        prop.ApplyForceInDirection(force.normalized, force.magnitude, ForceMode.Force);
-    }
-
-    public Vector3 CalculateForce(Rigidbody rb)
-    {
-        Vector3 currentSpeed = rb.linearVelocity;
+        Vector3 currentSpeed = prop.Rb.linearVelocity;
         Vector3 vectorToTargetSpeed = windDirection * windSpeed - currentSpeed;
         Vector3 directionToTargetSpeed = vectorToTargetSpeed.normalized;
 
         Vector3 force = directionToTargetSpeed * windStrength;
+        prop.ApplyForceInDirection(force.normalized, force.magnitude, ForceMode.Force);
+    }
+
+    public Vector3 CalculateForce()
+    {
+        Vector3 force = windDirection.normalized * windStrength;
         return force;
     }
 

@@ -43,11 +43,6 @@ public class JointTether : MonoBehaviour
     private Vector3 startLocalPosition;
     private Vector3 endLocalPosition;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        //StartCoroutine(DestroyTetherAfterTime());
-    }
     public void Init(Transform startTransform, Vector3 startLocalPosition, Transform endTransform, Vector3 endLocalPosition, bool autoActivate)
     {
         this.startTransform = startTransform;
@@ -80,12 +75,6 @@ public class JointTether : MonoBehaviour
         joint.xMotion = ConfigurableJointMotion.Limited;
         joint.yMotion = ConfigurableJointMotion.Limited;
         joint.zMotion = ConfigurableJointMotion.Limited;
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
     }
 
     private void FixedUpdate()
@@ -235,6 +224,8 @@ public class JointTether : MonoBehaviour
         if (rb == startRb) forceDirection = (endAnchorPos - startAnchorPos).normalized;
         else forceDirection = (startAnchorPos - endAnchorPos).normalized;
 
+        float mass = rb.mass;
+
         if(isActivated)
         {
             Vector3 jointDir = endAnchorPos - startAnchorPos;
@@ -245,11 +236,11 @@ public class JointTether : MonoBehaviour
             float relativeVelocity = Vector3.Dot(endRb.linearVelocity - startRb.linearVelocity, jointDir);
             float scalarForce = Mathf.Clamp((driveStrength * dist) - (driveDamper * relativeVelocity), 0, maxForce);
 
-            return forceDirection * scalarForce;
+            return forceDirection * scalarForce * mass;
         }
         else
         {
-            return joint.currentForce.magnitude * forceDirection;
+            return joint.currentForce.magnitude * forceDirection * mass;
         }
     }
 

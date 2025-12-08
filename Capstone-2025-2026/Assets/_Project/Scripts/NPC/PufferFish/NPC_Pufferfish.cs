@@ -1,3 +1,4 @@
+using NodeCanvas.BehaviourTrees;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -22,15 +23,22 @@ public struct NPCMultipliers
 public class NPC_Pufferfish : Prop, INPC
 {
     [field: SerializeField] public NPCState CurrentNPCState { get; private set; }
-    [field: SerializeField] public NPCType Type { get; private set; }
+    [field: SerializeField] public NPCType NPCType { get; private set; }
+    public Transform NPCTransform { get; private set; }
 
     [Header("Deactivated")]
     [SerializeField] private float timeToCycle;
     [SerializeField] private float idleBobRange;
     [SerializeField] private float settleSpeed;
 
+    [Header("Activated")]
+    [SerializeField] private float freezeThreshold = 0.05f;
+    [SerializeField] private float freezeDampSpeed = 2f;
+    private bool pendingFreeze = false;
+
     [Header("InBag")]
     [SerializeField] private float playerSlowfallGravMultiplier;
+    [SerializeField] private float playerWindForceMultiplier = 2f;
     [SerializeField] private float bagScale;
     private Transform playerTransform;
 
@@ -43,23 +51,21 @@ public class NPC_Pufferfish : Prop, INPC
     private Coroutine animCoroutine;
     private Vector3 defaultLocalScale;
 
+    #region Unity Functions
     private void Awake()
     {
         Init();
         Rb.useGravity = false;
         defaultLocalScale = Vector3.one;
         SwitchNPCState(NPCState.Deactivated);
+        NPCTransform = transform;
 
-        OnPropTethered += OnTethersAttached;
-        OnPropReleased += OnSnareTetherDetached;
-        OnTetherDetached += OnSnareTetherDetached;
+        OnEnvironmentalForceSet += CheckIfInEnvironmentalForce;
     }
 
     private void OnDisable()
     {
-        OnPropTethered -= OnTethersAttached;
-        OnPropReleased -= OnSnareTetherDetached;
-        OnTetherDetached -= OnSnareTetherDetached;
+        OnEnvironmentalForceSet -= CheckIfInEnvironmentalForce;
     }
 
     protected override void FixedUpdate()
@@ -67,9 +73,7 @@ public class NPC_Pufferfish : Prop, INPC
         base.FixedUpdate();
         CounteractTetherForces();
         HandleNPCStateMachine();
-
-        //face player
-        transform.LookAt(playerTransform.position);
+        HandleFreezeDamping();
     }
 
     private void HandleNPCStateMachine()
@@ -93,6 +97,8 @@ public class NPC_Pufferfish : Prop, INPC
         if(CurrentNPCState == newState) return;
         CurrentNPCState = newState;
     }
+
+    #endregion
 
     #region Activated/Deactivated 
 
@@ -154,31 +160,67 @@ public class NPC_Pufferfish : Prop, INPC
     {
         SwitchNPCState(NPCState.Activated);
     }
+    #endregion
+
+    #region Overrides / Temp EnvironmentalForce Stuff
 
     public override void OnSnare()
     {
         base.OnSnare();
         Rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+        pendingFreeze = false;
         SwitchNPCState(NPCState.Activated);
     }
 
-    private void OnTethersAttached()
+    public override void OnTetherPull(JointTether tether, Transform targetAnchorTransform, Transform targetObjectTransform)
     {
-        //Rb.constraints = RigidbodyConstraints.FreezePosition | RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+        base.OnTetherPull(tether, targetAnchorTransform, targetObjectTransform);
+        if (EnvironmentalForce == null)
+        {
+            pendingFreeze = true;
+        }
         SwitchNPCState(NPCState.Activated);
     }
 
-    private void OnSnareTetherDetached()
+    public override void OnRelease()
     {
-        if (IsSnared) return;
+        base.OnRelease();
         if (attachedTethers.Count > 0)
         {
-            //Rb.constraints = RigidbodyConstraints.FreezePosition | RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ; //this needs to change -> find a new way to stop tether forces
-            return;
+            if (EnvironmentalForce == null)
+            {
+                pendingFreeze = true;
+                return;
+            }
         }
 
-        Rb.constraints =  RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+        Rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
         SwitchNPCState(NPCState.Deactivated);
+    }
+
+    public override void OnDetachTether(JointTether tether, Transform targetAnchorTransform, Transform targetObjectTransform)
+    {
+        base.OnDetachTether(tether, targetAnchorTransform, targetObjectTransform);
+        if (attachedTethers.Count > 0)
+        {
+            if (EnvironmentalForce == null)
+            {
+                pendingFreeze = true; //this needs to change -> find a new way to stop tether forces
+                return;
+            }
+        }
+
+        Rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+        SwitchNPCState(NPCState.Deactivated);
+    }
+
+    private void DestroyAllAttachedTethers()
+    {
+        List<JointTether> tetherCopies = new List<JointTether>(attachedTethers);
+        foreach (var tether in tetherCopies)
+        {
+            tether.DestroyTether();
+        }
     }
 
     private void CounteractTetherForces()
@@ -187,6 +229,8 @@ public class NPC_Pufferfish : Prop, INPC
         for (int i = 0; i < attachedTethers.Count; i++)
         {
             if (attachedTethers[i] == null) continue;
+            if (connectedObject[i].TryGetComponent(out Prop prop) && prop.IsSnared) continue;
+
             netJointForce += attachedTethers[i].GetCurrentForce(Rb);
         }
 
@@ -198,12 +242,39 @@ public class NPC_Pufferfish : Prop, INPC
         }
     }
 
-    private void DestroyAllAttachedTethers()
+    private void CheckIfInEnvironmentalForce()
     {
-        List<JointTether> tetherCopies = new List<JointTether>(attachedTethers);
-        foreach(var tether in tetherCopies)
+        if (CurrentNPCState == NPCState.InBag)
         {
-            tether.DestroyTether();
+            pendingFreeze = false;
+            Rb.linearVelocity = Vector3.zero;
+            Rb.angularVelocity = Vector3.zero;
+            return;
+        }
+
+        if (EnvironmentalForce == null && attachedTethers.Count > 0 && !IsSnared)
+        {
+            pendingFreeze = true;
+        }
+        else
+        {
+            Rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+        }
+    }
+
+    private void HandleFreezeDamping()
+    {
+        if (!pendingFreeze) return;
+
+        Rb.linearVelocity = Vector3.MoveTowards(Rb.linearVelocity, Vector3.zero, Time.fixedDeltaTime * freezeDampSpeed);
+        Rb.angularVelocity = Vector3.MoveTowards(Rb.angularVelocity, Vector3.zero, Time.fixedDeltaTime * freezeDampSpeed);
+
+        if (Rb.linearVelocity.magnitude < freezeThreshold)
+        {
+            Rb.linearVelocity = Vector3.zero;
+            Rb.angularVelocity = Vector3.zero;
+            Rb.constraints = RigidbodyConstraints.FreezePosition | RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+            pendingFreeze = false;
         }
     }
 
@@ -215,16 +286,19 @@ public class NPC_Pufferfish : Prop, INPC
     {
         if (playerTransform == null || CurrentNPCState != NPCState.InBag) return;
 
-        if(playerTransform.TryGetComponent(out PlayerMovement playerMovement))
+        if (playerTransform.TryGetComponent(out PlayerMovement playerMovement))
         {
             if (EnvironmentalForce != null)
             {
-                playerMovement.OverrideMovement(EnvironmentalForce.CalculateForce(playerMovement.Rb));
                 playerMovement.EnableGravity(false);
+                Vector3 force = EnvironmentalForce.CalculateForce() * playerWindForceMultiplier;
+                playerMovement.Rb.AddForce(force, ForceMode.Acceleration);
+
+                playerMovement.ApplyFriction(Vector3.up); //needa do this to match sideways/vertical movement
             }
             else
             {
-                playerMovement.OverrideMovement(Vector3.zero);
+                playerMovement.EnableGravity(true);
                 playerMovement.ApplySlowFall(playerSlowfallGravMultiplier);
             }
         }
@@ -234,7 +308,6 @@ public class NPC_Pufferfish : Prop, INPC
     {
         if(playerTransform.TryGetComponent(out PlayerMovement playerMovement))
         {
-            playerMovement.OverrideMovement(Vector3.zero);
             playerMovement.EnableGravity(true);
             playerMovement.ResetGravity();
         }

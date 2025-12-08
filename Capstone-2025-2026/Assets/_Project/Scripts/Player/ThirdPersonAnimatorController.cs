@@ -5,6 +5,7 @@ public class ThirdPersonAnimatorController : MonoBehaviour
 {
     private PlayerMovement _playerController;
     private PlayerActions _playerInput;
+    private PlayerMantle _playerMantle;
     private LassoTetherController _lassoTetherController;
     private JointTetherPlacer _jointTetherPlacer;
     private JointTetherActivator _jointTetherActivator;
@@ -15,20 +16,20 @@ public class ThirdPersonAnimatorController : MonoBehaviour
     {
         _playerController = GetComponent<PlayerMovement>();
         _playerInput = GetComponent<PlayerActions>();
+        _playerMantle = GetComponent<PlayerMantle>();
         _lassoTetherController = GetComponent<LassoTetherController>();
         _lasso = GetComponent<Lasso>();
         _jointTetherActivator = GetComponent<JointTetherActivator>();
         _jointTetherPlacer = GetComponent<JointTetherPlacer>();
 
         _lasso.OnObjectHit += SetLassoBool;
-        _jointTetherPlacer.OnTetherStartHit += SetTetherBool;
         _jointTetherActivator.OnTetherActivated += SetTetherBool;
+        _playerMantle.OnMantle += SetMantleBool;
     }
 
     private void OnDisable()
     {
         _lasso.OnObjectHit -= SetLassoBool;
-        _jointTetherPlacer.OnTetherStartHit -= SetTetherBool;
         _jointTetherActivator.OnTetherActivated -= SetTetherBool;
     }
 
@@ -68,7 +69,16 @@ public class ThirdPersonAnimatorController : MonoBehaviour
         }
 
         //check tether
-        if (_jointTetherPlacer.didEndPointHit == true)
+        if (_jointTetherPlacer.didStartPointHit)
+        {
+            animator.SetBool("TetherStartPointHit", true);
+        }
+        else
+        {
+            animator.SetBool("TetherStartPointHit", false);
+        }
+
+        if (_jointTetherPlacer.didEndPointHit)
         {
             animator.SetBool("TetherEndPointHit", true);
         }
@@ -87,15 +97,18 @@ public class ThirdPersonAnimatorController : MonoBehaviour
 
     private void SetTetherBool()
     {
-        animator.SetBool("TetherStart", true);
-        StartCoroutine(ResetBoolNextFrame("TetherStart"));
+        animator.SetBool("OnTetherStart", true);
+        StartCoroutine(ResetBoolNextFrame("OnTetherStart"));
     }
 
-
+    private void SetMantleBool(bool start)
+    {
+        animator.SetBool("Mantling", start);
+    }
 
     private IEnumerator ResetBoolNextFrame(string boolName)
     {
-        yield return null;
+        yield return new WaitForSeconds(0.1f);
         animator.SetBool(boolName, false);
     }
 }

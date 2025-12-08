@@ -68,8 +68,6 @@ public class PlayerMovement : MonoBehaviour
     private MovementProperties _currentMultipliers;
     private PlayerMoveState _currentMovementState;
     private Vector3 _wishDir;
-    private Vector3 _slopeNormal;
-    private RaycastHit _slopeHit;
     private Rigidbody _rb;
     private CapsuleCollider _playerCol;
     private float _acceleration;
@@ -84,6 +82,9 @@ public class PlayerMovement : MonoBehaviour
     public float Gravity => _gravity;
     public Vector3 WishDir => _wishDir;
     public Rigidbody Rb => _rb;
+    public float Acceleration => _acceleration;
+    public float DefaultMaxSpeed => defaultMaxSpeed;
+    public MovementProperties CurrentMultipliers => _currentMultipliers;
 
     private void Awake()
     {
@@ -114,7 +115,6 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
-        //HandleCamera();
         HandleJumpBuffer();
         HandleCoyoteTime();
         HandleJump();
@@ -131,10 +131,6 @@ public class PlayerMovement : MonoBehaviour
         {
             HandleGravity();
         }
-        else
-        {
-            Rb.linearVelocity = new Vector3(Rb.linearVelocity.x, 0f, Rb.linearVelocity.z);
-        }
 
         if (_currentMovementState == PlayerMoveState.Swinging)
         {
@@ -146,7 +142,8 @@ public class PlayerMovement : MonoBehaviour
             ApplyAcceleration();
         }
 
-        ApplyFriction();
+        ApplyFriction(Vector3.forward);
+        ApplyFriction(Vector3.right);
         HandleVelocityOvershoot();
     }
 
@@ -347,16 +344,18 @@ public class PlayerMovement : MonoBehaviour
         if (correction != Vector3.zero) _rb.AddForce(correction * overshootCorrectionMultiplier, ForceMode.Acceleration);
     }
 
-    private void ApplyFriction()
+    public void ApplyFriction(Vector3 frictionAxis)
     {
-        Vector3 horizontalVel = new Vector3(_rb.linearVelocity.x, 0f, _rb.linearVelocity.z);
-        float speed = horizontalVel.magnitude;
+        frictionAxis.Normalize();
+        Vector3 velocityOnAxis = Vector3.Project(_rb.linearVelocity, frictionAxis);
+        float speed = velocityOnAxis.magnitude;
 
         if (speed <= 0f)
         {
-            //aManage.SFXSource6.Stop();
             return;
         }
+
+        Vector3 frictionDir = -velocityOnAxis.normalized;
 
         if (_wishDir == Vector3.zero)
         {
@@ -364,22 +363,14 @@ public class PlayerMovement : MonoBehaviour
             float frictionAccel = _friction * _currentMultipliers.decelMultiplier;
             float finalAccel = Mathf.Min(frictionAccel, stopAccel);
 
-            Vector3 frictionForce = -horizontalVel.normalized * finalAccel;
-            _rb.AddForce(frictionForce, ForceMode.Acceleration);
-            
-            //aManage.SFXSource6.Stop();
-
+            _rb.AddForce(frictionDir * finalAccel, ForceMode.Acceleration);
         }
         else
         {
-            //speed / targetSpeed gives a value of 0-1
-            //use accel when there's input, when speed = targetSpeed you decelerate at the same rate you accelerate, effectively capping your speed
             float targetSpeed = defaultMaxSpeed * _currentMultipliers.maxSpeedMultiplier;
             float frictionAccel = _acceleration * _currentMultipliers.accelMultiplier * (speed / targetSpeed);
 
-            Vector3 frictionForce = -horizontalVel.normalized * frictionAccel;
-            _rb.AddForce(frictionForce, ForceMode.Acceleration);
-            
+            _rb.AddForce(frictionDir * frictionAccel, ForceMode.Acceleration);
         }
     }
 
@@ -391,10 +382,5 @@ public class PlayerMovement : MonoBehaviour
         if (ExternalForce != Vector3.zero) accelForce = ExternalForce;
 
         _rb.AddForce(accelForce, ForceMode.Acceleration);
-    }
-
-    public void OverrideMovement(Vector3 force)
-    {
-        ExternalForce = new Vector3(force.x, 0, force.z);
     }
 }

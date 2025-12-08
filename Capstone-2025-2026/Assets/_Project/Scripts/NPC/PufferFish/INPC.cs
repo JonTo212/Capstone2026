@@ -27,4 +27,6 @@ public interface INPC
     void OnReleaseComplete();
     void SwitchNPCState(NPCState newState);
     NPCState CurrentNPCState { get; }
+    NPCType NPCType { get; }
+    Transform NPCTransform { get; }
 }
