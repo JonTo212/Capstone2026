@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 827568239192460050}
   - component: {fileID: 7069178707142293625}
   - component: {fileID: 1695702566112378695}
+  - component: {fileID: 3943017767421811627}
   m_Layer: 6
   m_Name: CoralTree
   m_TagString: Untagged
@@ -2148,6 +2149,23 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2457854203598225675}
   m_Mesh: {fileID: 0}
+--- !u!114 &3943017767421811627
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2457854203598225675}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd9566536e4a07d428c0489a4ebdb02d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TreeScript
+  startWithRandomBend: 1
+  treeMaterials:
+  - {fileID: 2100000, guid: efb29fffb20fb0540951d7b59c584ba2, type: 2}
+  - {fileID: 2100000, guid: ee98bade3e3522649912b2566081c356, type: 2}
+  - {fileID: 2100000, guid: 889935b793f746d46be7e524b86e98b7, type: 2}
 --- !u!1001 &2456653374731627825
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2218,7 +2236,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: ac10490d69d1b6545a370c954cbfa03f, type: 3}
       propertyPath: m_StaticEditorFlags
-      value: 2147483647
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
