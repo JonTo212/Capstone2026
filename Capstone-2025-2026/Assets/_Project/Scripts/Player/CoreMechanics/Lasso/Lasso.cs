@@ -403,7 +403,7 @@ public class Lasso : MonoBehaviour
         Vector3 nextPosition = pivotPoint + rotatedOffset;
 
 
-        if (centerPivot)
+        /*if (centerPivot)
         {
             rotationStep.ToAngleAxis(out float angle, out Vector3 axis);
             if (angle > 180f) angle -= 360f; // normalize
@@ -415,11 +415,11 @@ public class Lasso : MonoBehaviour
             SnaredObject.Rb.AddTorque(correctiveTorque, ForceMode.Acceleration);
         }
         else
-        {
+        {*/
             SnaredObject.Rb.MoveRotation(nextRotation);
             SnaredObject.Rb.MovePosition(nextPosition);
             SnaredObject.Rb.angularVelocity = Vector3.zero;
-        }
+        //}
 
         Rotated = true;
     }

@@ -322,17 +322,17 @@ public class LassoTetherController : MonoBehaviour
     private void HandleTetherModeControls()
     {
         playerTether.HandleTetherMode();
-        if (playerActions.AltDown)
+        if (playerActions.PlaceTetherDown)
         {
             Debug.Log("Alt down");
             playerTether.TetherModeStartTetherPlacement();
         }
-        if (playerActions.AltUp)
+        if (playerActions.PlaceTetherUp)
         {
             Debug.Log("Alt Up");
             playerTether.TetherModeEndTetherPlacement();
         }
-        if (playerActions.MainUp)
+        if (playerActions.LassoUp)
         {
             playerLasso.SnaredObject.Rb.constraints = RigidbodyConstraints.None;
             playerTether.ExitTetherMode();
