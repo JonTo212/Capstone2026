@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-public class SeparateTetherController : MonoBehaviour
+/*public class SeparateTetherController : MonoBehaviour
 {
     private PlayerTether playerTether;
     private UpdatedLasso playerLasso;
@@ -156,4 +156,4 @@ public class SeparateTetherController : MonoBehaviour
     }
 
     #endregion
-}
+}*/

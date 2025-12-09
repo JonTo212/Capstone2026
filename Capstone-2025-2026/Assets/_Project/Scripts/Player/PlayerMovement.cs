@@ -55,12 +55,12 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float ledgeScanDepth;
 
     [Header("Camera")]
-    [SerializeField] private float yawSensitivity;
-    [SerializeField] private float pitchSensitivity;
+    //[SerializeField] private float yawSensitivity;
+    //[SerializeField] private float pitchSensitivity;
     [SerializeField] private Camera playerCam;
-    [SerializeField] private float desiredSwingFOV = 90f;
-    [SerializeField] private float desiredHoldFOV = 75f;
-    [SerializeField] private float FOVChangeSpeed = 5f;
+    //[SerializeField] private float desiredSwingFOV = 90f;
+    //[SerializeField] private float desiredHoldFOV = 75f;
+    //[SerializeField] private float FOVChangeSpeed = 5f;
 
     [Header("Input")]
     private PlayerActions _playerActions;
@@ -120,7 +120,7 @@ public class PlayerMovement : MonoBehaviour
         HandleJumpBuffer();
         HandleCoyoteTime();
         HandleJump();
-        HandleFOV();
+        //HandleFOV();
         HandleWalkingSFX();
     }
 
@@ -261,7 +261,7 @@ public class PlayerMovement : MonoBehaviour
     }
 
 
-    private void HandleFOV()
+    /*private void HandleFOV()
     {
         float desiredFOV = _defaultFOV;
         float changeSpeed = FOVChangeSpeed;
@@ -278,7 +278,7 @@ public class PlayerMovement : MonoBehaviour
         }
 
         playerCam.fieldOfView = Mathf.SmoothStep(playerCam.fieldOfView, desiredFOV, Time.deltaTime * changeSpeed);
-    }
+    }*/
 
     public void HandleForward()
     {
