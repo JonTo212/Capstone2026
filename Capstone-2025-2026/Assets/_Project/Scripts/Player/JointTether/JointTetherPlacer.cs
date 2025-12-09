@@ -21,6 +21,7 @@ public class JointTetherPlacer : MonoBehaviour
     [Header("Properties")]
     [SerializeField] private GameObject jointTetherPrefab;
     [SerializeField] private LayerMask tetherLayerMask;
+    [SerializeField] private LayerMask layersToIgnore;
     [SerializeField] private Material[] untetherableMaterials;
     [SerializeField] private int numOfTethersPlaced = 0;
     [SerializeField] public bool autoActivateTether = true;
@@ -395,8 +396,7 @@ public class JointTetherPlacer : MonoBehaviour
     private bool GetObjectInPlayerFront(out RaycastHit hit)
     {
         Ray ray = _playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
-
-        Physics.Raycast(ray, out hit, maxTetherStartDist, -1, QueryTriggerInteraction.Ignore);
+        Physics.Raycast(ray, out hit, maxTetherStartDist, ~layersToIgnore, QueryTriggerInteraction.Ignore);
         return hit.collider != null;
     }
 

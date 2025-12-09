@@ -423,7 +423,6 @@ public class PlayerMovement : MonoBehaviour
         }
 
         Debug.DrawLine(feetPos.position + (intendedDirection * ledgeScanLength), feetPos.position + (intendedDirection * ledgeScanLength) + (Vector3.down * ledgeScanDepth), Color.red);
-        print(intendedDirection);
         return intendedDirection;
     }
 
