@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-public enum TetherState
+/*public enum TetherState
 {
     Empty,
     Lassoing,
@@ -154,3 +154,4 @@ public class TetherController : MonoBehaviour
 
     #endregion
 }
+*/
