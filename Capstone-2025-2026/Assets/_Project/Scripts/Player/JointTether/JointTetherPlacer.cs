@@ -29,6 +29,8 @@ public class JointTetherPlacer : MonoBehaviour
     public bool didStartPointHit = false;
     public bool didEndPointHit = false;
     public bool isStartPointValid = true;
+    private bool isTetherPlacementValid = true;
+    private Transform previousSelectedTransform;
 
     [Header("Tether mode Properties")]
     private bool isTetherModeActive = false;
@@ -50,6 +52,7 @@ public class JointTetherPlacer : MonoBehaviour
     [SerializeField] private TMP_Text tetherAmountText;
     [SerializeField] private TMP_Text tetherControlsText;
     public float originalAmountTextPosition;
+    public event Action<bool> OnPlacementValidityUpdate;
     public event Action OnTetherStartHit;
     public AudioManager aManage;
 
@@ -78,6 +81,43 @@ public class JointTetherPlacer : MonoBehaviour
                 UpdateTetherPreviewLine();
             }
         }
+
+        GetObjectInPlayerFront(out RaycastHit hit);
+
+        if (hit.transform != null)
+        {
+            if (previousSelectedTransform != hit.transform)
+            {
+                bool isValid = IsTetherPointValid(hit.transform);
+
+                if (isTetherPlacementValid != isValid)
+                {
+                    isTetherPlacementValid = isValid;
+                    OnPlacementValidityUpdate.Invoke(isValid);
+                }
+            }
+            previousSelectedTransform = hit.transform;
+
+        }
+        else
+        {
+            if (didStartPointHit)
+            {
+                if (isTetherPlacementValid != false)
+                {
+                    isTetherPlacementValid = false;
+                    OnPlacementValidityUpdate.Invoke(false);
+                }
+            }
+            else
+            {
+                isTetherPlacementValid = true;
+                OnPlacementValidityUpdate.Invoke(true);
+            }
+
+            previousSelectedTransform = null;
+        }
+
     }
     #endregion
 
