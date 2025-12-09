@@ -354,7 +354,7 @@ public class LassoTetherController : MonoBehaviour
             playerLasso.ApplySnapRotation(Vector3.down);
         }
 
-        if (playerActions.SnapRotateToggleUp)
+        if (playerActions.SnapRotateToggleDown)
         {
             playerLasso.StartFinishSnap();
         }
@@ -401,7 +401,7 @@ public class LassoTetherController : MonoBehaviour
 
     private void HandleFreeRotateControls()
     {
-        if (playerActions.FreeRotateToggleUp)
+        if (playerActions.FreeRotateToggleDown)
         {
             if (useObjectManipulationMode)
             {
