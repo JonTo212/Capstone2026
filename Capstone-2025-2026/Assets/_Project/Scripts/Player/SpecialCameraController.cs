@@ -12,7 +12,7 @@ public class SpecialCameraController : MonoBehaviour
     private CinemachineDeoccluder camCollider;
     private CinemachineCameraOffset camOffset;
 
-
+    [SerializeField] private LassoTetherController lassoTetherController;
 
     [SerializeField] private float tetherModeAdjustSpeed;
     [SerializeField] private float lassoModeAdjustSpeed;
@@ -48,46 +48,51 @@ public class SpecialCameraController : MonoBehaviour
         defaultOffsetVector = camOffset.Offset;
     }
 
+    private void Update()
+    {
+        switch(lassoTetherController.CurrentLassoState)
+        {
+            case LassoState.Snared:
+                LassoModeCamera();
+                break;
 
+            case LassoState.Empty:
+                ResetCamera();
+                break;
 
+            case LassoState.Tethering | LassoState.SnaredTether:
+                TetherModeCamera();
+                break;
+
+            case LassoState.Swinging:
+                SwingModeCamera();
+                break;
+
+        }
+    }
 
     public void TetherModeCamera()
     {
-        cam.Lens.FieldOfView = Mathf.Lerp(cam.Lens.FieldOfView, CameraLens_T, Time.deltaTime * defaultAdjustSpeed);
-
-        camOffset.Offset = Vector3.Lerp(camOffset.Offset, camOffsetVector_T, Time.deltaTime * defaultAdjustSpeed);
+        cam.Lens.FieldOfView = Mathf.Lerp(cam.Lens.FieldOfView, CameraLens_T, Time.deltaTime * tetherModeAdjustSpeed);
+        camOffset.Offset = Vector3.Lerp(camOffset.Offset, camOffsetVector_T, Time.deltaTime * tetherModeAdjustSpeed);
     }
 
     public void LassoModeCamera()
     {
-        cam.Lens.FieldOfView = Mathf.Lerp(cam.Lens.FieldOfView, CameraLens_L, Time.deltaTime * defaultAdjustSpeed);
-
-        camOffset.Offset = Vector3.Lerp(camOffset.Offset, camOffsetVector_L, Time.deltaTime * defaultAdjustSpeed);
+        cam.Lens.FieldOfView = Mathf.Lerp(cam.Lens.FieldOfView, CameraLens_L, Time.deltaTime * lassoModeAdjustSpeed);
+        camOffset.Offset = Vector3.Lerp(camOffset.Offset, camOffsetVector_L, Time.deltaTime * lassoModeAdjustSpeed);
     }
 
     public void SwingModeCamera()
     {
-        cam.Lens.FieldOfView = Mathf.Lerp(cam.Lens.FieldOfView, CameraLens_S, Time.deltaTime * defaultAdjustSpeed);
-
-        camOffset.Offset = Vector3.Lerp(camOffset.Offset, camOffsetVector_S, Time.deltaTime * defaultAdjustSpeed);
+        cam.Lens.FieldOfView = Mathf.Lerp(cam.Lens.FieldOfView, CameraLens_S, Time.deltaTime * swingModeAdjustSpeed);
+        camOffset.Offset = Vector3.Lerp(camOffset.Offset, camOffsetVector_S, Time.deltaTime * swingModeAdjustSpeed);
     }
 
     public void ResetCamera()
     {
         cam.Lens.FieldOfView = Mathf.Lerp(cam.Lens.FieldOfView, defaultCameraLens, Time.deltaTime * defaultAdjustSpeed);
-
         camOffset.Offset = Vector3.Lerp(camOffset.Offset, defaultOffsetVector, Time.deltaTime * defaultAdjustSpeed);
 
-    }
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }

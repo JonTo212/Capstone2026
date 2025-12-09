@@ -241,18 +241,18 @@ public class Lasso : MonoBehaviour
 
             else
             {
-                //AnchorDist = Mathf.Clamp(Vector3.Distance(hit.point, PlayerCamLookPos.position), minLassoRange, maxLassoRange);
-                //_attachPointLocal = prop.transform.InverseTransformPoint(hit.point);
+                AnchorDist = Mathf.Clamp(Vector3.Distance(hit.point, PlayerCamLookPos.position), minLassoRange, maxLassoRange);
+                _attachPointLocal = prop.transform.InverseTransformPoint(hit.point);
 
-                AnchorDist = Mathf.Clamp(Vector3.Distance(hit.transform.position, PlayerCamLookPos.position), minLassoRange, maxLassoRange);
-                _attachPointLocal = prop.transform.InverseTransformPoint(hit.transform.position);
+                //AnchorDist = Mathf.Clamp(Vector3.Distance(hit.transform.position, PlayerCamLookPos.position), minLassoRange, maxLassoRange);
+                //_attachPointLocal = prop.transform.InverseTransformPoint(hit.transform.position);
             }
         }
-        /*else
+        else
         {
             AnchorDist = Mathf.Clamp(Vector3.Distance(hit.transform.position, PlayerCamLookPos.position), minLassoRange, maxLassoRange);
             _attachPointLocal = prop.transform.InverseTransformPoint(hit.transform.position);
-        }*/
+        }
     }
 
     #endregion
