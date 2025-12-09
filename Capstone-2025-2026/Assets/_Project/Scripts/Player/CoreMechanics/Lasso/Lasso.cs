@@ -241,15 +241,18 @@ public class Lasso : MonoBehaviour
 
             else
             {
-                AnchorDist = Mathf.Clamp(Vector3.Distance(hit.point, PlayerCamLookPos.position), minLassoRange, maxLassoRange);
-                _attachPointLocal = prop.transform.InverseTransformPoint(hit.point);
+                //AnchorDist = Mathf.Clamp(Vector3.Distance(hit.point, PlayerCamLookPos.position), minLassoRange, maxLassoRange);
+                //_attachPointLocal = prop.transform.InverseTransformPoint(hit.point);
+
+                AnchorDist = Mathf.Clamp(Vector3.Distance(hit.transform.position, PlayerCamLookPos.position), minLassoRange, maxLassoRange);
+                _attachPointLocal = prop.transform.InverseTransformPoint(hit.transform.position);
             }
         }
-        else
+        /*else
         {
             AnchorDist = Mathf.Clamp(Vector3.Distance(hit.transform.position, PlayerCamLookPos.position), minLassoRange, maxLassoRange);
             _attachPointLocal = prop.transform.InverseTransformPoint(hit.transform.position);
-        }
+        }*/
     }
 
     #endregion
@@ -378,12 +381,14 @@ public class Lasso : MonoBehaviour
 
     [Header("Free Rotation")]
     [SerializeField] private float degreesPerSecond = 180f;
+    [SerializeField] private float mkSensMultiplier = 0.05f; //multiply this in if using m/k in the future
+
     public void RotateWithInput(Vector2 input, bool centerPivot)
     {
         if (SnaredObject == null || SnaredObject.Rb == null) return;
 
-        float stepX = input.x * degreesPerSecond * 0.05f * Time.fixedDeltaTime;
-        float stepY = input.y * degreesPerSecond * 0.05f * Time.fixedDeltaTime;
+        float stepX = input.x * degreesPerSecond * Time.fixedDeltaTime;
+        float stepY = input.y * degreesPerSecond * Time.fixedDeltaTime;
 
         Quaternion yawRot = Quaternion.AngleAxis(stepX, Vector3.up);
         Quaternion pitchRot = Quaternion.AngleAxis(-stepY, PlayerCam.transform.right);

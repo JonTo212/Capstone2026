@@ -6012,21 +6012,29 @@ MonoBehaviour:
   reelIncrement: 2.5
   minLassoRange: 2.5
   maxLassoRange: 25
-  centerStrength: 175
+  centerStrength: 2250
   throwStrength: 25
   lookAtStrength: 0.5
   lookAtDamping: 0.05
-  rotationalDampingStrength: 0.5
-  maxLassoStrength: 175
+  rotationalDampingStrength: 0.25
+  maxLassoStrength: 250
   useSizeScale: 0
+  angularVelMultiplier: 0.925
   aimAssistType: 0
   aimAssistBufferRadius: 1.5
   useAimOutline: 1
   usePickupOutline: 1
   useGrabPointsForHold: 1
-  usePhysicsTorque: 1
+  <usePhysicsLasso>k__BackingField: 1
+  <usePhysicsTorque>k__BackingField: 1
   swingJumpForce: 10
   forwardRef: {fileID: 7779340719812548047}
+  <useSnapRotation>k__BackingField: 1
+  <camInputController>k__BackingField: {fileID: 1205049040831453663}
+  degreesPerSecond: 180
+  snapAngle: 45
+  rotationSpring: 90
+  snapRatePerSecond: 360
 --- !u!114 &187563627807177223
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6040,6 +6048,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LassoTetherController
   controlsText: {fileID: 5046125116692931103}
+  useObjectManipulationMode: 1
   rodPickedUp: 1
   <CurrentLassoState>k__BackingField: 0
 --- !u!114 &4060152108413697281
@@ -6102,6 +6111,7 @@ MonoBehaviour:
   endLocalPosition: {x: 0, y: 0, z: 0}
   tetherAmountText: {fileID: 1989082145137285839}
   tetherControlsText: {fileID: 3669251776759208674}
+  originalAmountTextPosition: 0
   aManage: {fileID: 0}
 --- !u!114 &8608974983609837561
 MonoBehaviour:
@@ -6117,9 +6127,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   defaultMaxSpeed: 10
   apexHeight: 2
-  apexTime: 0.4
-  timeToZero: 0.3
-  timeToMaxSpeed: 0.2
+  apexTime: 0.375
+  timeToZero: 0.275
+  timeToMaxSpeed: 0.175
   _airMultipliers:
     accelMultiplier: 0.5
     decelMultiplier: 0

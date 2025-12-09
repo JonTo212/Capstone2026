@@ -136,9 +136,9 @@ public class PlayerController : MonoBehaviour
             jumpBufferTimer -= Time.fixedDeltaTime;
 
         //stance
-        if (playerActions.CrouchHeld)
+        /*if (playerActions.CrouchHeld)
             SwitchStanceState(PlayerStanceState.Crouching);
-        else
+        else*/
             SwitchStanceState(PlayerStanceState.Standing);
 
     }
@@ -148,9 +148,9 @@ public class PlayerController : MonoBehaviour
         //movement state
         if (IsGrounded())
         {
-            if (playerActions.SprintHeld)
+            /*if (playerActions.SprintHeld)
                 SwitchMovementState(PlayerMovementState.Running);
-            else
+            else*/
                 SwitchMovementState(PlayerMovementState.Walking);
         }
         else
