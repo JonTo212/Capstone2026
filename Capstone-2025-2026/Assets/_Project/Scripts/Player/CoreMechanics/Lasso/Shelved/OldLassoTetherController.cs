@@ -13,7 +13,7 @@ using UnityEngine;
     ObjectYanking,
     Held,
     Using
-}*/
+}
 
 public class OldLassoTetherController : MonoBehaviour
 {
@@ -381,7 +381,7 @@ public class OldLassoTetherController : MonoBehaviour
         }
     }
 
-    #endregion*/
+    #endregion
 
     private void TempSetText(LassoState state)
     {
@@ -425,4 +425,4 @@ public class OldLassoTetherController : MonoBehaviour
             controlsText.text = "[LMB]: Activate Object\n[RMB]: Throw Object";
         }
     }
-}
+}*/

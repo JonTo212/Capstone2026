@@ -1,13 +1,14 @@
+using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
+using Unity.Cinemachine;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.ProBuilder.MeshOperations;
 using static CharacterSkinController;
-using DG.Tweening;
 
 public class JointTetherPlacer : MonoBehaviour
 {
@@ -20,13 +21,22 @@ public class JointTetherPlacer : MonoBehaviour
     [Header("Properties")]
     [SerializeField] private GameObject jointTetherPrefab;
     [SerializeField] private LayerMask tetherLayerMask;
+    [SerializeField] private LayerMask layersToIgnore;
     [SerializeField] private Material[] untetherableMaterials;
     [SerializeField] private int numOfTethersPlaced = 0;
     [SerializeField] public bool autoActivateTether = true;
     public List<JointTether> placedTethers { get; private set; } = new List<JointTether>();
     public bool didStartPointHit = false;
     public bool didEndPointHit = false;
-    public bool isStartPointValid = false;
+    public bool isStartPointValid = true;
+    private bool isTetherPlacementValid = true;
+    private Transform previousSelectedTransform;
+
+    [Header("Tether mode Properties")]
+    private bool isTetherModeActive = false;
+    private Prop currentHeldProp;
+    private float defaultTimeDeltaTime;
+    private List<JointTether> placedTethersDuringTetherMode = new List<JointTether>();
 
     [Header("Editable Properties")]
     [SerializeField] private float maxTetherStartDist = 50f;
@@ -42,6 +52,7 @@ public class JointTetherPlacer : MonoBehaviour
     [SerializeField] private TMP_Text tetherAmountText;
     [SerializeField] private TMP_Text tetherControlsText;
     public float originalAmountTextPosition;
+    public event Action<bool> OnPlacementValidityUpdate;
     public event Action OnTetherStartHit;
     public AudioManager aManage;
 
@@ -63,10 +74,50 @@ public class JointTetherPlacer : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(didStartPointHit)
+        if (!isTetherModeActive)
         {
-            UpdateTetherPreviewLine();
+            if (didStartPointHit)
+            {
+                UpdateTetherPreviewLine();
+            }
         }
+
+        GetObjectInPlayerFront(out RaycastHit hit);
+
+        if (hit.transform != null)
+        {
+            if (previousSelectedTransform != hit.transform)
+            {
+                bool isValid = IsTetherPointValid(hit.transform);
+
+                if (isTetherPlacementValid != isValid)
+                {
+                    isTetherPlacementValid = isValid;
+                    OnPlacementValidityUpdate.Invoke(isValid);
+                }
+            }
+            previousSelectedTransform = hit.transform;
+
+        }
+        else
+        {
+            if (didStartPointHit)
+            {
+                if (isTetherPlacementValid != false)
+                {
+                    isTetherPlacementValid = false;
+                    OnPlacementValidityUpdate.Invoke(false);
+                }
+            }
+            else
+            {
+                isTetherPlacementValid = true;
+                OnPlacementValidityUpdate.Invoke(true);
+            }
+
+            previousSelectedTransform = null;
+        }
+
     }
     #endregion
 
@@ -76,32 +127,26 @@ public class JointTetherPlacer : MonoBehaviour
         didStartPointHit = false;
         didEndPointHit = false;
 
-        if (numOfTethersPlaced < maxNumOfTethers)
+        if (GetObjectInPlayerFront(out RaycastHit hit))
         {
-            if (GetObjectInPlayerFront(out RaycastHit hit))
-            {
-                CreateTetherPreviewLine();
-                SetTetherStartPoint(hit.transform, hit.point);
-                didStartPointHit = true;
-                OnTetherStartHit?.Invoke();
-                isStartPointValid = true;
-            }
-            if(IsTetherPointValid(hit.transform) == false)
-            {
-                isStartPointValid = false;
-            }
+            CreateTetherPreviewLine();
+            SetTetherStartPoint(hit.transform, hit.point);
+            didStartPointHit = true;
+            OnTetherStartHit?.Invoke();
+            isStartPointValid = true;
+        }
+        if(IsTetherPointValid(hit.transform) == false)
+        {
+            isStartPointValid = false;
         }
     }
 
     public void StartTetherPlacement(Transform transform, Vector3 position)
     {
-        if (numOfTethersPlaced < maxNumOfTethers)
-        {
-            CreateTetherPreviewLine();
-            SetTetherStartPoint(transform, position);
-            didStartPointHit = true;
-            //OnTetherStartHit?.Invoke();
-        }
+        CreateTetherPreviewLine();
+        SetTetherStartPoint(transform, position);
+        didStartPointHit = true;
+        //OnTetherStartHit?.Invoke();
     }
 
     public void EndTetherPlacement(bool autoActivate)
@@ -121,6 +166,11 @@ public class JointTetherPlacer : MonoBehaviour
                 if(IsTetherPointValid(hit.transform) && isStartPointValid)
                 {
                     CreateAndInitTether(startTransform, startLocalPosition, endTransform, endLocalPosition, autoActivate);
+
+                    if (numOfTethersPlaced > maxNumOfTethers)
+                    {
+                        placedTethers[0].DestroyTether();
+                    }
                 }
             }
         }
@@ -165,9 +215,8 @@ public class JointTetherPlacer : MonoBehaviour
     }
 
     //Creates and initializes tether parameters like hit transforms and positions
-    private void CreateAndInitTether(Transform startTransform, Vector3 startLocalPosition, Transform endTransform, Vector3 endLocalPosition, bool autoActivate)
+    private JointTether CreateAndInitTether(Transform startTransform, Vector3 startLocalPosition, Transform endTransform, Vector3 endLocalPosition, bool autoActivate)
     {
-
         GameObject newJointTether = Instantiate(jointTetherPrefab, transform.position, Quaternion.identity);
         JointTether jointTether = newJointTether.GetComponent<JointTether>();
 
@@ -183,6 +232,8 @@ public class JointTetherPlacer : MonoBehaviour
         numOfTethersPlaced++;
 
         UpdateTetherAmountText();
+
+        return jointTether;
     }
     #endregion
 
@@ -228,7 +279,6 @@ public class JointTetherPlacer : MonoBehaviour
 
             if (IsTetherPointValid(hit.transform) && isStartPointValid)
             {
-                Debug.Log("valid");
                 tetherPreviewLine.SetColorToValid();
             }
             else
@@ -246,13 +296,147 @@ public class JointTetherPlacer : MonoBehaviour
     }
     #endregion
 
+    #region TetherMode
+
+    public void EnterTetherMode(Prop currentHeldProp)
+    {
+        this.currentHeldProp = currentHeldProp;
+        CreateTetherPreviewLine();
+    }
+
+    public void HandleTetherMode()
+    {
+        if (GetObjectInPlayerFront(out RaycastHit hit) && hit.transform != startTransform)
+        {
+            if (hit.transform == currentHeldProp)
+            {
+
+            }
+            else
+            {
+                UpdateTetherPreviewTetherMode(GetClosestAttachmentPoint(currentHeldProp, hit.point));
+            }
+        }
+    }
+
+    public void TetherModeStartTetherPlacement()
+    {
+        if (GetObjectInPlayerFront(out RaycastHit hit))
+        {
+            SetTetherStartPoint(currentHeldProp.transform, GetClosestAttachmentPoint(currentHeldProp, hit.point).position);
+            didStartPointHit = true;
+        }
+    }
+
+    public void TetherModeEndTetherPlacement()
+    {
+        if (didStartPointHit)
+        {
+            if (GetObjectInPlayerFront(out RaycastHit hit) && hit.transform != startTransform)
+            {
+                SetTetherEndPoint(hit.transform, hit.point);
+
+                JointTether tether = CreateAndInitTether(startTransform, startLocalPosition, endTransform, endLocalPosition, false);
+                placedTethersDuringTetherMode.Add(tether);
+            }
+        }
+
+        ResetVariables();
+    }
+
+    public void TetherModeQuickPlaceTether()
+    {
+        if (GetObjectInPlayerFront(out RaycastHit hit) && hit.transform != startTransform)
+        {
+            SetTetherStartPoint(currentHeldProp.transform, GetClosestAttachmentPoint(currentHeldProp, hit.point).position);
+            SetTetherEndPoint(hit.transform, hit.point);
+
+            CreateAndInitTether(startTransform, startLocalPosition, endTransform, endLocalPosition, false);
+        }
+
+        if (numOfTethersPlaced > maxNumOfTethers)
+        {
+            placedTethers[0].DestroyTether();
+        }
+
+        ResetVariables();
+    }
+
+    public void ExitTetherMode()
+    {
+        foreach (JointTether tether in placedTethersDuringTetherMode)
+        {
+            tether.ActivateTether();
+        }
+
+        DeletePreviewTetherLine();
+        ResetVariables();
+
+        placedTethersDuringTetherMode.Clear();
+    }
+
+    private Transform GetClosestAttachmentPoint(Prop prop, Vector3 target)
+    {
+        if (prop.GrabPoints.Count < 1)
+        {
+            return prop.transform;
+        }
+
+        Transform[] points = prop.GrabPoints.ToArray();
+
+        Transform closestPoint = points[0];
+
+        for (int i = 0; i < points.Length; i++)
+        {
+            if (Vector3.Distance(points[i].position, target) < Vector3.Distance(closestPoint.position, target))
+            {
+                closestPoint = points[i];
+            }
+        }
+
+        return closestPoint;
+    }
+
+    private void UpdateTetherPreviewTetherMode(Transform grabPoint)
+    {
+        if (startTransform == null)
+        {
+            tetherPreviewLine.SetStartPoint(grabPoint.position);
+        }
+        else
+        {
+            tetherPreviewLine.SetStartPoint(startTransform.TransformPoint(startLocalPosition));
+        }
+
+        if (GetObjectInPlayerFront(out RaycastHit hit))
+        {
+            Vector3 endPosition = hit.point;
+
+            if (hit.transform.TryGetComponent<Prop>(out Prop propComponent))
+            {
+                if (propComponent.CheckNearestGrabPoint(endPosition) != null)
+                {
+                    endPosition = propComponent.CheckNearestGrabPoint(endPosition).position;
+                }
+            }
+
+            tetherPreviewLine.SetEndPoint(endPosition);
+        }
+        else
+        {
+            Vector3 previewLocation = _playerCamera.transform.position + _playerCamera.transform.forward * maxTetherStartDist;
+            tetherPreviewLine.SetEndPoint(previewLocation);
+        }
+    }
+
+    #endregion
+
     #region Helper Functions
     //shoots raycast from player center screem
     private bool GetObjectInPlayerFront(out RaycastHit hit)
     {
         Ray ray = _playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
-
-        Physics.Raycast(ray, out hit, maxTetherStartDist, -1, QueryTriggerInteraction.Ignore);
+        Physics.Raycast(ray, out hit, maxTetherStartDist, ~layersToIgnore, QueryTriggerInteraction.Ignore);
         return hit.collider != null;
     }
 

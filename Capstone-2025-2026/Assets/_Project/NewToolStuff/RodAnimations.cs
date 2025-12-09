@@ -12,7 +12,7 @@ public class RodAnimations : MonoBehaviour
 
     void Update()
     {
-        float scrollValue = playerActions.ScrollAction;
+        float scrollValue = playerActions.GetDPadScrollValue();
 
         if (scrollValue != 0)
         {
