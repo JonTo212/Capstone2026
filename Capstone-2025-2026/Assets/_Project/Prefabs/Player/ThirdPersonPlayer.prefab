@@ -6539,21 +6539,30 @@ MonoBehaviour:
   reelIncrement: 2.5
   minLassoRange: 2.5
   maxLassoRange: 25
-  centerStrength: 175
+  centerStrength: 2250
   throwStrength: 25
   lookAtStrength: 0.5
   lookAtDamping: 0.05
-  rotationalDampingStrength: 0.5
-  maxLassoStrength: 175
+  rotationalDampingStrength: 0.25
+  maxLassoStrength: 250
   useSizeScale: 0
+  angularVelMultiplier: 0.925
   aimAssistType: 0
   aimAssistBufferRadius: 1.5
   useAimOutline: 1
   usePickupOutline: 1
   useGrabPointsForHold: 1
-  usePhysicsTorque: 1
+  <usePhysicsLasso>k__BackingField: 1
+  <usePhysicsTorque>k__BackingField: 1
   swingJumpForce: 10
   forwardRef: {fileID: 4338949708580675202}
+  <useSnapRotation>k__BackingField: 1
+  <camInputController>k__BackingField: {fileID: 1205049040831453663}
+  degreesPerSecond: 180
+  mkSensMultiplier: 0.05
+  snapAngle: 45
+  rotationSpring: 90
+  snapRatePerSecond: 360
 --- !u!114 &187563627807177223
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6567,6 +6576,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LassoTetherController
   controlsText: {fileID: 5046125116692931103}
+  useObjectManipulationMode: 1
   TetherMode: 0
   rodPickedUp: 1
   <CurrentLassoState>k__BackingField: 0
@@ -6649,9 +6659,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   defaultMaxSpeed: 10
   apexHeight: 2
-  apexTime: 0.4
-  timeToZero: 0.3
-  timeToMaxSpeed: 0.2
+  apexTime: 0.375
+  timeToZero: 0.275
+  timeToMaxSpeed: 0.175
   _airMultipliers:
     accelMultiplier: 0.5
     decelMultiplier: 0
@@ -6673,12 +6683,7 @@ MonoBehaviour:
   coyoteTimeCounter: 0
   ledgeScanLength: 1.5
   ledgeScanDepth: 5
-  yawSensitivity: 15
-  pitchSensitivity: 30
   playerCam: {fileID: 4270019202238993782}
-  desiredSwingFOV: 90
-  desiredHoldFOV: 75
-  FOVChangeSpeed: 10
 --- !u!114 &9141277693401130519
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13793,7 +13798,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.000061035156}
+  m_AnchoredPosition: {x: 0, y: 415.60007}
   m_SizeDelta: {x: 0, y: 874}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!1 &5892058441005799527
@@ -13916,7 +13921,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 4091486024729698376}
   m_HandleRect: {fileID: 1493070891470726906}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0.35153675
   m_Size: 0.2667048
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -14300,6 +14305,8 @@ GameObject:
   - component: {fileID: 464942800351593372}
   - component: {fileID: 1205049040831453663}
   - component: {fileID: 9162648374322047890}
+  - component: {fileID: 5576101049685872261}
+  - component: {fileID: 5087299409747798012}
   m_Layer: 7
   m_Name: FreeLook Camera
   m_TagString: Untagged
@@ -14315,7 +14322,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6770766517387362463}
   serializedVersion: 2
-  m_LocalRotation: {x: 9.876024e-21, y: -0.70710576, z: -9.8760535e-21, w: 0.70710784}
+  m_LocalRotation: {x: 0, y: -0.70710576, z: 0, w: 0.70710784}
   m_LocalPosition: {x: 6.0899963, y: 1.75, z: -0.000017642975}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -14380,7 +14387,7 @@ MonoBehaviour:
   TargetOffset: {x: 0, y: 0, z: 0}
   TrackerSettings:
     BindingMode: 4
-    PositionDamping: {x: 0.15, y: 1, z: 0.15}
+    PositionDamping: {x: 0.3, y: 1, z: 0.3}
     AngularDampingMode: 0
     RotationDamping: {x: 1, y: 1, z: 1}
     QuaternionDamping: 1
@@ -14548,6 +14555,44 @@ MonoBehaviour:
     NearLimit: 5
     FarLimit: 30
     MaxQualityBoost: 0.2
+--- !u!114 &5576101049685872261
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6770766517387362463}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 44d70cc20219cd84593f67d248eafe36, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineCameraOffset
+  Offset: {x: 0, y: 0, z: 0}
+  ApplyAfter: 1
+  PreserveComposition: 0
+--- !u!114 &5087299409747798012
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6770766517387362463}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47529d04ccb6db242b125b865322fba4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SpecialCameraController
+  lassoTetherController: {fileID: 187563627807177223}
+  tetherModeAdjustSpeed: 2
+  lassoModeAdjustSpeed: 5
+  swingModeAdjustSpeed: 3
+  defaultAdjustSpeed: 4
+  CameraLens_T: 50
+  camOffsetVector_T: {x: 2.25, y: 0.75, z: 0}
+  CameraLens_L: 70
+  camOffsetVector_L: {x: 1, y: 1, z: 0}
+  CameraLens_S: 85
+  camOffsetVector_S: {x: 0, y: 0, z: 0}
 --- !u!1 &6839994866455314606
 GameObject:
   m_ObjectHideFlags: 0
@@ -20561,7 +20606,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DevTetherActivationToggle
   jointTetherPlacer: {fileID: 7792931581381523645}
-  lassoTetherController: {fileID: 0}
+  lassoTetherController: {fileID: 187563627807177223}
   onColor: {r: 0, g: 1, b: 0, a: 1}
   offColor: {r: 1, g: 0, b: 0, a: 1}
   tetherActivationToggleButton: {fileID: 8304652074609241358}
@@ -20732,6 +20777,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 412334985279009504}
     m_Modifications:
+    - target: {fileID: -8985197896421691061, guid: 526c21fe399970147b1a509dfb8da7b3, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 526c21fe399970147b1a509dfb8da7b3, type: 3}
       propertyPath: m_LocalScale.x
       value: 1.33
@@ -20788,14 +20837,94 @@ PrefabInstance:
       propertyPath: m_ConstrainProportionsScale
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: -5231959137197968437, guid: 526c21fe399970147b1a509dfb8da7b3, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: -4606676978907178641, guid: 526c21fe399970147b1a509dfb8da7b3, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 23698adc96369724885cd155fb9becb8, type: 2}
+    - target: {fileID: -3441741364759053172, guid: 526c21fe399970147b1a509dfb8da7b3, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: -3385604430752132528, guid: 526c21fe399970147b1a509dfb8da7b3, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: -2797864980895152918, guid: 526c21fe399970147b1a509dfb8da7b3, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: -2779687346881856471, guid: 526c21fe399970147b1a509dfb8da7b3, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: -2492984127221239123, guid: 526c21fe399970147b1a509dfb8da7b3, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: -2240151287705473546, guid: 526c21fe399970147b1a509dfb8da7b3, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: -1682531394777093682, guid: 526c21fe399970147b1a509dfb8da7b3, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: -892965452126272395, guid: 526c21fe399970147b1a509dfb8da7b3, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: -412989040442181847, guid: 526c21fe399970147b1a509dfb8da7b3, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 526c21fe399970147b1a509dfb8da7b3, type: 3}
       propertyPath: m_Name
       value: NewCharacter-1
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 526c21fe399970147b1a509dfb8da7b3, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 1680898379929414373, guid: 526c21fe399970147b1a509dfb8da7b3, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 2396792000259490143, guid: 526c21fe399970147b1a509dfb8da7b3, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 2965345216041479821, guid: 526c21fe399970147b1a509dfb8da7b3, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 4075088641929283642, guid: 526c21fe399970147b1a509dfb8da7b3, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 4140668533725440856, guid: 526c21fe399970147b1a509dfb8da7b3, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 4465739215894424862, guid: 526c21fe399970147b1a509dfb8da7b3, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 4947639364867965979, guid: 526c21fe399970147b1a509dfb8da7b3, type: 3}
+      propertyPath: m_Layer
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 5866666021909216657, guid: 526c21fe399970147b1a509dfb8da7b3, type: 3}
       propertyPath: m_Controller
       value: 
       objectReference: {fileID: 9100000, guid: 535d24752e3d6444da644e79e90ec2ca, type: 2}
+    - target: {fileID: 9122559995493457695, guid: 526c21fe399970147b1a509dfb8da7b3, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
@@ -20843,6 +20972,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 8225593529726088127}
     m_Modifications:
+    - target: {fileID: -8767318452890436572, guid: 91d6a9016b4901e4990a844e30f984a5, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 91d6a9016b4901e4990a844e30f984a5, type: 3}
       propertyPath: m_LocalScale.x
       value: 0.6563706
@@ -20895,9 +21028,33 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: -80.239
       objectReference: {fileID: 0}
+    - target: {fileID: -4127923638707542501, guid: 91d6a9016b4901e4990a844e30f984a5, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 91d6a9016b4901e4990a844e30f984a5, type: 3}
       propertyPath: m_Name
       value: fishingRod1
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 91d6a9016b4901e4990a844e30f984a5, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 2766212503428324877, guid: 91d6a9016b4901e4990a844e30f984a5, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 5151728876063573259, guid: 91d6a9016b4901e4990a844e30f984a5, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 6937093723487139245, guid: 91d6a9016b4901e4990a844e30f984a5, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 7304391127158816030, guid: 91d6a9016b4901e4990a844e30f984a5, type: 3}
+      propertyPath: m_Layer
+      value: 7
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
