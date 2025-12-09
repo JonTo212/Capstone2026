@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[RequireComponent(typeof(LineRenderer))]
+/*[RequireComponent(typeof(LineRenderer))]
 public class RopeVisuals : MonoBehaviour
 {
     [SerializeField] private PlayerLasso lassoScript;
@@ -78,3 +78,4 @@ public class RopeVisuals : MonoBehaviour
             lineRenderer.positionCount = 0;
     }
 }
+*/

@@ -46,19 +46,21 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float feetRadius;
     [SerializeField] private LayerMask groundLayer;
 
-    [Header("Jump Buffer + Coyote Time")]
+    [Header("Jump Buffer + Coyote Time + LedgeScan")]
     [SerializeField] private float jumpBufferTime = 0.2f;
     [SerializeField] private float jumpBufferCounter;
     [SerializeField] private float coyoteTime = 0.2f;
     [SerializeField] private float coyoteTimeCounter;
+    [SerializeField] private float ledgeScanLength;
+    [SerializeField] private float ledgeScanDepth;
 
     [Header("Camera")]
-    [SerializeField] private float yawSensitivity;
-    [SerializeField] private float pitchSensitivity;
+    //[SerializeField] private float yawSensitivity;
+    //[SerializeField] private float pitchSensitivity;
     [SerializeField] private Camera playerCam;
-    [SerializeField] private float desiredSwingFOV = 90f;
-    [SerializeField] private float desiredHoldFOV = 75f;
-    [SerializeField] private float FOVChangeSpeed = 5f;
+    //[SerializeField] private float desiredSwingFOV = 90f;
+    //[SerializeField] private float desiredHoldFOV = 75f;
+    //[SerializeField] private float FOVChangeSpeed = 5f;
 
     [Header("Input")]
     private PlayerActions _playerActions;
@@ -118,7 +120,7 @@ public class PlayerMovement : MonoBehaviour
         HandleJumpBuffer();
         HandleCoyoteTime();
         HandleJump();
-        HandleFOV();
+        //HandleFOV();
         HandleWalkingSFX();
     }
 
@@ -259,7 +261,7 @@ public class PlayerMovement : MonoBehaviour
     }
 
 
-    private void HandleFOV()
+    /*private void HandleFOV()
     {
         float desiredFOV = _defaultFOV;
         float changeSpeed = FOVChangeSpeed;
@@ -276,7 +278,7 @@ public class PlayerMovement : MonoBehaviour
         }
 
         playerCam.fieldOfView = Mathf.SmoothStep(playerCam.fieldOfView, desiredFOV, Time.deltaTime * changeSpeed);
-    }
+    }*/
 
     public void HandleForward()
     {
@@ -288,8 +290,10 @@ public class PlayerMovement : MonoBehaviour
 
         Vector3 forwardRelative = camForward * _playerActions.MoveInput.y;
         Vector3 rightRelative = camRight * _playerActions.MoveInput.x;
+        
+        _wishDir = LedgeCheckWithoutAForLoop((forwardRelative + rightRelative).normalized);
+        
 
-        _wishDir = (forwardRelative + rightRelative).normalized;
     }
 
     private void HandleJump()
@@ -383,4 +387,43 @@ public class PlayerMovement : MonoBehaviour
 
         _rb.AddForce(accelForce, ForceMode.Acceleration);
     }
+
+    private Vector3 LedgeCheck()
+    {
+        //If there is a place the player can fall, the check will return where that is
+
+        Vector3 fallOffArea = new Vector3(0, 0, 0);
+        for(int i = -1; i < 2; i++)
+        {
+            for(int j = -1; j < 2; j++)
+            {
+                if(Physics.Raycast(transform.position, new Vector3(i,0,j), out RaycastHit hit, ledgeScanLength))
+                {
+                    if(Physics.Raycast(hit.point, Vector3.down, out RaycastHit hitDown, ledgeScanDepth))
+                    {
+                        return fallOffArea = new Vector3(i, 0, j);
+                    }
+                }
+            }
+        }
+
+
+        return fallOffArea;
+    }
+
+    private Vector3 LedgeCheckWithoutAForLoop(Vector3 intendedDirection)
+    { 
+        //If there is a place the player can fall, the check will return where that is
+        
+        if (!Physics.Raycast(feetPos.position + Vector3.up * 1.9f + (intendedDirection * ledgeScanLength), Vector3.down, ledgeScanDepth) && IsGrounded()
+            && (_lassoTetherController.CurrentLassoState == LassoState.Snared || _lassoTetherController.CurrentLassoState == LassoState.Tethering || 
+            _lassoTetherController.CurrentLassoState == LassoState.SnaredTether))
+        {
+            intendedDirection = Vector3.zero;
+        }
+
+        Debug.DrawLine(feetPos.position + (intendedDirection * ledgeScanLength), feetPos.position + (intendedDirection * ledgeScanLength) + (Vector3.down * ledgeScanDepth), Color.red);
+        return intendedDirection;
+    }
+
 }

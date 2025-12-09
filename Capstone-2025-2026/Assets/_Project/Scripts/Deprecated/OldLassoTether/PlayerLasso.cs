@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public enum PlayerLassoState
+/*public enum PlayerLassoState
 {
     Empty,
     Firing,
@@ -304,4 +304,4 @@ public class PlayerLasso : MonoBehaviour
         anchoredPos.position = holdPos.position;
     }
     #endregion
-}
+}*/

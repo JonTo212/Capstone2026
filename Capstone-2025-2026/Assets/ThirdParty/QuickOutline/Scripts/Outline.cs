@@ -103,6 +103,8 @@ public class Outline : MonoBehaviour {
     outlineFillMaterial.name = "OutlineFill (Instance)";
         stripeEffectMaterial.name = "stripeEffect (Instance)";
 
+        outlineMode = Mode.OutlineVisible; //REMOVE THIS IF YOU WANNA CHANGE THE MODES
+
     // Retrieve or generate smooth normals
     LoadSmoothNormals();
 

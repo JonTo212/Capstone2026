@@ -55,7 +55,6 @@ public class TetherPreviewLine : MonoBehaviour
 
     public void SetColorToInvalid()
     {
-
         if (isValidPlacement == true)
         {
             foreach(Material mat in tetherPreviewMaterials)
@@ -63,6 +62,7 @@ public class TetherPreviewLine : MonoBehaviour
                 mat.SetColor("_Emissive", invalidColor);
             }
             isValidPlacement = false;
+            endPointVisuals.gameObject.SetActive(false);
         }
     }
 
@@ -75,6 +75,7 @@ public class TetherPreviewLine : MonoBehaviour
                 mat.SetColor("_Emissive", validColor);
             }
             isValidPlacement = true;
+            endPointVisuals.gameObject.SetActive(true);
         }
     }
 
