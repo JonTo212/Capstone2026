@@ -3,10 +3,11 @@ using UnityEngine;
 
 public class RespawnPointVisuals : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     public bool activated = false;
     public GameObject activeFlag;
     public GameObject inactiveFlag;
+    [SerializeField] private ParticleSystem particles;
+
     public void SetObjectActive()
     {
         if (!activated)
@@ -16,7 +17,7 @@ public class RespawnPointVisuals : MonoBehaviour
 
             activeFlag.SetActive(true);
             inactiveFlag.SetActive(false);
-
+            particles.Play();
         }
         else
         {
