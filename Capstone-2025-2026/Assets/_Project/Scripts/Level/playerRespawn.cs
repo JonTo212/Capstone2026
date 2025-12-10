@@ -29,6 +29,8 @@ public class playerRespawn : MonoBehaviour
     void Awake()
     {
         aManage = GameObject.Find("AudioManager").GetComponent<AudioManager>();
+        fadeToBlackScript = FindAnyObjectByType<FadeToBlack>();
+        fadeToBlackScript.gameObject.SetActive(false);
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -68,6 +70,8 @@ public class playerRespawn : MonoBehaviour
     IEnumerator Respawn()
     {
         //fade to black
+        
+        fadeToBlackScript.gameObject.SetActive(true);
         fadeToBlackScript.blackOut = true;
 
         //Setup 

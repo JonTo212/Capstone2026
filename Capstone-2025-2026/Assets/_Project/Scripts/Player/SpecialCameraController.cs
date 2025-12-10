@@ -60,7 +60,11 @@ public class SpecialCameraController : MonoBehaviour
                 ResetCamera();
                 break;
 
-            case LassoState.Tethering | LassoState.SnaredTether:
+            case LassoState.Tethering:
+                TetherModeCamera();
+                break;
+
+            case LassoState.SnaredTether:
                 TetherModeCamera();
                 break;
 
