@@ -126,9 +126,9 @@ public class JointTether : MonoBehaviour
         if(fromTransform.gameObject.GetComponent<Rigidbody>() != null)
         {
             rb = fromTransform.gameObject.GetComponent<Rigidbody>();
-            GameObject trail = Instantiate(trailRendererPrefab);
-            trail.transform.parent = fromTransform;
-            trail.transform.position= fromTransform.position;
+            //GameObject trail = Instantiate(trailRendererPrefab);
+            //trail.transform.parent = fromTransform;
+            //trail.transform.position= fromTransform.position;
             anchorTransform = fromTransform;
         }
         else
@@ -261,8 +261,8 @@ public class JointTether : MonoBehaviour
         if(startAnchor!= null && startAnchor.GetComponent<TemporaryJointAnchor>() != null) Destroy(startAnchor.gameObject);
         if (endAnchor != null && endAnchor.GetComponent<TemporaryJointAnchor>() != null) Destroy(endAnchor.gameObject);
 
-        if(startTrailRenderer != null) Destroy(startTrailRenderer);
-        if(endTrailRenderer != null) Destroy(endTrailRenderer);
+       // if(startTrailRenderer != null) Destroy(startTrailRenderer);
+        //if(endTrailRenderer != null) Destroy(endTrailRenderer);
 
         GameObject tetherRetrievalVisuals = Instantiate(tetherRetrieveVisualsPrefab, transform.position, Quaternion.Euler(Vector3.zero));
         tetherRetrievalVisuals.GetComponent<TetherRetrievalEffect>().Init(transform.position, playerTransform);
