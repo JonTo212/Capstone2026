@@ -6,12 +6,10 @@ public class DialogueTrigger : MonoBehaviour
 {
 
     public bool repeatable;
+    private bool triggered = false;
     
-    [SerializeField]private string desiredText;
+    [SerializeField] private string desiredText;
     [SerializeField] private SpeakerType speakerOptionsDropdown;
-
-
-    //public Image[] profiles;
    
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -27,11 +25,14 @@ public class DialogueTrigger : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         NPCDialogue npcText;
-
-        if (other.gameObject.CompareTag("Player"))
+        if (triggered == false || repeatable == true)
         {
-            npcText = other.GetComponentInChildren<NPCDialogue>();
-            npcText.SetText(desiredText, speakerOptionsDropdown);
+            triggered = true;
+            if (other.gameObject.CompareTag("Player"))
+            {
+                npcText = other.GetComponentInChildren<NPCDialogue>();
+                npcText.SetText(desiredText, speakerOptionsDropdown);
+            }
         }
     }
 }

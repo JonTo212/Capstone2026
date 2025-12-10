@@ -1,10 +1,11 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 using System.Globalization;
-using Microsoft.Unity.VisualStudio.Editor;
 using System.Collections.Generic;
+using DG.Tweening;
 
 public enum SpeakerType
     {
@@ -26,38 +27,46 @@ public class NPCDialogue : MonoBehaviour
 
     private WaitForSeconds _simpleDelay;
     private WaitForSeconds _interpunctuationDelay;
+    public Vector3 originalDialoguePosition;
+    public Vector3 hiddenPositionOffset;
+    public Vector3 hiddenPosition;
+    public GameObject dialogueBox;
 
     [Header("Typewriter Settings")]
-    [SerializeField] private float charactersPerSecond = 20;
+    [SerializeField] private float charactersPerSecond = 3;
     [SerializeField] private float interpunctuationDelay = 0.5f;
 
     [Header("Profile Settings")]
-    public Image[] profiles;
     public Image currentSpeaker;
+    [SerializeField] private Sprite[] profiles;
 
-    private Dictionary<SpeakerType, Image> speakerImageDictionary = new Dictionary<SpeakerType, Image>();
+    private Dictionary<SpeakerType, Sprite> speakerImageDictionary = new Dictionary<SpeakerType, Sprite>();
 
 
     //ANIMATE THIS WITH DOTWEEN
     private void Awake()
     {
-        
         _textBox = GetComponent<TMP_Text>();
         _simpleDelay = new WaitForSeconds(1/charactersPerSecond);
         _interpunctuationDelay = new WaitForSeconds(interpunctuationDelay);
         speakerImageDictionary[SpeakerType.Player] = profiles[0];
-        speakerImageDictionary[SpeakerType.Player] = profiles[1];
-        
+        speakerImageDictionary[SpeakerType.Momma] = profiles[1];
+
+        originalDialoguePosition = dialogueBox.GetComponent<RectTransform>().anchoredPosition;
+        hiddenPosition = originalDialoguePosition + hiddenPositionOffset;
+
     }
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        SetText(testText, 0);
+        
+        dialogueBox.GetComponent<RectTransform>().anchoredPosition = hiddenPosition;
+        //SetText(testText, 0);
     }
 
     public void SetText(string text, SpeakerType speakerType)
     {
-        currentSpeaker = speakerImageDictionary[speakerType];
+        currentSpeaker.sprite = speakerImageDictionary[speakerType];
 
         if(_typewriterCoroutine != null)
         {
@@ -67,11 +76,12 @@ public class NPCDialogue : MonoBehaviour
         _textBox.maxVisibleCharacters = 0;
         _currentVisibleCharacterIndex = 0;
 
-        _typewriterCoroutine = StartCoroutine(routine:Typewriter());
+        _typewriterCoroutine = StartCoroutine(Typewriter());
     }
 
     private IEnumerator Typewriter()
     {
+        TextOnScreen();
         TMP_TextInfo textInfo = _textBox.textInfo;
         while (_currentVisibleCharacterIndex < textInfo.characterCount + 1)
         {
@@ -91,9 +101,16 @@ public class NPCDialogue : MonoBehaviour
         }
     }
 
-    // Update is called once per frame
-    void Update()
+    public void TextOnScreen()
     {
-        
+        dialogueBox.GetComponent<RectTransform>().DOAnchorPos(originalDialoguePosition, 1);//DOMove(originalDialoguePosition, 2);
+        Invoke(nameof(TextOffScreen), 6);
+    }
+
+
+
+    public void TextOffScreen()
+    {
+        dialogueBox.GetComponent<RectTransform>().DOAnchorPos(hiddenPosition, 1); // DOMove(hiddenPosition, 2);
     }
 }
