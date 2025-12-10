@@ -221,7 +221,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void HandleWalkingSFX()
     {
-        if (_wishDir != Vector3.zero)
+        if (_wishDir != Vector3.zero && IsGrounded())
         {
             AudioManager.Instance.SFXSource7.UnPause();
         }
