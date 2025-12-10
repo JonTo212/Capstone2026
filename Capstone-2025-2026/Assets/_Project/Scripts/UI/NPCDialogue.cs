@@ -3,6 +3,15 @@ using System.Collections;
 using UnityEngine;
 using TMPro;
 using System.Globalization;
+using Microsoft.Unity.VisualStudio.Editor;
+using System.Collections.Generic;
+
+public enum SpeakerType
+    {
+        Player,
+        Momma,
+
+    }
 
 public class NPCDialogue : MonoBehaviour
 {
@@ -22,22 +31,34 @@ public class NPCDialogue : MonoBehaviour
     [SerializeField] private float charactersPerSecond = 20;
     [SerializeField] private float interpunctuationDelay = 0.5f;
 
+    [Header("Profile Settings")]
+    public Image[] profiles;
+    public Image currentSpeaker;
+
+    private Dictionary<SpeakerType, Image> speakerImageDictionary = new Dictionary<SpeakerType, Image>();
+
+
+    //ANIMATE THIS WITH DOTWEEN
     private void Awake()
     {
         
         _textBox = GetComponent<TMP_Text>();
         _simpleDelay = new WaitForSeconds(1/charactersPerSecond);
         _interpunctuationDelay = new WaitForSeconds(interpunctuationDelay);
+        speakerImageDictionary[SpeakerType.Player] = profiles[0];
+        speakerImageDictionary[SpeakerType.Player] = profiles[1];
         
     }
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        SetText(testText);
+        SetText(testText, 0);
     }
 
-    private void SetText(string text)
+    public void SetText(string text, SpeakerType speakerType)
     {
+        currentSpeaker = speakerImageDictionary[speakerType];
+
         if(_typewriterCoroutine != null)
         {
             StopCoroutine(_typewriterCoroutine);
