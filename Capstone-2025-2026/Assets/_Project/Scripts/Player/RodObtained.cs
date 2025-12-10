@@ -25,6 +25,9 @@ public class RodObtained : MonoBehaviour
         tutorialText.SetActive(true);
         rodController.rodPickedUp = true;
         rodVisuals.SetActive(true);
+
+        gameObject.SetActive(false);
+
         //InsertVisuals
     }
 

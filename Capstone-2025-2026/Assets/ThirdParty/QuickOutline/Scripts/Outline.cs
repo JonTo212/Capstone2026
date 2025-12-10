@@ -16,7 +16,11 @@ using UnityEngine;
 public class Outline : MonoBehaviour {
   private static HashSet<Mesh> registeredMeshes = new HashSet<Mesh>();
 
-  public enum Mode {
+  //MVG Input Stuff
+  public static bool isOutlined = false;
+
+
+    public enum Mode {
     OutlineAll,
     OutlineVisible,
     OutlineHidden,
@@ -103,7 +107,7 @@ public class Outline : MonoBehaviour {
     outlineFillMaterial.name = "OutlineFill (Instance)";
         stripeEffectMaterial.name = "stripeEffect (Instance)";
 
-        outlineMode = Mode.OutlineVisible; //REMOVE THIS IF YOU WANNA CHANGE THE MODES
+        //outlineMode = Mode.OutlineVisible; //REMOVE THIS IF YOU WANNA CHANGE THE MODES
 
     // Retrieve or generate smooth normals
     LoadSmoothNormals();
@@ -169,7 +173,9 @@ public class Outline : MonoBehaviour {
     // Destroy material instances
     Destroy(outlineMaskMaterial);
     Destroy(outlineFillMaterial);
-  }
+
+    isOutlined = false;
+    }
 
 
   public void SnareColor()
@@ -321,12 +327,20 @@ public class Outline : MonoBehaviour {
         outlineMaskMaterial.SetFloat("_ZTest", (float)UnityEngine.Rendering.CompareFunction.Always);
         outlineFillMaterial.SetFloat("_ZTest", (float)UnityEngine.Rendering.CompareFunction.LessEqual);
         outlineFillMaterial.SetFloat("_OutlineWidth", outlineWidth);
+
+        //MVG Input Stuff
+        isOutlined = true;
+
         break;
 
       case Mode.OutlineHidden:
         outlineMaskMaterial.SetFloat("_ZTest", (float)UnityEngine.Rendering.CompareFunction.Always);
         outlineFillMaterial.SetFloat("_ZTest", (float)UnityEngine.Rendering.CompareFunction.Greater);
         outlineFillMaterial.SetFloat("_OutlineWidth", outlineWidth);
+
+        //MVG Input Stuff
+        isOutlined = false;
+
         break;
 
       case Mode.OutlineAndSilhouette:
@@ -340,6 +354,8 @@ public class Outline : MonoBehaviour {
         outlineFillMaterial.SetFloat("_ZTest", (float)UnityEngine.Rendering.CompareFunction.Greater);
         outlineFillMaterial.SetFloat("_OutlineWidth", 0f);
         break;
+
+
     }
-  }
+    }
 }
