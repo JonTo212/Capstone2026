@@ -22,6 +22,7 @@ public class WindTunnel : MonoBehaviour, IEnvironmentalElement
     [SerializeField] private GameObject[] propsToSpawn;
 
     [SerializeField] private List<Prop> propsInWindTunnel = new List<Prop>();
+
     private Vector3 windDirection;
 
     private Coroutine spawnCoroutine;
@@ -86,9 +87,13 @@ public class WindTunnel : MonoBehaviour, IEnvironmentalElement
     {
         if(other.GetComponent<Prop>() != null)
         {
-            propsInWindTunnel.Add(other.GetComponent<Prop>());
+            Prop newProp = other.GetComponent<Prop>();
+
+            if(propsInWindTunnel.Contains(newProp)) return;
+
+            propsInWindTunnel.Add(newProp);
             other.GetComponent<Rigidbody>().useGravity = false;
-            other.GetComponent<Prop>().SetInEnvironmentalElement(this);
+            newProp.SetInEnvironmentalElement(this);
         }
     }
 
@@ -113,6 +118,7 @@ public class WindTunnel : MonoBehaviour, IEnvironmentalElement
             propsInWindTunnel.Remove(prop);
             prop.Rb.useGravity = true;
             other.GetComponent<Prop>().SetInEnvironmentalElement(null);
+
         }
     }
     private void StabilizeRbSpeed(Prop prop)
