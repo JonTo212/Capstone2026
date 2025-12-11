@@ -67,8 +67,8 @@ public class PlayerMantle : MonoBehaviour
         _playerController.Rb.isKinematic = true;
         OnMantle?.Invoke(true);
 
-        Vector3 startPos = transform.position;
-        Vector3 climbPos = new Vector3(startPos.x, targetPos.y + climbHeightBuffer, startPos.z);
+        Vector3 startPos = forwardRef.position;
+        Vector3 climbPos = new Vector3(startPos.x, targetPos.y + climbHeightBuffer, startPos.z + forwardClimbBuffer);
 
         //first half -> climb upwards
         float timer = 0;
@@ -96,5 +96,30 @@ public class PlayerMantle : MonoBehaviour
 
         OnMantle?.Invoke(false);
     }
+
+    /*private IEnumerator Mantle(Vector3 targetPos)
+    {
+        _playerController.Rb.isKinematic = true;
+        OnMantle?.Invoke(true);
+
+        Vector3 startPos = forwardRef.position;
+        Vector3 climbPos = new Vector3(startPos.x, targetPos.y + climbHeightBuffer, startPos.z + forwardClimbBuffer);
+
+        //first half -> climb upwards
+        float timer = 0;
+        while (timer < climbDuration + forwardDuration)
+        {
+            timer += Time.fixedDeltaTime;
+            float t = timer / climbDuration;
+            _playerController.Rb.MovePosition(Vector3.Lerp(startPos, targetPos, t));
+            yield return new WaitForFixedUpdate();
+        }
+
+        _playerController.Rb.position = targetPos;
+        _playerController.Rb.isKinematic = false;
+        _mantleCoroutine = null;
+
+        OnMantle?.Invoke(false);
+    }*/
 
 }
