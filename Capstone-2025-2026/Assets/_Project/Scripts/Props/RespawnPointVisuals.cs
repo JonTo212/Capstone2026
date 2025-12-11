@@ -4,7 +4,7 @@ using DG.Tweening;
 
 public class RespawnPointVisuals : MonoBehaviour
 {
-    public bool activated = true;
+    public bool activated = false;
     public bool firstTime = true;
     public GameObject activeFlag;
     public GameObject inactiveFlag;
@@ -20,7 +20,9 @@ public class RespawnPointVisuals : MonoBehaviour
 
             activeFlag.SetActive(true);
             inactiveFlag.SetActive(false);
-        }
+
+            particles.Play();
+}
         else
         {
             print("deactivated");
