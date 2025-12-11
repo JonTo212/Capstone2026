@@ -11,7 +11,7 @@ public class MySceneManager : MonoBehaviour
 
     private string currentScene;
 
-    public GameObject goalScreen;
+    //public GameObject goalScreen;
 
     public ScreenTransitions transitions;
     private void Start()
@@ -21,8 +21,8 @@ public class MySceneManager : MonoBehaviour
 
     public void LoadNewScene(int sceneIndex)
     {
-        transitions.gameObject.transform.parent = goalScreen.transform;
-        goalScreen.SetActive(true);
+        //transitions.gameObject.transform.parent = goalScreen.transform;
+        //goalScreen.SetActive(true);
 
         
 
@@ -62,7 +62,7 @@ public class MySceneManager : MonoBehaviour
 
     IEnumerator switchLevel(int sceneIndex)
     {
-        yield return new WaitForSeconds(3);
+        //yield return new WaitForSeconds(3);
         transitions.FadeToBlack();
         yield return new WaitForSeconds(2);
         SceneManager.LoadScene(SceneNames[sceneIndex]);

@@ -18,9 +18,9 @@ public class ScreenTransitions : MonoBehaviour
     public void FadeToBlack()
     {
         //Doesn't work
-        gameObject.SetActive(true);
+        /*gameObject.SetActive(true);
         gameObject.GetComponent<Image>().color = Color.black;
         gameObject.GetComponent<Image>().DOFade(0, 0.001f);
-        gameObject.GetComponent<Image>().DOFade(255, 2f);
+        gameObject.GetComponent<Image>().DOFade(255, 2f);*/
     }
 }

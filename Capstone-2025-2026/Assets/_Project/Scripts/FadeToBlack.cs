@@ -37,7 +37,10 @@ public class FadeToBlack : MonoBehaviour
         {
             imageColor.a += Time.deltaTime * fadeInSpeed;
 
-            if (imageColor.a >= 2f) fullBlack = true;
+            if (imageColor.a >= 2f)
+            {
+                fullBlack = true;
+            }
         }
         else 
         {
