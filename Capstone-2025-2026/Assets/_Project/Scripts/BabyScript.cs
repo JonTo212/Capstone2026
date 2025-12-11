@@ -47,6 +47,8 @@ public class BabyScript : MonoBehaviour
     public float playerRangeLimit = 50f;
     public Transform playerLocation;
 
+    private bool forceRespawn = false; // too far from spawn and player
+
     public event Action OnEnterBag;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -77,14 +79,23 @@ public class BabyScript : MonoBehaviour
         var x = Screen.width / 2;
         var y = Screen.height / 2;
 
+
+
         cameraCenterRay = camera.ScreenPointToRay(new Vector3(x, y, 0));
         Debug.DrawRay(cameraCenterRay.origin, cameraCenterRay.direction * 100, Color.yellow);
         if((spawnPosition - transform.position).magnitude >= spawnLimit)
         {
             print("TOO FAR FROM SPAWNPOINT");
             if ((spawnPosition - playerLocation.position).magnitude > playerRangeLimit){
-                StartCoroutine(Respawn());
-                print("TOO FAR FROM PLAYER");
+
+                if (!forceRespawn)
+                {
+                    StartCoroutine(Respawn());
+                    print("TOO FAR FROM PLAYER");
+
+                    forceRespawn = true;
+                }
+
             }
         }
     }
@@ -167,6 +178,9 @@ public class BabyScript : MonoBehaviour
 
         //end particle effect
         tinyTornado.Stop();
+
+        //force respawn false
+        forceRespawn = false;
 
     }
 
