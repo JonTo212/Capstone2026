@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using static UnityEditor.Experimental.GraphView.GraphView;
@@ -121,6 +122,7 @@ public class PlayerNPCHolder : MonoBehaviour
     private bool savedUseGravity;
     private bool savedUseKinematic;
     private int savedLayer;
+    private Dictionary<Collider, bool> savedColliderStates = new Dictionary<Collider, bool>();
 
     #region Object Yank
 
@@ -141,9 +143,11 @@ public class PlayerNPCHolder : MonoBehaviour
                 SetLayerRecursively(child.gameObject, 7);
 
             Collider[] colliders = _connectedNPC.GetComponents<Collider>();
+            savedColliderStates.Clear();
             foreach (var col in colliders)
             {
-                col.enabled = false;
+                savedColliderStates[col] = col.isTrigger;
+                col.isTrigger = true;
             }
 
             NPC_Pufferfish mama = CurrentNPC as NPC_Pufferfish;
@@ -234,7 +238,7 @@ public class PlayerNPCHolder : MonoBehaviour
                 if (_objectYankCoroutine != null)
                     StopCoroutine(_objectYankCoroutine);
 
-                _objectYankCoroutine = StartCoroutine(YankObjectCoroutine(_connectedNPC, _connectedNPC, npcBackpackPos, true));
+                _objectYankCoroutine = StartCoroutine(YankObjectCoroutine(_connectedNPC, _connectedNPC, npcBackpackPos, true, false));
             }
         }
     }
@@ -249,7 +253,6 @@ public class PlayerNPCHolder : MonoBehaviour
 
         abilityActive = false;
         useAbilityRequested = false;
-        stopAbilityRequested = false;
         abilityLineRenderer.enabled = false;
 
         if (_connectedNPC != null && _connectedNPC.TryGetComponent(out Rigidbody rb))
@@ -265,8 +268,17 @@ public class PlayerNPCHolder : MonoBehaviour
             rb.isKinematic = savedUseKinematic;
             rb.interpolation = savedInterpolation;
 
-            Collider[] colliders = _connectedNPC.GetComponents<Collider>();
-            foreach (var col in colliders) col.enabled = true;
+            if (savedColliderStates != null)
+            {
+                foreach (var kvp in savedColliderStates)
+                {
+                    if (kvp.Key != null)
+                    {
+                        kvp.Key.isTrigger = kvp.Value;
+                        kvp.Key.enabled = true;
+                    }
+                }
+            }
         }
     }
 
@@ -315,7 +327,7 @@ public class PlayerNPCHolder : MonoBehaviour
                 if (_objectYankCoroutine != null)
                     StopCoroutine(_objectYankCoroutine);
 
-                _objectYankCoroutine = StartCoroutine(YankObjectCoroutine(_connectedNPC, _connectedNPC, npcBackpackPos, true));
+                _objectYankCoroutine = StartCoroutine(YankObjectCoroutine(_connectedNPC, _connectedNPC, npcBackpackPos, true, true));
                 CurrentNPC.OnCaptureStart();
             }
             else
@@ -323,13 +335,13 @@ public class PlayerNPCHolder : MonoBehaviour
                 if (_objectYankCoroutine != null)
                     StopCoroutine(_objectYankCoroutine);
 
-                _objectYankCoroutine = StartCoroutine(YankObjectCoroutine(_connectedNPC, _connectedNPC, npcRemovePos, false));
+                _objectYankCoroutine = StartCoroutine(YankObjectCoroutine(_connectedNPC, _connectedNPC, npcRemovePos, false, true));
                 CurrentNPC.OnReleaseStart();
             }
         }
     }
 
-    private IEnumerator YankObjectCoroutine(Transform yankObj, Transform startPos, Transform endPos, bool attach)
+    private IEnumerator YankObjectCoroutine(Transform yankObj, Transform startPos, Transform endPos, bool attach, bool invokeEvent) //temp lol
     {
         Prop prop = yankObj.GetComponent<Prop>();
         if (prop == null) yield break;
@@ -400,8 +412,11 @@ public class PlayerNPCHolder : MonoBehaviour
             CurrentNPC.OnReleaseComplete();
         }
 
-        OnObjectYankCompleted?.Invoke();
-        _objectYankCoroutine = null;
+        if (invokeEvent)
+        {
+            OnObjectYankCompleted?.Invoke();
+            _objectYankCoroutine = null;
+        }
     }
 
     #endregion
