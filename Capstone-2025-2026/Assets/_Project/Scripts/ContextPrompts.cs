@@ -28,6 +28,10 @@ public class ContextPrompts : MonoBehaviour
     public GameObject MamaInBagPrompts;
     public GameObject MamaInFieldPrompts;
 
+    //Check if children active
+    public bool anyChildrenActive = false;
+    public BlackPromptBGFade blackFadeScript;
+
 
     private void Awake()
     {
@@ -52,12 +56,10 @@ public class ContextPrompts : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
         //Holding objects
         if (player.GetComponent<LassoTetherController>().CurrentLassoState == LassoState.Snared)
         {
             HoldingStateIcons.SetActive(true);
-            //LookingAtObject(false);
         }
         else
         {
@@ -123,6 +125,12 @@ public class ContextPrompts : MonoBehaviour
             MamaInFieldPrompts.SetActive(true);
         }
 
+        //black BG
+        if (player.GetComponent<LassoTetherController>().CurrentLassoState != LassoState.Empty)
+        {
+            blackFadeScript.FadeIn();
+        }
+
     }
 
 
@@ -131,9 +139,15 @@ public class ContextPrompts : MonoBehaviour
     {
         var lassoScript = player.GetComponent<LassoTetherController>();
 
+
+
         if (lassoScript.CurrentLassoState == LassoState.Empty)
         {
             GrabPrompt.SetActive(active);
+            
+            if (active == true) blackFadeScript.FadeIn();
+            else blackFadeScript.FadeOut();
+
         }
         else
         {
@@ -141,4 +155,7 @@ public class ContextPrompts : MonoBehaviour
         }
 
     }
+
+
+
 }
