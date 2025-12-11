@@ -5,7 +5,7 @@ using DG.Tweening;
 public class animalCounter : MonoBehaviour
 {
     public static int savedAnimals;
-    private AnimalJar[] allAnimalJars;
+    public BabyScript[] allAnimalJars;
     public float originalUIPosition;
     public float currentAmount;
 
@@ -19,26 +19,38 @@ public class animalCounter : MonoBehaviour
 
     void Start()
     {
-        allAnimalJars = FindObjectsByType<AnimalJar>(FindObjectsSortMode.None);
+        allAnimalJars = FindObjectsByType<BabyScript>(FindObjectsSortMode.None);
         currentAmount = allAnimalJars.Length;
+
+        foreach(BabyScript baby in allAnimalJars)
+        {
+            baby.OnEnterBag += OnBabyEnterBag;
+        }
+
+        counterText.text = (savedAnimals.ToString() + "/" + allAnimalJars.Length);
+        currentAmount = savedAnimals;
+
+        TextOnScreen();
         Invoke(nameof(TextOffScreen), 5f);
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(savedAnimals != currentAmount)
-        {
-            TextOnScreen();
-            counterText.text = (savedAnimals.ToString() + "/" + allAnimalJars.Length); 
-            currentAmount = savedAnimals;
-            Invoke(nameof(TextOffScreen), 5f);
-        }
+
+    }
+
+    private void OnBabyEnterBag()
+    {
+        savedAnimals++;
+        counterText.text = (savedAnimals.ToString() + "/" + allAnimalJars.Length);
+        TextOnScreen();
     }
 
     public void TextOnScreen()
     {
         gameObject.transform.DOMoveY(originalUIPosition, 2);
+        Invoke(nameof(TextOffScreen), 5f);
     }
 
     public void TextOffScreen()

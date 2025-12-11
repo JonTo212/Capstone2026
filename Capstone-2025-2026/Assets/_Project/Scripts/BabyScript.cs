@@ -1,4 +1,5 @@
 using NodeCanvas.Tasks.Actions;
+using System;
 using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -31,6 +32,7 @@ public class BabyScript : MonoBehaviour
     public Material cleanMat;
     public Material corruptMat;
 
+    public event Action OnEnterBag;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -143,7 +145,7 @@ public class BabyScript : MonoBehaviour
     {
         //collect sound
         audioManager.PlaySFX(audioManager.Collection, 5, 1);
-
+        OnEnterBag.Invoke();
         Destroy(gameObject);
     }
 }
