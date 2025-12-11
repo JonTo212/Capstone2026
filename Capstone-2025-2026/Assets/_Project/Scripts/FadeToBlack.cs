@@ -37,11 +37,16 @@ public class FadeToBlack : MonoBehaviour
         {
             imageColor.a += Time.deltaTime * fadeInSpeed;
 
-            if (imageColor.a >= 2f) fullBlack = true;
+            if (imageColor.a >= 2f)
+            {
+                fullBlack = true;
+                gameObject.SetActive(false);
+            }
         }
         else 
         {
             fullBlack = false;
+            gameObject.SetActive(true);
             imageColor.a -= Time.deltaTime * fadeOutSpeed;
         }
 
