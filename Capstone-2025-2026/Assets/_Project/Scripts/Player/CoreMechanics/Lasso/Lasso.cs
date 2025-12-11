@@ -144,7 +144,9 @@ public class Lasso : MonoBehaviour
                     lassoGrabVisualIndicator.transform.position = hit.Value.point;
                 }
             }
+
         }
+
 
         if (SnaredObject != null)
         {
@@ -155,6 +157,11 @@ public class Lasso : MonoBehaviour
 
         lassoGrabVisualIndicator.SetActive(targetProp != null && SnaredObject == null);
         _aimAssist.HighlightSelectedProp(targetProp, false);
+
+        bool targetPropExists = targetProp != null;
+
+        //MVG BRAEDEN INPUT STUFF
+        ContextPrompts.Instance.LookingAtObject(targetPropExists);
     }
 
     public void BeginCenterPivot()
