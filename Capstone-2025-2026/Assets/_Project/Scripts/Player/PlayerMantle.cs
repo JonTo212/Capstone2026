@@ -18,6 +18,8 @@ public class PlayerMantle : MonoBehaviour
     private PlayerController _playerController;
     private Coroutine _mantleCoroutine;
 
+    public Coroutine MantleCoroutine => _mantleCoroutine;
+
     public event Action<bool> OnMantle;
 
     private void Awake()
@@ -36,7 +38,7 @@ public class PlayerMantle : MonoBehaviour
             Vector3? mantleTarget = TryStartMantle();
             if (mantleTarget.HasValue)
             {
-                _mantleCoroutine = StartCoroutine(MantleCoroutine(mantleTarget.Value));
+                _mantleCoroutine = StartCoroutine(Mantle(mantleTarget.Value));
             }
         }
     }
@@ -60,7 +62,7 @@ public class PlayerMantle : MonoBehaviour
         return null;
     }
 
-    private IEnumerator MantleCoroutine(Vector3 targetPos)
+    private IEnumerator Mantle(Vector3 targetPos)
     {
         _playerController.Rb.isKinematic = true;
         OnMantle?.Invoke(true);
