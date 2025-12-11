@@ -143,6 +143,7 @@ public class JointTetherPlacer : MonoBehaviour
 
     public void StartTetherPlacement(Transform transform, Vector3 position)
     {
+        isStartPointValid = true;
         CreateTetherPreviewLine();
         SetTetherStartPoint(transform, position);
         didStartPointHit = true;

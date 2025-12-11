@@ -11,7 +11,7 @@ public class RodObtained : MonoBehaviour
     private void Start()
     {
         rodController = GameObject.Find("ThirdPersonPlayer").GetComponent<LassoTetherController>();
-        tutorialText = GameObject.Find("PlayerUICanvas");
+        tutorialText = GameObject.Find("RodUI");
         rodVisuals = GameObject.Find("fishingRod1");
 
         if (disabledFromStart)
