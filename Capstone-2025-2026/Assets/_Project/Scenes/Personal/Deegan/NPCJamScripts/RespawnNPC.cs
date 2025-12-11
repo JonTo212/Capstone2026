@@ -28,8 +28,6 @@ public class RespawnNPC : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        print(spawnRotation);
-
         if(transform.position.y < -30f)
         {
             transform.position = spawnPosition;
