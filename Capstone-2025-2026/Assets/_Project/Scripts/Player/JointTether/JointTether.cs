@@ -38,8 +38,6 @@ public class JointTether : MonoBehaviour
     private Transform endTransform;
     private Transform startAnchor;
     private Transform endAnchor;
-    //private GameObject temporaryStartRbObject;
-    //private GameObject temporaryEndRbObject;
     private Vector3 startLocalPosition;
     private Vector3 endLocalPosition;
 
@@ -143,12 +141,43 @@ public class JointTether : MonoBehaviour
 
     private ConfigurableJoint CreateJoint(Rigidbody sourceRb, Rigidbody targetRb)
     {
+        if(targetRb.transform.GetComponent<NPC_Pufferfish>() != null)
+        {
+            FlipStartEndVariables();
+
+            Rigidbody tempSource = sourceRb;
+            sourceRb = targetRb;
+            targetRb = tempSource;
+        }
         ConfigurableJoint joint = sourceRb.gameObject.AddComponent<ConfigurableJoint>();
         joint.connectedBody = targetRb;
         joint.autoConfigureConnectedAnchor = false;
         joint.enableCollision = true;
 
+        if (sourceRb.transform.GetComponent<NPC_Pufferfish>() != null)
+        {
+            BigMamaJoint (joint);
+        }
+
         return joint;
+    }
+
+    private void FlipStartEndVariables()
+    {
+        Rigidbody storedStartRb = startRb;
+        Transform storedStartTransform = startTransform;
+        Transform storedStartAnchor = startAnchor;
+        Vector3 storedStartLocalPosition = startLocalPosition;
+
+        startRb = endRb;
+        startTransform = endTransform;
+        startAnchor = endAnchor;
+        startLocalPosition = endLocalPosition;
+
+        endRb = storedStartRb;
+        endTransform = storedStartTransform;
+        endAnchor = storedStartAnchor;
+        endLocalPosition = storedStartLocalPosition;
     }
 
     private void ActivateJoint(ConfigurableJoint joint)
@@ -178,6 +207,49 @@ public class JointTether : MonoBehaviour
         angularYZDrive.positionSpring = angularDriveStrength;
         angularYZDrive.positionDamper = angularDamper;
         angularYZDrive.maximumForce = 100f;
+
+        joint.xDrive = xDrive;
+        joint.yDrive = yDrive;
+        joint.zDrive = zDrive;
+
+        joint.angularXDrive = angularXDrive;
+        joint.angularYZDrive = angularYZDrive;
+
+        joint.autoConfigureConnectedAnchor = false;
+        joint.enableCollision = true;
+
+        joint.xMotion = ConfigurableJointMotion.Free;
+        joint.yMotion = ConfigurableJointMotion.Free;
+        joint.zMotion = ConfigurableJointMotion.Free;
+    }
+
+    private void BigMamaJoint(ConfigurableJoint joint)
+    {
+        JointDrive xDrive = new JointDrive();
+        JointDrive yDrive = new JointDrive();
+        JointDrive zDrive = new JointDrive();
+        JointDrive angularXDrive = new JointDrive();
+        JointDrive angularYZDrive = new JointDrive();
+
+        xDrive.positionSpring = 50f;
+        xDrive.positionDamper = 2;
+        xDrive.useAcceleration = true;
+        xDrive.maximumForce = 1000f;
+
+        zDrive.positionSpring = 50f;
+        zDrive.positionDamper = 2f;
+        zDrive.useAcceleration = true;
+        zDrive.maximumForce = 1000f;
+
+        angularXDrive.positionSpring = 50f;
+        angularXDrive.positionDamper = 2f;
+        angularXDrive.useAcceleration = true;
+        angularXDrive.maximumForce = 1000f;
+
+        angularYZDrive.positionSpring = 50f;
+        angularYZDrive.positionDamper = 2f;
+        angularYZDrive.useAcceleration = true;
+        angularYZDrive.maximumForce = 1000f;
 
         joint.xDrive = xDrive;
         joint.yDrive = yDrive;
@@ -269,6 +341,30 @@ public class JointTether : MonoBehaviour
 
         OnTetherDestroy(this);
         Destroy(gameObject);
+    }
+
+    public void OnWeightIncrease(Rigidbody rbTarget)
+    {
+        if(rbTarget == startRb)
+        {
+            joint.massScale = 10f;
+        }
+        if(rbTarget == endRb)
+        {
+            joint.connectedMassScale = 10f;
+        }
+    }
+
+    public void OnWeightReset(Rigidbody rbTarget)
+    {
+        if (rbTarget == startRb)
+        {
+            joint.massScale = 1f;
+        }
+        if (rbTarget == endRb)
+        {
+            joint.connectedMassScale = 1f;
+        }
     }
 
     IEnumerator ActivateTetherAfterDelay()

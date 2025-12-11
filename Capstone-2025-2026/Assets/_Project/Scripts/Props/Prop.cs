@@ -26,6 +26,8 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
 
     private bool didFixedUpdateRun = true;
 
+    private float originalMass;
+
     public Rigidbody Rb { get; protected set; }
     public Transform AttachedTransform { get; set; }
     public Outline ObjectOutline { get; set; }
@@ -55,6 +57,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         ObjectOutline.OutlineColor = Color.green;
         ObjectOutline.OutlineWidth = 3f;
         ObjectOutline.enabled = false;
+        originalMass = Rb.mass;
 
         var generator = GetComponent<IGrabPointGenerator>();
         if(generator != null)
@@ -78,6 +81,31 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     {
         storedTotalForce += GetForcesFromJoint();
         didFixedUpdateRun = true;
+
+        if(attachedTethers.Count > 0)
+        {
+            Rb.mass = originalMass * 10f;
+            foreach(JointTether joint in attachedTethers)
+            {
+                joint.OnWeightIncrease(Rb);
+            }
+            if(IsSnared)
+            {
+                Rb.mass = originalMass;
+                foreach (JointTether joint in attachedTethers)
+                {
+                    joint.OnWeightReset(Rb);
+                }
+            }
+        }
+        else
+        {
+            Rb.mass = originalMass;
+            foreach (JointTether joint in attachedTethers)
+            {
+                joint.OnWeightReset(Rb);
+            }
+        }
     }
 
     protected virtual void OnDestroy()
