@@ -43,8 +43,8 @@ public class BabyScript : MonoBehaviour
     Camera camera;
     private Ray cameraCenterRay;
     public float distanceFromCameraView = 20f;
-    public float spawnLimit = 50f;
-    public float playerRangeLimit = 50f;
+    public float spawnLimit = 100f;
+    public float playerRangeLimit = 100f;
     public Transform playerLocation;
 
     private bool forceRespawn = false; // too far from spawn and player
