@@ -1,8 +1,12 @@
+using JetBrains.Annotations;
 using UnityEngine;
 
 public class ContextPrompts : MonoBehaviour
 {
-    public GameObject player;
+    public static ContextPrompts Instance;
+
+    private GameObject player;
+    public GameObject BigMama;
 
     //Looking At Object
     public GameObject GrabPrompt;
@@ -13,65 +17,128 @@ public class ContextPrompts : MonoBehaviour
     //Rotation Mode
     public GameObject RotationStateIcons;
 
+    //Tethering Mode
+    public GameObject TetheringStateIcons;
+
+    //Looking at tether
+    public GameObject LookAtTetherPrompts;
+    public GameObject LookAtActiveTetherPrompts; //decided if i make activeate text appear
+
     //Big Mama
+    public GameObject MamaInBagPrompts;
+    public GameObject MamaInFieldPrompts;
 
 
-
-
-
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+    }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        player = GameObject.FindWithTag("Player");
 
     }
 
     // Update is called once per frame
     void Update()
     {
+
         //Holding objects
         if (player.GetComponent<LassoTetherController>().CurrentLassoState == LassoState.Snared)
         {
-            //StartTetherPrompt.SetActive(true);
-            //StartRotatePrompt.SetActive(true);
+            HoldingStateIcons.SetActive(true);
+            //LookingAtObject(false);
         }
         else
         {
-            //StartTetherPrompt.SetActive(false);
-            //StartRotatePrompt.SetActive(false);
+            HoldingStateIcons.SetActive(false);
         }
+
 
 
         //Rotation Mode
         if (player.GetComponent<LassoTetherController>().CurrentLassoState == LassoState.SnapRotating)
         {
-            //RotateControlsPrompt.SetActive(true);
-            //ReturnPrompt.SetActive(true);
+            RotationStateIcons.SetActive(true);
+            //LookingAtObject(false);
+        }
+        else 
+        {
+            RotationStateIcons.SetActive(false);
+        }
+       
+
+        //Creating Tether
+        if ((player.GetComponent<LassoTetherController>().CurrentLassoState == LassoState.Tethering) || (player.GetComponent<LassoTetherController>().CurrentLassoState == LassoState.SnaredTether))
+        {
+            TetheringStateIcons.SetActive(true);
+            //LookingAtObject(false);
         }
         else
         {
-           // RotateControlsPrompt.SetActive(false);
-            //ReturnPrompt.SetActive(false);
+            TetheringStateIcons.SetActive(false);
+        }
+
+        //Lookat Tether
+        if (player.GetComponent<JointTetherActivator>().isLookingAtTether)
+        {
+            if (player.GetComponent<JointTetherActivator>().isLookingAtActiveTether)
+            {
+                LookAtActiveTetherPrompts.SetActive(true);
+            }
+            else
+            {
+                LookAtTetherPrompts.SetActive(true);
+            }
+
+        }
+        else
+        {
+            LookAtTetherPrompts.SetActive(false);
+            LookAtActiveTetherPrompts.SetActive(false);
         }
 
 
 
-
-
-        /*
-        print(Outline.isOutlined);
-
-        if (Outline.isOutlined)
+        //Big Mama (needs to only appear once she becomes your friend)
+        if (BigMama.GetComponent<NPC_Pufferfish>().CurrentNPCState == NPCState.InBag)
         {
-           GrabPrompt.SetActive(true);
+            MamaInBagPrompts.SetActive(true);
+            MamaInFieldPrompts.SetActive(false);
+
+        }
+        else
+        {
+            MamaInBagPrompts.SetActive(false);
+            MamaInFieldPrompts.SetActive(true);
+        }
+
+    }
+
+
+    //Looking at an object prompt
+    public void LookingAtObject(bool active)
+    {
+        var lassoScript = player.GetComponent<LassoTetherController>();
+
+        if (lassoScript.CurrentLassoState == LassoState.Empty)
+        {
+            GrabPrompt.SetActive(active);
         }
         else
         {
             GrabPrompt.SetActive(false);
         }
-        */
-
-
 
     }
 }

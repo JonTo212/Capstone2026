@@ -25,6 +25,11 @@ public class JointTetherActivator : MonoBehaviour
     //TEMPORARY ANIMATION EVENT
     public event Action OnTetherActivated;
 
+    //MVG BRAEDEN INPUT STUFF
+    public bool isLookingAtTether = false;
+    public bool isLookingAtActiveTether = false;
+
+
     #region Unity Functions
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -37,15 +42,42 @@ public class JointTetherActivator : MonoBehaviour
     void Update()
     {
         JointTether hoverTether = TryGetTether();
+
+        if(hoverTether != null)
+        {
+            isLookingAtTether = true;
+
+            if (hoverTether.isActivated)
+            {
+                isLookingAtActiveTether = true;
+            }
+            else
+            {
+                isLookingAtActiveTether = false;
+            }
+        }
+        else
+        {
+            // MVG BRAEDEN INPUT STUFF
+            isLookingAtTether = false;
+            isLookingAtActiveTether = false;
+        }
+
         if (hoverTether != null && hoverTether.isActivated == false)
         {
+            // MVG BRAEDEN INPUT STUFF
+
+
             hoverTether.gameObject.GetComponent<JointTetherVisuals>().SetLineColorSelected();
         }
         else
         {
-            foreach(JointTether tether in placedTethers)
+
+
+            foreach (JointTether tether in placedTethers)
             {
-                if (!tether.isActivated) {
+                if (!tether.isActivated)
+                {
                     tether.gameObject.GetComponent<JointTetherVisuals>().SetLineColorInactive();
                 }
             }
