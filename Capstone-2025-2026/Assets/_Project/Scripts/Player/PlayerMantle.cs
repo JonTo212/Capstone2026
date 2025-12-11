@@ -18,6 +18,8 @@ public class PlayerMantle : MonoBehaviour
     private PlayerController _playerController;
     private Coroutine _mantleCoroutine;
 
+    public Coroutine MantleCoroutine => _mantleCoroutine;
+
     public event Action<bool> OnMantle;
 
     private void Awake()
@@ -36,7 +38,7 @@ public class PlayerMantle : MonoBehaviour
             Vector3? mantleTarget = TryStartMantle();
             if (mantleTarget.HasValue)
             {
-                _mantleCoroutine = StartCoroutine(MantleCoroutine(mantleTarget.Value));
+                _mantleCoroutine = StartCoroutine(Mantle(mantleTarget.Value));
             }
         }
     }
@@ -60,13 +62,13 @@ public class PlayerMantle : MonoBehaviour
         return null;
     }
 
-    private IEnumerator MantleCoroutine(Vector3 targetPos)
+    private IEnumerator Mantle(Vector3 targetPos)
     {
         _playerController.Rb.isKinematic = true;
         OnMantle?.Invoke(true);
 
-        Vector3 startPos = transform.position;
-        Vector3 climbPos = new Vector3(startPos.x, targetPos.y + climbHeightBuffer, startPos.z);
+        Vector3 startPos = forwardRef.position;
+        Vector3 climbPos = new Vector3(startPos.x, targetPos.y + climbHeightBuffer, startPos.z + forwardClimbBuffer);
 
         //first half -> climb upwards
         float timer = 0;
@@ -94,5 +96,30 @@ public class PlayerMantle : MonoBehaviour
 
         OnMantle?.Invoke(false);
     }
+
+    /*private IEnumerator Mantle(Vector3 targetPos)
+    {
+        _playerController.Rb.isKinematic = true;
+        OnMantle?.Invoke(true);
+
+        Vector3 startPos = forwardRef.position;
+        Vector3 climbPos = new Vector3(startPos.x, targetPos.y + climbHeightBuffer, startPos.z + forwardClimbBuffer);
+
+        //first half -> climb upwards
+        float timer = 0;
+        while (timer < climbDuration + forwardDuration)
+        {
+            timer += Time.fixedDeltaTime;
+            float t = timer / climbDuration;
+            _playerController.Rb.MovePosition(Vector3.Lerp(startPos, targetPos, t));
+            yield return new WaitForFixedUpdate();
+        }
+
+        _playerController.Rb.position = targetPos;
+        _playerController.Rb.isKinematic = false;
+        _mantleCoroutine = null;
+
+        OnMantle?.Invoke(false);
+    }*/
 
 }
