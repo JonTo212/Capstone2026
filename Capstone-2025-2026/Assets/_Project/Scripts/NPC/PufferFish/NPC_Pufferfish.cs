@@ -43,11 +43,11 @@ public class NPC_Pufferfish : Prop, INPC
     private Transform playerTransform;
 
     [Header("Anim")]
+    [field: SerializeField] public float inflatedScale { get; private set; }
+    [field: SerializeField] public float deflatedScale { get; private set; }
+    [field: SerializeField] public float animDuration { get; private set; }
     [SerializeField] private AnimationCurve animCurve;
     [SerializeField] private float defaultScale;
-    [SerializeField] private float inflatedScale;
-    [SerializeField] private float deflatedScale;
-    [SerializeField] private float animDuration;
     private Coroutine animCoroutine;
     private Vector3 defaultLocalScale;
 
@@ -137,7 +137,7 @@ public class NPC_Pufferfish : Prop, INPC
     public void OnCaptureStart()
     {
         if (animCoroutine != null) StopCoroutine(animCoroutine);
-        animCoroutine = StartCoroutine(Deflate(animDuration));
+        animCoroutine = StartCoroutine(Deflate(animDuration, deflatedScale));
 
         DestroyAllAttachedTethers();
         SwitchNPCState(NPCState.PlayerInteracting);
@@ -151,7 +151,7 @@ public class NPC_Pufferfish : Prop, INPC
     public void OnReleaseStart()
     {
         if(animCoroutine != null) StopCoroutine(animCoroutine);
-        animCoroutine = StartCoroutine(Inflate(animDuration));
+        animCoroutine = StartCoroutine(Inflate(animDuration, inflatedScale, true));
 
         SwitchNPCState(NPCState.PlayerInteracting);
     }
@@ -317,7 +317,7 @@ public class NPC_Pufferfish : Prop, INPC
 
     #region TEMP - Anim
 
-    private IEnumerator Inflate(float duration)
+    public IEnumerator Inflate(float duration, float scale, bool enableCollider)
     {
         float elapsedTime = 0;
         Vector3 startScale = transform.localScale;
@@ -327,17 +327,17 @@ public class NPC_Pufferfish : Prop, INPC
             float t = elapsedTime / duration;
             float curveValue = animCurve.Evaluate(t);
 
-            transform.localScale = Vector3.Lerp(startScale, defaultLocalScale * inflatedScale, curveValue);
+            transform.localScale = Vector3.Lerp(startScale, defaultLocalScale * scale, curveValue);
             elapsedTime += Time.deltaTime;
             yield return null;
         }
 
-        transform.localScale = defaultLocalScale * inflatedScale;
-        GetComponent<Collider>().enabled = true;
+        transform.localScale = defaultLocalScale * scale;
+        if(enableCollider) GetComponent<Collider>().enabled = true;
         animCoroutine = null;
     }
 
-    private IEnumerator Deflate(float duration)
+    public IEnumerator Deflate(float duration, float scale)
     {
         float elapsedTime = 0;
         Vector3 startScale = transform.localScale;
@@ -348,12 +348,12 @@ public class NPC_Pufferfish : Prop, INPC
             float t = elapsedTime / duration;
             float curveValue = animCurve.Evaluate(t);
 
-            transform.localScale = Vector3.Lerp(startScale, defaultLocalScale * deflatedScale, curveValue);
+            transform.localScale = Vector3.Lerp(startScale, defaultLocalScale * scale, curveValue);
             elapsedTime += Time.deltaTime;
             yield return null;
         }
 
-        transform.localScale = defaultLocalScale * deflatedScale;
+        transform.localScale = defaultLocalScale * scale;
         animCoroutine = null;
     }
 

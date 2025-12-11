@@ -73,7 +73,7 @@ public class LassoTetherController : MonoBehaviour
         {
             if (playerActions.RecallNPCDown)
             {
-                if (playerInventory.currentNPC == null) return;
+                if (playerInventory.CurrentNPC == null) return;
 
                 playerInventory.HandleObjectYank();
                 SwitchLassoState(LassoState.ObjectYanking);

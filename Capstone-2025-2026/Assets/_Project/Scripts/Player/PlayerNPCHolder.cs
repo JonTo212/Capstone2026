@@ -1,22 +1,29 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using static UnityEditor.Experimental.GraphView.GraphView;
 
 public class PlayerNPCHolder : MonoBehaviour
 {
-    public INPC currentNPC { get; set; }
+    public INPC CurrentNPC { get; private set; }
     [field: SerializeField] public Transform npcRemovePos { get; private set; }
+    [field: SerializeField] public Transform npcBackpackPos { get; private set; }
+    [field: SerializeField] public Transform npcAbilityPos { get; private set; }
+
     private PlayerActions _playerInput;
     private Lasso _playerLasso;
-    private Coroutine _objectYankCoroutine;
-    private Transform connectedNPC;
+
+    [Header("Ability Handling")]
+    [SerializeField] private LineRenderer abilityLineRenderer;
+    private Transform _connectedNPC;
     private bool useAbilityRequested;
     private bool stopAbilityRequested;
+    private bool abilityActive;
 
     [Header("Object Yank Properties")]
     [SerializeField] private float handAttachThreshold = 0.2f;
-    [field: SerializeField] public float objectYankDuration { get; private set; } = 0.5f;
-    [SerializeField] private Transform holdPos;
+    [SerializeField] private float objectYankDuration = 0.5f;
+    private Coroutine _objectYankCoroutine;
 
     public event Action OnObjectYankCompleted;
 
@@ -35,7 +42,7 @@ public class PlayerNPCHolder : MonoBehaviour
 
     private void Update()
     {
-        if(currentNPC != null)
+        if(CurrentNPC != null)
         {
             if(_playerInput.JumpHeld)
             {
@@ -46,21 +53,35 @@ public class PlayerNPCHolder : MonoBehaviour
                 stopAbilityRequested = true;
             }
         }
+        UpdateAbilityLineRenderer();
     }
 
     private void FixedUpdate()
     {
-        if (currentNPC != null)
+        if (CurrentNPC != null)
         {
             if (useAbilityRequested)
             {
-                currentNPC.UseAbility();
+                CurrentNPC.UseAbility();
                 useAbilityRequested = false;
+
+                if (!abilityActive)
+                {
+                    OnAbilityStart();
+                    abilityActive = true;
+                }
+                else
+                {
+                    MoveToAbilitySpot();
+                }
             }
+
             if (stopAbilityRequested)
             {
-                currentNPC.StopAbility();
-                stopAbilityRequested = false; 
+                CurrentNPC.StopAbility();
+                stopAbilityRequested = false;
+                OnAbilityEnd();
+                abilityActive = false;
             }
         }
     }
@@ -81,28 +102,146 @@ public class PlayerNPCHolder : MonoBehaviour
 
     #endregion
 
+    private RigidbodyConstraints savedConstraints;
+    private bool savedUseGravity;
+    private bool savedUseKinematic;
+    private int savedLayer;
+
     #region Object Yank
-    public void HandleObjectYank()
+
+    public void OnAbilityStart()
     {
-        if(currentNPC != null)
+        if (CurrentNPC.CurrentNPCState != NPCState.InBag) return;
+
+        if (_connectedNPC != null && _connectedNPC.TryGetComponent(out Rigidbody rb))
         {
-            if (currentNPC.CurrentNPCState != NPCState.InBag)
+            savedConstraints = rb.constraints;
+            savedUseGravity = rb.useGravity;
+            savedUseKinematic = rb.isKinematic;
+            savedLayer = _connectedNPC.gameObject.layer;
+
+            _connectedNPC.gameObject.layer = 7;
+            foreach (Transform child in _connectedNPC)
+                SetLayerRecursively(child.gameObject, 7);
+
+            Collider[] colliders = _connectedNPC.GetComponents<Collider>();
+            foreach (var col in colliders)
             {
-                connectedNPC.GetComponent<Collider>().enabled = false;
+                col.enabled = false;
+            }
+
+            _connectedNPC.SetParent(npcAbilityPos);
+            rb.isKinematic = true;
+            rb.useGravity = false;
+            rb.constraints = RigidbodyConstraints.None;
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+
+            NPC_Pufferfish mama = CurrentNPC as NPC_Pufferfish;
+            if (mama != null)
+            {
+                StartCoroutine(mama.Inflate(mama.animDuration, 1.1f, false));
+           }
+        }
+    }
+
+    public void OnAbilityEnd()
+    {
+        if (CurrentNPC.CurrentNPCState != NPCState.InBag) return;
+
+        if (_connectedNPC != null && _connectedNPC.TryGetComponent(out Rigidbody rb))
+        {
+            _connectedNPC.SetParent(null);
+
+            rb.constraints = savedConstraints;
+            rb.useGravity = savedUseGravity;
+            rb.isKinematic = savedUseKinematic;
+            _connectedNPC.gameObject.layer = savedLayer;
+
+            foreach (Transform child in _connectedNPC)
+                SetLayerRecursively(child.gameObject, savedLayer);
+
+            NPC_Pufferfish mama = CurrentNPC as NPC_Pufferfish;
+            if (mama != null)
+            {
+                StartCoroutine(mama.Deflate(mama.animDuration, mama.deflatedScale));
 
                 if (_objectYankCoroutine != null)
                     StopCoroutine(_objectYankCoroutine);
 
-                _objectYankCoroutine = StartCoroutine(YankObjectCoroutine(connectedNPC, connectedNPC, holdPos, true));
-                currentNPC.OnCaptureStart();
+                _objectYankCoroutine = StartCoroutine(YankObjectCoroutine(_connectedNPC, _connectedNPC, npcBackpackPos, true));
+            }
+        }
+    }
+
+    private void SetLayerRecursively(GameObject obj, int layer)
+    {
+        obj.layer = layer;
+        foreach (Transform child in obj.transform)
+            SetLayerRecursively(child.gameObject, layer);
+    }
+
+    public void MoveToAbilitySpot()
+    {
+        if (CurrentNPC.CurrentNPCState != NPCState.InBag) return;
+
+        if (_connectedNPC != null && _connectedNPC.TryGetComponent(out Rigidbody rb))
+        {
+            _connectedNPC.SetParent(npcAbilityPos);
+            rb.isKinematic = true;
+            rb.useGravity = false;
+            rb.constraints = RigidbodyConstraints.None;
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+
+            _connectedNPC.localPosition = Vector3.zero;
+            _connectedNPC.localRotation = Quaternion.identity;
+            abilityLineRenderer.enabled = true;
+            abilityLineRenderer.SetPosition(0, npcBackpackPos.position);
+            abilityLineRenderer.SetPosition(1, npcAbilityPos.position);
+        }
+    }
+
+    private void UpdateAbilityLineRenderer()
+    {
+        if (CurrentNPC.CurrentNPCState != NPCState.InBag)
+        {
+            abilityLineRenderer.enabled = false;
+            return;
+        }
+
+        if (useAbilityRequested)
+        {
+            abilityLineRenderer.SetPosition(0, npcBackpackPos.position);
+            abilityLineRenderer.SetPosition(1, npcAbilityPos.position);
+        }
+        else
+        {
+            abilityLineRenderer.enabled = false;
+        }
+    }
+
+    public void HandleObjectYank()
+    {
+        if (CurrentNPC != null)
+        {
+            if (CurrentNPC.CurrentNPCState != NPCState.InBag)
+            {
+                _connectedNPC.GetComponent<Collider>().enabled = false;
+
+                if (_objectYankCoroutine != null)
+                    StopCoroutine(_objectYankCoroutine);
+
+                _objectYankCoroutine = StartCoroutine(YankObjectCoroutine(_connectedNPC, _connectedNPC, npcBackpackPos, true));
+                CurrentNPC.OnCaptureStart();
             }
             else
             {
                 if (_objectYankCoroutine != null)
                     StopCoroutine(_objectYankCoroutine);
 
-                _objectYankCoroutine = StartCoroutine(YankObjectCoroutine(connectedNPC, holdPos, npcRemovePos, false));
-                currentNPC.OnReleaseStart();
+                _objectYankCoroutine = StartCoroutine(YankObjectCoroutine(_connectedNPC, _connectedNPC, npcRemovePos, false));
+                CurrentNPC.OnReleaseStart();
             }
         }
     }
@@ -166,16 +305,16 @@ public class PlayerNPCHolder : MonoBehaviour
 
         if (attach)
         {
-            prop.OnHold(holdPos);
+            prop.OnHold(endPos);
             prop.AttachedTransform = transform;
-            currentNPC.OnCaptureComplete();
+            CurrentNPC.OnCaptureComplete();
         }
         else
         {
             prop.Rb.useGravity = false;
             prop.Rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
             ReleaseNPC();
-            currentNPC.OnReleaseComplete();
+            CurrentNPC.OnReleaseComplete();
         }
 
         OnObjectYankCompleted?.Invoke();
@@ -188,18 +327,18 @@ public class PlayerNPCHolder : MonoBehaviour
 
     private void SetConnectedNPC()
     {
-        currentNPC = _playerLasso.SnaredObject as INPC;
-        currentNPC.SetPlayerRef(transform);
-        connectedNPC = _playerLasso.SnaredObject.transform;
+        CurrentNPC = _playerLasso.SnaredObject as INPC;
+        CurrentNPC.SetPlayerRef(transform);
+        _connectedNPC = _playerLasso.SnaredObject.transform;
     }
 
     private void ReleaseNPC()
     {
-        if (currentNPC == null || _objectYankCoroutine != null) return;
+        if (CurrentNPC == null || _objectYankCoroutine != null) return;
 
-        currentNPC.SetPlayerRef(null);
-        connectedNPC = null;
-        currentNPC = null;
+        CurrentNPC.SetPlayerRef(null);
+        _connectedNPC = null;
+        CurrentNPC = null;
     }
 
     #endregion
