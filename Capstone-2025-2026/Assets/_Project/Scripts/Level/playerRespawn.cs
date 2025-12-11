@@ -61,6 +61,10 @@ public class playerRespawn : MonoBehaviour
                 currentRespawnPoint.SetObjectActive();
             }
             currentRespawnPoint = other.GetComponent<RespawnPointVisuals>();
+            if (currentRespawnPoint.firstTime)
+            {
+                currentRespawnPoint.PlayFanfare();
+            }
             currentRespawnPoint.SetObjectActive();
             spawnPosition = other.transform.position;
             print("Checkpoint Set!");
