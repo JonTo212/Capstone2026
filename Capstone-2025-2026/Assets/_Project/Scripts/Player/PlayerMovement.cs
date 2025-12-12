@@ -87,6 +87,7 @@ public class PlayerMovement : MonoBehaviour
     public float Acceleration => _acceleration;
     public float DefaultMaxSpeed => defaultMaxSpeed;
     public MovementProperties CurrentMultipliers => _currentMultipliers;
+    public PlayerMoveState CurrentMovementState => _currentMovementState;
 
     private void Awake()
     {

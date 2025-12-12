@@ -14,6 +14,7 @@ public class PlayerNPCHolder : MonoBehaviour
     private PlayerActions _playerInput;
     private PlayerMantle _playerMantle;
     private PlayerMovement _playerMovement;
+    private PlayerSwing _playerSwing;
     private Lasso _playerLasso;
 
     [Header("Ability Handling")]
@@ -38,6 +39,7 @@ public class PlayerNPCHolder : MonoBehaviour
         _playerLasso = GetComponent<Lasso>();
         _playerMovement = GetComponent<PlayerMovement>();
         _playerMantle = GetComponent<PlayerMantle>();
+        _playerSwing = GetComponent<PlayerSwing>();
 
         _playerLasso.OnNPCHit += SetConnectedNPC;
     }
@@ -67,7 +69,7 @@ public class PlayerNPCHolder : MonoBehaviour
     {
         if (CurrentNPC != null)
         {
-            if (_playerMantle.MantleCoroutine != null || _playerMovement.IsGrounded())
+            if (_playerMantle.MantleCoroutine != null || _playerMovement.IsGrounded() || _playerMovement.CurrentMovementState == PlayerMoveState.Swinging)
             {
                 if (abilityActive)
                 {
