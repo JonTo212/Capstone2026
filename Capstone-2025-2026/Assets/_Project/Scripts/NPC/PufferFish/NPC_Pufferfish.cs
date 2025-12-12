@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.ProBuilder.MeshOperations;
+using static UnityEngine.Rendering.PostProcessing.HistogramMonitor;
 
 [Serializable]
 public struct NPCMultipliers
@@ -301,6 +302,7 @@ public class NPC_Pufferfish : Prop, INPC
                 playerMovement.EnableGravity(true);
                 playerMovement.ApplySlowFall(playerSlowfallGravMultiplier);
             }
+            AudioManager.Instance.TempPlayOneShot(AudioManager.Instance.BM_Glide, 8, 1f);
         }
     }
 
@@ -311,6 +313,8 @@ public class NPC_Pufferfish : Prop, INPC
             playerMovement.EnableGravity(true);
             playerMovement.ResetGravity();
         }
+
+        AudioManager.Instance.StopSFX(8);
     }
 
     #endregion
@@ -322,7 +326,6 @@ public class NPC_Pufferfish : Prop, INPC
         
         float elapsedTime = 0;
         Vector3 startScale = transform.localScale;
-        AudioManager.Instance.PlaySFX(AudioManager.Instance.BM_Inflate,8,1);
 
         while (elapsedTime < duration)
         {
@@ -344,7 +347,6 @@ public class NPC_Pufferfish : Prop, INPC
         float elapsedTime = 0;
         Vector3 startScale = transform.localScale;
         GetComponent<Collider>().enabled = false;
-        AudioManager.Instance.PlaySFX(AudioManager.Instance.BM_Deflate,8,1);
 
         while (elapsedTime < duration)
         {

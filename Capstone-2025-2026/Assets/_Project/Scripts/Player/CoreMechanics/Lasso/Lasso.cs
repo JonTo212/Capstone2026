@@ -98,6 +98,16 @@ public class Lasso : MonoBehaviour
 
     #region Helper Functions
 
+    public void ResetLayer(GameObject obj)
+    {
+        obj.layer = _objectOriginalLayer;
+    }
+
+    public void SetToNoCollisionLayer(GameObject obj)
+    {
+        obj.layer = gameObject.layer;
+    }
+
     private Vector3 GetCameraWorldOffset()
     {
         CinemachineCameraOffset cameraOffset = CinemachineBrain.GetComponent<CinemachineCameraOffset>();
@@ -536,6 +546,7 @@ public class Lasso : MonoBehaviour
         else if (axis == Vector3.left) pitch -= snapAngle;
 
         Rotated = true;
+        RodAnimations.Instance.PlayRandomSound();
     }
 
     public void StartFinishSnap()
