@@ -86,6 +86,7 @@ public class AudioManager : MonoBehaviour
     public AudioClip LightClense => lightClense;
     public AudioClip FanFare => fanFare;
     public AudioClip Collection => collection;
+    public AudioClip FlagFare => flagFare;
 
 
     //public AudioClip ClaspSolid => claspSolid;

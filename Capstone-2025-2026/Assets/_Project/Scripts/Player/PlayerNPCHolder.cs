@@ -117,14 +117,14 @@ public class PlayerNPCHolder : MonoBehaviour
 
     #endregion
 
+    #region Ability Visuals
+
     private RigidbodyConstraints savedConstraints;
     private RigidbodyInterpolation savedInterpolation;
     private bool savedUseGravity;
     private bool savedUseKinematic;
     private int savedLayer;
     private Dictionary<Collider, bool> savedColliderStates = new Dictionary<Collider, bool>();
-
-    #region Object Yank
 
     public void OnAbilityStart()
     {
@@ -153,7 +153,7 @@ public class PlayerNPCHolder : MonoBehaviour
             NPC_Pufferfish mama = CurrentNPC as NPC_Pufferfish;
             if (mama != null)
             {
-                if (_abilityCoroutine != null) 
+                if (_abilityCoroutine != null)
                     StopCoroutine(_abilityCoroutine);
 
                 Vector3 direction = camTransform.position - rb.position;
@@ -173,7 +173,7 @@ public class PlayerNPCHolder : MonoBehaviour
 
         yield return new WaitForSeconds(0.125f);
 
-        if(stopAbilityRequested || !useAbilityRequested)
+        if (stopAbilityRequested || !useAbilityRequested)
         {
             _abilityCoroutine = null;
             yield break;
@@ -310,6 +310,10 @@ public class PlayerNPCHolder : MonoBehaviour
             abilityLineRenderer.enabled = false;
         }
     }
+
+    #endregion
+
+    #region Object Yank
 
     public void HandleObjectYank()
     {

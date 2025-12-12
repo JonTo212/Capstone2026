@@ -51,8 +51,6 @@ public class NPC_Pufferfish : Prop, INPC
     private Coroutine animCoroutine;
     private Vector3 defaultLocalScale;
 
-    private AudioManager aM;
-
     #region Unity Functions
     private void Awake()
     {
