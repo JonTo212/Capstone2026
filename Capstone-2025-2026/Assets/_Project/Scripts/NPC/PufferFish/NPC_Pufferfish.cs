@@ -51,6 +51,8 @@ public class NPC_Pufferfish : Prop, INPC
     private Coroutine animCoroutine;
     private Vector3 defaultLocalScale;
 
+    private AudioManager aM;
+
     #region Unity Functions
     private void Awake()
     {
@@ -319,8 +321,10 @@ public class NPC_Pufferfish : Prop, INPC
 
     public IEnumerator Inflate(float duration, float scale, bool enableCollider)
     {
+        
         float elapsedTime = 0;
         Vector3 startScale = transform.localScale;
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.BM_Inflate,8,1);
 
         while (elapsedTime < duration)
         {
@@ -342,6 +346,7 @@ public class NPC_Pufferfish : Prop, INPC
         float elapsedTime = 0;
         Vector3 startScale = transform.localScale;
         GetComponent<Collider>().enabled = false;
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.BM_Deflate,8,1);
 
         while (elapsedTime < duration)
         {

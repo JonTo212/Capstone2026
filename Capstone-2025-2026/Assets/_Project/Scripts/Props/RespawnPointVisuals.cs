@@ -35,7 +35,7 @@ public class RespawnPointVisuals : MonoBehaviour
 
     public void PlayFanfare()
     {
-        particles.Play();
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.flagFare,9,1);
         firstTime = false;
         //Audio here too IG
     }

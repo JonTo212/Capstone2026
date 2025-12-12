@@ -18,7 +18,7 @@ public class BraedenCoin : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         //playsound
-        audioManager.PlaySFX(audioManager.Collection, 1, 4f);
+        audioManager.PlaySFX(audioManager.Collection, 10, 4f);
 
         //destroy
         Destroy(gameObject);

@@ -19,6 +19,9 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioSource sFXSource5;
     [SerializeField] private AudioSource sFXSource6;
     [SerializeField] private AudioSource sFXSource7;
+    [SerializeField] private AudioSource sFX_BMSpawn;
+    [SerializeField] private AudioSource sFX_Flag;
+    [SerializeField] private AudioSource sFX_Collectible;
 
     [SerializeField] private AudioSource ambienceSource1;
     [SerializeField] private AudioSource ambienceSource2;
@@ -33,6 +36,10 @@ public class AudioManager : MonoBehaviour
     public AudioSource SFXSource5 => sFXSource5;
     public AudioSource SFXSource6 => sFXSource6;
     public AudioSource SFXSource7 => sFXSource7;
+    public AudioSource SFX_BMSpawn => sFX_BMSpawn;
+    public AudioSource SFX_Flag => sFX_Flag;
+    public AudioSource SFX_Collectable => sFX_Collectible;
+
 
     public AudioSource AmbienceSource1 => ambienceSource1;
     public AudioSource AmbienceSource2 => ambienceSource2;
@@ -87,6 +94,8 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioClip enemyAttack;
     [SerializeField] private AudioClip enemyPerish;
     [SerializeField] private AudioClip wallBreak;
+    [SerializeField] private AudioClip flagFare;
+    [SerializeField] private AudioClip collectable;
     public AudioClip EnemyAttack => enemyAttack;
     public AudioClip EnemyPerish => enemyPerish;
     public AudioClip WallBreak => wallBreak;
@@ -106,7 +115,13 @@ public class AudioManager : MonoBehaviour
     public AudioClip BossSpawn => bossSpawn;
     public AudioClip BossProjectileBoom => bossProjectileBoom;
 
-    
+    [Header("------------Big Mama Clips------------")]
+    [SerializeField] private AudioClip bM_Inflate;
+    [SerializeField] private AudioClip bM_Deflate;
+    [SerializeField] private AudioClip bM_Glide;
+    public AudioClip BM_Inflate => bM_Inflate;
+    public AudioClip BM_Deflate => bM_Deflate;
+    public AudioClip BM_Glide => bM_Glide;
 
     [Header("------------Menu Clips------------")]
     [SerializeField] private AudioClip menuOk;
@@ -189,6 +204,16 @@ public class AudioManager : MonoBehaviour
                 case 7:
                     selectedSource = SFXSource7;
                     break;
+                case 8:
+                    selectedSource = SFX_BMSpawn;
+                    break;
+                case 9:
+                    selectedSource = SFX_Flag;
+                    break;
+                case 10:
+                    selectedSource = SFX_Collectable;
+                    break;
+
 
             }
 
