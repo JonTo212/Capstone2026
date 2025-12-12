@@ -5,7 +5,7 @@ public class ContextPrompts : MonoBehaviour
 {
     public static ContextPrompts Instance;
 
-    private GameObject player;
+    public GameObject player;
     public GameObject BigMama;
 
     //Looking At Object
@@ -49,7 +49,6 @@ public class ContextPrompts : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        player = GameObject.FindWithTag("Player");
 
     }
 
