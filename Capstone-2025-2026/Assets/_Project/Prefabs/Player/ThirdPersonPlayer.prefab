@@ -8434,6 +8434,7 @@ GameObject:
   - component: {fileID: 6363763804076954650}
   - component: {fileID: 7760591848601245013}
   - component: {fileID: 8924538367377645381}
+  - component: {fileID: 7777431948427391573}
   m_Layer: 7
   m_Name: ThirdPersonPlayer
   m_TagString: Player
@@ -8652,16 +8653,16 @@ MonoBehaviour:
   <PlayerCam>k__BackingField: {fileID: 4270019202238993782}
   lassoGrabVisualIndicator: {fileID: 1396640615803879811}
   reelIncrement: 2.5
-  minLassoRange: 2.5
+  minLassoRange: 5
   maxLassoRange: 25
   centerStrength: 2250
   throwStrength: 25
   lookAtStrength: 0.5
   lookAtDamping: 0.05
-  rotationalDampingStrength: 0.25
+  rotationalDampingStrength: 0.5
   maxLassoStrength: 250
   useSizeScale: 0
-  angularVelMultiplier: 0.925
+  angularVelMultiplier: 0.95
   aimAssistType: 0
   aimAssistBufferRadius: 1.5
   useAimOutline: 1
@@ -9025,6 +9026,22 @@ MonoBehaviour:
   camTransform: {fileID: 5644415220534474388}
   handAttachThreshold: 0.5
   objectYankDuration: 0.5
+--- !u!114 &7777431948427391573
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2571145194382551425}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b0b2411c3128b64d91cee78473aaba3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PauseMenu
+  pauseMenuScreen: {fileID: 2451864746126980711}
+  pauseMenuUI: {fileID: 7893419456801497725}
+  settingsUI: {fileID: 490518717254737633}
+  playerActions: {fileID: 4800881338183066832}
 --- !u!1 &2716249237309918505
 GameObject:
   m_ObjectHideFlags: 0

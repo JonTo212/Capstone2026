@@ -59,6 +59,7 @@ public class Lasso : MonoBehaviour
     private Vector3 _cachedLocalFaceNormal;
     private float _cachedAnchorDist;
     private bool _hasCachedAttach;
+    private int _objectOriginalLayer;
 
     [Header("Getters")]
     public Prop SnaredObject { get; private set; }
@@ -214,6 +215,8 @@ public class Lasso : MonoBehaviour
 
             _snaredObjTransform = prop.transform;
             SnaredObject = prop;
+            _objectOriginalLayer = prop.gameObject.layer;
+            _snaredObjTransform.gameObject.layer = gameObject.layer;
             prop.OnSnare();
             prop.OnPropDestroyed += HandleObjectReleased;
             if (usePickupOutline) SnaredObject.ActivateOutline(true);
@@ -677,6 +680,7 @@ public class Lasso : MonoBehaviour
         SnaredObject.ActivateOutline(false);
         SnaredObject.OnRelease();
         SnaredObject = null;
+        _snaredObjTransform.gameObject.layer = _objectOriginalLayer;
         _snaredObjTransform = null;
         _localFaceNormal = Vector3.zero;
 
