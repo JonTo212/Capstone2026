@@ -21,6 +21,7 @@ public class RespawnPointVisuals : MonoBehaviour
             activeFlag.SetActive(true);
             inactiveFlag.SetActive(false);
 
+            particles.gameObject.SetActive(true);
             particles.Play();
 }
         else
@@ -35,7 +36,7 @@ public class RespawnPointVisuals : MonoBehaviour
 
     public void PlayFanfare()
     {
-        AudioManager.Instance.PlaySFX(AudioManager.Instance.FlagFare,9,1);
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.FlagFare,9,5f);
         firstTime = false;
         //Audio here too IG
     }

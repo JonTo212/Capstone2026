@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class RodAnimations : MonoBehaviour
 {
+    public static RodAnimations Instance;
     [SerializeField] private PlayerActions playerActions;
     public GameObject Handle;
     public float rotationAmount = 5f;
@@ -9,6 +10,18 @@ public class RodAnimations : MonoBehaviour
     //sound
     [SerializeField] private AudioSource audioSource; // The AudioSource component
     [SerializeField] private AudioClip[] clips;
+
+    private void Awake()
+    {
+        if(Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
 
     void Update()
     {

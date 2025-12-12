@@ -96,11 +96,12 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioClip enemyPerish;
     [SerializeField] private AudioClip wallBreak;
     [SerializeField] private AudioClip flagFare;
-    [SerializeField] private AudioClip collectable;
+    [SerializeField] private AudioClip rodCollect;
     public AudioClip EnemyAttack => enemyAttack;
     public AudioClip EnemyPerish => enemyPerish;
     public AudioClip WallBreak => wallBreak;
-    
+    public AudioClip RodCollect => rodCollect;
+
 
     [Header("------------Boss Clips------------")]
     [SerializeField] private AudioClip bossHurt;
@@ -232,6 +233,60 @@ public class AudioManager : MonoBehaviour
         }
     }
 
+    public void TempPlayOneShot(AudioClip clip, int channel, float? volume = null)
+    {
+        if (clip != null)
+        {
+            //Sets audio Channel
+            AudioSource selectedSource = null;
+            switch (channel)
+            {
+                case 1:
+                    selectedSource = SFXSource1;
+                    break;
+                case 2:
+                    selectedSource = SFXSource2;
+                    break;
+                case 3:
+                    selectedSource = SFXSource3;
+                    break;
+                case 4:
+                    selectedSource = SFXSource4;
+                    break;
+                case 5:
+                    selectedSource = SFXSource5;
+                    break;
+                case 6:
+                    selectedSource = SFXSource6;
+                    break;
+                case 7:
+                    selectedSource = SFXSource7;
+                    break;
+                case 8:
+                    selectedSource = SFX_BMSpawn;
+                    break;
+                case 9:
+                    selectedSource = SFX_Flag;
+                    break;
+                case 10:
+                    selectedSource = SFX_Collectable;
+                    break;
+
+
+            }
+
+            if(selectedSource.isPlaying)
+            {
+                return;
+            }
+
+            //Adjust volume or defaults it otherwise
+            selectedSource.volume = volume.Value;
+            //Plays SFX
+            selectedSource.PlayOneShot(clip);
+        }
+    }
+
     public void StopSFX(int channel)
     {
         AudioSource selectedSource = null;
@@ -257,6 +312,15 @@ public class AudioManager : MonoBehaviour
                 break;
             case 7:
                 selectedSource = SFXSource7;
+                break;
+            case 8:
+                selectedSource = SFX_BMSpawn;
+                break;
+            case 9:
+                selectedSource = SFX_Flag;
+                break;
+            case 10:
+                selectedSource = SFX_Collectable;
                 break;
         }
         selectedSource.Stop();

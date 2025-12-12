@@ -27,6 +27,7 @@ public class RodObtained : MonoBehaviour
         rodVisuals.SetActive(true);
 
         gameObject.SetActive(false);
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.RodCollect, 10, 1);
 
         //InsertVisuals
     }
