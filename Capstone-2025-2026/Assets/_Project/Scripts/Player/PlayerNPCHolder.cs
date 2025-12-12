@@ -67,6 +67,17 @@ public class PlayerNPCHolder : MonoBehaviour
     {
         if (CurrentNPC != null)
         {
+            if (_playerMantle.MantleCoroutine != null || _playerMovement.IsGrounded())
+            {
+                if (abilityActive)
+                {
+                    CurrentNPC.StopAbility();
+                    OnAbilityEnd();
+                    abilityActive = false;
+                }
+                return;
+            }
+
             if (useAbilityRequested)
             {
                 CurrentNPC.UseAbility();
