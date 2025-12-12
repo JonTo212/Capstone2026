@@ -170,7 +170,7 @@ public class PlayerNPCHolder : MonoBehaviour
             yield break;
         }
 
-        yield return new WaitForSeconds(0.125f);
+        yield return new WaitForSeconds(0.167f);
 
         if (stopAbilityRequested || !useAbilityRequested)
         {
