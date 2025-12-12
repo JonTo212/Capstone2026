@@ -137,11 +137,8 @@ public class ContextPrompts : MonoBehaviour
     //Looking at an object prompt
     public void LookingAtObject(bool active)
     {
-        var lassoScript = player.GetComponent<LassoTetherController>();
 
-
-
-        if (lassoScript.CurrentLassoState == LassoState.Empty)
+        if (player.GetComponent<LassoTetherController>().CurrentLassoState == LassoState.Empty)
         {
             GrabPrompt.SetActive(active);
             

@@ -80,7 +80,7 @@ public class BabyScript : MonoBehaviour
         var y = Screen.height / 2;
 
 
-
+        /*
         cameraCenterRay = camera.ScreenPointToRay(new Vector3(x, y, 0));
         Debug.DrawRay(cameraCenterRay.origin, cameraCenterRay.direction * 100, Color.yellow);
         if((spawnPosition - transform.position).magnitude >= spawnLimit)
@@ -98,6 +98,7 @@ public class BabyScript : MonoBehaviour
 
             }
         }
+        */
     }
 
     public void OnTriggerEnter(Collider other)
