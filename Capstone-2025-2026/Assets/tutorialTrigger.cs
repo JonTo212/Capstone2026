@@ -19,6 +19,9 @@ public class tutorialTrigger : MonoBehaviour
             playerInside = true;
             if (promptUI != null)
                 promptUI.SetActive(true);
+
+            Time.timeScale = 0f;
+            playerActions.DisableAllInput();
         }
     }
 
@@ -27,6 +30,9 @@ public class tutorialTrigger : MonoBehaviour
         if (playerInside && playerActions.LassoDown)
         {
             promptUI.SetActive(false);
+            Time.timeScale = 1f;
+            playerActions.EnableAllInput();
+
             Destroy(gameObject);
         }
     }

@@ -168,6 +168,52 @@ public class PlayerActions : MonoBehaviour
         respawnAction.Disable();
     }
 
+    public void DisableAllInput()
+    {
+        MoveAction.Disable();
+        lookAction.Disable();
+        jumpAction.Disable();
+        //lassoAction.Disable();
+        placeTetherAction.Disable();
+        deactivateTetherAction.Disable();
+        activateTetherAction.Disable();
+        dPadForwardAction.Disable();
+        dPadBackwardAction.Disable();
+        dPadRightAction.Disable();
+        dPadLeftAction.Disable();
+        moveAnchorMouseAction.Disable();
+        snapRotateToggleAction.Disable();
+        freeRotateToggleAction.Disable();
+        recallNPCAction.Disable();
+        menuAction.Disable();
+        controlAction.Disable();
+        devMenuAction.Disable();
+        respawnAction.Disable();
+    }
+
+    public void EnableAllInput()
+    {
+        MoveAction.Enable();
+        lookAction.Enable();
+        jumpAction.Enable();
+        lassoAction.Enable();
+        placeTetherAction.Enable();
+        deactivateTetherAction.Enable();
+        activateTetherAction.Enable();
+        dPadForwardAction.Enable();
+        dPadBackwardAction.Enable();
+        dPadRightAction.Enable();
+        dPadLeftAction.Enable();
+        moveAnchorMouseAction.Enable();
+        snapRotateToggleAction.Enable();
+        freeRotateToggleAction.Enable();
+        recallNPCAction.Enable();
+        menuAction.Enable();
+        controlAction.Enable();
+        devMenuAction.Enable();
+        respawnAction.Enable();
+    }
+
     //made these numbers up ngl
     float dpadTimer = 0f;
     float baseRepeatRate = 0.125f;

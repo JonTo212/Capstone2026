@@ -377,7 +377,7 @@ public class PlayerNPCHolder : MonoBehaviour
         float startTime = Time.time;
 
         //apply initial velocity
-        AudioManager.Instance.PlaySFX(AudioManager.Instance.Pull, 5, 1);
+        //AudioManager.Instance.PlaySFX(AudioManager.Instance.Pull, 5, 1); //temporarily removed due to big mama issues
         Vector3 startVel = CalculateObjectYankVelocity(startPosition, attach ? endPos.position : staticEndPos, objectYankDuration);
         prop.Rb.linearVelocity = Vector3.zero;
         prop.Rb.angularVelocity = Vector3.zero;
