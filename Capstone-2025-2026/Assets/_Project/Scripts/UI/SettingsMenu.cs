@@ -25,17 +25,20 @@ public class SettingsMenu : MonoBehaviour
     [SerializeField] private CinemachineInputAxisController inputAxisController;
     [SerializeField] private Slider xSensitivitySlider;
     [SerializeField] private Slider ySensitivitySlider;
+    [SerializeField] private SpecialCameraController specialCameraController;
 
     [SerializeField] private TextMeshProUGUI windowModeText;
     private WindowMode windowMode = WindowMode.fullScreen;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Awake()
+    void Start()
     {
         SetMasterVolume();
         SetSoundVolume();
         SetAmbienceVolume();
         SetMusicVolume();
+        SetXSensitvity();
+        SetYSensitivity();
     }
 
     public void SetMasterVolume()
@@ -64,24 +67,12 @@ public class SettingsMenu : MonoBehaviour
 
     public void SetXSensitvity()
     {
-        foreach (var controller in inputAxisController.Controllers)
-        {
-            if(controller.Name == "Look Orbit X")
-            {
-                controller.Input.Gain = xSensitivitySlider.value * 2;
-            }
-        }
+        specialCameraController.playerXSens = xSensitivitySlider.value * 2;
     }
 
     public void SetYSensitivity()
     {
-        foreach (var controller in inputAxisController.Controllers)
-        {
-            if (controller.Name == "Look Orbit Y")
-            {
-                controller.Input.Gain = xSensitivitySlider.value * -1;
-            }
-        }
+        specialCameraController.playerYSens = ySensitivitySlider.value * -1;
     }
 
     public void WindowModeButton()

@@ -63,7 +63,10 @@ public class MySceneManager : MonoBehaviour
     IEnumerator switchLevel(int sceneIndex)
     {
         //yield return new WaitForSeconds(3);
-        transitions.FadeToBlack();
+        if (transitions != null)
+        {
+            transitions.FadeToBlack();
+        }
         yield return new WaitForSeconds(2);
         SceneManager.LoadScene(SceneNames[sceneIndex]);
         currentScene = SceneNames[sceneIndex];

@@ -9,7 +9,7 @@ public class EndGameTrigger : MonoBehaviour
 
         if(other.gameObject.CompareTag("Player")){
 
-            sceneManager.LoadNewScene(0);
+            sceneManager.LoadNewScene(3);
 
         }
 

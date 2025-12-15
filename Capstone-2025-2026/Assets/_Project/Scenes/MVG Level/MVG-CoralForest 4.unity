@@ -84149,7 +84149,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Core.Runtime::UnityEngine.Rendering.ProbeVolume
   mode: 1
-  size: {x: 594.3918, y: 356.25443, z: 740.59863}
+  size: {x: 594.39185, y: 356.25443, z: 740.59863}
   overrideRendererFilters: 0
   minRendererVolumeSize: 0.1
   objectLayerMask:
@@ -84189,7 +84189,7 @@ Transform:
   m_GameObject: {fileID: 1601814056}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 185.56409, y: 5.96074, z: -311.20224}
+  m_LocalPosition: {x: 185.56412, y: 5.96074, z: -311.20224}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -91995,6 +91995,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89875cdc57c54474a8a74efd9b2a3b5d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineInputAxisController
+--- !u!114 &1729818471 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5087299409747798012, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+  m_PrefabInstance: {fileID: 2122334824}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47529d04ccb6db242b125b865322fba4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SpecialCameraController
 --- !u!43 &1732223965
 Mesh:
   m_ObjectHideFlags: 0
@@ -111286,7 +111297,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 192438478126419384, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 192438478126419384, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       propertyPath: m_AnchorMax.y
@@ -111294,7 +111305,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 192438478126419384, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       propertyPath: m_AnchorMin.x
-      value: 0
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 409635322692346772, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       propertyPath: m_AnchorMax.x
@@ -111456,6 +111467,10 @@ PrefabInstance:
       propertyPath: inputAxisController
       value: 
       objectReference: {fileID: 1729818469}
+    - target: {fileID: 1937864073352636848, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+      propertyPath: specialCameraController
+      value: 
+      objectReference: {fileID: 1729818471}
     - target: {fileID: 1989082145137285839, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       propertyPath: m_fontAsset
       value: 
@@ -111558,7 +111573,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3056944638267882645, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 3056944638267882645, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       propertyPath: m_AnchorMax.y
@@ -111728,6 +111743,18 @@ PrefabInstance:
       propertyPath: m_hasFontAssetChanged
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5052850773031587233, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+      propertyPath: m_Value
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5052850773031587233, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+      propertyPath: m_MaxValue
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5052850773031587233, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+      propertyPath: m_MinValue
+      value: 0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 5087299409747798012, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       propertyPath: LassoSensMultiplierX
       value: 0.9
@@ -111774,7 +111801,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5666890402675456739, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 5666890402675456739, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       propertyPath: m_AnchorMax.y
@@ -111782,7 +111809,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5666890402675456739, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       propertyPath: m_AnchorMin.x
-      value: 0
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 5694991431750631170, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       propertyPath: m_AnchorMax.x
@@ -111884,6 +111911,22 @@ PrefabInstance:
       propertyPath: 'untetherableMaterials.Array.data[7]'
       value: 
       objectReference: {fileID: 2100000, guid: 7f385caa46deec14ba15d9b42d795014, type: 2}
+    - target: {fileID: 7893419456801497725, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7943011442325459303, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+      propertyPath: m_Value
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7943011442325459303, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+      propertyPath: m_MaxValue
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7943011442325459303, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+      propertyPath: m_MinValue
+      value: 0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 7949301704512234148, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -111914,7 +111957,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8561537349924429795, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 8561537349924429795, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       propertyPath: m_AnchorMax.y

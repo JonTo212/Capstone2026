@@ -4,6 +4,7 @@ using DG.Tweening;
 
 public class animalCounter : MonoBehaviour
 {
+    public MySceneManager sceneManager;
     public static int savedAnimals;
     public BabyScript[] allAnimalJars;
     public float originalUIPosition;
@@ -37,7 +38,17 @@ public class animalCounter : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(savedAnimals == 4)
+        {
+            LoadEndScene();
+        }
+    }
 
+    private void LoadEndScene()
+    {
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+        sceneManager.LoadNewScene(3);
     }
 
     private void OnBabyEnterBag()

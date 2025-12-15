@@ -22,8 +22,8 @@ public class SpecialCameraController : MonoBehaviour
     [Header("Default Values")]
     private float defaultCameraLens;
     private Vector3 defaultOffsetVector;
-    private float originalXSens;
-    private float originalYSens;
+    public float playerXSens { get; set; }
+    public float playerYSens { get; set; }
 
     [Header("Values Tether State")]
     [SerializeField] private float CameraLens_T;
@@ -54,14 +54,9 @@ public class SpecialCameraController : MonoBehaviour
         foreach (var c in camInput.Controllers)
         {
             if (c.Name == "Look Orbit X")
-            {
-                originalXSens = c.Input.Gain;
-            }
-
-            if(c.Name == "Look Orbit Y")
-            {
-                originalYSens = c.Input.Gain;
-            }
+                playerXSens = c.Input.Gain;
+            if (c.Name == "Look Orbit Y")
+                playerYSens = c.Input.Gain;
         }
     }
 
@@ -97,17 +92,7 @@ public class SpecialCameraController : MonoBehaviour
         cam.Lens.FieldOfView = Mathf.Lerp(cam.Lens.FieldOfView, CameraLens_T, Time.deltaTime * tetherModeAdjustSpeed);
         camOffset.Offset = Vector3.Lerp(camOffset.Offset, camOffsetVector_T, Time.deltaTime * tetherModeAdjustSpeed);
 
-        foreach (var c in camInput.Controllers)
-        {
-            if (c.Name == "Look Orbit X")
-            {
-                c.Input.Gain = originalXSens * TetherSensMultiplier;
-            }
-            if (c.Name == "Look Orbit Y")
-            {
-                c.Input.Gain = originalYSens * TetherSensMultiplier;
-            }
-        }
+        ApplySensitivity(TetherSensMultiplier);
     }
 
     public void LassoModeCamera()
@@ -115,18 +100,7 @@ public class SpecialCameraController : MonoBehaviour
         cam.Lens.FieldOfView = Mathf.Lerp(cam.Lens.FieldOfView, CameraLens_L, Time.deltaTime * lassoModeAdjustSpeed);
         camOffset.Offset = Vector3.Lerp(camOffset.Offset, camOffsetVector_L, Time.deltaTime * lassoModeAdjustSpeed);
 
-        foreach (var c in camInput.Controllers)
-        {
-            if (c.Name == "Look Orbit X")
-            {
-                c.Input.Gain = originalXSens * LassoSensMultiplier;
-            }
-
-            if (c.Name == "Look Orbit Y")
-            {
-                c.Input.Gain = originalYSens * LassoSensMultiplier;
-            }
-        }
+        ApplySensitivity(LassoSensMultiplier);
     }
 
     public void SwingModeCamera()
@@ -140,16 +114,17 @@ public class SpecialCameraController : MonoBehaviour
         cam.Lens.FieldOfView = Mathf.Lerp(cam.Lens.FieldOfView, defaultCameraLens, Time.deltaTime * defaultAdjustSpeed);
         camOffset.Offset = Vector3.Lerp(camOffset.Offset, defaultOffsetVector, Time.deltaTime * defaultAdjustSpeed);
 
+        ApplySensitivity(1f);
+    }
+
+    public void ApplySensitivity(float multiplier)
+    {
         foreach (var c in camInput.Controllers)
         {
             if (c.Name == "Look Orbit X")
-            {
-                c.Input.Gain = originalXSens;
-            }
-            if(c.Name == "Look Orbit Y")
-            {
-                c.Input.Gain = originalYSens;
-            }
+                c.Input.Gain = playerXSens * multiplier;
+            if (c.Name == "Look Orbit Y")
+                c.Input.Gain = playerYSens * multiplier;
         }
     }
 }

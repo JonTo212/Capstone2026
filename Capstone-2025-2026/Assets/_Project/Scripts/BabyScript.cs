@@ -267,7 +267,7 @@ public class BabyScript : MonoBehaviour
         {
             //transform.position = Vector3.MoveTowards(transform.position, target.transform.position, returnSpeed);
             transform.position = Vector3.Lerp(transform.position, target.transform.position, returnSpeed * .1f);
-            transform.localScale = Vector3.Lerp(transform.localScale, Vector3.zero, returnSpeed*.1f);
+            transform.localScale = Vector3.Lerp(transform.localScale, Vector3.zero, returnSpeed * .1f);
 
             yield return null;
         }
