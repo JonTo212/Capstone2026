@@ -28,7 +28,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
 
     private float originalMass;
 
-    public int OriginalLayer { get; private set; }
+    public string OriginalTag { get; private set; }
 
     public Rigidbody Rb { get; protected set; }
     public Transform AttachedTransform { get; set; }
@@ -60,7 +60,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         ObjectOutline.OutlineWidth = 3f;
         ObjectOutline.enabled = false;
         originalMass = Rb.mass;
-        OriginalLayer = gameObject.layer;
+        OriginalTag = gameObject.tag;
 
         var generator = GetComponent<IGrabPointGenerator>();
         if(generator != null)

@@ -100,12 +100,12 @@ public class Lasso : MonoBehaviour
 
     public void ResetLayer(Prop obj)
     {
-        obj.gameObject.layer = obj.OriginalLayer;
+        obj.gameObject.tag = obj.OriginalTag;
     }
 
     public void SetToNoCollisionLayer(Prop obj)
     {
-        obj.gameObject.layer = gameObject.layer;
+        obj.gameObject.tag = gameObject.tag;
     }
 
     private Vector3 GetCameraWorldOffset()
@@ -225,7 +225,7 @@ public class Lasso : MonoBehaviour
 
             _snaredObjTransform = prop.transform;
             SnaredObject = prop;
-            _snaredObjTransform.gameObject.layer = gameObject.layer;
+            _snaredObjTransform.gameObject.tag = gameObject.tag;
             prop.OnSnare();
             prop.OnPropDestroyed += HandleObjectReleased;
             if (usePickupOutline) SnaredObject.ActivateOutline(true);
@@ -691,7 +691,7 @@ public class Lasso : MonoBehaviour
         SnaredObject.OnPropDestroyed -= HandleObjectReleased;
         SnaredObject.ActivateOutline(false);
         SnaredObject.OnRelease();
-        _snaredObjTransform.gameObject.layer = SnaredObject.OriginalLayer;
+        _snaredObjTransform.gameObject.tag = SnaredObject.OriginalTag;
         _snaredObjTransform = null;
         SnaredObject = null;
         _localFaceNormal = Vector3.zero;

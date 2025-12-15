@@ -351,9 +351,9 @@ public class LassoTetherController : MonoBehaviour
 
     private void HandleSwingingControls()
     {
-        if (playerActions.LassoDown)
+        if (playerActions.LassoUp)
         {
-            playerLasso.HandleObjectReleased();
+            playerLasso.SwingJumpBoost();
         }
 
         if (playerActions.JumpDown)
