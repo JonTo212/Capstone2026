@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class tutorialTrigger : MonoBehaviour
 {
@@ -21,7 +22,7 @@ public class tutorialTrigger : MonoBehaviour
                 promptUI.SetActive(true);
 
             Time.timeScale = 0f;
-            playerActions.DisableAllInput();
+            playerActions.DisableAllInput(InputSystem.actions.FindAction("Lasso"));
         }
     }
 

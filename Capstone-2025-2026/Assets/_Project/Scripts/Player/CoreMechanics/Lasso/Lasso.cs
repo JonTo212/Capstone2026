@@ -24,6 +24,7 @@ public class Lasso : MonoBehaviour
     [SerializeField, Range(0, 0.2f)] private float lookAtDamping = 0.05f;
     [SerializeField] private float rotationalDampingStrength = 0.5f;
     [SerializeField] private float maxLassoStrength;
+    [SerializeField] private float maxLassoTorque;
     [SerializeField] private bool useSizeScale;
     [SerializeField, Range(0, 1)] private float angularVelMultiplier = 1f;
 
@@ -59,7 +60,6 @@ public class Lasso : MonoBehaviour
     private Vector3 _cachedLocalFaceNormal;
     private float _cachedAnchorDist;
     private bool _hasCachedAttach;
-    private int _objectOriginalLayer;
 
     [Header("Getters")]
     public Prop SnaredObject { get; private set; }
@@ -98,14 +98,14 @@ public class Lasso : MonoBehaviour
 
     #region Helper Functions
 
-    public void ResetLayer(GameObject obj)
+    public void ResetLayer(Prop obj)
     {
-        obj.layer = _objectOriginalLayer;
+        obj.gameObject.layer = obj.OriginalLayer;
     }
 
-    public void SetToNoCollisionLayer(GameObject obj)
+    public void SetToNoCollisionLayer(Prop obj)
     {
-        obj.layer = gameObject.layer;
+        obj.gameObject.layer = gameObject.layer;
     }
 
     private Vector3 GetCameraWorldOffset()
@@ -225,7 +225,6 @@ public class Lasso : MonoBehaviour
 
             _snaredObjTransform = prop.transform;
             SnaredObject = prop;
-            _objectOriginalLayer = prop.gameObject.layer;
             _snaredObjTransform.gameObject.layer = gameObject.layer;
             prop.OnSnare();
             prop.OnPropDestroyed += HandleObjectReleased;
@@ -365,6 +364,8 @@ public class Lasso : MonoBehaviour
         Vector3 dampingTorque = -SnaredObject.Rb.angularVelocity * rotationalDampingStrength;
         Vector3 correctiveTorque = Vector3.Cross(r, linearForce);
         Vector3 finalTorque = correctiveTorque * scale;
+
+        finalTorque = finalTorque.normalized * Mathf.Clamp(finalTorque.magnitude, 0f, maxLassoTorque);
 
         if (SnaredObject.IsTouchingSurface) return finalTorque + dampingTorque;
         else return finalTorque;
@@ -690,9 +691,9 @@ public class Lasso : MonoBehaviour
         SnaredObject.OnPropDestroyed -= HandleObjectReleased;
         SnaredObject.ActivateOutline(false);
         SnaredObject.OnRelease();
-        SnaredObject = null;
-        _snaredObjTransform.gameObject.layer = _objectOriginalLayer;
+        _snaredObjTransform.gameObject.layer = SnaredObject.OriginalLayer;
         _snaredObjTransform = null;
+        SnaredObject = null;
         _localFaceNormal = Vector3.zero;
 
         Rotated = false;

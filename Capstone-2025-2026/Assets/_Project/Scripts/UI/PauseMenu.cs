@@ -34,6 +34,7 @@ public class PauseMenu : MonoBehaviour
         pauseMenuScreen.SetActive(false);
         Time.timeScale = 1f;
         gameIsPaused = false;
+        playerActions.EnableAllInput();
     }
 
     public void Pause()
@@ -43,6 +44,7 @@ public class PauseMenu : MonoBehaviour
         pauseMenuScreen.SetActive(true);
         Time.timeScale = 0f;
         gameIsPaused = true;
+        playerActions.DisableAllInput();
     }
 
     public void Settings()

@@ -19,7 +19,9 @@ public class PlayerActions : MonoBehaviour
     private InputAction freeRotateToggleAction;
     private InputAction snapRotateAction;
     private InputAction recallNPCAction;
-    
+
+    private InputAction[] allActions;
+
     private InputAction menuAction;
     private InputAction controlAction;
     private InputAction devMenuAction;
@@ -119,99 +121,47 @@ public class PlayerActions : MonoBehaviour
         controlAction = map.FindAction("Control");
         devMenuAction = map.FindAction("DevMenu");
         respawnAction = map.FindAction("Respawn");
+
+        allActions = new InputAction[]
+        {
+            MoveAction, lookAction, jumpAction, lassoAction,
+            placeTetherAction, deactivateTetherAction, activateTetherAction,
+            dPadForwardAction, dPadBackwardAction, dPadRightAction, dPadLeftAction,
+            moveAnchorMouseAction, snapRotateToggleAction, freeRotateToggleAction,
+            snapRotateAction, recallNPCAction, menuAction, controlAction,
+            devMenuAction, respawnAction
+        };
+
         currentRepeatRate = baseRepeatRate;
     }
 
     private void OnEnable()
     {
-        MoveAction.Enable();
-        lookAction.Enable();
-        jumpAction.Enable();
-        lassoAction.Enable();
-        placeTetherAction.Enable();
-        deactivateTetherAction.Enable();
-        activateTetherAction.Enable();
-        dPadForwardAction.Enable(); 
-        dPadBackwardAction.Enable();
-        dPadRightAction.Enable(); 
-        dPadLeftAction.Enable();
-        moveAnchorMouseAction.Enable();
-        snapRotateToggleAction.Enable();
-        freeRotateToggleAction.Enable();
-        recallNPCAction.Enable();
-        menuAction.Enable();
-        controlAction.Enable(); 
-        devMenuAction.Enable();
-        respawnAction.Enable();
+        EnableAllInput();
     }
 
     private void OnDisable()
     {
-        MoveAction.Disable();
-        lookAction.Disable();
-        jumpAction.Disable();
-        lassoAction.Disable();
-        placeTetherAction.Disable();
-        deactivateTetherAction.Disable();
-        activateTetherAction.Disable();
-        dPadForwardAction.Disable();
-        dPadBackwardAction.Disable();
-        dPadRightAction.Disable();
-        dPadLeftAction.Disable();
-        moveAnchorMouseAction.Disable();
-        snapRotateToggleAction.Disable();
-        freeRotateToggleAction.Disable();
-        recallNPCAction.Disable();
-        menuAction.Disable();
-        controlAction.Disable();
-        devMenuAction.Disable();
-        respawnAction.Disable();
-    }
-
-    public void DisableAllInput()
-    {
-        MoveAction.Disable();
-        lookAction.Disable();
-        jumpAction.Disable();
-        //lassoAction.Disable();
-        placeTetherAction.Disable();
-        deactivateTetherAction.Disable();
-        activateTetherAction.Disable();
-        dPadForwardAction.Disable();
-        dPadBackwardAction.Disable();
-        dPadRightAction.Disable();
-        dPadLeftAction.Disable();
-        moveAnchorMouseAction.Disable();
-        snapRotateToggleAction.Disable();
-        freeRotateToggleAction.Disable();
-        recallNPCAction.Disable();
-        menuAction.Disable();
-        controlAction.Disable();
-        devMenuAction.Disable();
-        respawnAction.Disable();
+        DisableAllInput();
     }
 
     public void EnableAllInput()
     {
-        MoveAction.Enable();
-        lookAction.Enable();
-        jumpAction.Enable();
-        lassoAction.Enable();
-        placeTetherAction.Enable();
-        deactivateTetherAction.Enable();
-        activateTetherAction.Enable();
-        dPadForwardAction.Enable();
-        dPadBackwardAction.Enable();
-        dPadRightAction.Enable();
-        dPadLeftAction.Enable();
-        moveAnchorMouseAction.Enable();
-        snapRotateToggleAction.Enable();
-        freeRotateToggleAction.Enable();
-        recallNPCAction.Enable();
-        menuAction.Enable();
-        controlAction.Enable();
-        devMenuAction.Enable();
-        respawnAction.Enable();
+        foreach (var action in allActions)
+        {
+            if (action == null) continue;
+            action.Enable();
+        }
+    }
+
+    public void DisableAllInput(InputAction ignoreAction = null)
+    {
+        foreach (var action in allActions)
+        {
+            if (action == null) continue;
+            if (action == ignoreAction) continue;
+            action.Disable();
+        }
     }
 
     //made these numbers up ngl
