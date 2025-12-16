@@ -33,7 +33,7 @@ public class NPCDialogue : MonoBehaviour
     public GameObject dialogueBox;
 
     [Header("Typewriter Settings")]
-    [SerializeField] private float charactersPerSecond = 3;
+    [SerializeField] private float charactersPerSecond = 5;
     [SerializeField] private float interpunctuationDelay = 0.5f;
 
     [Header("Profile Settings")]

@@ -25,11 +25,13 @@ public class PlayerNPCHolder : MonoBehaviour
     private bool useAbilityRequested;
     private bool stopAbilityRequested;
     private bool abilityActive;
+    private float abilityInactiveTimer;
 
     [Header("Object Yank Properties")]
     [SerializeField] private float handAttachThreshold = 0.2f;
     [SerializeField] private float objectYankDuration = 0.5f;
     private Coroutine _objectYankCoroutine;
+    private bool initialCapture;
 
     public event Action OnObjectYankCompleted;
 
@@ -76,6 +78,7 @@ public class PlayerNPCHolder : MonoBehaviour
                     CurrentNPC.StopAbility();
                     OnAbilityEnd();
                     abilityActive = false;
+                    abilityInactiveTimer = 0f;
                 }
                 return;
             }
@@ -100,6 +103,13 @@ public class PlayerNPCHolder : MonoBehaviour
 
                     rb.MovePosition(npcAbilityPos.position);
                     rb.MoveRotation(newRot);
+                }
+                
+                NPC_Pufferfish mama = CurrentNPC as NPC_Pufferfish;
+                if (mama.EnvironmentalForce != null && _playerMovement.Rb.linearVelocity.y <= 0f)
+                {
+                    Vector3 desiredVel = new Vector3(_playerMovement.Rb.linearVelocity.x, 0f, _playerMovement.Rb.linearVelocity.z);
+                    _playerMovement.Rb.linearVelocity = Vector3.MoveTowards(_playerMovement.Rb.linearVelocity, desiredVel, Time.fixedDeltaTime * 15f);
                 }
             }
 
@@ -172,6 +182,11 @@ public class PlayerNPCHolder : MonoBehaviour
                 Quaternion lookRot = Quaternion.LookRotation(direction);
                 _abilityCoroutine = StartCoroutine(SmoothDampToPos(rb, npcAbilityPos, lookRot, mama.animDuration / 1.5f));
             }
+
+            if (mama.EnvironmentalForce != null && _playerMovement.Rb.linearVelocity.y <= 0f)
+            {
+                _playerMovement.Rb.linearVelocity = new Vector3(_playerMovement.Rb.linearVelocity.x, 0f, _playerMovement.Rb.linearVelocity.z);
+            }
         }
     }
 
@@ -183,7 +198,7 @@ public class PlayerNPCHolder : MonoBehaviour
             yield break;
         }
 
-        yield return new WaitForSeconds(0.167f);
+        yield return new WaitForSeconds(0.2f);
 
         if (stopAbilityRequested || !useAbilityRequested)
         {
@@ -446,6 +461,11 @@ public class PlayerNPCHolder : MonoBehaviour
         CurrentNPC = _playerLasso.SnaredObject as INPC;
         CurrentNPC.SetPlayerRef(transform);
         _connectedNPC = _playerLasso.SnaredObject.transform;
+        if (!initialCapture)
+        {
+            HandleObjectYank();
+            initialCapture = true;
+        }
     }
 
     private void ReleaseNPC()
