@@ -19,6 +19,7 @@ public class PlayerActions : MonoBehaviour
     private InputAction freeRotateToggleAction;
     private InputAction snapRotateAction;
     private InputAction recallNPCAction;
+    private InputAction toolSwitchAction;
 
     private InputAction[] allActions;
 
@@ -96,6 +97,12 @@ public class PlayerActions : MonoBehaviour
     public bool RespawnDown => respawnAction.WasPressedThisFrame();
     public bool RespawnHeld => respawnAction.IsPressed();
     public bool RespawnUp => respawnAction.WasReleasedThisFrame();
+
+    public bool toolSwitchDown => toolSwitchAction.WasPressedThisFrame();
+    public bool toolSwitchHeld => toolSwitchAction.IsPressed();
+    public bool toolSwitchUp => toolSwitchAction.WasReleasedThisFrame();
+
+
     #endregion
 
     private void Awake()
@@ -121,6 +128,7 @@ public class PlayerActions : MonoBehaviour
         controlAction = map.FindAction("Control");
         devMenuAction = map.FindAction("DevMenu");
         respawnAction = map.FindAction("Respawn");
+        toolSwitchAction = map.FindAction("ToolSwitch");
 
         allActions = new InputAction[]
         {
@@ -129,7 +137,7 @@ public class PlayerActions : MonoBehaviour
             dPadForwardAction, dPadBackwardAction, dPadRightAction, dPadLeftAction,
             moveAnchorMouseAction, snapRotateToggleAction, freeRotateToggleAction,
             snapRotateAction, recallNPCAction, menuAction, controlAction,
-            devMenuAction, respawnAction
+            devMenuAction, respawnAction, toolSwitchAction
         };
 
         currentRepeatRate = baseRepeatRate;

@@ -40,6 +40,8 @@ public class LassoTetherController : MonoBehaviour
     public bool rodPickedUp = true;
     [field: SerializeField] public LassoState CurrentLassoState { get; private set; }
 
+    public bool rodEquipped = true;
+
     #region Unity Functions
     private void Awake()
     {
@@ -194,11 +196,15 @@ public class LassoTetherController : MonoBehaviour
     #region Empty Controls
     private void HandleEmptyControls()
     {
-        if (playerActions.LassoDown)
+        //tool switching
+        if (playerActions.toolSwitchDown) rodEquipped = !rodEquipped; // toggle state of rodEquipped bool 
+
+
+        if (playerActions.LassoDown && rodEquipped)
         {
             playerLasso.HandleLassoStart();
         }
-        if (playerActions.PlaceTetherDown)
+        if (playerActions.LassoDown && !rodEquipped) // temporarily making it check for lasso input so they can use the same button
         {
             playerTether.StartTetherPlacement();
         }
@@ -208,7 +214,7 @@ public class LassoTetherController : MonoBehaviour
     #region Tether Controls
     private void HandleTetherPlacementControls()
     {
-        if (playerActions.PlaceTetherUp)
+        if (playerActions.LassoUp)
         {
             playerTether.EndTetherPlacement(false);
             SwitchLassoState(LassoState.Empty);
