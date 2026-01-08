@@ -78,6 +78,8 @@ public class CircleOrbit : MonoBehaviour
         }
     }
     
+    //TODO: Change logic to trigger enter and exit
+
     private void OnTriggerStay(Collider other)
     {
         if (other.GetComponent<Prop>())

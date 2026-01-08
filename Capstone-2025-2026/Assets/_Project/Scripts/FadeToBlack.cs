@@ -14,7 +14,9 @@ public class FadeToBlack : MonoBehaviour
     public bool blackOut = false;
     public bool fullBlack = false;
 
-
+    /// <summary>
+    /// TODO: START USING THE FEEL PLUGIN
+    /// </summary>
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
