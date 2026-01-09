@@ -1,217 +1,92 @@
-using NodeCanvas.Tasks.Actions;
 using System;
 using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Audio;
-using UnityEngine.Rendering;
 
 public class BabyScript : MonoBehaviour
 {
-    public float timeInLight = 0f;
-    public float timetoSave = 3f;
-    public float returnSpeed = 0.1f;
+    [SerializeField] private float timeInLight = 0f;
+    [SerializeField] private float timetoSave = 3f;
+    [SerializeField] private float returnSpeed = 0.1f;
     private Vector3 velocity; // need this for smoothdamp   
 
 
-    //particles
-    public ParticleSystem explodeParticle;
-
-    public AudioManager audioManager;
-
-    private bool saveStart = false;
-    private bool coroutineStarted = false;
+    //saving
+    [SerializeField] private ParticleSystem explodeParticle;
+    private Coroutine saveCoroutine;
 
     //components
     private Rigidbody rb;
     private Collider col;
-    public GameObject target;
+    private Renderer materialObj;
+    private Transform target;
     private Prop tetherScript;
 
     //materials
-    public Material cleanMat;
-    public Material corruptMat;
+    [SerializeField] private Material cleanMat;
+    [SerializeField] private Material corruptMat;
 
     //respawning
     private Vector3 spawnPosition;
-    public bool isFalling = false;
     private ParticleSystem tinyTornado;
 
-    public float returnCameraViewBuffer = 0.1f;
-    public float returnBuffer = 0.1f;
-    public float respawnHeight = 5f;
-    Camera camera;
+    [SerializeField] private float returnCameraViewBuffer = 0.1f;
+    [SerializeField] private float returnBuffer = 0.1f;
+    [SerializeField] private float respawnHeight = 5f;
+    [SerializeField] private float distanceFromCameraView = 20f;
+    [SerializeField] private float spawnLimit = 100f;
+    [SerializeField] private float playerRangeLimit = 100f;
     private Ray cameraCenterRay;
-    public float distanceFromCameraView = 20f;
-    public float spawnLimit = 100f;
-    public float playerRangeLimit = 100f;
-    public Transform playerLocation;
-
-    private bool forceRespawn = false; // too far from spawn and player
 
     public event Action OnEnterBag;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    private void Start()
     {
         //change material to clean
-        GetComponent<Renderer>().material = corruptMat;
-        audioManager = GameObject.Find("AudioManager").GetComponent<AudioManager>();
         rb = GetComponent<Rigidbody>();
         col = GetComponent<Collider>();
         tetherScript = GetComponent<Prop>();
+        materialObj = GetComponent<Renderer>();
 
 
         //set spawn position
         spawnPosition = transform.position;
-        camera = Camera.main;
-
-
         tinyTornado = GetComponentInChildren<ParticleSystem>();
-        tetherScript = GetComponent<Prop>();
+        materialObj.material = corruptMat;
 
-        playerLocation = GameObject.Find("ThirdPersonPlayer").transform;
+        target = GameObject.FindGameObjectWithTag("Player").transform;
     }
 
-    public void Update()
+    #region Unity Trigger Functions
+    private void OnTriggerEnter(Collider other)
     {
-        //raycast from center of camera to get respawn position
-        var x = Screen.width / 2;
-        var y = Screen.height / 2;
-
-
-        /*
-        cameraCenterRay = camera.ScreenPointToRay(new Vector3(x, y, 0));
-        Debug.DrawRay(cameraCenterRay.origin, cameraCenterRay.direction * 100, Color.yellow);
-        if((spawnPosition - transform.position).magnitude >= spawnLimit)
-        {
-            print("TOO FAR FROM SPAWNPOINT");
-            if ((spawnPosition - playerLocation.position).magnitude > playerRangeLimit){
-
-                if (!forceRespawn)
-                {
-                    StartCoroutine(Respawn());
-                    print("TOO FAR FROM PLAYER");
-
-                    forceRespawn = true;
-                }
-
-            }
-        }
-        */
-    }
-
-    public void OnTriggerEnter(Collider other)
-    {
-        if (other.gameObject.tag == "Void")
+        if (other.gameObject.CompareTag("Void"))
         {
             StartCoroutine(Respawn());
-            print("FELL INTO VOID");
         }
     }
-    IEnumerator Respawn()
-    {
-        //Setup 
-        rb.isKinematic = true;
-        isFalling = true;
-        tetherScript.enabled = false;
 
-        //returnSpeedCurrent = 0;
-
-        //play particle effect
-        tinyTornado.Play();
-
-        //MOVE TOWARDS ANCHOR POINT//   (this means i am moving the animal past the camera before it can go to its spawn)
-
-        //move towards middle of screen position
-
-
-        while (Vector3.Distance(transform.position, cameraCenterRay.GetPoint(distanceFromCameraView)) > returnCameraViewBuffer)
-        {
-            //accelerate overtime
-            //Mathf.Clamp(returnSpeedCurrent,0,returnSpeedMax);
-            //returnSpeedCurrent += returnAcceleration * Time.deltaTime; //accelerate return speed over time
-
-            //move towards spawn position
-            //var target = (Vector3.Distance(transform.position, cameraCenterRay.GetPoint(distanceFromCameraView)) > returnCameraViewBuffer);
-            transform.position = Vector3.SmoothDamp(transform.position, cameraCenterRay.GetPoint(distanceFromCameraView), ref velocity, returnSpeed);
-
-            // return when the playerview is true
-            yield return null;
-        }
-
-        // DELAY TIMER//
-        print("waiting");
-        //returnSpeedCurrent = 0;
-        yield return new WaitForSeconds(1f);
-
-
-        // MOVE TOWARDS SPAWN POSITION //
-
-        //check if it is close enough to spawn position
-        var spawnDestination = new Vector3(spawnPosition.x, spawnPosition.y + respawnHeight, spawnPosition.z);
-
-        while (Vector3.Distance(transform.position, spawnDestination) > returnBuffer)
-        {
-            //accelerate overtime
-            //Mathf.Clamp(returnSpeedCurrent, 0, returnSpeedMax);
-            //returnSpeedCurrent += returnAcceleration * Time.deltaTime; //accelerate return speed over time
-
-
-            //move towards spawn position
-            transform.position = Vector3.SmoothDamp(transform.position, spawnDestination, ref velocity, returnSpeed);
-
-            // return when the result is null
-            yield return null;
-        }
-
-        // DELAY TIMER//
-        print("waiting");
-        yield return new WaitForSeconds(1f);
-
-        //RESET//
-        print("reseting");
-
-        //Enable Components
-        rb.isKinematic = false;
-        isFalling = false;
-        tetherScript.enabled = true;
-
-        //end particle effect
-        tinyTornado.Stop();
-
-        //force respawn false
-        forceRespawn = false;
-
-    }
-
-    public void OnTriggerStay(Collider other)
+    private void OnTriggerStay(Collider other)
     {
         if (other.CompareTag("LightGodRay"))
         {
             //countdown
-            timeInLight += Time.deltaTime;
+            timeInLight += Time.fixedDeltaTime;
 
             //play particle effect
-            explodeParticle.Play();
-
-            //playsound 
-            if (!saveStart)
+            if (!explodeParticle.isPlaying)
             {
-                audioManager.PlaySFX(audioManager.LightClense, 1, 1);
-                saveStart = true;
+                explodeParticle.Play();
             }
 
             //start save process
-            if ((timeInLight >= timetoSave) && (!coroutineStarted))
+            if ((timeInLight >= timetoSave) && saveCoroutine == null)
             {
-                StartCoroutine(Cleansed());
-                coroutineStarted = true;
+                saveCoroutine = StartCoroutine(Cleansed());
             }
         }
     }
 
-    public void OnTriggerExit(Collider other)
+    private void OnTriggerExit(Collider other)
     {
         if (other.CompareTag("LightGodRay"))
         {
@@ -220,15 +95,58 @@ public class BabyScript : MonoBehaviour
 
             //stop particle effect
             explodeParticle.Stop();
-
-            //stopsound
-            //ASK JUAN TO ADD STOP SOUND FUNCTIONALITY
-            //saveStart = false;
         }
     }
+    #endregion
+
+    #region Respawning
+    private IEnumerator Respawn()
+    {
+        //setup 
+        rb.isKinematic = true;
+        tetherScript.enabled = false;
+
+        //play particle effect
+        tinyTornado.Play();
+
+        //MOVE TOWARDS ANCHOR POINT//   (this means i am moving the animal past the camera before it can go to its spawn)
+        //move towards middle of screen position
+        while (Vector3.Distance(transform.position, cameraCenterRay.GetPoint(distanceFromCameraView)) > returnCameraViewBuffer)
+        {
+            transform.position = Vector3.SmoothDamp(transform.position, cameraCenterRay.GetPoint(distanceFromCameraView), ref velocity, returnSpeed);
+            yield return null;
+        }
+
+        // DELAY TIMER//
+        yield return new WaitForSeconds(1f);
 
 
-    IEnumerator Cleansed()
+        // MOVE TOWARDS SPAWN POSITION //
+        //check if it is close enough to spawn position
+        var spawnDestination = new Vector3(spawnPosition.x, spawnPosition.y + respawnHeight, spawnPosition.z);
+
+        //move towards spawn position
+        while (Vector3.Distance(transform.position, spawnDestination) > returnBuffer)
+        {
+            transform.position = Vector3.SmoothDamp(transform.position, spawnDestination, ref velocity, returnSpeed);
+            yield return null;
+        }
+
+        // DELAY TIMER//
+        yield return new WaitForSeconds(1f);
+
+        //RESET//
+        //Enable Components
+        rb.isKinematic = false;
+        tetherScript.enabled = true;
+
+        //end particle effect
+        tinyTornado.Stop();
+    }
+    #endregion
+
+    #region Cleansing
+    private IEnumerator Cleansed()
     {
         var returnBuffer = 0.5f;
 
@@ -238,7 +156,7 @@ public class BabyScript : MonoBehaviour
         tetherScript.enabled = false;
 
         //fanfare sound
-        audioManager.PlaySFX(audioManager.FanFare, 5, 1);
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.FanFare, 5, 5);
 
         //change material to clean
         GetComponent<Renderer>().material = cleanMat;
@@ -251,11 +169,8 @@ public class BabyScript : MonoBehaviour
         while (Vector3.Distance(transform.position, posePosition) > returnBuffer)
         {
             //face player
-            transform.LookAt(target.transform.position);
-
-            //transform.position = Vector3.MoveTowards(transform.position, target.transform.position, returnSpeed);
-            transform.position = Vector3.Lerp(transform.position, posePosition, returnSpeed * .1f);
-
+            transform.LookAt(target.position);
+            transform.position = Vector3.Lerp(transform.position, posePosition, returnSpeed * Time.deltaTime);
             yield return null;
         }
 
@@ -263,23 +178,22 @@ public class BabyScript : MonoBehaviour
 
 
         //go to player backpack
-        while (Vector3.Distance(transform.position, target.transform.position) > returnBuffer)
+        while (Vector3.Distance(transform.position, target.position) > returnBuffer)
         {
-            //transform.position = Vector3.MoveTowards(transform.position, target.transform.position, returnSpeed);
-            transform.position = Vector3.Lerp(transform.position, target.transform.position, returnSpeed * .1f);
-            transform.localScale = Vector3.Lerp(transform.localScale, Vector3.zero, returnSpeed * .1f);
-
+            transform.position = Vector3.Lerp(transform.position, target.position, returnSpeed * Time.deltaTime);
+            transform.localScale = Vector3.Lerp(transform.localScale, Vector3.zero, returnSpeed * Time.deltaTime);
             yield return null;
         }
 
-        InBag();
+        EnterBag();
     }
 
-    public void InBag()
+    public void EnterBag()
     {
         //collect sound
-        audioManager.PlaySFX(audioManager.Collection, 5, 1);
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.Collection, 5, 5);
         OnEnterBag.Invoke();
         Destroy(gameObject);
     }
+    #endregion
 }
