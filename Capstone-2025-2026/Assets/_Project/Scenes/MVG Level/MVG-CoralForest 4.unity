@@ -17805,6 +17805,24 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
+--- !u!1 &310320406 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 433335896979252527, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+  m_PrefabInstance: {fileID: 2122334824}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &310320411
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 310320406}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e71d7d67709919468f7be3039fe5491, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ImageFader
+  duration: 0.5
 --- !u!43 &310557245
 Mesh:
   m_ObjectHideFlags: 0
@@ -55583,7 +55601,7 @@ GameObject:
   - component: {fileID: 1122863790}
   - component: {fileID: 1122863793}
   - component: {fileID: 1122863792}
-  - component: {fileID: 1122863791}
+  - component: {fileID: 1122863794}
   m_Layer: 7
   m_Name: BlackBG
   m_TagString: Untagged
@@ -55610,18 +55628,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: -4}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1122863791
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1122863789}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5af521caf5f2c4d45903191f18297b5c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: '::'
 --- !u!114 &1122863792
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -55660,6 +55666,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1122863789}
   m_CullTransparentMesh: 1
+--- !u!114 &1122863794
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1122863789}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e71d7d67709919468f7be3039fe5491, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ImageFader
+  duration: 0.8
 --- !u!43 &1123871943
 Mesh:
   m_ObjectHideFlags: 0
@@ -85124,7 +85143,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Core.Runtime::UnityEngine.Rendering.ProbeVolume
   mode: 1
-  size: {x: 594.39185, y: 356.25443, z: 740.59863}
+  size: {x: 594.39185, y: 356.25443, z: 740.59875}
   overrideRendererFilters: 0
   minRendererVolumeSize: 0.1
   objectLayerMask:
@@ -85164,7 +85183,7 @@ Transform:
   m_GameObject: {fileID: 1601814056}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 185.56412, y: 5.96074, z: -311.20224}
+  m_LocalPosition: {x: 185.56412, y: 5.96074, z: -311.2023}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -92762,94 +92781,6 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
---- !u!1 &1725280708
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1725280709}
-  - component: {fileID: 1725280712}
-  - component: {fileID: 1725280711}
-  - component: {fileID: 1725280710}
-  m_Layer: 7
-  m_Name: BlackBG
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &1725280709
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1725280708}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 19.222, y: 10.893034, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 2142796875}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0}
-  m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: 536}
-  m_SizeDelta: {x: 100, y: 100}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1725280710
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1725280708}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5af521caf5f2c4d45903191f18297b5c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: '::'
---- !u!114 &1725280711
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1725280708}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.95686275}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 2314c2758895a3e409370c66e01e4d44, type: 3}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
---- !u!222 &1725280712
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1725280708}
-  m_CullTransparentMesh: 1
 --- !u!43 &1725282952
 Mesh:
   m_ObjectHideFlags: 0
@@ -112875,7 +112806,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2727460945637520147, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -0.000061035156
+      value: -0.000030517578
       objectReference: {fileID: 0}
     - target: {fileID: 2965844414402353664, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       propertyPath: m_Name
@@ -113313,6 +113244,10 @@ PrefabInstance:
       propertyPath: m_hasFontAssetChanged
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9141277693401130519, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+      propertyPath: fadeToBlackScript
+      value: 
+      objectReference: {fileID: 310320411}
     - target: {fileID: 9162648374322047890, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       propertyPath: IgnoreTag
       value: Player
@@ -113320,6 +113255,7 @@ PrefabInstance:
     m_RemovedComponents:
     - {fileID: 797284633440951836, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
     - {fileID: 3271648281358634593, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+    - {fileID: 3821006032408275910, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
     m_RemovedGameObjects:
     - {fileID: 7749738399581899524, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
     m_AddedGameObjects:
@@ -113335,7 +113271,10 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 2286939426547707562, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       insertIndex: -1
       addedObject: {fileID: 632082363}
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 433335896979252527, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 310320411}
   m_SourcePrefab: {fileID: 100100000, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
 --- !u!43 &2122571492
 Mesh:
@@ -114016,7 +113955,6 @@ RectTransform:
   m_LocalScale: {x: 0.5208333, y: 0.5208333, z: 0.5208333}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1725280709}
   - {fileID: 1122863790}
   - {fileID: 286803532}
   - {fileID: 1425527464}
@@ -114049,8 +113987,7 @@ MonoBehaviour:
   LookAtActiveTetherPrompts: {fileID: 1761880435}
   MamaInBagPrompts: {fileID: 543290103}
   MamaInFieldPrompts: {fileID: 633149336}
-  anyChildrenActive: 0
-  blackFadeScript: {fileID: 1122863791}
+  blackFadeScript: {fileID: 1122863794}
 --- !u!43 &2143265137
 Mesh:
   m_ObjectHideFlags: 0

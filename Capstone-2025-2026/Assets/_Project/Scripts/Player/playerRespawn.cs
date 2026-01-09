@@ -4,36 +4,30 @@ using UnityEngine.Rendering;
 using UnityEngine.EventSystems;
 using NodeCanvas.Tasks.Actions;
 
-public class playerRespawn : MonoBehaviour
+public class PlayerRespawn : MonoBehaviour
 {
 
     //Components
     private Rigidbody rb;
-    public ParticleSystem tinyTornado;
+    [SerializeField] private ParticleSystem tinyTornado;
 
     //respawning
     private Vector3 spawnPosition;
-    public bool isFalling = false;
-    public float returnSpeed;
-    public float returnBuffer = 0.1f;
-    public float respawnHeight = 5f;
+    [SerializeField] private bool isFalling = false;
+    [SerializeField] private float returnSpeed;
+    [SerializeField] private float returnBuffer = 0.1f;
+    [SerializeField] private float respawnHeight = 5f;
 
-    public bool inPlayerView = false;
-    public GameObject playerViewAnchor;
-    public RespawnPointVisuals currentRespawnPoint;
-    AudioManager aManage;
+    [SerializeField] private RespawnPointVisuals currentRespawnPoint;
 
     //UI Components
-    public FadeToBlack fadeToBlackScript;
+    public ImageFader fadeToBlackScript;
 
     void Awake()
     {
-        aManage = GameObject.Find("AudioManager").GetComponent<AudioManager>();
-        fadeToBlackScript = FindAnyObjectByType<FadeToBlack>();
         fadeToBlackScript.gameObject.SetActive(false);
     }
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         //set spawn position
@@ -76,7 +70,7 @@ public class playerRespawn : MonoBehaviour
         //fade to black
         
         fadeToBlackScript.gameObject.SetActive(true);
-        fadeToBlackScript.blackOut = true;
+        fadeToBlackScript.FadeIn();
 
         //Setup 
         rb.isKinematic = true;
@@ -84,9 +78,9 @@ public class playerRespawn : MonoBehaviour
 
         //play particle effect
         tinyTornado.Play();
-        aManage.PlaySFX(aManage.PlayerSaved, 6, 1);
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.PlayerSaved, 6, 1);
 
-        yield return new WaitUntil(() => fadeToBlackScript.fullBlack == true);
+        yield return new WaitUntil(() => fadeToBlackScript.FadeComplete);
 
 
         // MOVE TOWARDS SPAWN POSITION //
@@ -105,20 +99,16 @@ public class playerRespawn : MonoBehaviour
         }
 
         // DELAY TIMER//
-        print("waiting");
-
         yield return new WaitForSeconds(.5f);
+
         //disable black screen
-        fadeToBlackScript.blackOut = false;
+        fadeToBlackScript.FadeOut();
         yield return new WaitForSeconds(1f);
 
         //RESET//
-        print("reseting");
-
         //Enable Components
         rb.isKinematic = false;
         isFalling = false;
-        inPlayerView = false;
 
         //end particle effect
         tinyTornado.Stop();
