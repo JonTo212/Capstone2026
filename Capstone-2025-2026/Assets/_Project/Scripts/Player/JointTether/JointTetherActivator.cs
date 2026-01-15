@@ -89,12 +89,14 @@ public class JointTetherActivator : MonoBehaviour
     #region Tether Activation
     public void StartActivateTether()
     {
-        ActivateSelectedTether();
+        /*ActivateSelectedTether();
 
         if(destroyAllTethersCoroutine == null)
         {
             activateAllTethersCoroutine = StartCoroutine(ActivateAllTether());
-        }
+        }*/
+
+        ActivateAllTethers(); // TEMP
     }
 
     public void EndActivateTether()
@@ -132,17 +134,32 @@ public class JointTetherActivator : MonoBehaviour
             tether.gameObject.GetComponent<JointTetherVisuals>().SetLineColorActive();
         }
     }
+
+    private void ActivateAllTethers() // TEMP
+    {
+        foreach (JointTether tether in placedTethers)
+        {
+            aManage.PlaySFX(aManage.TetherTighten, 4, 1f);
+            tether.ActivateTether();
+
+            OnTetherActivated?.Invoke();
+            tether.gameObject.GetComponent<JointTetherVisuals>().SetLineColorActive();
+        }
+    }
+
     #endregion
 
     #region Tether Destroy
     public void StartDestroyTether()
     {
-        DestroySelectedTether();
+        /*DestroySelectedTether();
 
         if(activateAllTethersCoroutine == null )
         {
             destroyAllTethersCoroutine= StartCoroutine(DestroyAllTether());
-        }
+        }*/
+
+        DestroyMostRecentTether(); // TEMP
     }
 
     public void EndDestroyTether()
@@ -181,10 +198,14 @@ public class JointTetherActivator : MonoBehaviour
 
         foreach (JointTether tether in allPlacedTethers)
         {
-            GameObject tetherRetrievalVisuals = Instantiate(tetherRetrieveVisialsPrefab, tether.transform.position, Quaternion.Euler(Vector3.zero));
-            tetherRetrievalVisuals.GetComponent<TetherRetrievalEffect>().Init(tether.transform.position, transform);
-            tether.DestroyTether();
+            DestroySelectedTether(tether);
         }
+    }
+
+    private void DestroyMostRecentTether()
+    {
+        JointTether mostRecentTether = placedTethers[placedTethers.Count - 1];
+        DestroySelectedTether(mostRecentTether);
     }
     #endregion
 
