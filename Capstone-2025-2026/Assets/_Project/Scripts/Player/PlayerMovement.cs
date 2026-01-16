@@ -173,8 +173,10 @@ public class PlayerMovement : MonoBehaviour
 
     public bool IsGrounded()
     {
-        feetPos.localPosition = new Vector3(0, -_playerCol.height / 2f, 0);
-        return Physics.CheckSphere(feetPos.position, feetRadius, groundLayer);
+        //feetPos.localPosition = new Vector3(0, -_playerCol.height / 2f, 0);
+        //return Physics.CheckSphere(feetPos.position, feetRadius, groundLayer);
+
+        return (Physics.Raycast(transform.position, Vector3.down, 1.1f, groundLayer));
     }
 
     public void ApplySlowFall(float multiplier)
@@ -250,15 +252,15 @@ public class PlayerMovement : MonoBehaviour
 
     private void HandleCoyoteTime()
     {
-        if (IsGrounded())
-        {
-            coyoteTimeCounter = coyoteTime;
-        }
-        else
-        {
-            //countdown timer
-            coyoteTimeCounter -= Time.deltaTime;
-        }
+        //if (IsGrounded())
+        //{
+        //    coyoteTimeCounter = coyoteTime;
+        //}
+        //else
+        //{
+        //    //countdown timer
+        //    coyoteTimeCounter -= Time.deltaTime;
+        //}
     }
 
 
@@ -299,7 +301,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void HandleJump()
     {
-        if ((jumpBufferCounter > 0) && (coyoteTimeCounter > 0))
+        if ((jumpBufferCounter > 0) && IsGrounded()) //&& (coyoteTimeCounter > 0))
         {
             _rb.linearVelocity = new Vector3(_rb.linearVelocity.x, 0, _rb.linearVelocity.z);
             _rb.AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
