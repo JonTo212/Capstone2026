@@ -10,12 +10,19 @@ public enum PistonRailAxis
 
 public class Piston : MonoBehaviour
 {
+    [Header("Properties")]
     public Transform startPosition;
     public Transform endPosition;
+    public LineRenderer lineRenderer;
     public PistonRailAxis axis = PistonRailAxis.X;
     private Rigidbody rb;
-    public float maxPosition = 0f;
-    public float minPosition = 0f;
+    private float maxPosition = 0f;
+    private float minPosition = 0f;
+    private float currentPositionAlongRail = 0f;
+
+    [Header("Spring Properties")]
+    public bool hasSpring = false;
+    public float springForce = 50f;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -25,15 +32,29 @@ public class Piston : MonoBehaviour
         if (axis == PistonRailAxis.X) rb.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezePositionZ;
         if (axis == PistonRailAxis.Y) rb.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ;
         if (axis == PistonRailAxis.Z) rb.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionY;
+
+        lineRenderer = GetComponent<LineRenderer>();
     }
 
     // Update is called once per frame
     void Update()
     {
 
-        if(axis == PistonRailAxis.X)
+        lineRenderer.SetPosition(0, startPosition.position);
+        lineRenderer.SetPosition(1, endPosition.position);
+    }
+
+    private void FixedUpdate()
+    {
+        ResetSpeedAtEdge();
+        ConstrainPosition();
+    }
+
+    private void ConstrainPosition()
+    {
+        if (axis == PistonRailAxis.X)
         {
-            if(startPosition.position.x >  endPosition.position.x)
+            if (startPosition.position.x > endPosition.position.x)
             {
                 maxPosition = startPosition.position.x;
                 minPosition = endPosition.position.x;
@@ -44,8 +65,10 @@ public class Piston : MonoBehaviour
                 minPosition = startPosition.position.x;
             }
             float clampedX = Mathf.Clamp(transform.position.x, minPosition, maxPosition);
-            
+
             transform.position = new Vector3(clampedX, transform.position.y, transform.position.z);
+
+            currentPositionAlongRail = clampedX;
         }
         if (axis == PistonRailAxis.Y)
         {
@@ -62,6 +85,8 @@ public class Piston : MonoBehaviour
             float clampedY = Mathf.Clamp(transform.position.y, minPosition, maxPosition);
 
             transform.position = new Vector3(transform.position.x, clampedY, transform.position.z);
+
+            currentPositionAlongRail = clampedY;
         }
         if (axis == PistonRailAxis.Z)
         {
@@ -78,6 +103,23 @@ public class Piston : MonoBehaviour
             float clampedZ = Mathf.Clamp(transform.position.z, minPosition, maxPosition);
 
             transform.position = new Vector3(transform.position.x, transform.position.y, clampedZ);
+
+            currentPositionAlongRail = clampedZ;
+        }
+    }
+
+    private void ResetSpeedAtEdge()
+    {
+        float currentVelocity = 0f;
+        if (axis == PistonRailAxis.X) currentVelocity = rb.linearVelocity.x;
+        if (axis == PistonRailAxis.Y) currentVelocity = rb.linearVelocity.y;
+        if (axis == PistonRailAxis.Z) currentVelocity = rb.linearVelocity.z;
+        currentVelocity = Mathf.Clamp(currentVelocity, -0.1f, 0.1f);
+        float nextPosition = currentPositionAlongRail + currentVelocity;
+
+        if(nextPosition > maxPosition ||  nextPosition < minPosition)
+        {
+            rb.linearVelocity = Vector3.zero;
         }
     }
 }
