@@ -66,6 +66,7 @@ public class PlayerMovement : MonoBehaviour
     private PlayerActions _playerActions;
     private PlayerSwing _playerSwing;
     private LassoTetherController _lassoTetherController;
+    private PlayerWallBounce _playerWallBounce;
 
     private MovementProperties _currentMultipliers;
     private PlayerMoveState _currentMovementState;
@@ -96,6 +97,7 @@ public class PlayerMovement : MonoBehaviour
         _playerActions = GetComponent<PlayerActions>();
         _lassoTetherController = GetComponent<LassoTetherController>();
         _playerSwing = GetComponent<PlayerSwing>();
+        _playerWallBounce = GetComponent<PlayerWallBounce>();
 
         _gravity = 2 * apexHeight / Mathf.Pow(apexTime, 2);
         _jumpForce = 2 * apexHeight / apexTime;
@@ -299,14 +301,27 @@ public class PlayerMovement : MonoBehaviour
 
     private void HandleJump()
     {
-        if ((jumpBufferCounter > 0) && (coyoteTimeCounter > 0))
+        if (jumpBufferCounter > 0)
         {
-            _rb.linearVelocity = new Vector3(_rb.linearVelocity.x, 0, _rb.linearVelocity.z);
-            _rb.AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
+            //wall bounce
+            if (_playerWallBounce.TryWallBounce())
+            {
+                jumpBufferCounter = 0;
+                AudioManager.Instance.PlaySFX(AudioManager.Instance.Jump, 6, 1f);
+                _rb.AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
+                return;
+            }
+            
+            //regular jump
+            if (coyoteTimeCounter > 0)
+            {
+                coyoteTimeCounter = 0f;
+                jumpBufferCounter = 0;
+                AudioManager.Instance.PlaySFX(AudioManager.Instance.Jump, 6, 1f);
 
-            coyoteTimeCounter = 0f;
-            jumpBufferCounter = 0;
-            AudioManager.Instance.PlaySFX(AudioManager.Instance.Jump, 6, 1f);
+                _rb.linearVelocity = new Vector3(_rb.linearVelocity.x, 0, _rb.linearVelocity.z);
+                _rb.AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
+            }
         }
     }
 
