@@ -4,12 +4,13 @@ public class MovingPlatform : MonoBehaviour
 {
     private PlayerMovement playerRef;
     [SerializeField] private Rigidbody rb;
+    [SerializeField, Range(0,1)] private float stickiness;
 
-    private void Update()
+    private void FixedUpdate()
     {
         if (playerRef != null)
         {
-            playerRef.ExternalForce = rb.linearVelocity;
+            playerRef.ExternalForce = rb.linearVelocity * stickiness;
             if (rb.interpolation != RigidbodyInterpolation.Interpolate)
             {
                 rb.interpolation = RigidbodyInterpolation.Interpolate;
@@ -30,7 +31,6 @@ public class MovingPlatform : MonoBehaviour
         if (other.gameObject.CompareTag("Player"))
         {
             playerRef.InheritPlatformMomentum(rb.linearVelocity);
-            playerRef.ExternalForce = Vector3.zero;
             playerRef = null;
             rb.interpolation = RigidbodyInterpolation.None;
         }

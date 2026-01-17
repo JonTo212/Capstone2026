@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public enum PlayerMoveState
@@ -56,12 +57,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float ledgeScanDepth;
 
     [Header("Camera")]
-    //[SerializeField] private float yawSensitivity;
-    //[SerializeField] private float pitchSensitivity;
     [SerializeField] private Camera playerCam;
-    //[SerializeField] private float desiredSwingFOV = 90f;
-    //[SerializeField] private float desiredHoldFOV = 75f;
-    //[SerializeField] private float FOVChangeSpeed = 5f;
 
     [Header("Input")]
     private PlayerActions _playerActions;
@@ -74,6 +70,7 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 _wishDir;
     private Rigidbody _rb;
     private CapsuleCollider _playerCol;
+    private Coroutine _externalForceRoutine;
     private float _acceleration;
     private float _gravity;
     private float _jumpForce;
@@ -133,6 +130,7 @@ public class PlayerMovement : MonoBehaviour
         HandleWalkingSFX();
     }
 
+    private Vector3 _lastExternalForce;
     private void FixedUpdate()
     {
         HandleMovementState();
@@ -143,7 +141,7 @@ public class PlayerMovement : MonoBehaviour
         }
 
         HandleForward();
-        Vector3 relVel = _rb.linearVelocity - ExternalForce;
+        Vector3 relVel = _rb.linearVelocity - _lastExternalForce;
 
         if (_useGravity)
         {
@@ -152,9 +150,8 @@ public class PlayerMovement : MonoBehaviour
 
         if (_currentMovementState == PlayerMoveState.Swinging)
         {
-            _playerSwing.HandleSwingMovement(_wishDir);
-            _playerSwing.ConstrainToRope();
-            relVel = _rb.linearVelocity - ExternalForce;
+            _playerSwing.HandleSwingMovement(_wishDir, ref relVel);
+            _playerSwing.ConstrainToRope(ref relVel);
         }
         else
         {
@@ -169,6 +166,7 @@ public class PlayerMovement : MonoBehaviour
         }
 
         _rb.linearVelocity = relVel + ExternalForce;
+        _lastExternalForce = ExternalForce;
     }
 
     public void SwitchMovementState(PlayerMoveState newMovementState)
@@ -200,7 +198,33 @@ public class PlayerMovement : MonoBehaviour
 
     public void InheritPlatformMomentum(Vector3 externalForce)
     {
-        _rb.linearVelocity += externalForce;
+        ExternalForce = externalForce;
+        EaseExternalForceToZero(1f);
+    }
+
+    private void EaseExternalForceToZero(float duration)
+    {
+        if (_externalForceRoutine != null)
+            StopCoroutine(_externalForceRoutine);
+
+        _externalForceRoutine = StartCoroutine(EaseExternalForceRoutine(duration));
+    }
+
+    private IEnumerator EaseExternalForceRoutine(float duration)
+    {
+        Vector3 startForce = ExternalForce;
+        float t = 0f;
+
+        while (t < duration)
+        {
+            t += Time.deltaTime;
+            float alpha = Mathf.Lerp(1f, 0f, t / duration);
+            ExternalForce = startForce * alpha;
+            yield return null;
+        }
+
+        ExternalForce = Vector3.zero;
+        _externalForceRoutine = null;
     }
 
     public bool IsGrounded()
@@ -298,26 +322,6 @@ public class PlayerMovement : MonoBehaviour
             coyoteTimeCounter -= Time.deltaTime;
         }
     }
-
-
-    /*private void HandleFOV()
-    {
-        float desiredFOV = _defaultFOV;
-        float changeSpeed = FOVChangeSpeed;
-
-        if (_lassoTetherController.CurrentLassoState == LassoState.Swinging)
-        {
-            desiredFOV = desiredSwingFOV;
-            changeSpeed = FOVChangeSpeed;
-        }
-        else if (_lassoTetherController.CurrentLassoState == LassoState.Snared || _lassoTetherController.CurrentLassoState == LassoState.SnaredTether)
-        {
-            desiredFOV = desiredHoldFOV;
-            changeSpeed = FOVChangeSpeed * 2f;
-        }
-
-        playerCam.fieldOfView = Mathf.SmoothStep(playerCam.fieldOfView, desiredFOV, Time.deltaTime * changeSpeed);
-    }*/
 
     public void HandleForward()
     {
@@ -423,36 +427,6 @@ public class PlayerMovement : MonoBehaviour
         playerVel = (playerVel - velocityOnAxis) + (velocityOnAxis.normalized * newSpeed);
     }
 
-
-    /*public void ApplyFriction(ref Vector3 playerVel, Vector3 frictionAxis)
-    {
-        frictionAxis.Normalize();
-        Vector3 velocityOnAxis = Vector3.Project(playerVel, frictionAxis);
-        float speed = velocityOnAxis.magnitude;
-
-        if (speed <= 0f)
-        {
-            return;
-        }
-
-        Vector3 frictionDir = -velocityOnAxis.normalized;
-
-        if (_wishDir == Vector3.zero)
-        {
-            float stopAccel = speed / Time.fixedDeltaTime;
-            float frictionAccel = _friction * _currentMultipliers.decelMultiplier;
-            float finalAccel = Mathf.Min(frictionAccel, stopAccel);
-
-            _rb.AddForce(frictionDir * finalAccel, ForceMode.Acceleration);
-        }
-        else
-        {
-            float targetSpeed = defaultMaxSpeed * _currentMultipliers.maxSpeedMultiplier;
-            float frictionAccel = _acceleration * _currentMultipliers.accelMultiplier * (speed / targetSpeed);
-
-            _rb.AddForce(frictionDir * frictionAccel, ForceMode.Acceleration);
-        }
-    }*/
 
     private void ApplyAccelerationRelative(ref Vector3 relVel)
     {

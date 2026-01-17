@@ -720,7 +720,7 @@ public class Lasso : MonoBehaviour
     public void AnchorToObject()
     {
         _swingController.UpdateAnchorPoint(HitPos);
-        _swingController.ConstrainToRope();
+        //_swingController.ConstrainToRope();
     }
 
     public void HandleAnchorStart()

@@ -15,7 +15,7 @@ public class PlayerMantle : MonoBehaviour
 
     private CapsuleCollider _playerCol;
     private PlayerActions _playerActions;
-    private PlayerController _playerController;
+    private PlayerMovement _playerController;
     private Coroutine _mantleCoroutine;
 
     public Coroutine MantleCoroutine => _mantleCoroutine;
@@ -26,7 +26,7 @@ public class PlayerMantle : MonoBehaviour
     {
         _playerCol = GetComponent<CapsuleCollider>();
         _playerActions = GetComponent<PlayerActions>();
-        _playerController = GetComponent<PlayerController>();
+        _playerController = GetComponent<PlayerMovement>();
 
         if (forwardRef == null) forwardRef = Camera.main.transform;
     }

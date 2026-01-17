@@ -130,7 +130,6 @@ public class LassoTetherController : MonoBehaviour
         if (CurrentLassoState == LassoState.Snared)
         {
             playerLasso.MoveObjectToPos(playerLasso.GetAnchoredCenterOfScreen());
-            playerLasso.AnchorToObject();
         }
         else if(CurrentLassoState == LassoState.SnapRotating)
         {
