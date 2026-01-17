@@ -638,7 +638,7 @@ public class Lasso : MonoBehaviour
     public void SwingJumpBoost()
     {
         HandleObjectReleased();
-        PlayerController.Rb.AddForce((Vector3.up + forwardRef.forward).normalized * swingJumpForce, ForceMode.Impulse);
+        PlayerController.Rb.AddForce((Vector3.up + PlayerCam.transform.forward).normalized * swingJumpForce, ForceMode.Impulse);
     }
 
     private Transform GetNearestSwingPoint()

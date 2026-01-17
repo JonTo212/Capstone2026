@@ -6,7 +6,8 @@ public enum PlayerMoveState
     InAir,
     Swinging,
     Mantling,
-    UsingNPC
+    UsingNPC,
+    Grabbing
 }
 
 [System.Serializable]
@@ -80,8 +81,10 @@ public class PlayerMovement : MonoBehaviour
     private float _defaultFOV;
     private float _maxGravity;
     private bool _useGravity;
+    private bool _useFriction;
 
     public Vector3 ExternalForce { get; set; }
+    public Vector3 PlayerVelocity { get; set; }
     public float Gravity => _gravity;
     public Vector3 WishDir => _wishDir;
     public Rigidbody Rb => _rb;
@@ -107,6 +110,9 @@ public class PlayerMovement : MonoBehaviour
         _defaultFOV = playerCam.fieldOfView;
         _currentMovementState = PlayerMoveState.InAir;
         _useGravity = true;
+        _useFriction = true;
+
+        ExternalForce = Vector3.zero;
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -130,26 +136,39 @@ public class PlayerMovement : MonoBehaviour
     private void FixedUpdate()
     {
         HandleMovementState();
+
+        if (_currentMovementState == PlayerMoveState.Grabbing)
+        {
+            return;
+        }
+
         HandleForward();
+        Vector3 relVel = _rb.linearVelocity - ExternalForce;
 
         if (_useGravity)
         {
-            HandleGravity();
+            HandleGravityRelative(ref relVel);
         }
 
         if (_currentMovementState == PlayerMoveState.Swinging)
         {
             _playerSwing.HandleSwingMovement(_wishDir);
             _playerSwing.ConstrainToRope();
+            relVel = _rb.linearVelocity - ExternalForce;
         }
         else
         {
-            ApplyAcceleration();
+            ApplyAccelerationRelative(ref relVel);
         }
 
-        ApplyFriction(Vector3.forward);
-        ApplyFriction(Vector3.right);
-        HandleVelocityOvershoot();
+        if (_useFriction)
+        {
+            ApplyFriction(ref relVel, Vector3.forward);
+            ApplyFriction(ref relVel, Vector3.right);
+            HandleVelocityOvershootRelative(ref relVel);
+        }
+
+        _rb.linearVelocity = relVel + ExternalForce;
     }
 
     public void SwitchMovementState(PlayerMoveState newMovementState)
@@ -173,10 +192,20 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    public void SetGrabbing(bool isGrabbing)
+    {
+        if (isGrabbing) SwitchMovementState(PlayerMoveState.Grabbing);
+        else SwitchMovementState(PlayerMoveState.InAir);
+    }
+
+    public void InheritPlatformMomentum(Vector3 externalForce)
+    {
+        _rb.linearVelocity += externalForce;
+    }
+
     public bool IsGrounded()
     {
-        feetPos.localPosition = new Vector3(0, -_playerCol.height / 2f, 0);
-        return Physics.CheckSphere(feetPos.position, feetRadius, groundLayer);
+        return Physics.Raycast(transform.position, Vector3.down, 1.1f, groundLayer);
     }
 
     public void ApplySlowFall(float multiplier)
@@ -206,8 +235,15 @@ public class PlayerMovement : MonoBehaviour
         _gravity = _maxGravity;
     }
 
+    public void EnableFriction(bool enable)
+    {
+        _useFriction = enable;
+    }
+
     private void HandleMovementState()
     {
+        if (_currentMovementState == PlayerMoveState.Grabbing) return;
+
         if (_lassoTetherController.CurrentLassoState == LassoState.Swinging)
         {
             SwitchMovementState(PlayerMoveState.Swinging);
@@ -325,49 +361,73 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    private void HandleGravity()
+    private void HandleGravityRelative(ref Vector3 relVel)
     {
         if (_currentMovementState == PlayerMoveState.Walking) return;
-        if (_rb.linearVelocity.y <= 0 && _rb.linearVelocity.y <= - _maxGravity)
-        {
-            _rb.linearVelocity = new Vector3(_rb.linearVelocity.x, -_maxGravity, _rb.linearVelocity.z);
-            return;
-        }
 
-        _rb.AddForce(Vector3.down * _gravity, ForceMode.Acceleration);
+        //apply gravity to the reference variable instead of addForce
+        relVel.y -= _gravity * Time.fixedDeltaTime;
+        if (relVel.y < -_maxGravity)
+        {
+            relVel.y = -_maxGravity;
+        }
     }
 
-    private void HandleVelocityOvershoot()
+    private void HandleVelocityOvershootRelative(ref Vector3 relVel)
     {
         float currentMax = _currentMultipliers.maxSpeedMultiplier * defaultMaxSpeed;
         float hardCap = currentMax * hardCapMultiplier;
-        Vector3 vel = _rb.linearVelocity;
-        Vector3 absVel = new Vector3(Mathf.Abs(vel.x), Mathf.Abs(vel.y), Mathf.Abs(vel.z));
-        Vector3 correction = Vector3.zero;
 
-        if (absVel.x > currentMax)
+        // Check horizontal relative speed
+        Vector3 horizontalRel = new Vector3(relVel.x, 0, relVel.z);
+        float speed = horizontalRel.magnitude;
+
+        if (speed > currentMax)
         {
-            float overshootX = absVel.x - currentMax;
-            float t = Mathf.Clamp01(overshootX / (hardCap - currentMax));
-            float accel = overshootX * t;
-            correction.x = -Mathf.Sign(vel.x) * accel;
-        }
+            float overshoot = speed - currentMax;
+            float t = Mathf.Clamp01(overshoot / (hardCap - currentMax));
+            float correctionAmount = overshoot * t * overshootCorrectionMultiplier * Time.fixedDeltaTime;
 
-        if (absVel.z > currentMax)
-        {
-            float overshootZ = absVel.z - currentMax;
-            float t = Mathf.Clamp01(overshootZ / (hardCap - currentMax));
-            float accel = overshootZ * t;
-            correction.z = -Mathf.Sign(vel.z) * accel;
+            relVel -= horizontalRel.normalized * Mathf.Min(correctionAmount, overshoot);
         }
-
-        if (correction != Vector3.zero) _rb.AddForce(correction * overshootCorrectionMultiplier, ForceMode.Acceleration);
     }
 
-    public void ApplyFriction(Vector3 frictionAxis)
+
+    public void ApplyFriction(ref Vector3 playerVel, Vector3 frictionAxis)
     {
         frictionAxis.Normalize();
-        Vector3 velocityOnAxis = Vector3.Project(_rb.linearVelocity, frictionAxis);
+        Vector3 velocityOnAxis = Vector3.Project(playerVel, frictionAxis);
+        float speed = velocityOnAxis.magnitude;
+
+        if (speed <= 0f)
+            return;
+
+        Vector3 frictionDir = -velocityOnAxis.normalized;
+
+        float frictionAccel;
+
+        if (_wishDir == Vector3.zero)
+        {
+            float stopAccel = speed / Time.fixedDeltaTime;
+            float rawFriction = _friction * _currentMultipliers.decelMultiplier;
+            frictionAccel = Mathf.Min(rawFriction, stopAccel);
+        }
+        else
+        {
+            float targetSpeed = defaultMaxSpeed * _currentMultipliers.maxSpeedMultiplier;
+            frictionAccel = _acceleration * _currentMultipliers.accelMultiplier * (speed / targetSpeed);
+        }
+
+        float deltaV = frictionAccel * Time.fixedDeltaTime;
+        float newSpeed = Mathf.Max(0f, speed - deltaV);
+        playerVel = (playerVel - velocityOnAxis) + (velocityOnAxis.normalized * newSpeed);
+    }
+
+
+    /*public void ApplyFriction(ref Vector3 playerVel, Vector3 frictionAxis)
+    {
+        frictionAxis.Normalize();
+        Vector3 velocityOnAxis = Vector3.Project(playerVel, frictionAxis);
         float speed = velocityOnAxis.magnitude;
 
         if (speed <= 0f)
@@ -392,16 +452,15 @@ public class PlayerMovement : MonoBehaviour
 
             _rb.AddForce(frictionDir * frictionAccel, ForceMode.Acceleration);
         }
-    }
+    }*/
 
-    private void ApplyAcceleration()
+    private void ApplyAccelerationRelative(ref Vector3 relVel)
     {
         if (_wishDir == Vector3.zero) return;
 
-        Vector3 accelForce = _wishDir * _acceleration * _currentMultipliers.accelMultiplier;
-        if (ExternalForce != Vector3.zero) accelForce = ExternalForce;
-
-        _rb.AddForce(accelForce, ForceMode.Acceleration);
+        //apply accel to reference (same as Forcemode.Accel)
+        Vector3 accel = _wishDir * _acceleration * _currentMultipliers.accelMultiplier;
+        relVel += accel * Time.fixedDeltaTime;
     }
 
     private Vector3 LedgeCheck()

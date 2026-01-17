@@ -294,8 +294,9 @@ public class NPC_Pufferfish : Prop, INPC
                 playerMovement.EnableGravity(false);
                 Vector3 force = EnvironmentalForce.CalculateForce() * playerWindForceMultiplier;
                 playerMovement.Rb.AddForce(force, ForceMode.Acceleration);
+                Vector3 playerVel = playerMovement.Rb.linearVelocity;
 
-                playerMovement.ApplyFriction(Vector3.up); //needa do this to match sideways/vertical movement
+                playerMovement.ApplyFriction(ref playerVel, Vector3.up); //needa do this to match sideways/vertical movement
             }
             else
             {

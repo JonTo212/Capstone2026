@@ -72,6 +72,7 @@ public class PlayerWallBounce : MonoBehaviour
         CancelOpposingVelocity(ref vel, jumpAccel);
         _playerController.Rb.linearVelocity = vel;
 
+        _playerController.Rb.linearVelocity = new Vector3(_playerController.Rb.linearVelocity.x, 0, _playerController.Rb.linearVelocity.z);
         _playerController.Rb.AddForce(jumpAccel, ForceMode.Impulse);
         return true;
     }

@@ -20,8 +20,10 @@ public class PlayerActions : MonoBehaviour
     private InputAction snapRotateAction;
     private InputAction recallNPCAction;
     private InputAction toolSwitchAction;
+    private InputAction grabAction;
 
     private InputAction[] allActions;
+    private InputActionAsset map;
 
     private InputAction menuAction;
     private InputAction controlAction;
@@ -102,12 +104,16 @@ public class PlayerActions : MonoBehaviour
     public bool toolSwitchHeld => toolSwitchAction.IsPressed();
     public bool toolSwitchUp => toolSwitchAction.WasReleasedThisFrame();
 
+    public bool grabDown => grabAction.WasPressedThisFrame();
+    public bool grabHeld => grabAction.IsPressed();
+    public bool grabUp => grabAction.WasReleasedThisFrame();
+
 
     #endregion
 
     private void Awake()
     {
-        var map = InputSystem.actions;
+        map = InputSystem.actions;
         MoveAction = map.FindAction("Move");
         lookAction = map.FindAction("Look");
         jumpAction = map.FindAction("Jump");
@@ -129,6 +135,7 @@ public class PlayerActions : MonoBehaviour
         devMenuAction = map.FindAction("DevMenu");
         respawnAction = map.FindAction("Respawn");
         toolSwitchAction = map.FindAction("ToolSwitch");
+        grabAction = map.FindAction("Grab");
 
         allActions = new InputAction[]
         {
@@ -137,7 +144,7 @@ public class PlayerActions : MonoBehaviour
             dPadForwardAction, dPadBackwardAction, dPadRightAction, dPadLeftAction,
             moveAnchorMouseAction, snapRotateToggleAction, freeRotateToggleAction,
             snapRotateAction, recallNPCAction, menuAction, controlAction,
-            devMenuAction, respawnAction, toolSwitchAction
+            devMenuAction, respawnAction, toolSwitchAction, grabAction
         };
 
         currentRepeatRate = baseRepeatRate;
@@ -170,6 +177,15 @@ public class PlayerActions : MonoBehaviour
             if (action == ignoreAction) continue;
             action.Disable();
         }
+    }
+
+    public void ChangeSpecificInput(string inputActionName, bool enable)
+    {
+        var map = InputSystem.actions;
+        InputAction action = map.FindAction(inputActionName);
+
+        if (enable) action.Enable();
+        else action.Disable();
     }
 
     //made these numbers up ngl
