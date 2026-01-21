@@ -89,6 +89,7 @@ public class PlayerMovement : MonoBehaviour
     public float DefaultMaxSpeed => defaultMaxSpeed;
     public MovementProperties CurrentMultipliers => _currentMultipliers;
     public PlayerMoveState CurrentMovementState => _currentMovementState;
+    public PlayerActions PlayerInput => _playerActions;
 
     private void Awake()
     {
@@ -333,8 +334,9 @@ public class PlayerMovement : MonoBehaviour
 
         Vector3 forwardRelative = camForward * _playerActions.MoveInput.y;
         Vector3 rightRelative = camRight * _playerActions.MoveInput.x;
-        
-        _wishDir = LedgeCheckWithoutAForLoop((forwardRelative + rightRelative).normalized);
+
+        Vector3 desiredDir = Vector3.ClampMagnitude(forwardRelative + rightRelative, 1f);
+        _wishDir = LedgeCheckWithoutAForLoop(desiredDir);
         
 
     }
@@ -348,7 +350,6 @@ public class PlayerMovement : MonoBehaviour
             {
                 jumpBufferCounter = 0;
                 AudioManager.Instance.PlaySFX(AudioManager.Instance.Jump, 6, 1f);
-                _rb.AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
                 return;
             }
             
