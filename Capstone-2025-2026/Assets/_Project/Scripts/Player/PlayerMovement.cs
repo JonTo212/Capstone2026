@@ -92,6 +92,7 @@ public class PlayerMovement : MonoBehaviour
     public float DefaultMaxSpeed => defaultMaxSpeed;
     public MovementProperties CurrentMultipliers => _currentMultipliers;
     public PlayerMoveState CurrentMovementState => _currentMovementState;
+    public PlayerActions PlayerInput => _playerActions;
 
     private void Awake()
     {
@@ -174,7 +175,7 @@ public class PlayerMovement : MonoBehaviour
 
     public void SwitchMovementState(PlayerMoveState newMovementState)
     {
-        if(_currentMovementState == newMovementState) return;
+        if (_currentMovementState == newMovementState) return;
         _currentMovementState = newMovementState;
 
         switch (_currentMovementState)
@@ -312,8 +313,9 @@ public class PlayerMovement : MonoBehaviour
 
         Vector3 forwardRelative = camForward * _playerActions.MoveInput.y;
         Vector3 rightRelative = camRight * _playerActions.MoveInput.x;
-        
-        _wishDir = LedgeCheckWithoutAForLoop((forwardRelative + rightRelative).normalized);
+
+        Vector3 desiredDir = Vector3.ClampMagnitude(forwardRelative + rightRelative, 1f);
+        _wishDir = LedgeCheckWithoutAForLoop(desiredDir);
     }
 
     private void HandleJump()
@@ -325,11 +327,10 @@ public class PlayerMovement : MonoBehaviour
             {
                 jumpBufferCounter = 0;
                 AudioManager.Instance.PlaySFX(AudioManager.Instance.Jump, 6, 1f);
-                _rb.AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
                 _hasJumped = true;
                 return;
             }
-            
+
             //regular jump
             if (coyoteTimeCounter > 0 && !_hasJumped)
             {
@@ -426,13 +427,13 @@ public class PlayerMovement : MonoBehaviour
         //If there is a place the player can fall, the check will return where that is
 
         Vector3 fallOffArea = new Vector3(0, 0, 0);
-        for(int i = -1; i < 2; i++)
+        for (int i = -1; i < 2; i++)
         {
-            for(int j = -1; j < 2; j++)
+            for (int j = -1; j < 2; j++)
             {
-                if(Physics.Raycast(transform.position, new Vector3(i,0,j), out RaycastHit hit, ledgeScanLength))
+                if (Physics.Raycast(transform.position, new Vector3(i, 0, j), out RaycastHit hit, ledgeScanLength))
                 {
-                    if(Physics.Raycast(hit.point, Vector3.down, out RaycastHit hitDown, ledgeScanDepth))
+                    if (Physics.Raycast(hit.point, Vector3.down, out RaycastHit hitDown, ledgeScanDepth))
                     {
                         return fallOffArea = new Vector3(i, 0, j);
                     }
@@ -445,11 +446,11 @@ public class PlayerMovement : MonoBehaviour
     }
 
     private Vector3 LedgeCheckWithoutAForLoop(Vector3 intendedDirection)
-    { 
+    {
         //If there is a place the player can fall, the check will return where that is
-        
+
         if (!Physics.Raycast(feetPos.position + Vector3.up * 1.9f + (intendedDirection * ledgeScanLength), Vector3.down, ledgeScanDepth) && IsGrounded()
-            && (_lassoTetherController.CurrentLassoState == LassoState.Snared || _lassoTetherController.CurrentLassoState == LassoState.Tethering || 
+            && (_lassoTetherController.CurrentLassoState == LassoState.Snared || _lassoTetherController.CurrentLassoState == LassoState.Tethering ||
             _lassoTetherController.CurrentLassoState == LassoState.SnaredTether))
         {
             intendedDirection = Vector3.zero;
