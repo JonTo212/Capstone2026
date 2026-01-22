@@ -30,7 +30,7 @@ public class MovingPlatform : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Player"))
         {
-            playerRef.InheritPlatformMomentum(rb.linearVelocity);
+            playerRef.InheritPlatformMomentum(Vector3.zero);
             playerRef = null;
             rb.interpolation = RigidbodyInterpolation.None;
         }

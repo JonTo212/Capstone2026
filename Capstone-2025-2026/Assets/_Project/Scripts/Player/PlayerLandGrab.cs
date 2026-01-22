@@ -85,7 +85,7 @@ public class PlayerLandGrab : MonoBehaviour
         else
         {
             playerController.Rb.isKinematic = true;
-            transform.SetParent(anchorObject.transform, true);
+            //transform.SetParent(anchorObject.transform, true);
         }
 
         playerController.SetGrabbing(true);
@@ -111,7 +111,7 @@ public class PlayerLandGrab : MonoBehaviour
         else
         {
             playerController.Rb.isKinematic = false;
-            transform.SetParent(null);
+            //transform.SetParent(null);
         }
 
         playerController.SetGrabbing(false);

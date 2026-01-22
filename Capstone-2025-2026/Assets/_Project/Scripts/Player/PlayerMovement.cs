@@ -40,8 +40,9 @@ public class PlayerMovement : MonoBehaviour
     [Header("Multipliers")]
     [SerializeField] private MovementProperties _airMultipliers;
     [SerializeField] private MovementProperties _swingingMultipliers;
-    [SerializeField] private float overshootCorrectionMultiplier = 10f;
+    [SerializeField] private float overshootMaxForce = 10f;
     [SerializeField] private float hardCapMultiplier = 5f;
+    [SerializeField] private float externalForceDecayDuration;
 
     [Header("Ground Check")]
     [SerializeField] private Transform feetPos;
@@ -79,9 +80,11 @@ public class PlayerMovement : MonoBehaviour
     private float _maxGravity;
     private bool _useGravity;
     private bool _useFriction;
+    private bool _hasJumped;
 
     public Vector3 ExternalForce { get; set; }
     public Vector3 PlayerVelocity { get; set; }
+    public float FrictionMultiplier { get; set; } = 1f;
     public float Gravity => _gravity;
     public Vector3 WishDir => _wishDir;
     public Rigidbody Rb => _rb;
@@ -178,6 +181,7 @@ public class PlayerMovement : MonoBehaviour
         {
             case PlayerMoveState.Walking:
                 _currentMultipliers = MovementProperties.Default;
+                _hasJumped = false;
                 break;
 
             case PlayerMoveState.InAir:
@@ -199,32 +203,7 @@ public class PlayerMovement : MonoBehaviour
     public void InheritPlatformMomentum(Vector3 externalForce)
     {
         ExternalForce = externalForce;
-        EaseExternalForceToZero(1f);
-    }
-
-    private void EaseExternalForceToZero(float duration)
-    {
-        if (_externalForceRoutine != null)
-            StopCoroutine(_externalForceRoutine);
-
-        _externalForceRoutine = StartCoroutine(EaseExternalForceRoutine(duration));
-    }
-
-    private IEnumerator EaseExternalForceRoutine(float duration)
-    {
-        Vector3 startForce = ExternalForce;
-        float t = 0f;
-
-        while (t < duration)
-        {
-            t += Time.deltaTime;
-            float alpha = Mathf.Lerp(1f, 0f, t / duration);
-            ExternalForce = startForce * alpha;
-            yield return null;
-        }
-
-        ExternalForce = Vector3.zero;
-        _externalForceRoutine = null;
+        _lastExternalForce = externalForce;
     }
 
     public bool IsGrounded()
@@ -335,8 +314,6 @@ public class PlayerMovement : MonoBehaviour
         Vector3 rightRelative = camRight * _playerActions.MoveInput.x;
         
         _wishDir = LedgeCheckWithoutAForLoop((forwardRelative + rightRelative).normalized);
-        
-
     }
 
     private void HandleJump()
@@ -349,11 +326,12 @@ public class PlayerMovement : MonoBehaviour
                 jumpBufferCounter = 0;
                 AudioManager.Instance.PlaySFX(AudioManager.Instance.Jump, 6, 1f);
                 _rb.AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
+                _hasJumped = true;
                 return;
             }
             
             //regular jump
-            if (coyoteTimeCounter > 0)
+            if (coyoteTimeCounter > 0 && !_hasJumped)
             {
                 coyoteTimeCounter = 0f;
                 jumpBufferCounter = 0;
@@ -361,6 +339,7 @@ public class PlayerMovement : MonoBehaviour
 
                 _rb.linearVelocity = new Vector3(_rb.linearVelocity.x, 0, _rb.linearVelocity.z);
                 _rb.AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
+                _hasJumped = true;
             }
         }
     }
@@ -379,20 +358,23 @@ public class PlayerMovement : MonoBehaviour
 
     private void HandleVelocityOvershootRelative(ref Vector3 relVel)
     {
+        float hardMax = defaultMaxSpeed * hardCapMultiplier;
         float currentMax = _currentMultipliers.maxSpeedMultiplier * defaultMaxSpeed;
-        float hardCap = currentMax * hardCapMultiplier;
 
-        // Check horizontal relative speed
         Vector3 horizontalRel = new Vector3(relVel.x, 0, relVel.z);
         float speed = horizontalRel.magnitude;
 
         if (speed > currentMax)
         {
-            float overshoot = speed - currentMax;
-            float t = Mathf.Clamp01(overshoot / (hardCap - currentMax));
-            float correctionAmount = overshoot * t * overshootCorrectionMultiplier * Time.fixedDeltaTime;
+            float t = Mathf.InverseLerp(currentMax, hardMax, speed); //gives 0-1 based on how far between currentMax and hardMax the speed is
+            float easedT = Mathf.SmoothStep(0f, 1f, t);
+            float decayStrength = overshootMaxForce * easedT;
 
-            relVel -= horizontalRel.normalized * Mathf.Min(correctionAmount, overshoot);
+            if (!IsGrounded()) decayStrength /= 2f;
+
+            float newSpeed = Mathf.MoveTowards(speed, currentMax, decayStrength * Time.fixedDeltaTime);
+            relVel.x = (horizontalRel.x / speed) * newSpeed;
+            relVel.z = (horizontalRel.z / speed) * newSpeed;
         }
     }
 
@@ -410,19 +392,21 @@ public class PlayerMovement : MonoBehaviour
 
         float frictionAccel;
 
-        if (_wishDir == Vector3.zero)
+        //stopping friction -> bring you to a stop
+        if (_wishDir == Vector3.zero || FrictionMultiplier < 1f)
         {
             float stopAccel = speed / Time.fixedDeltaTime;
             float rawFriction = _friction * _currentMultipliers.decelMultiplier;
             frictionAccel = Mathf.Min(rawFriction, stopAccel);
         }
+        //movement friction -> keep you at maxSpeed
         else
         {
             float targetSpeed = defaultMaxSpeed * _currentMultipliers.maxSpeedMultiplier;
             frictionAccel = _acceleration * _currentMultipliers.accelMultiplier * (speed / targetSpeed);
         }
 
-        float deltaV = frictionAccel * Time.fixedDeltaTime;
+        float deltaV = frictionAccel * FrictionMultiplier * Time.fixedDeltaTime;
         float newSpeed = Mathf.Max(0f, speed - deltaV);
         playerVel = (playerVel - velocityOnAxis) + (velocityOnAxis.normalized * newSpeed);
     }
