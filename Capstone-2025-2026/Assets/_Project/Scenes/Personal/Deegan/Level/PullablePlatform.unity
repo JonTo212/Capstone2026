@@ -3349,8 +3349,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1.38, y: 1.25, z: 0.58}
-  m_Center: {x: 0, y: -0.47, z: 0}
+  m_Size: {x: 1.4, y: 0.89, z: 0.36642456}
+  m_Center: {x: 0.009660721, y: -0.42, z: -0.047073364}
 --- !u!114 &167341232
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3423,14 +3423,18 @@ MonoBehaviour:
   clawBase: {fileID: 2090046308}
   machineBase: {fileID: 1428299554}
   clawModel: {fileID: 798256856}
+  leftClaw: {fileID: 1608203823}
+  rightClaw: {fileID: 1160084705}
   clawBaseJoint: {fileID: 2090046311}
   clawAttachmentJoint: {fileID: 0}
   grabbedProp: {fileID: 0}
+  currentSelectedProp: {fileID: 0}
   lineRenderer: {fileID: 167341235}
   driveStrength: 100
   driveDamper: 10
   angularStrength: 100
   angularDamper: 5
+  wasLetGo: 0
 --- !u!120 &167341235
 LineRenderer:
   serializedVersion: 2
@@ -17037,10 +17041,10 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0.42617399, y: 0.9046413, z: -0, w: 0}
   m_LocalPosition: {x: 0.34700012, y: -0.3630001, z: 0}
-  m_LocalScale: {x: 0.20074998, y: 0.71266, z: 0.32654002}
+  m_LocalScale: {x: 0.20074996, y: 0.71266, z: 0.32654005}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 798256856}
+  m_Father: {fileID: 1160084705}
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: -50.45}
 --- !u!23 &597423211
 MeshRenderer:
@@ -19325,7 +19329,7 @@ Transform:
   m_LocalScale: {x: 0.20075, y: 0.71266, z: 0.32654}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 798256856}
+  m_Father: {fileID: 1160084705}
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 43.817}
 --- !u!23 &751716916
 MeshRenderer:
@@ -20111,6 +20115,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 798256856}
+  - component: {fileID: 798256857}
   m_Layer: 0
   m_Name: ClawModel
   m_TagString: Untagged
@@ -20131,13 +20136,32 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1463296933}
-  - {fileID: 1720003629}
-  - {fileID: 597423210}
-  - {fileID: 751716915}
   - {fileID: 540162008}
+  - {fileID: 1608203823}
+  - {fileID: 1160084705}
   m_Father: {fileID: 167341228}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &798256857
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 798256855}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1.940731, y: 1.3522695, z: 0.62}
+  m_Center: {x: -0.0016384125, y: -0.5238653, z: 0}
 --- !u!43 &808259676
 Mesh:
   m_ObjectHideFlags: 0
@@ -28145,6 +28169,39 @@ Transform:
   m_Children: []
   m_Father: {fileID: 759470568}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1160084704
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1160084705}
+  m_Layer: 0
+  m_Name: RightClaw
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1160084705
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1160084704}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0.2164396, w: 0.97629607}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 597423210}
+  - {fileID: 751716915}
+  m_Father: {fileID: 798256856}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 25}
 --- !u!1 &1180007973
 GameObject:
   m_ObjectHideFlags: 0
@@ -33908,7 +33965,7 @@ Transform:
   m_LocalScale: {x: 0.20075002, y: 0.7126601, z: 0.32654}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 798256856}
+  m_Father: {fileID: 1608203823}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: -50.45}
 --- !u!23 &1463296934
 MeshRenderer:
@@ -36946,6 +37003,39 @@ MonoBehaviour:
   m_SelectedFaces: 
   m_SelectedEdges: []
   m_SelectedVertices: 
+--- !u!1 &1608203822
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1608203823}
+  m_Layer: 0
+  m_Name: LeftClaw
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1608203823
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1608203822}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: -0.21643952, w: 0.97629607}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1463296933}
+  - {fileID: 1720003629}
+  m_Father: {fileID: 798256856}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: -25}
 --- !u!1 &1619088168
 GameObject:
   m_ObjectHideFlags: 0
@@ -39217,7 +39307,7 @@ Transform:
   m_LocalScale: {x: 0.20075, y: 0.71265996, z: 0.32654}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 798256856}
+  m_Father: {fileID: 1608203823}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 43.817}
 --- !u!23 &1720003630
 MeshRenderer:

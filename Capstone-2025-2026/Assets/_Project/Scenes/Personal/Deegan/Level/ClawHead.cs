@@ -9,9 +9,12 @@ public class ClawHead : EnvironmentalProp
     [SerializeField] private Transform clawBase;
     [SerializeField] private Transform machineBase;
     [SerializeField] private Transform clawModel;
+    [SerializeField] private Transform leftClaw;
+    [SerializeField] private Transform rightClaw;
     [SerializeField] private ConfigurableJoint clawBaseJoint;
     [SerializeField] private FixedJoint clawAttachmentJoint;
     [SerializeField] private Prop grabbedProp;
+    [SerializeField] private Prop currentSelectedProp;
     [SerializeField] private LineRenderer lineRenderer;
 
     [Header("Claw Joint")]
@@ -45,16 +48,23 @@ public class ClawHead : EnvironmentalProp
         lineRenderer.SetPosition(0, clawBase.position);
         lineRenderer.SetPosition(1, transform.position);
 
-        if(grabbedProp != null)
+        if(currentSelectedProp != null && clawAttachmentJoint == null)
         {
-            if(IsSnared && wasLetGo)
-            {
-                DisconnectObjectWithClaw();
-                wasLetGo = false;
-            }
             if(IsSnared == false)
             {
-                wasLetGo = true;
+                ConnectObjectWithClaw(currentSelectedProp.transform);
+                grabbedProp = currentSelectedProp;
+            }
+
+            OpenClaw();
+        }
+        else CloseClaw();
+
+        if (grabbedProp != null)
+        {
+            if (IsSnared)
+            {
+                DisconnectObjectWithClaw();
             }
         }
     }
@@ -169,6 +179,20 @@ public class ClawHead : EnvironmentalProp
         clawAttachmentJoint = null;
     }
 
+    private void OpenClaw()
+    {
+        rightClaw.transform.localRotation = Quaternion.Euler(0, 0, 24f);
+        leftClaw.transform.localRotation = Quaternion.Euler(0, 0, -24f);
+        Debug.Log("open");
+    }
+
+    private void CloseClaw()
+    {
+        rightClaw.transform.localRotation = Quaternion.Euler(0, 0, 0f);
+        leftClaw.transform.localRotation = Quaternion.Euler(0, 0, 0f);
+        Debug.Log("close");
+    }
+
     private void OnCollisionEnter(Collision collision)
     {
         if (collision != null)
@@ -177,6 +201,25 @@ public class ClawHead : EnvironmentalProp
             {
                 ConnectObjectWithClaw(collision.transform);
                 grabbedProp = prop;
+            }
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.TryGetComponent<Prop>(out Prop prop))
+        {
+            currentSelectedProp = prop;
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.gameObject.TryGetComponent<Prop>(out Prop prop))
+        {
+            if (prop == currentSelectedProp)
+            {
+                currentSelectedProp = null;
             }
         }
     }
