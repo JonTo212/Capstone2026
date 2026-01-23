@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.ProBuilder.MeshOperations;
 
 public enum PlayerMoveState
 {
@@ -42,7 +43,6 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private MovementProperties _swingingMultipliers;
     [SerializeField] private float overshootMaxForce = 10f;
     [SerializeField] private float hardCapMultiplier = 5f;
-    [SerializeField] private float externalForceDecayDuration;
 
     [Header("Ground Check")]
     [SerializeField] private Transform feetPos;
@@ -56,6 +56,8 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float coyoteTimeCounter;
     [SerializeField] private float ledgeScanLength;
     [SerializeField] private float ledgeScanDepth;
+    [SerializeField] private float doubleJumpDuration = 0.1f;
+    //[SerializeField] private Vector2 doubleJumpForce;
 
     [Header("Camera")]
     [SerializeField] private Camera playerCam;
@@ -70,17 +72,17 @@ public class PlayerMovement : MonoBehaviour
     private PlayerMoveState _currentMovementState;
     private Vector3 _wishDir;
     private Rigidbody _rb;
-    private CapsuleCollider _playerCol;
-    private Coroutine _externalForceRoutine;
     private float _acceleration;
     private float _gravity;
     private float _jumpForce;
     private float _friction;
-    private float _defaultFOV;
     private float _maxGravity;
     private bool _useGravity;
     private bool _useFriction;
     private bool _hasJumped;
+    private float _movementLockTimer;
+    private bool _hasDoubleJumped;
+    private Vector3 _lastExternalForce;
 
     public Vector3 ExternalForce { get; set; }
     public Vector3 PlayerVelocity { get; set; }
@@ -93,22 +95,22 @@ public class PlayerMovement : MonoBehaviour
     public MovementProperties CurrentMultipliers => _currentMultipliers;
     public PlayerMoveState CurrentMovementState => _currentMovementState;
     public PlayerActions PlayerInput => _playerActions;
+    public PlayerModelRotationHandler PlayerModelRotationHandler { get; private set; }
 
     private void Awake()
     {
         _rb = GetComponent<Rigidbody>();
-        _playerCol = GetComponent<CapsuleCollider>();
         _playerActions = GetComponent<PlayerActions>();
         _lassoTetherController = GetComponent<LassoTetherController>();
         _playerSwing = GetComponent<PlayerSwing>();
         _playerWallBounce = GetComponent<PlayerWallBounce>();
+        PlayerModelRotationHandler = GetComponent<PlayerModelRotationHandler>();
 
         _gravity = 2 * apexHeight / Mathf.Pow(apexTime, 2);
         _jumpForce = 2 * apexHeight / apexTime;
         _maxGravity = _gravity;
         _friction = defaultMaxSpeed / timeToZero;
         _acceleration = defaultMaxSpeed / timeToMaxSpeed;
-        _defaultFOV = playerCam.fieldOfView;
         _currentMovementState = PlayerMoveState.InAir;
         _useGravity = true;
         _useFriction = true;
@@ -130,21 +132,17 @@ public class PlayerMovement : MonoBehaviour
         HandleJumpBuffer();
         HandleCoyoteTime();
         HandleJump();
-        //HandleFOV();
+        HandleMovementLockTimer();
         HandleWalkingSFX();
     }
 
-    private Vector3 _lastExternalForce;
     private void FixedUpdate()
     {
         HandleMovementState();
-
-        if (_currentMovementState == PlayerMoveState.Grabbing)
-        {
-            return;
-        }
-
         HandleForward();
+
+        if (_currentMovementState == PlayerMoveState.Grabbing) return;
+
         Vector3 relVel = _rb.linearVelocity - _lastExternalForce;
 
         if (_useGravity)
@@ -183,6 +181,7 @@ public class PlayerMovement : MonoBehaviour
             case PlayerMoveState.Walking:
                 _currentMultipliers = MovementProperties.Default;
                 _hasJumped = false;
+                _hasDoubleJumped = false;
                 break;
 
             case PlayerMoveState.InAir:
@@ -191,6 +190,8 @@ public class PlayerMovement : MonoBehaviour
 
             case PlayerMoveState.Swinging:
                 _currentMultipliers = _swingingMultipliers;
+                _hasJumped = false;
+                _hasDoubleJumped = false;
                 break;
         }
     }
@@ -303,8 +304,16 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    private void HandleMovementLockTimer()
+    {
+        if (_movementLockTimer <= 0) return;
+        _movementLockTimer -= Time.deltaTime;
+    }
+
     public void HandleForward()
     {
+        if (_movementLockTimer > 0) return;
+
         Vector3 camForward = playerCam.transform.forward;
         Vector3 camRight = playerCam.transform.right;
 
@@ -315,7 +324,8 @@ public class PlayerMovement : MonoBehaviour
         Vector3 rightRelative = camRight * _playerActions.MoveInput.x;
 
         Vector3 desiredDir = Vector3.ClampMagnitude(forwardRelative + rightRelative, 1f);
-        _wishDir = LedgeCheckWithoutAForLoop(desiredDir);
+        _wishDir = desiredDir;
+        //_wishDir = LedgeCheckWithoutAForLoop(desiredDir);
     }
 
     private void HandleJump()
@@ -323,7 +333,7 @@ public class PlayerMovement : MonoBehaviour
         if (jumpBufferCounter > 0)
         {
             //wall bounce
-            if (_playerWallBounce.TryWallBounce())
+            if (_playerWallBounce != null && _playerWallBounce.TryWallBounce())
             {
                 jumpBufferCounter = 0;
                 AudioManager.Instance.PlaySFX(AudioManager.Instance.Jump, 6, 1f);
@@ -332,7 +342,7 @@ public class PlayerMovement : MonoBehaviour
             }
 
             //regular jump
-            if (coyoteTimeCounter > 0 && !_hasJumped)
+            if (!_hasJumped) //removed && coyoteTimeCounter > 0f because it was causing issues
             {
                 coyoteTimeCounter = 0f;
                 jumpBufferCounter = 0;
@@ -342,7 +352,59 @@ public class PlayerMovement : MonoBehaviour
                 _rb.AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
                 _hasJumped = true;
             }
+
+            else if(_hasJumped && !_hasDoubleJumped)
+            {
+                HandleDoubleJump();
+            }
         }
+    }
+
+    private void HandleDoubleJump()
+    {
+        //v1: original double jump that adds to current velocity
+        /*Vector3 newVel = _wishDir * doubleJumpForce.x + Vector3.up * doubleJumpForce.y;
+        Vector3 currentVel = _rb.linearVelocity;
+
+        //if falling, cancel downward momentum
+        float newY = currentVel.y;
+        if (newY < 0)
+            newY = 0;
+
+        //cancel momentum opposite to wishDir
+        Vector3 newHorizontal = new Vector3(currentVel.x, 0, currentVel.z);
+        float currentSpeed = newHorizontal.magnitude;
+
+        if (_wishDir.sqrMagnitude > 0)
+        {
+            float dot = Vector3.Dot(newHorizontal.normalized, _wishDir);
+            if (dot < 0)
+                newHorizontal = Vector3.zero;
+        }
+
+        _rb.linearVelocity = new Vector3(newHorizontal.x, newY, newHorizontal.z);
+        _rb.AddForce(newVel, ForceMode.Impulse);
+        //PlayerModelRotationHandler.SetNewRotationDir(_wishDir, doubleJumpDuration);
+
+        _hasDoubleJumped = true;
+        _movementLockTimer = doubleJumpDuration;*/
+
+
+
+        //v2: redirect current horizontal velocity to wishDir, set vertical to jump force
+        Vector3 horizontalVel = new Vector3(_rb.linearVelocity.x, 0, _rb.linearVelocity.z);
+        float speed = horizontalVel.magnitude;
+
+        Vector3 redirectedVel = horizontalVel;
+        if (_wishDir.sqrMagnitude > 0)
+            redirectedVel = _wishDir * speed;
+
+        Vector3 defaultJumpForce = Vector3.up * _jumpForce;
+        //Vector3 addedJumpForce = _wishDir.normalized * doubleJumpForce.x + Vector3.up * doubleJumpForce.y;
+
+        _rb.linearVelocity = redirectedVel + defaultJumpForce; // + addedJumpForce;
+        _hasDoubleJumped = true;
+        _movementLockTimer = doubleJumpDuration;
     }
 
     private void HandleGravityRelative(ref Vector3 relVel)
@@ -359,6 +421,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void HandleVelocityOvershootRelative(ref Vector3 relVel)
     {
+        //I THINK THIS + FRICTION ARE STILL CAUSING STICKING ISSUES
         float hardMax = defaultMaxSpeed * hardCapMultiplier;
         float currentMax = _currentMultipliers.maxSpeedMultiplier * defaultMaxSpeed;
 
@@ -382,6 +445,8 @@ public class PlayerMovement : MonoBehaviour
 
     public void ApplyFriction(ref Vector3 playerVel, Vector3 frictionAxis)
     {
+        if (_movementLockTimer > 0) return;
+
         frictionAxis.Normalize();
         Vector3 velocityOnAxis = Vector3.Project(playerVel, frictionAxis);
         float speed = velocityOnAxis.magnitude;

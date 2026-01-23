@@ -74,7 +74,7 @@ public class PlayerWallBounce : MonoBehaviour
         _playerController.Rb.linearVelocity = vel;
 
         _playerController.Rb.AddForce(jumpAccel, ForceMode.Impulse);
-        _playerModelRotationHandler.SetNewRotationDir(_lastWallNormal, wallJumpDuration);
+        _playerController.PlayerModelRotationHandler.SetNewRotationDir(_lastWallNormal, wallJumpDuration);
         return true;
     }
 

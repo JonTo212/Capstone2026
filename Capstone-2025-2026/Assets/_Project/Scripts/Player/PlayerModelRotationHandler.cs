@@ -50,7 +50,7 @@ public class PlayerModelRotationHandler : MonoBehaviour
 
         while(lockTimer < duration)
         {
-            playerObj.transform.rotation = Quaternion.Slerp(playerObj.transform.rotation, desiredRot, rotationSpeed * 3f * Time.deltaTime);
+            playerObj.transform.rotation = Quaternion.Slerp(playerObj.transform.rotation, desiredRot, rotationSpeed * 2f * Time.deltaTime);
 
             lockTimer += Time.deltaTime;
             yield return null;
