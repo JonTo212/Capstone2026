@@ -52,9 +52,16 @@ public class PlayerMantle : MonoBehaviour
 
             if (Physics.Raycast(secondCheckStartPos, Vector3.down, out RaycastHit topHit, secondCheckDist, mantleableLayers))
             {
+                if(topHit.collider != forwardHit.collider)
+                {
+                    return null;
+                }
+
                 Vector3 upOffset = Vector3.up * (_playerCol.height * 0.5f);
                 Vector3 backOffset = -forwardRef.forward * _playerCol.radius + forwardRef.forward * forwardClimbBuffer;
                 Vector3 target = topHit.point + upOffset + backOffset;
+
+                Debug.Log(topHit.transform.name);
 
                 return target;
             }

@@ -319,7 +319,7 @@ public class LassoTetherController : MonoBehaviour
         if (playerActions.PlaceTetherUp)
         {
             playerLasso.SnaredObject.Rb.constraints = RigidbodyConstraints.None;
-            playerTether.EndTetherPlacement(true);
+            playerTether.EndTetherPlacement(false);
             playerLasso.HandleObjectReleased();
             SwitchLassoState(LassoState.Empty);
         }
