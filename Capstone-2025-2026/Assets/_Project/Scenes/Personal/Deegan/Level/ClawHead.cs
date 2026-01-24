@@ -14,7 +14,7 @@ public class ClawHead : EnvironmentalProp
     [SerializeField] private ConfigurableJoint clawBaseJoint;
     [SerializeField] private FixedJoint clawAttachmentJoint;
     [SerializeField] private Prop grabbedProp;
-    [SerializeField] private Prop currentSelectedProp;
+    [SerializeField] public Prop currentSelectedProp;
     [SerializeField] private LineRenderer lineRenderer;
 
     [Header("Claw Joint")]
