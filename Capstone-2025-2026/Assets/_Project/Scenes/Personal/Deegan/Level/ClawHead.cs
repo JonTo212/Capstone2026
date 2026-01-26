@@ -195,14 +195,7 @@ public class ClawHead : EnvironmentalProp
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision != null)
-        {
-            if(collision.gameObject.TryGetComponent<Prop>(out Prop prop))
-            {
-                ConnectObjectWithClaw(collision.transform);
-                grabbedProp = prop;
-            }
-        }
+
     }
 
     private void OnTriggerEnter(Collider other)
