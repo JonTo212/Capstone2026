@@ -32007,13 +32007,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1755986005}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.08715578, y: 0, z: 0, w: 0.9961947}
+  m_LocalRotation: {x: -0.043619405, y: 0, z: 0, w: 0.9990483}
   m_LocalPosition: {x: 18.38, y: 1.19, z: -2.98}
   m_LocalScale: {x: 10, y: 3.5036998, z: 10}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: -10, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -5, y: 0, z: 0}
 --- !u!4 &1756456278 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 770677586523418901, guid: 9c649bf40900adb4ca72e5d72143857a, type: 3}
@@ -53151,6 +53151,7 @@ GameObject:
   - component: {fileID: 248720291}
   - component: {fileID: 248720324}
   - component: {fileID: 9141277694763219088}
+  - component: {fileID: 9141277694763219089}
   m_Layer: 7
   m_Name: ThirdPersonPlayer
   m_TagString: Player
@@ -56042,8 +56043,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 4091486026056171216}
   m_HandleRect: {fileID: 1493070892826556514}
   m_Direction: 2
-  m_Value: -0.000000071425134
-  m_Size: 0
+  m_Value: 0.000000047616755
+  m_Size: 0.0000001745857
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -63689,6 +63690,26 @@ MonoBehaviour:
   wallAngleThreshold: 0
   wallBounceForce: {x: 12.5, y: 12.5}
   wallJumpDuration: 0.25
+--- !u!114 &9141277694763219089
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2571145195721570073}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e71180ba7b551a4c879843c82b693f2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerLedgeGrab
+  forwardRef: {fileID: 1028906480}
+  grabbableLayers:
+    serializedVersion: 2
+    m_Bits: 64
+  forwardCheckDistance: 1
+  verticalCheckDistance: 0.5
+  hangDuration: 1
+  maxLedgeAngle: 5
 --- !u!1 &9144879099637709779
 GameObject:
   m_ObjectHideFlags: 0

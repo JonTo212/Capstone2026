@@ -360,6 +360,14 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    public void Jump()
+    {
+        _rb.linearVelocity = new Vector3(_rb.linearVelocity.x, 0, _rb.linearVelocity.z);
+        _rb.AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
+        _hasJumped = true;
+        _hasDoubleJumped = true;
+    }
+
     private void HandleDoubleJump()
     {
         //v1: original double jump that adds to current velocity

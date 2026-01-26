@@ -9,6 +9,7 @@ public class ThirdPersonAnimatorController : MonoBehaviour
     private LassoTetherController _lassoTetherController;
     private JointTetherPlacer _jointTetherPlacer;
     private JointTetherActivator _jointTetherActivator;
+    private PlayerLedgeGrab _playerLedgeGrab;
     private Lasso _lasso;
     [SerializeField] private Animator animator;
 
@@ -21,6 +22,7 @@ public class ThirdPersonAnimatorController : MonoBehaviour
         _lasso = GetComponent<Lasso>();
         _jointTetherActivator = GetComponent<JointTetherActivator>();
         _jointTetherPlacer = GetComponent<JointTetherPlacer>();
+        _playerLedgeGrab = GetComponent<PlayerLedgeGrab>();
 
         _lasso.OnObjectHit += SetLassoBool;
         _jointTetherActivator.OnTetherActivated += SetTetherBool;
@@ -85,6 +87,15 @@ public class ThirdPersonAnimatorController : MonoBehaviour
         else
         {
             animator.SetBool("TetherEndPointHit", false);
+        }
+
+        if(_playerLedgeGrab.IsHanging)
+        {
+            animator.SetBool("IsHanging", true);
+        }
+        else
+        {
+            animator.SetBool("IsHanging", false);
         }
 
     }

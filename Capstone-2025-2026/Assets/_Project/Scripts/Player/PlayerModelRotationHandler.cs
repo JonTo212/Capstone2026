@@ -31,9 +31,15 @@ public class PlayerModelRotationHandler : MonoBehaviour
         playerObj.transform.rotation = Quaternion.Slerp(playerObj.transform.rotation, desiredRot, rotationSpeed * Time.deltaTime);
     }
 
-    public void SetNewRotationDir(Vector3 dir, float lockDuration)
+    public void SetNewRotationDir(Vector3? dir, float lockDuration)
     {
-        desiredRot = Quaternion.LookRotation(dir);
+        if (dir == null || lockDuration == 0)
+        {
+            StopCoroutine(_lockRotationCoroutine);
+            return;
+        }
+
+        desiredRot = Quaternion.LookRotation(dir.Value);
         if (_lockRotationCoroutine != null)
         {
             StopCoroutine(_lockRotationCoroutine);
