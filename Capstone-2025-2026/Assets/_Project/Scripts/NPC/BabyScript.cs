@@ -99,6 +99,14 @@ public class BabyScript : MonoBehaviour
     }
     #endregion
 
+    private void OnCollisionEnter(Collision collision)
+    {
+        if(collision.transform.CompareTag("Player"))
+        {
+            EnterBag();
+        }
+    }
+
     #region Respawning
     private IEnumerator Respawn()
     {
