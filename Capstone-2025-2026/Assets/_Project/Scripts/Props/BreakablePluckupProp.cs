@@ -4,7 +4,9 @@ using UnityEngine;
 
 public class BreakablePluckupProp : PluckOutProp
 {
+    [Header("Break Parameters")]
     [SerializeField] private GameObject propToSpawnAfterBreak = null;
+    [SerializeField] private int numberOfObjectsToSpawn = 1;
     [SerializeField] private float minimumSpeedToBreak = 5f;
     [SerializeField] private Vector2 spawnImpulseAmount = new Vector2(2f,1f);
     [SerializeField] private bool breakOnPluck = false;
@@ -52,10 +54,13 @@ public class BreakablePluckupProp : PluckOutProp
     {
         if (propToSpawnAfterBreak != null)
         {
-            GameObject spawnedObject = Instantiate(propToSpawnAfterBreak, transform.position, Quaternion.Euler(0, 0, 0));
-            if (spawnedObject.TryGetComponent<Rigidbody>(out Rigidbody objectRb))
+            for (int i = 0; i < numberOfObjectsToSpawn; i++)
             {
-                objectRb.AddForce(GetRandomSpawnForce(), ForceMode.VelocityChange);
+                GameObject spawnedObject = Instantiate(propToSpawnAfterBreak, transform.position, Quaternion.Euler(0, 0, 0));
+                if (spawnedObject.TryGetComponent<Rigidbody>(out Rigidbody objectRb))
+                {
+                    objectRb.AddForce(GetRandomSpawnForce(), ForceMode.VelocityChange);
+                }
             }
         }
 
