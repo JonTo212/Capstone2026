@@ -7,7 +7,7 @@ public class RailSystemHandler : MonoBehaviour
     private List<Rail> railsInside = new List<Rail>();
     private Rail currentActiveRail;
     private Rail nextRail;
-    [field: SerializeField] public Prop DesignatedProp { get; private set; }
+    [field: SerializeField] public OnRailProp DesignatedProp { get; private set; }
 
     private void Awake()
     {
@@ -32,13 +32,13 @@ public class RailSystemHandler : MonoBehaviour
         }
 
         EvaluateBestRail();   // chooses active rail
-        ApplyActiveRailConstraints(); // freezes axes based on chosen rail
+        ApplyRailConstraints(); // freezes axes based on chosen rail
     }
 
 
     private void EvaluateBestRail()
     {
-        Vector3 force = DesignatedProp.totalForceApplied;
+        Vector3 force = DesignatedProp.Rb.linearVelocity;
         float forceMag = force.sqrMagnitude;
 
         Rail bestRail = null;
@@ -46,12 +46,9 @@ public class RailSystemHandler : MonoBehaviour
 
         foreach (var rail in railsInside)
         {
-            float distance = rail.GetDistanceFromCenterLine(DesignatedProp.transform.position);
-
-            // Distance score (closer = better)
+            float distance = rail.GetDistanceFromCenterLine(DesignatedProp.RailAnchor.position);
             float distanceScore = 1f / (1f + distance);
 
-            // Force alignment score
             float alignmentScore = 0f;
             if (forceMag > 0.0001f)
             {
@@ -59,8 +56,7 @@ public class RailSystemHandler : MonoBehaviour
                 alignmentScore = Mathf.Abs(Vector3.Dot(force.normalized, dir));
             }
 
-            // Combined score
-            float score = distanceScore + alignmentScore * 0.75f;
+            float score = distanceScore + alignmentScore;
 
             if (score > bestScore)
             {
@@ -79,33 +75,63 @@ public class RailSystemHandler : MonoBehaviour
     {
         currentActiveRail = newRail;
 
-        Vector3 snapPos = newRail.GetLocalSnapPosition(DesignatedProp.transform.position);
+        Vector3 anchorWorld = DesignatedProp.RailAnchor.position; 
+        Vector3 snappedAnchor = newRail.GetLocalSnapPosition(anchorWorld);
 
-        DesignatedProp.transform.position = snapPos;
-        DesignatedProp.Rb.position = snapPos;
-
-        DesignatedProp.Rb.linearVelocity = Vector3.zero;
-        DesignatedProp.Rb.angularVelocity = Vector3.zero;
+        Vector3 delta = snappedAnchor - anchorWorld; 
+        DesignatedProp.transform.position += delta; 
+        DesignatedProp.Rb.position += delta;
     }
 
+    [SerializeField] private float centerlineActivationRadius = 0.25f;
 
-    private void ApplyActiveRailConstraints()
+    private List<Rail> GetTrulyInsideRails()
     {
-        if (currentActiveRail == null)
-            return;
+        List<Rail> valid = new List<Rail>();
 
-        RailAxis axis = currentActiveRail.GetRailDir();
+        foreach (var rail in railsInside)
+        {
+            float dist = rail.GetDistanceFromCenterLine(DesignatedProp.RailAnchor.position);
+
+            if (dist <= centerlineActivationRadius)
+                valid.Add(rail);
+        }
+
+        return valid;
+    }
+
+    private void ApplyRailConstraints()
+    {
+        bool allowX = false;
+        bool allowY = false;
+        bool allowZ = false;
+
+        List<Rail> trulyInsideRails = GetTrulyInsideRails();
+        if(trulyInsideRails.Count == 0)
+        {
+            trulyInsideRails = railsInside;
+        }
+
+        foreach (var rail in GetTrulyInsideRails())
+        {
+            switch (rail.GetRailDir())
+            {
+                case RailAxis.X: allowX = true; break;
+                case RailAxis.Y: allowY = true; break;
+                case RailAxis.Z: allowZ = true; break;
+            }
+        }
 
         RigidbodyConstraints c = RigidbodyConstraints.FreezeRotation;
 
-        if (axis != RailAxis.X) c |= RigidbodyConstraints.FreezePositionX;
-        if (axis != RailAxis.Y) c |= RigidbodyConstraints.FreezePositionY;
-        if (axis != RailAxis.Z) c |= RigidbodyConstraints.FreezePositionZ;
+        if (!allowX) c |= RigidbodyConstraints.FreezePositionX;
+        if (!allowY) c |= RigidbodyConstraints.FreezePositionY;
+        if (!allowZ) c |= RigidbodyConstraints.FreezePositionZ;
 
         DesignatedProp.Rb.constraints = c;
-
-        //currentActiveRail.EnforceRailBounds(DesignatedProp);
+        currentActiveRail.EnforceRailBounds(DesignatedProp);
     }
+
 
 
     public void OnRailEnter(Rail rail, Prop prop)
@@ -114,9 +140,6 @@ public class RailSystemHandler : MonoBehaviour
 
         if(!railsInside.Contains(rail))
             railsInside.Add(rail);
-
-
-        //RecalculateConstraints(prop);
     }
 
     public void OnRailExit(Rail rail, Prop prop)
@@ -125,63 +148,5 @@ public class RailSystemHandler : MonoBehaviour
 
         if (railsInside.Contains(rail))
             railsInside.Remove(rail);
-
-
-        //RecalculateConstraints(prop);
-    }
-
-    private void RecalculateConstraints(Prop prop)
-    {
-        bool canMoveX = false;
-        bool canMoveY = false;
-        bool canMoveZ = false;
-
-        foreach (Rail r in railsInside)
-        {
-            RailAxis axis = r.GetRailDir();
-
-            if (axis == RailAxis.X) canMoveX = true;
-            if (axis == RailAxis.Y) canMoveY = true;
-            if (axis == RailAxis.Z) canMoveZ = true;
-        }
-
-        RigidbodyConstraints finalConstraints = RigidbodyConstraints.FreezeRotation;
-        if (!canMoveX) finalConstraints |= RigidbodyConstraints.FreezePositionX;
-        if (!canMoveY) finalConstraints |= RigidbodyConstraints.FreezePositionY;
-        if (!canMoveZ) finalConstraints |= RigidbodyConstraints.FreezePositionZ;
-
-        prop.Rb.constraints = finalConstraints;
-    }
-
-    private void SwitchActiveRail(Rail newRail)
-    {
-        currentActiveRail = newRail;
-    }
-
-    private void SnapObjectToRail(Rail rail, Prop prop)
-    {
-        Vector3 snapPos = rail.GetLocalSnapPosition(prop.transform.position);
-
-        prop.transform.position = snapPos;
-        prop.Rb.position = snapPos;
-
-        prop.Rb.linearVelocity = Vector3.zero;
-        prop.Rb.angularVelocity = Vector3.zero;
-
-        prop.Rb.constraints = RigidbodyConstraints.FreezeRotation;
-    }
-
-    private void CheckCloserRail()
-    {
-        if(railsInside.Count < 2) return;
-
-        Vector3 force = DesignatedProp.totalForceApplied;
-        if (force.sqrMagnitude < 0.001f) return;
-
-        Vector3 currentDir = currentActiveRail.GetWorldDirection();
-        Vector3 nextDir = nextRail.GetWorldDirection();
-
-        float towardCurrent = Mathf.Abs(Vector3.Dot(force.normalized, currentDir));
-        float towardNext = Mathf.Abs(Vector3.Dot(force.normalized, nextDir));
     }
 }

@@ -161,11 +161,6 @@ public class PlayerActions : MonoBehaviour
         DisableAllInput();
     }
 
-    private void Update()
-    {
-        print(CurrentDevice);
-    }
-
     public void EnableAllInput()
     {
         foreach (var action in allActions)

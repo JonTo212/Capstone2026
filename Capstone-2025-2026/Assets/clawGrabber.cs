@@ -46,7 +46,6 @@ public class clawGrabber : MonoBehaviour
 
         //play sound every 10 meters
         var dist = retractPoint.position - transform.position;
-        print (dist.magnitude);
 
         //play sound when extending
         if (dist.magnitude > clickSoundDistance+4) // needs a small buffer zone so the extending and retracting dont fight over subtracting and adding

@@ -222,7 +222,6 @@ public class PlayerMovement : MonoBehaviour
             if (_rb.linearVelocity.y < 0.75f && _rb.linearVelocity.y > -0.75f)
             {
                 _gravity = _maxGravity * 0.5f;
-                print("running");
             }
             else
             {

@@ -120,30 +120,28 @@ public class Rail : MonoBehaviour
 
     public void EnforceRailBounds(Prop prop)
     {
-        // 1. Convert Position and Velocity to Local Space
         Vector3 localPos = transform.InverseTransformPoint(prop.transform.position);
         Vector3 localVel = transform.InverseTransformDirection(prop.Rb.linearVelocity);
 
-        Vector3 halfSize = railCol.size * 0.5f;
+        Vector3 halfSize = railCol.size * 0.499f;
         RailAxis axis = GetRailDir();
         bool hitWall = false;
 
-        // 2. Check bounds based on axis
         switch (axis)
         {
             case RailAxis.X:
-                // Check Positive Bound
                 if (localPos.x > halfSize.x)
                 {
-                    localPos.x = halfSize.x;     // Hard Snap Position
-                    if (localVel.x > 0) localVel.x = 0; // Kill Outward Velocity
+                    localPos.x = halfSize.x;
+                    if (localVel.x > 0) 
+                        localVel.x = 0;
                     hitWall = true;
                 }
-                // Check Negative Bound
                 else if (localPos.x < -halfSize.x)
                 {
                     localPos.x = -halfSize.x;
-                    if (localVel.x < 0) localVel.x = 0;
+                    if (localVel.x < 0) 
+                        localVel.x = 0;
                     hitWall = true;
                 }
                 break;
@@ -152,13 +150,15 @@ public class Rail : MonoBehaviour
                 if (localPos.y > halfSize.y)
                 {
                     localPos.y = halfSize.y;
-                    if (localVel.y > 0) localVel.y = 0;
+                    if (localVel.y > 0) 
+                        localVel.y = 0;
                     hitWall = true;
                 }
                 else if (localPos.y < -halfSize.y)
                 {
                     localPos.y = -halfSize.y;
-                    if (localVel.y < 0) localVel.y = 0;
+                    if (localVel.y < 0) 
+                        localVel.y = 0;
                     hitWall = true;
                 }
                 break;
@@ -167,19 +167,20 @@ public class Rail : MonoBehaviour
                 if (localPos.z > halfSize.z)
                 {
                     localPos.z = halfSize.z;
-                    if (localVel.z > 0) localVel.z = 0;
+                    if (localVel.z > 0) 
+                        localVel.z = 0;
                     hitWall = true;
                 }
                 else if (localPos.z < -halfSize.z)
                 {
                     localPos.z = -halfSize.z;
-                    if (localVel.z < 0) localVel.z = 0;
+                    if (localVel.z < 0) 
+                        localVel.z = 0;
                     hitWall = true;
                 }
                 break;
         }
 
-        // 3. Apply changes back to Rigidbody only if we hit the wall
         if (hitWall)
         {
             prop.Rb.position = transform.TransformPoint(localPos);
@@ -189,17 +190,19 @@ public class Rail : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.TryGetComponent(out Prop prop))
+        Prop parentProp = other.GetComponentInParent<Prop>();
+        if (parentProp != null)
         {
-            systemHandler.OnRailEnter(this, prop);
+            systemHandler.OnRailEnter(this, parentProp);
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.TryGetComponent(out Prop prop))
+        Prop parentProp = other.GetComponentInParent<Prop>();
+        if (parentProp != null)
         {
-            systemHandler.OnRailExit(this, prop);
+            systemHandler.OnRailExit(this, parentProp);
         }
     }
 
