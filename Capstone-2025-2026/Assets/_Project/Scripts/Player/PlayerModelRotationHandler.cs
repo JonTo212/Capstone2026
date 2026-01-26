@@ -36,6 +36,7 @@ public class PlayerModelRotationHandler : MonoBehaviour
         if (dir == null || lockDuration == 0)
         {
             StopCoroutine(_lockRotationCoroutine);
+            _currentRotationState = RotationState.Default;
             return;
         }
 
