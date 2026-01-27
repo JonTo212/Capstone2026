@@ -19,6 +19,7 @@ public class ClawHead : EnvironmentalProp
 
     [Header("Claw Joint")]
     [SerializeField] private float driveStrength = 100f;
+    [SerializeField] private float driveMax = 200f;
     [SerializeField] private float driveDamper = 5f;
     [SerializeField] private float angularStrength = 100f;
     [SerializeField] private float angularDamper = 5f;
@@ -128,23 +129,23 @@ public class ClawHead : EnvironmentalProp
 
         xDrive.positionSpring = driveStrength;
         xDrive.positionDamper = driveDamper;
-        xDrive.maximumForce = 200f;
+        xDrive.maximumForce = driveMax;
 
         yDrive.positionSpring = driveStrength;
         yDrive.positionDamper = driveDamper;
-        yDrive.maximumForce = 200f;
+        yDrive.maximumForce = driveMax;
 
         zDrive.positionSpring = driveStrength;
         zDrive.positionDamper = driveDamper;
-        zDrive.maximumForce = 200f;
+        zDrive.maximumForce = driveMax;
 
         angularXDrive.positionSpring = angularStrength;
         angularXDrive.positionDamper = angularDamper;
-        angularXDrive.maximumForce = 200f;
+        angularXDrive.maximumForce = driveMax;
 
         angularYZDrive.positionSpring = angularStrength;
         angularYZDrive.positionDamper = angularDamper;
-        angularYZDrive.maximumForce = 200f;
+        angularYZDrive.maximumForce = driveMax;
 
         clawBaseJoint.xDrive = xDrive;
         clawBaseJoint.yDrive = yDrive;
