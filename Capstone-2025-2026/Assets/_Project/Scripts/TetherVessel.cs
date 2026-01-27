@@ -14,8 +14,6 @@ public class TetherVessel : EnvironmentalProp
 
     public ParticleSystem dustParticle;
 
-    public AudioManager audioManager;
-
     //states
     public enum VesselState{Underground, Surfaced}
     public VesselState currentState;

@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class StuckOnABranch : MonoBehaviour
@@ -9,16 +10,14 @@ public class StuckOnABranch : MonoBehaviour
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
+
+        StartCoroutine(UnstuckAfterDelay());
     }
 
-    // Update is called once per frame
-    void Update()
+    IEnumerator UnstuckAfterDelay()
     {
-        timeElapsed += Time.deltaTime;
+        yield return new WaitForSeconds(4f);
 
-        if(timeElapsed > 4f)
-        {
-            rb.isKinematic=false;
-        }
+        rb.isKinematic=false;
     }
 }

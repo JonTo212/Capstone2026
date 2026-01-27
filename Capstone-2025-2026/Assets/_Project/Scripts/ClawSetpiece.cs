@@ -3,7 +3,6 @@ using UnityEngine;
 
 public class ClawSetpiece : MonoBehaviour
 {
-    public AudioManager audioManager;
     private ClawHead clawHeadScript;
     public TetherVessel vesselScript;
 
@@ -31,12 +30,12 @@ public class ClawSetpiece : MonoBehaviour
     IEnumerator Break()
     {
         //play sound
-        audioManager.PlaySFX(audioManager.CrackingVessel, 1, 1.2f);
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.CrackingVessel, 1, 1.2f);
         yield return new WaitForSeconds(3f);
 
 
         //play break animation
-        audioManager.PlaySFX(audioManager.GrabberExplode, 1, .8f);
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.GrabberExplode, 1, .8f);
         vesselScript.exposeDoor = true;
         Destroy(gameObject);
     }
