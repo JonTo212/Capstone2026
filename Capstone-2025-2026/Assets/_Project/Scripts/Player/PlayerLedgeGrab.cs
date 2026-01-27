@@ -36,13 +36,13 @@ public class PlayerLedgeGrab : MonoBehaviour
     private void Update()
     {
         var ledgePos = CheckForLedge();
-        if (CanGrabLedge())
+        if (CanGrabLedge() && ledgePos != null)
         {
             HangOnLedge(ledgePos.Value);
             return;
         }
 
-        if(IsHanging)
+        if (IsHanging)
         {
             hangTimer += Time.deltaTime;
             if (_playerController.PlayerInput.JumpDown)
@@ -125,6 +125,7 @@ public class PlayerLedgeGrab : MonoBehaviour
         {
             if (topHit.collider != forwardHit.collider) return null;
             if (Mathf.Abs(Vector3.Angle(topHit.normal, Vector3.up)) > maxLedgeAngle) return null;
+            if (topHit.transform.TryGetComponent(out Rigidbody rb) && rb.linearVelocity.magnitude > 0.01f) return null;
 
             lastLedgeNormal = -forwardHit.normal;
 
@@ -142,8 +143,9 @@ public class PlayerLedgeGrab : MonoBehaviour
     {
         _playerController.PlayerInput.ChangeSpecificInput("Move", false);
         _playerController.PlayerModelRotationHandler.SetNewRotationDir(lastLedgeNormal, hangDuration);
-        _playerController.Rb.isKinematic = true;
+        _playerController.Rb.linearVelocity = Vector3.zero;
         _playerController.Rb.MovePosition(ledgePos);
+        _playerController.EnableGravity(false);
         _playerController.SetGrabbing(true);
 
         hangTimer = 0;
@@ -154,7 +156,7 @@ public class PlayerLedgeGrab : MonoBehaviour
     {
         _playerController.PlayerInput.ChangeSpecificInput("Move", true);
         _playerController.SetGrabbing(false);
-        _playerController.Rb.isKinematic = false;
+        _playerController.EnableGravity(true);
         IsHanging = false;
         canGrab = false;
     }
