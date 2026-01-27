@@ -38,9 +38,11 @@ public class LassoTetherController : MonoBehaviour
 
     [Header("States")]
     public bool rodPickedUp = true;
+    public bool tetherPickedUp = true;
     [field: SerializeField] public LassoState CurrentLassoState { get; private set; }
 
     public bool rodEquipped = true;
+    //public bool tetherEquipped = true;
 
     #region Unity Functions
     private void Awake()
@@ -204,7 +206,7 @@ public class LassoTetherController : MonoBehaviour
         {
             playerLasso.HandleLassoStart();
         }
-        if (playerActions.LassoDown && !rodEquipped) // temporarily making it check for lasso input so they can use the same button
+        if (playerActions.LassoDown && !rodEquipped && tetherPickedUp) // temporarily making it check for lasso input so they can use the same button
         {
             playerTether.StartTetherPlacement();
         }
