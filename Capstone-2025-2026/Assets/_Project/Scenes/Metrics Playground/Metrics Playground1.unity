@@ -5031,22 +5031,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   HeldRod: {fileID: 1087681339}
   HeldLasso: {fileID: 1089068057}
---- !u!114 &248720324
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2571145195721570073}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c140cbd37d1219f4d84485d4cbd91188, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerLandGrab
-  grabCheckDistance: 1
-  grabbableMask:
-    serializedVersion: 2
-    m_Bits: 64
 --- !u!43 &255409276
 Mesh:
   m_ObjectHideFlags: 0
@@ -6222,7 +6206,7 @@ MonoBehaviour:
   basePiece: {fileID: 803641059}
   platformPiece: {fileID: 566457999}
   extensionLength: 3
-  decompressionTime: 0.15
+  decompressionTime: 0.1
   compressionTime: 0.6
 --- !u!1001 &296430405
 PrefabInstance:
@@ -8900,7 +8884,7 @@ MonoBehaviour:
   basePiece: {fileID: 584923791}
   platformPiece: {fileID: 1893423920}
   extensionLength: 3
-  decompressionTime: 0.15
+  decompressionTime: 0.1
   compressionTime: 0.6
 --- !u!4 &525147056
 Transform:
@@ -8911,7 +8895,7 @@ Transform:
   m_GameObject: {fileID: 525147054}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 10.81, y: 5.16, z: -17.46}
+  m_LocalPosition: {x: 16.2, y: 1.66, z: -22.52}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -53741,7 +53725,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6770766516549574151}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.000000048960345, y: 0.000000029802326, z: 1.8851474e-15, w: 1}
+  m_LocalRotation: {x: 0.000000047249898, y: -4.5719593e-16, z: 1.95445e-15, w: 1}
   m_LocalPosition: {x: 0, y: 1.75, z: -6.09}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -54163,9 +54147,9 @@ GameObject:
   - component: {fileID: 7760591849418066893}
   - component: {fileID: 8924538366541939165}
   - component: {fileID: 248720291}
-  - component: {fileID: 248720324}
   - component: {fileID: 9141277694763219088}
   - component: {fileID: 9141277694763219089}
+  - component: {fileID: 9141277694763219090}
   m_Layer: 7
   m_Name: ThirdPersonPlayer
   m_TagString: Player
@@ -56826,7 +56810,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5396773551428727445}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.000000048960345, y: 0.000000029802326, z: 1.4591322e-15, w: 1}
+  m_LocalRotation: {x: 0.000000047249898, y: -4.5719583e-16, z: 2.1602456e-23, w: 1}
   m_LocalPosition: {x: 0, y: 1.75, z: -6.09}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -57058,7 +57042,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1493070892826556514}
   m_Direction: 2
   m_Value: 0.000000047616755
-  m_Size: 0.0000001745857
+  m_Size: 0.2667048
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -62282,8 +62266,8 @@ GameObject:
   - component: {fileID: 2517468627485656386}
   - component: {fileID: 254436330274258531}
   - component: {fileID: 464942798981127428}
-  - component: {fileID: 1205049040004138823}
   - component: {fileID: 9162648375117935882}
+  - component: {fileID: 1205049040004138823}
   - component: {fileID: 5576101048369926173}
   - component: {fileID: 5087299411120372068}
   m_Layer: 7
@@ -64669,7 +64653,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2571145195721570073}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2e7ae4973e22dce4e983f46fc6528d1f, type: 3}
   m_Name: 
@@ -64727,6 +64711,23 @@ MonoBehaviour:
   minimumGrabHeight: 2
   hangDuration: 1
   maxLedgeAngle: 5
+--- !u!114 &9141277694763219090
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2571145195721570073}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47830b19a925cb54abf05726c1258f6e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerDive
+  forwardRef: {fileID: 1028906480}
+  diveApexHeight: 1
+  diveApexTime: 0.4
+  diveDistance: 4
+  slideDuration: 0.4
 --- !u!1 &9144879099637709779
 GameObject:
   m_ObjectHideFlags: 0

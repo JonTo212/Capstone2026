@@ -80,7 +80,7 @@ public class PlayerMovement : MonoBehaviour
     private bool _useGravity;
     private bool _useFriction;
     private bool _hasJumped;
-    private float _movementLockTimer;
+    public float MovementLockTimer { get; set; }
     private bool _hasDoubleJumped;
     private Vector3 _lastExternalForce;
 
@@ -306,13 +306,13 @@ public class PlayerMovement : MonoBehaviour
 
     private void HandleMovementLockTimer()
     {
-        if (_movementLockTimer <= 0) return;
-        _movementLockTimer -= Time.deltaTime;
+        if (MovementLockTimer <= 0) return;
+        MovementLockTimer -= Time.deltaTime;
     }
 
     public void HandleForward()
     {
-        if (_movementLockTimer > 0) return;
+        if (MovementLockTimer > 0) return;
 
         Vector3 camForward = playerCam.transform.forward;
         Vector3 camRight = playerCam.transform.right;
@@ -395,7 +395,7 @@ public class PlayerMovement : MonoBehaviour
         //PlayerModelRotationHandler.SetNewRotationDir(_wishDir, doubleJumpDuration);
 
         _hasDoubleJumped = true;
-        _movementLockTimer = doubleJumpDuration;*/
+        MovementLockTimer = doubleJumpDuration;*/
 
 
 
@@ -412,7 +412,7 @@ public class PlayerMovement : MonoBehaviour
 
         _rb.linearVelocity = redirectedVel + defaultJumpForce; // + addedJumpForce;
         _hasDoubleJumped = true;
-        _movementLockTimer = doubleJumpDuration;
+        MovementLockTimer = doubleJumpDuration;
     }
 
     private void HandleGravityRelative(ref Vector3 relVel)
@@ -453,7 +453,7 @@ public class PlayerMovement : MonoBehaviour
 
     public void ApplyFriction(ref Vector3 playerVel, Vector3 frictionAxis)
     {
-        if (_movementLockTimer > 0) return;
+        if (MovementLockTimer > 0) return;
 
         frictionAxis.Normalize();
         Vector3 velocityOnAxis = Vector3.Project(playerVel, frictionAxis);
