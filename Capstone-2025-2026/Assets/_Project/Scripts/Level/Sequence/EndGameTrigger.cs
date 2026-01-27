@@ -1,19 +1,25 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class EndGameTrigger : MonoBehaviour
 {
-    public MySceneManager sceneManager;
-
     public void OnTriggerEnter(Collider other)
     {
+        if (other.gameObject.tag==("Player"))
+        {
+            // Gets the current scene's index and adds 1 to load the next one
+            int nextSceneIndex = SceneManager.GetActiveScene().buildIndex + 1;
 
-        if(other.gameObject.CompareTag("Player")){
-
-            sceneManager.LoadNewScene(3);
-
+            // Check if there is actually a next scene in the build list
+            if (nextSceneIndex < SceneManager.sceneCountInBuildSettings)
+            {
+                SceneManager.LoadScene(nextSceneIndex);
+            }
+            else
+            {
+                Debug.Log("No more scenes in build order!");
+            }
         }
 
     }
-
-
 }
