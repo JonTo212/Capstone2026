@@ -262,12 +262,12 @@ public class LassoTetherController : MonoBehaviour
                 playerLasso.SnaredObject.Rb.constraints = RigidbodyConstraints.FreezePosition;
                 SwitchLassoState(LassoState.TetherMode);
             }
-            else
-            {
-                playerTether.StartTetherPlacement(playerLasso.SnaredObject.transform, playerLasso.HitPos);
-                playerLasso.SnaredObject.Rb.constraints = RigidbodyConstraints.FreezePosition;
-                SwitchLassoState(LassoState.SnaredTether);
-            }
+            //else
+            //{
+            //    playerTether.StartTetherPlacement(playerLasso.SnaredObject.transform, playerLasso.HitPos);
+            //    playerLasso.SnaredObject.Rb.constraints = RigidbodyConstraints.FreezePosition;
+            //    SwitchLassoState(LassoState.SnaredTether);
+            //}
         }
 
         if (playerActions.LassoUp)
