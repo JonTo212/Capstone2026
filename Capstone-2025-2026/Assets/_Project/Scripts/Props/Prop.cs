@@ -182,6 +182,8 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         OnTetherDetached?.Invoke();
     }
 
+    public List<Transform> ConnectedObjects => connectedObject;
+
     public virtual void ActivateOutline(bool activate)
     {
         ObjectOutline.enabled = activate;

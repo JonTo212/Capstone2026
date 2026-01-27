@@ -32,7 +32,7 @@ public class SpringPiston : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if(platformPiece.IsTetherPulled)
+        if(IsTetheredToBase())
         {
             HandleCompression(basePos, compressionTime);
         }
@@ -40,6 +40,14 @@ public class SpringPiston : MonoBehaviour
         {
             HandleCompression(targetPos, decompressionTime);
         }
+    }
+
+    private bool IsTetheredToBase()
+    {
+        if(platformPiece.ConnectedObjects.Contains(basePiece) || platformPiece.ConnectedObjects.Contains(platformPiece.transform)) 
+            return true;
+        else
+            return false;
     }
 
     private void GetPistonHeadSize()
