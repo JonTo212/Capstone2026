@@ -86,7 +86,7 @@ public class Lasso : MonoBehaviour
 
     private void Update()
     {
-        if (_snaredObjTransform == null || SnaredObject == null) // destroyed
+        if (CheckIfBreak()) // destroyed
         {
             HandleObjectReleased();
         }
@@ -97,6 +97,15 @@ public class Lasso : MonoBehaviour
     #endregion
 
     #region Helper Functions
+
+    public bool CheckIfBreak()
+    {
+        bool allowedToHoldWhileStanding = PlayerController.IsGrounded().TryGetComponent(out Prop prop) && !prop.CanHoldWhileStandingOn;
+        bool nulled = _snaredObjTransform == null || SnaredObject == null;
+
+        if (allowedToHoldWhileStanding || nulled) return true;
+        return false;
+    }
 
     public void ResetLayer(Prop obj)
     {

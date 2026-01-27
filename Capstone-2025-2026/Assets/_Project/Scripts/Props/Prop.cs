@@ -33,6 +33,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     public Rigidbody Rb { get; protected set; }
     public Transform AttachedTransform { get; set; }
     public Outline ObjectOutline { get; set; }
+    [field: SerializeField] public bool CanHoldWhileStandingOn { get; protected set; }
     [field: SerializeField] public List<Transform> GrabPoints { get; protected set; }
     [field: SerializeField] public int FaceRows { get; protected set; }
     [field: SerializeField] public int FaceColumns { get; protected set; }

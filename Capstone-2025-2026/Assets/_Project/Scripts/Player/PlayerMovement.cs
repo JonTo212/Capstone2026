@@ -208,9 +208,12 @@ public class PlayerMovement : MonoBehaviour
         _lastExternalForce = externalForce;
     }
 
-    public bool IsGrounded()
+    public Transform IsGrounded()
     {
-        return Physics.Raycast(transform.position, Vector3.down, 1.1f, groundLayer);
+        Ray downwardRay = new Ray(transform.position, Vector3.down);
+        Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, 1.1f, groundLayer);
+
+        return hit.transform;
     }
 
     public void ApplySlowFall(float multiplier)
@@ -293,16 +296,18 @@ public class PlayerMovement : MonoBehaviour
 
     private void HandleCoyoteTime()
     {
+        bool grounded = IsGrounded() && _rb.linearVelocity.y <= 0f; //THIS MAKES DOUBLE JUMP WEIRD
+
         if (IsGrounded())
         {
             coyoteTimeCounter = coyoteTime;
         }
         else
         {
-            //countdown timer
             coyoteTimeCounter -= Time.deltaTime;
         }
     }
+
 
     private void HandleMovementLockTimer()
     {
@@ -328,6 +333,8 @@ public class PlayerMovement : MonoBehaviour
         //_wishDir = LedgeCheckWithoutAForLoop(desiredDir);
     }
 
+    public bool useDoubleJump; //ALSO THIS SHIT
+
     private void HandleJump()
     {
         if (jumpBufferCounter > 0)
@@ -342,9 +349,9 @@ public class PlayerMovement : MonoBehaviour
             }
 
             //regular jump
-            if (!_hasJumped) //removed && coyoteTimeCounter > 0f because it was causing issues
+            if (!_hasJumped && coyoteTimeCounter > 0f)
             {
-                coyoteTimeCounter = 0f;
+                coyoteTimeCounter = 0;
                 jumpBufferCounter = 0;
                 AudioManager.Instance.PlaySFX(AudioManager.Instance.Jump, 6, 1f);
 
@@ -353,7 +360,7 @@ public class PlayerMovement : MonoBehaviour
                 _hasJumped = true;
             }
 
-            else if(_hasJumped && !_hasDoubleJumped)
+            else if(_hasJumped && !_hasDoubleJumped && useDoubleJump)
             {
                 HandleDoubleJump();
             }
