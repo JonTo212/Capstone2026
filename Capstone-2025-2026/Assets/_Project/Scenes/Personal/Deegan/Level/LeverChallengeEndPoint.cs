@@ -1,0 +1,43 @@
+using System.Collections;
+using UnityEngine;
+
+public class LeverChallengeEndPoint : MonoBehaviour
+{
+    [SerializeField] private Transform challengeParent;
+    [SerializeField] private Transform leverParent;
+    [SerializeField] private Transform fakeLever;
+    [SerializeField] private float timeToFallOver = 2f;
+    [SerializeField] private float timeElapsed = 0f;
+    [SerializeField] private bool challengeWasCompleted = false;
+
+    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    void Start()
+    {
+        
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if(challengeWasCompleted)
+        {
+            timeElapsed = Mathf.Clamp01(timeElapsed + Time.deltaTime/timeToFallOver);
+
+            float squaredTime = Mathf.Pow(timeElapsed, 2f);
+
+            float lerpRotation = Mathf.Lerp(0f, 90f, squaredTime);
+
+            challengeParent.transform.localRotation = Quaternion.Euler(lerpRotation, 0f, 0f);
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.GetComponent<LeverChallengeHandle>())
+        {
+            Destroy(leverParent.gameObject);
+            fakeLever.gameObject.SetActive(true);
+            challengeWasCompleted = true;
+        }
+    }
+}

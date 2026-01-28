@@ -62,6 +62,8 @@ public class PlayerMantle : MonoBehaviour
                 Vector3 backOffset = -forwardRef.forward * _playerCol.radius + forwardRef.forward * forwardClimbBuffer;
                 Vector3 target = topHit.point + upOffset + backOffset;
 
+                Debug.Log(topHit.transform.name);
+
                 return target;
             }
         }

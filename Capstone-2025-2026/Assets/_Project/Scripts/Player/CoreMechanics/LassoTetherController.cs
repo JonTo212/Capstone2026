@@ -38,9 +38,11 @@ public class LassoTetherController : MonoBehaviour
 
     [Header("States")]
     public bool rodPickedUp = true;
+    public bool tetherPickedUp = true;
     [field: SerializeField] public LassoState CurrentLassoState { get; private set; }
 
     public bool rodEquipped = true;
+    //public bool tetherEquipped = true;
 
     #region Unity Functions
     private void Awake()
@@ -203,7 +205,7 @@ public class LassoTetherController : MonoBehaviour
         {
             playerLasso.HandleLassoStart();
         }
-        if (playerActions.LassoDown && !rodEquipped) // temporarily making it check for lasso input so they can use the same button
+        if (playerActions.LassoDown && !rodEquipped && tetherPickedUp) // temporarily making it check for lasso input so they can use the same button
         {
             playerTether.StartTetherPlacement();
         }
@@ -259,12 +261,12 @@ public class LassoTetherController : MonoBehaviour
                 playerLasso.SnaredObject.Rb.constraints = RigidbodyConstraints.FreezePosition;
                 SwitchLassoState(LassoState.TetherMode);
             }
-            else
-            {
-                playerTether.StartTetherPlacement(playerLasso.SnaredObject.transform, playerLasso.HitPos);
-                playerLasso.SnaredObject.Rb.constraints = RigidbodyConstraints.FreezePosition;
-                SwitchLassoState(LassoState.SnaredTether);
-            }
+            //else
+            //{
+            //    playerTether.StartTetherPlacement(playerLasso.SnaredObject.transform, playerLasso.HitPos);
+            //    playerLasso.SnaredObject.Rb.constraints = RigidbodyConstraints.FreezePosition;
+            //    SwitchLassoState(LassoState.SnaredTether);
+            //}
         }
 
         if (playerActions.LassoUp)
@@ -318,7 +320,7 @@ public class LassoTetherController : MonoBehaviour
         if (playerActions.PlaceTetherUp)
         {
             playerLasso.SnaredObject.Rb.constraints = RigidbodyConstraints.None;
-            playerTether.EndTetherPlacement(true);
+            playerTether.EndTetherPlacement(false);
             playerLasso.HandleObjectReleased();
             SwitchLassoState(LassoState.Empty);
         }

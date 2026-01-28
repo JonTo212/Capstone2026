@@ -3,6 +3,12 @@ using UnityEngine.InputSystem;
 
 public class PlayerActions : MonoBehaviour
 {
+    public enum InputType
+    {
+        MouseKeyboard,
+        Controller
+    }
+
     public InputAction MoveAction { get; set; }
     private InputAction lookAction;
     private InputAction jumpAction;
@@ -29,6 +35,8 @@ public class PlayerActions : MonoBehaviour
     private InputAction controlAction;
     private InputAction devMenuAction;
     private InputAction respawnAction;
+
+    public InputType CurrentDevice { get; private set; }
 
     #region Public Accessors
     public Vector2 MoveInput => MoveAction.ReadValue<Vector2>();
@@ -165,6 +173,10 @@ public class PlayerActions : MonoBehaviour
         foreach (var action in allActions)
         {
             if (action == null) continue;
+
+            action.started += OnInputReceived;
+            action.performed += OnInputReceived;
+
             action.Enable();
         }
     }
@@ -175,6 +187,10 @@ public class PlayerActions : MonoBehaviour
         {
             if (action == null) continue;
             if (action == ignoreAction) continue;
+
+            action.started -= OnInputReceived;
+            action.performed -= OnInputReceived;
+
             action.Disable();
         }
     }
@@ -186,6 +202,18 @@ public class PlayerActions : MonoBehaviour
 
         if (enable) action.Enable();
         else action.Disable();
+    }
+
+    private void OnInputReceived(InputAction.CallbackContext ctx)
+    {
+        if (ctx.control.device is Gamepad)
+        {
+            CurrentDevice = InputType.Controller;
+        }
+        else if (ctx.control.device is Mouse || ctx.control.device is Keyboard)
+        {
+            CurrentDevice = InputType.MouseKeyboard;
+        }
     }
 
     //made these numbers up ngl

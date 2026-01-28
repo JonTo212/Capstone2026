@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public class PluckOutProp : Prop
@@ -20,7 +19,7 @@ public class PluckOutProp : Prop
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    protected virtual void Start()
     {
         if(!hasBeenPlucked)
         {

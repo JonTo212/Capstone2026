@@ -97,10 +97,17 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioClip wallBreak;
     [SerializeField] private AudioClip flagFare;
     [SerializeField] private AudioClip rodCollect;
+    [SerializeField] private AudioClip grabberClick;
+    [SerializeField] private AudioClip crackingVessel;
+    [SerializeField] private AudioClip grabberExplode;
+
     public AudioClip EnemyAttack => enemyAttack;
     public AudioClip EnemyPerish => enemyPerish;
     public AudioClip WallBreak => wallBreak;
     public AudioClip RodCollect => rodCollect;
+    public AudioClip GrabberClick => grabberClick;
+    public AudioClip CrackingVessel => crackingVessel;
+    public AudioClip GrabberExplode => grabberExplode;
 
 
     [Header("------------Boss Clips------------")]

@@ -12,6 +12,9 @@ public class UIImageMovement : MonoBehaviour
     public RawImage TetherIcon;
     public RawImage SwapIcon;
 
+    public Texture RodSprite; // needed to store the origional sprites
+    public Texture TetherSprite; // needed to store the origional sprites
+
     public LassoTetherController lassoTetherControllerScript;
     public PlayerActions playerActionsScript;
     public Transform location1;
@@ -29,6 +32,18 @@ public class UIImageMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //disable tether icon untill its picked up
+        if (!lassoTetherControllerScript.tetherPickedUp)
+        {
+            TetherIcon.texture = RodSprite;
+        }
+        else
+        {
+            TetherIcon.texture = TetherSprite;
+    }
+
+
+
         if (playerActionsScript.toolSwitchDown)
         {
             //playsound

@@ -48,6 +48,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private Transform feetPos;
     [SerializeField] private float feetRadius;
     [SerializeField] private LayerMask groundLayer;
+    private bool hasJumped = false;
 
     [Header("Jump Buffer + Coyote Time + LedgeScan")]
     [SerializeField] private float jumpBufferTime = 0.2f;
@@ -260,6 +261,7 @@ public class PlayerMovement : MonoBehaviour
         else if (IsGrounded())
         {
             SwitchMovementState(PlayerMoveState.Walking);
+            hasJumped = false;
         }
         else
         {
