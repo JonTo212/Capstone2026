@@ -5,12 +5,10 @@ public class ThirdPersonAnimatorController : MonoBehaviour
 {
     private PlayerMovement _playerController;
     private PlayerActions _playerInput;
-    private PlayerMantle _playerMantle;
     private LassoTetherController _lassoTetherController;
     private JointTetherPlacer _jointTetherPlacer;
     private JointTetherActivator _jointTetherActivator;
     private PlayerLedgeGrab _playerLedgeGrab;
-    private PlayerDive _playerDive;
     private Lasso _lasso;
     [SerializeField] private Animator animator;
 
@@ -18,17 +16,14 @@ public class ThirdPersonAnimatorController : MonoBehaviour
     {
         _playerController = GetComponent<PlayerMovement>();
         _playerInput = GetComponent<PlayerActions>();
-        _playerMantle = GetComponent<PlayerMantle>();
         _lassoTetherController = GetComponent<LassoTetherController>();
         _lasso = GetComponent<Lasso>();
         _jointTetherActivator = GetComponent<JointTetherActivator>();
         _jointTetherPlacer = GetComponent<JointTetherPlacer>();
         _playerLedgeGrab = GetComponent<PlayerLedgeGrab>();
-        _playerDive = GetComponent<PlayerDive>();
 
         _lasso.OnObjectHit += SetLassoBool;
         _jointTetherActivator.OnTetherActivated += SetTetherBool;
-        _playerMantle.OnMantle += SetMantleBool;
     }
 
     private void OnDisable()
@@ -99,24 +94,6 @@ public class ThirdPersonAnimatorController : MonoBehaviour
         {
             animator.SetBool("IsHanging", false);
         }
-
-        if (_playerDive.IsDiving)
-        {
-            animator.SetBool("IsDiving", true);
-        }
-        else
-        {
-            animator.SetBool("IsDiving", false);
-        }
-
-        if (_playerDive.IsSliding)
-        {
-            animator.SetBool("IsSliding", true);
-        }
-        else
-        {
-            animator.SetBool("IsSliding", false);
-        }
     }
 
     private void SetLassoBool()
@@ -129,11 +106,6 @@ public class ThirdPersonAnimatorController : MonoBehaviour
     {
         animator.SetBool("OnTetherStart", true);
         StartCoroutine(ResetBoolNextFrame("OnTetherStart"));
-    }
-
-    private void SetMantleBool(bool start)
-    {
-        animator.SetBool("Mantling", start);
     }
 
     private IEnumerator ResetBoolNextFrame(string boolName)

@@ -164,7 +164,7 @@ public class PlayerLedgeGrab : MonoBehaviour
     private void HandleLedgeJump()
     {
         ReleaseLedge();
-        _playerController.Jump();
+        _playerController.Jump(1f);
         _playerController.PlayerModelRotationHandler.SetNewRotationDir(null, 0f);
     }
 }

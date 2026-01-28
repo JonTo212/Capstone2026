@@ -41879,7 +41879,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 11.75, y: 2.03, z: -22.62}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 468166979}
   - {fileID: 1262582105191110009}
@@ -48386,29 +48386,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerModelRotationHandler
   playerObj: {fileID: 1613904966}
   rotationSpeed: 10
---- !u!114 &1355965056672290675
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2571145195721570073}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5726bb566f2d59045b174107d2fe05c4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerMantle
-  forwardCheckDistance: 1
-  verticalCheckDistance: 1
-  climbHeightBuffer: 0.5
-  forwardClimbBuffer: 0.5
-  climbDuration: 0.35
-  forwardDuration: 0.15
-  maxMantleableAngle: 10
-  forwardRef: {fileID: 1028906480}
-  mantleableLayers:
-    serializedVersion: 2
-    m_Bits: 64
 --- !u!224 &1361706385191079562
 RectTransform:
   m_ObjectHideFlags: 0
@@ -54145,14 +54122,12 @@ GameObject:
   - component: {fileID: 9141277694763219087}
   - component: {fileID: 1328274437275250579}
   - component: {fileID: 7136094396944436283}
-  - component: {fileID: 1355965056672290675}
   - component: {fileID: 7887010668749692378}
   - component: {fileID: 6363763804900067970}
   - component: {fileID: 7760591849418066893}
   - component: {fileID: 8924538366541939165}
   - component: {fileID: 248720291}
   - component: {fileID: 9141277694763219089}
-  - component: {fileID: 9141277694763219090}
   m_Layer: 7
   m_Name: ThirdPersonPlayer
   m_TagString: Player
@@ -56762,7 +56737,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44d70cc20219cd84593f67d248eafe36, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineCameraOffset
-  Offset: {x: 0, y: 0, z: 0}
+  Offset: {x: 0, y: 0, z: 1}
   ApplyAfter: 1
   PreserveComposition: 0
 --- !u!224 &5578231001966305196
@@ -56814,7 +56789,7 @@ Transform:
   m_GameObject: {fileID: 5396773551428727445}
   serializedVersion: 2
   m_LocalRotation: {x: 0.000000047249898, y: -4.5719583e-16, z: 2.1602456e-23, w: 1}
-  m_LocalPosition: {x: 0, y: 1.75, z: -6.09}
+  m_LocalPosition: {x: 0, y: 1.75, z: -5.09}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -64064,9 +64039,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d54c8bc5b20034e94fc875eec19b75, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
-  defaultMaxSpeed: 12.5
-  apexHeight: 2.5
-  apexTime: 0.4
+  defaultMaxSpeed: 7.5
+  apexHeight: 2.25
+  apexTime: 0.375
   timeToZero: 0.3
   timeToMaxSpeed: 0.2
   _airMultipliers:
@@ -64091,8 +64066,9 @@ MonoBehaviour:
   ledgeScanLength: 1.5
   ledgeScanDepth: 5
   doubleJumpDuration: 0.1
+  doubleJumpMultiplier: 0.75
   playerCam: {fileID: 4270019201415842798}
-  useDoubleJump: 0
+  useDoubleJump: 1
 --- !u!222 &8640476336949275269
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -64694,23 +64670,6 @@ MonoBehaviour:
   minimumGrabHeight: 2
   hangDuration: 1
   maxLedgeAngle: 5
---- !u!114 &9141277694763219090
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2571145195721570073}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 47830b19a925cb54abf05726c1258f6e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerDive
-  forwardRef: {fileID: 1028906480}
-  diveApexHeight: 1
-  diveApexTime: 0.4
-  diveDistance: 4
-  slideDuration: 0.4
 --- !u!1 &9144879099637709779
 GameObject:
   m_ObjectHideFlags: 0

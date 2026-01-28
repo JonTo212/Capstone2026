@@ -57,6 +57,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float ledgeScanLength;
     [SerializeField] private float ledgeScanDepth;
     [SerializeField] private float doubleJumpDuration = 0.1f;
+    [SerializeField] private float doubleJumpMultiplier = 0.8f;
     //[SerializeField] private Vector2 doubleJumpForce;
 
     [Header("Camera")]
@@ -329,7 +330,7 @@ public class PlayerMovement : MonoBehaviour
         Vector3 rightRelative = camRight * _playerActions.MoveInput.x;
 
         Vector3 desiredDir = Vector3.ClampMagnitude(forwardRelative + rightRelative, 1f);
-        _wishDir = desiredDir;
+        _wishDir = (forwardRelative + rightRelative).normalized;
         //_wishDir = LedgeCheckWithoutAForLoop(desiredDir);
     }
 
@@ -355,30 +356,31 @@ public class PlayerMovement : MonoBehaviour
                 jumpBufferCounter = 0;
                 AudioManager.Instance.PlaySFX(AudioManager.Instance.Jump, 6, 1f);
 
-                _rb.linearVelocity = new Vector3(_rb.linearVelocity.x, 0, _rb.linearVelocity.z);
-                _rb.AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
-                _hasJumped = true;
+                Jump(1f);
             }
 
             else if(_hasJumped && !_hasDoubleJumped && useDoubleJump)
             {
+                //Jump(doubleJumpMultiplier);
                 HandleDoubleJump();
+                _hasDoubleJumped = true;
             }
         }
     }
 
-    public void Jump()
+    public void Jump(float multiplier)
     {
+        Vector3 jumpForce = Vector3.up * _jumpForce * multiplier;
+
         _rb.linearVelocity = new Vector3(_rb.linearVelocity.x, 0, _rb.linearVelocity.z);
-        _rb.AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
+        _rb.AddForce(jumpForce, ForceMode.Impulse);
         _hasJumped = true;
-        _hasDoubleJumped = true;
     }
 
     private void HandleDoubleJump()
     {
-        //v1: original double jump that adds to current velocity
-        /*Vector3 newVel = _wishDir * doubleJumpForce.x + Vector3.up * doubleJumpForce.y;
+        /*//v1: original double jump that adds to current velocity
+        Vector3 newVel = _wishDir * doubleJumpForce.x + Vector3.up * doubleJumpForce.y;
         Vector3 currentVel = _rb.linearVelocity;
 
         //if falling, cancel downward momentum
@@ -404,17 +406,15 @@ public class PlayerMovement : MonoBehaviour
         _hasDoubleJumped = true;
         MovementLockTimer = doubleJumpDuration;*/
 
-
-
         //v2: redirect current horizontal velocity to wishDir, set vertical to jump force
         Vector3 horizontalVel = new Vector3(_rb.linearVelocity.x, 0, _rb.linearVelocity.z);
         float speed = horizontalVel.magnitude;
 
         Vector3 redirectedVel = horizontalVel;
         if (_wishDir.sqrMagnitude > 0)
-            redirectedVel = _wishDir * speed;
+            redirectedVel = _wishDir.normalized * speed;
 
-        Vector3 defaultJumpForce = Vector3.up * _jumpForce;
+        Vector3 defaultJumpForce = Vector3.up * _jumpForce * doubleJumpMultiplier;
         //Vector3 addedJumpForce = _wishDir.normalized * doubleJumpForce.x + Vector3.up * doubleJumpForce.y;
 
         _rb.linearVelocity = redirectedVel + defaultJumpForce; // + addedJumpForce;
