@@ -26,7 +26,7 @@ public class ClawHead : EnvironmentalProp
 
     private Rigidbody rb;
 
-    public bool wasLetGo = false;
+    public bool isOpen = false;
 
     private void Awake()
     {
@@ -49,15 +49,17 @@ public class ClawHead : EnvironmentalProp
         lineRenderer.SetPosition(0, clawBase.position);
         lineRenderer.SetPosition(1, transform.position);
 
+        if (IsSnared) isOpen = true;
+
         if(currentSelectedProp != null && clawAttachmentJoint == null)
         {
-            if(IsSnared == false)
+            if(IsSnared == false && isOpen)
             {
                 ConnectObjectWithClaw(currentSelectedProp.transform);
                 grabbedProp = currentSelectedProp;
             }
 
-            OpenClaw();
+            if(isOpen) OpenClaw();
         }
         else CloseClaw();
 
@@ -68,6 +70,8 @@ public class ClawHead : EnvironmentalProp
                 DisconnectObjectWithClaw();
             }
         }
+
+        if(!IsSnared) isOpen = false;
     }
 
     protected override void FixedUpdate()
