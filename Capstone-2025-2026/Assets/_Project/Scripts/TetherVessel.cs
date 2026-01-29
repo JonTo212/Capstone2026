@@ -1,8 +1,11 @@
+using System.Collections.Generic;
+using System.Collections;
+using Unity.Hierarchy;
 using UnityEngine;
 
 public class TetherVessel : EnvironmentalProp
 {
-    public bool exposeDoor = false;
+    private int numberOfAttachedClaws = 0;
 
     public float raiseHeight = 2f;
     public float raiseSpeed = 1f;   
@@ -10,14 +13,16 @@ public class TetherVessel : EnvironmentalProp
     private Vector3 raisePosition;
     private Vector3 nudgePosition; // how far to move vessel when player attached a single tether
 
-    private EnvironmentalProp environmentalPropScript;
-
     public ParticleSystem dustParticle;
+    public ParticleSystem windPipeEntranceParticles;
+
+    private List<ClawSetpiece> attachedClawSetPieces = new List<ClawSetpiece>();
 
     //states
-    public enum VesselState{Underground, Surfaced}
+    public enum VesselState{Stuck, Underground, Surfaced}
     public VesselState currentState;
 
+    private Coroutine clawBreakCoroutine;
 
     private void Awake()
     {
@@ -29,8 +34,6 @@ public class TetherVessel : EnvironmentalProp
     {
         raisePosition = new Vector3(transform.position.x, transform.position.y + raiseHeight, transform.position.z);
         nudgePosition = new Vector3(transform.position.x, transform.position.y + raiseHeight + 0.5f, transform.position.z);
-
-        environmentalPropScript = GetComponent<EnvironmentalProp>();
     }
 
     // Update is called once per frame
@@ -40,6 +43,9 @@ public class TetherVessel : EnvironmentalProp
 
         switch (currentState)
         {
+            case VesselState.Stuck:
+                StuckState();
+                break;
             case VesselState.Underground:
                 UndergroundState();
                 break;
@@ -49,29 +55,33 @@ public class TetherVessel : EnvironmentalProp
         }
     }
 
-    void UndergroundState()
+    void StuckState()
     {
-        if (exposeDoor)
+        if (numberOfAttachedClaws == 3 && clawBreakCoroutine == null)
         {
-            transform.position = Vector3.Lerp(transform.position, raisePosition, raiseSpeed * Time.deltaTime);
-
-            if (Vector3.Distance(transform.position, raisePosition) < 0.1f)
-            {
-                currentState = VesselState.Surfaced;
-            }
+            clawBreakCoroutine = StartCoroutine(BreakClawsAfterDelay());
         }
     }
 
-    void SurfacedState()
+    void UndergroundState()
     {
-        
+        transform.position = Vector3.Lerp(transform.position, raisePosition, raiseSpeed * Time.deltaTime);
 
-        // Play particle here as the transition occurs
         if (dustParticle != null && !dustParticle.isPlaying)
         {
             dustParticle.Play();
         }
 
+        if (Vector3.Distance(transform.position, raisePosition) < 0.1f)
+        {
+            currentState = VesselState.Surfaced;
+
+        }
+    }
+
+    void SurfacedState()
+    {
+        // Play particle here as the transition occurs
 
         if (attachedTethers.Count == 1)
         {
@@ -82,5 +92,30 @@ public class TetherVessel : EnvironmentalProp
         {
             Rb.isKinematic = false;
         }
+    }
+
+    public void IncreaseAttachedClawCount(ClawSetpiece claw)
+    {
+        numberOfAttachedClaws++;
+        attachedClawSetPieces.Add(claw);
+    }
+
+    public void DecreaseAttachedClawCount(ClawSetpiece claw)
+    {
+        numberOfAttachedClaws++;
+        attachedClawSetPieces.Remove(claw);
+    }
+
+    IEnumerator BreakClawsAfterDelay()
+    {
+            yield return new WaitForSeconds(2f);
+
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.GrabberExplode, 1, .8f);
+
+            Destroy(attachedClawSetPieces[1].gameObject);
+            Destroy(attachedClawSetPieces[2].gameObject);
+
+            currentState = VesselState.Underground;
+            windPipeEntranceParticles.Play();
     }
 }

@@ -12,6 +12,9 @@ public class ClawSetpiece : MonoBehaviour
     void Start()
     {
         clawHeadScript = GetComponent<ClawHead>();
+
+        clawHeadScript.OnAttachToObject += AttachClawToVessel;
+        clawHeadScript.OnDetachToObject += DetachClawToVessel;
     }
 
     // Update is called once per frame
@@ -21,7 +24,7 @@ public class ClawSetpiece : MonoBehaviour
         {
             if (startBreak == false)
             {
-                StartCoroutine(Break());
+                AudioManager.Instance.PlaySFX(AudioManager.Instance.CrackingVessel, 1, 1.2f);
                 startBreak = true;
             }   
         }
@@ -33,10 +36,16 @@ public class ClawSetpiece : MonoBehaviour
         AudioManager.Instance.PlaySFX(AudioManager.Instance.CrackingVessel, 1, 1.2f);
         yield return new WaitForSeconds(3f);
 
+    }
 
-        //play break animation
-        AudioManager.Instance.PlaySFX(AudioManager.Instance.GrabberExplode, 1, .8f);
-        vesselScript.exposeDoor = true;
-        Destroy(gameObject);
+    private void AttachClawToVessel()
+    {
+        vesselScript.IncreaseAttachedClawCount(this);
+        clawHeadScript.DisableInteraction();
+    }
+
+    private void DetachClawToVessel()
+    {
+        vesselScript.DecreaseAttachedClawCount(this);
     }
 }

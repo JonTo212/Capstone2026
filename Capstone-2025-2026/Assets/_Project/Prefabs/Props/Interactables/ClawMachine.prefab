@@ -832,8 +832,6 @@ MonoBehaviour:
   <GrabPoints>k__BackingField: []
   <FaceRows>k__BackingField: 0
   <FaceColumns>k__BackingField: 0
-  clawRetractSpeed: 10
-  maxClawLength: 20
   clawBase: {fileID: 5940925310687509466}
   machineBase: {fileID: 3423562437493320289}
   clawModel: {fileID: 3415476476788636794}
@@ -844,11 +842,16 @@ MonoBehaviour:
   grabbedProp: {fileID: 0}
   currentSelectedProp: {fileID: 0}
   lineRenderer: {fileID: 4995039465545145352}
+  clawRetractSpeed: 10
+  maxClawLength: 20
+  isInteractable: 1
+  attachOnStart: 0
   driveStrength: 100
+  driveMax: 200
   driveDamper: 10
   angularStrength: 100
   angularDamper: 5
-  wasLetGo: 0
+  isOpen: 0
 --- !u!120 &4995039465545145352
 LineRenderer:
   serializedVersion: 2
