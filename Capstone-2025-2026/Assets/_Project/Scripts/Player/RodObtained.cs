@@ -3,7 +3,9 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 public class RodObtained : MonoBehaviour
 {
-    [SerializeField] private LassoTetherController rodController;
+
+    //!rodEquipped
+    [SerializeField] private LassoTetherController lassoTetherControllerScript;
 
     [Header("Tool to Give")]
 
@@ -29,7 +31,7 @@ public class RodObtained : MonoBehaviour
     public void Awake() 
     {
         //get depe
-        rodController = GameObject.Find("ThirdPersonPlayer").GetComponent<LassoTetherController>();
+        lassoTetherControllerScript = GameObject.Find("ThirdPersonPlayer").GetComponent<LassoTetherController>();
         toolUI = GameObject.Find("RodUI");
         rodModel = GameObject.Find("fishingRod1");
 
@@ -56,7 +58,7 @@ public class RodObtained : MonoBehaviour
             return;
         }
 
-        if (rodController == null)
+        if (lassoTetherControllerScript == null)
         {
             Debug.LogWarning("No Rod Controller Found");
             return;
@@ -72,8 +74,8 @@ public class RodObtained : MonoBehaviour
         toolUI.SetActive(true);
 
         // Enable rod functionality
-        rodController.rodPickedUp = true;
-        rodModel.SetActive(true);
+        lassoTetherControllerScript.rodPickedUp = true;
+        if (rodModel != null) rodModel.SetActive(true);
 
         //play sfx and disable game object
         AudioManager.Instance.PlaySFX(AudioManager.Instance.RodCollect, 10, 1);
@@ -84,15 +86,17 @@ public class RodObtained : MonoBehaviour
     public void DeActivateRod()
     {
         toolUI.SetActive(false);
-        rodController.rodPickedUp = false;
-        rodModel.SetActive(false);
+        lassoTetherControllerScript.rodPickedUp = false;
+        if (rodModel != null) rodModel.SetActive(false);
     }
 
     public void ActivateTether()
     {
         //tutorialText.SetActive(true);
-        rodController.tetherPickedUp = true;
-        rodModel.SetActive(true);
+        lassoTetherControllerScript.tetherPickedUp = true;
+        lassoTetherControllerScript.rodEquipped = false;
+
+        if (tetherModel!=null) tetherModel.SetActive(true);
 
         gameObject.SetActive(false);
         AudioManager.Instance.PlaySFX(AudioManager.Instance.RodCollect, 10, 1);
@@ -102,15 +106,8 @@ public class RodObtained : MonoBehaviour
 
     public void DeActivateTether()
     {
-        if (tetherModel == null)
-        {
-            Debug.LogWarning("No TetherModel Found");
-            return;
-        }
-
-
-        rodController.tetherPickedUp = false;
-        tetherModel.SetActive(false);
+        lassoTetherControllerScript.tetherPickedUp = false;
+        if (tetherModel != null) tetherModel.SetActive(false);
     }
 
     private void OnTriggerEnter(Collider other)
