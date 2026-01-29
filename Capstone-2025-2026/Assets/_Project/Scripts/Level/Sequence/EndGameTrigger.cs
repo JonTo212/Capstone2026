@@ -7,6 +7,10 @@ public class EndGameTrigger : MonoBehaviour
     {
         if (other.gameObject.tag==("Player"))
         {
+            //enable cursor
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+
             // Gets the current scene's index and adds 1 to load the next one
             int nextSceneIndex = SceneManager.GetActiveScene().buildIndex + 1;
 

@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class UIImageMovement : MonoBehaviour
 {
-    public AudioManager audioManager;
+    //public AudioManager audioManager;
 
     public RawImage RodIcon;
     public RawImage TetherIcon;
@@ -26,7 +26,7 @@ public class UIImageMovement : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        audioManager = GameObject.Find("AudioManager").GetComponent<AudioManager>();
+        //audioManager = GameObject.Find("AudioManager").GetComponent<AudioManager>();
     }
 
     // Update is called once per frame
@@ -40,9 +40,7 @@ public class UIImageMovement : MonoBehaviour
         else
         {
             TetherIcon.texture = TetherSprite;
-    }
-
-
+        }
 
         if (playerActionsScript.toolSwitchDown)
         {
@@ -79,20 +77,31 @@ public class UIImageMovement : MonoBehaviour
 
     void TetherEquip()
     {
-        //Equip Tether
-        TetherIcon.transform.DOMove(location1.position, timeToMove, false);
-        TetherIcon.transform.DOScale(location1.localScale, timeToMove);
-        TetherIcon.DOColor(new Color(1, 1, 1), timeToMove);
+        if (lassoTetherControllerScript.tetherPickedUp)
+        {
+            //Equip Tether
+            TetherIcon.transform.DOMove(location1.position, timeToMove, false);
+            TetherIcon.transform.DOScale(location1.localScale, timeToMove);
+            TetherIcon.DOColor(new Color(1, 1, 1), timeToMove);
 
-        //Unequip Rod
-        RodIcon.transform.DOMove(location2.position, timeToMove, false);
-        RodIcon.transform.DOScale(location2.localScale, timeToMove);
-        RodIcon.DOColor(new Color(1, 1, 1, 0.6f), timeToMove);
+            //Unequip Rod
+            RodIcon.transform.DOMove(location2.position, timeToMove, false);
+            RodIcon.transform.DOScale(location2.localScale, timeToMove);
+            RodIcon.DOColor(new Color(1, 1, 1, 0.6f), timeToMove);
+        }
+        else
+        {
+            print("No Tether Equipt");
+        }
+
     }
 
     void RotateIcon()
     {
         //swap icon rotate
         SwapIcon.transform.DORotate(new Vector3(0, 0, SwapIcon.transform.rotation.eulerAngles.z - 360f), timeToMove, RotateMode.FastBeyond360);
+
+        //play different animation if no tether equipped
+
     }
 }
