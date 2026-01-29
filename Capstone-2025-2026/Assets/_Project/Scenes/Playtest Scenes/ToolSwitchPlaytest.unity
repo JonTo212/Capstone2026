@@ -62360,11 +62360,6 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
---- !u!1 &1943381319 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3196465720736268720, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
-  m_PrefabInstance: {fileID: 2122334824}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1943381320 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4079278690776828535, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
@@ -64028,10 +64023,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 15b89ff6a5221454984ebef43b29c480, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RodObtained
-  tutorialText: {fileID: 1943381319}
   rodController: {fileID: 1633482270}
-  rodVisuals: {fileID: 112558509}
-  disabledFromStart: 1
+  selectedTool: 0
+  rodModel: {fileID: 0}
+  toolUI: {fileID: 0}
+  rodDisabledFromStart: 1
+  tetherModel: {fileID: 0}
+  tetherDisabledFromStart: 1
 --- !u!135 &2016617019
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -67102,7 +67100,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2727460945637520147, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -0.000061035156
+      value: -0.00030517578
       objectReference: {fileID: 0}
     - target: {fileID: 2965844414402353664, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       propertyPath: m_Name
