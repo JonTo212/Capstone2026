@@ -3,14 +3,17 @@ using UnityEngine;
 
 public class StuckOnABranch : MonoBehaviour
 {
-    private Rigidbody rb;
+    private PlayerMovement playermovement;
     private float timeElapsed = 0f;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
 
     private void Start()
     {
-        rb = GetComponent<Rigidbody>();
+        playermovement = GetComponent<PlayerMovement>();
 
+        playermovement.PlayerInput.ChangeSpecificInput("Move", false);
+        playermovement.EnableGravity(false);
+        playermovement.EnableFriction(false);
         StartCoroutine(UnstuckAfterDelay());
     }
 
@@ -18,6 +21,8 @@ public class StuckOnABranch : MonoBehaviour
     {
         yield return new WaitForSeconds(4f);
 
-        rb.isKinematic=false;
+        playermovement.EnableGravity(true);
+        playermovement.EnableFriction(true);
+        playermovement.PlayerInput.ChangeSpecificInput("Move", true);
     }
 }

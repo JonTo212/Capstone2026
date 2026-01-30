@@ -15,6 +15,7 @@ public class PlayerLedgeGrab : MonoBehaviour
     [SerializeField] private float minimumGrabHeight = 1f;
     [SerializeField] private float hangDuration;
     [SerializeField] private float maxLedgeAngle = 5f;
+    [SerializeField] private float ledgeJumpForceMultiplier = 1.25f;
 
     private CapsuleCollider _playerCol;
     private PlayerMovement _playerController;
@@ -164,7 +165,7 @@ public class PlayerLedgeGrab : MonoBehaviour
     private void HandleLedgeJump()
     {
         ReleaseLedge();
-        _playerController.Jump(1f);
+        _playerController.Jump(ledgeJumpForceMultiplier); //maybe add a directional thing to this too idk
         _playerController.PlayerModelRotationHandler.SetNewRotationDir(null, 0f);
     }
 }

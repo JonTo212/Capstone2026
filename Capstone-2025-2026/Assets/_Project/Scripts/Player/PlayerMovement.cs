@@ -1,6 +1,4 @@
-using System.Collections;
 using UnityEngine;
-using UnityEngine.ProBuilder.MeshOperations;
 
 public enum PlayerMoveState
 {
@@ -463,16 +461,15 @@ public class PlayerMovement : MonoBehaviour
     public void ApplyFriction(ref Vector3 playerVel, Vector3 frictionAxis)
     {
         if (MovementLockTimer > 0) return;
+        if (frictionAxis.sqrMagnitude < 0.0001f) return;
 
         frictionAxis.Normalize();
         Vector3 velocityOnAxis = Vector3.Project(playerVel, frictionAxis);
+
+        if (velocityOnAxis.sqrMagnitude < 0.0001f) return;
+
         float speed = velocityOnAxis.magnitude;
-
-        if (speed <= 0f)
-            return;
-
         Vector3 frictionDir = -velocityOnAxis.normalized;
-
         float frictionAccel;
 
         //stopping friction -> bring you to a stop

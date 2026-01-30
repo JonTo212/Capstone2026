@@ -100,7 +100,7 @@ public class Lasso : MonoBehaviour
 
     public bool CheckIfBreak()
     {
-        bool allowedToHoldWhileStanding = PlayerController.IsGrounded().TryGetComponent(out Prop prop) && !prop.CanHoldWhileStandingOn;
+        bool allowedToHoldWhileStanding = PlayerController.IsGrounded() != null && PlayerController.IsGrounded().TryGetComponent(out Prop prop) && !prop.CanHoldWhileStandingOn;
         bool nulled = _snaredObjTransform == null || SnaredObject == null;
 
         if (allowedToHoldWhileStanding || nulled) return true;

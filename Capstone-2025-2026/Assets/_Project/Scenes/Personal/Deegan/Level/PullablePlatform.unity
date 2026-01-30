@@ -1721,6 +1721,11 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
+--- !u!4 &240688533 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4338949708580675202, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+  m_PrefabInstance: {fileID: 768772586}
+  m_PrefabAsset: {fileID: 0}
 --- !u!43 &245602577
 Mesh:
   m_ObjectHideFlags: 0
@@ -6477,6 +6482,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7ef1c7cc82f5514fa65dcd8adfbadff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StuckOnABranch
+--- !u!114 &620887126
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 620887085}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e71180ba7b551a4c879843c82b693f2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerLedgeGrab
+  forwardRef: {fileID: 240688533}
+  grabbableLayers:
+    serializedVersion: 2
+    m_Bits: 64
+  forwardCheckDistance: 0.5
+  verticalCheckDistance: 0.5
+  coneRadius: 0.5
+  coneAngle: 45
+  minimumGrabHeight: 1.75
+  hangDuration: 1
+  maxLedgeAngle: 5
+  ledgeJumpForceMultiplier: 1.25
 --- !u!43 &626530120
 Mesh:
   m_ObjectHideFlags: 0
@@ -6873,6 +6902,7 @@ MonoBehaviour:
   attachedTethers: []
   connectedObject: []
   connectedAnchors: []
+  <CanHoldWhileStandingOn>k__BackingField: 0
   <GrabPoints>k__BackingField: []
   <FaceRows>k__BackingField: 0
   <FaceColumns>k__BackingField: 0
@@ -7657,7 +7687,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2727460945637520147, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 141.68909
+      value: 0.000061035156
       objectReference: {fileID: 0}
     - target: {fileID: 3197878294249692439, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       propertyPath: teleportLocations.Array.size
@@ -7712,24 +7742,38 @@ PrefabInstance:
       value: -5.554
       objectReference: {fileID: 0}
     - target: {fileID: 5809336444760160641, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
-      propertyPath: m_Value
-      value: 0.8378843
+      propertyPath: m_Size
+      value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 7293367271740199632, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
-      propertyPath: m_IsKinematic
+    - target: {fileID: 5809336444760160641, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+      propertyPath: m_Value
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7760591848601245013, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       propertyPath: MinDistance
       value: 0.15999985
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    - target: {fileID: 8608974983609837561, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8608974983609837561, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+      propertyPath: _airMultipliers.accelMultiplier
+      value: 0.6
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 8041954876065081023, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+    - {fileID: 5675880128851751782, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+    - {fileID: 1355965055874304491, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 2571145194382551425, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       insertIndex: -1
       addedObject: {fileID: 620887106}
+    - targetCorrespondingSourceObject: {fileID: 2571145194382551425, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 620887126}
   m_SourcePrefab: {fileID: 100100000, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
 --- !u!1 &788722932
 GameObject:
