@@ -3,8 +3,13 @@ using UnityEngine;
 public class MovingPlatform : MonoBehaviour
 {
     private PlayerMovement playerRef;
-    [SerializeField] private Rigidbody rb;
+    private Rigidbody rb;
     [SerializeField, Range(0,1)] private float stickiness;
+
+    private void Awake()
+    {
+        rb = GetComponentInParent<Rigidbody>();
+    }
 
     private void FixedUpdate()
     {
