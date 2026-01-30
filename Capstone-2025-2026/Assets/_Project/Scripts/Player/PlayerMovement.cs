@@ -116,9 +116,6 @@ public class PlayerMovement : MonoBehaviour
         _useFriction = true;
 
         ExternalForce = Vector3.zero;
-
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
     }
 
     private void Start()
