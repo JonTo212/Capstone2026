@@ -419,7 +419,7 @@ public class LassoTetherController : MonoBehaviour
             playerLasso.HandleObjectReleased();
         }
 
-        if (playerActions.PlaceTetherDown)
+        if (playerActions.PlaceTetherDown && tetherPickedUp)
         {
             if (useObjectManipulationMode)
             {
