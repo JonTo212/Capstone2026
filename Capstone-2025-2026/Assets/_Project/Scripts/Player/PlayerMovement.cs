@@ -46,7 +46,6 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private Transform feetPos;
     [SerializeField] private float feetRadius;
     [SerializeField] private LayerMask groundLayer;
-    private bool hasJumped = false;
 
     [Header("Jump Buffer + Coyote Time + LedgeScan")]
     [SerializeField] private float jumpBufferTime = 0.2f;
@@ -63,55 +62,48 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private Camera playerCam;
 
     [Header("Input")]
-    private PlayerActions _playerActions;
     private PlayerSwing _playerSwing;
     private LassoTetherController _lassoTetherController;
     private PlayerWallBounce _playerWallBounce;
 
     private MovementProperties _currentMultipliers;
-    private PlayerMoveState _currentMovementState;
-    private Vector3 _wishDir;
-    private Rigidbody _rb;
     private float _acceleration;
-    private float _gravity;
     private float _jumpForce;
     private float _friction;
     private float _maxGravity;
     private bool _useGravity;
     private bool _useFriction;
     private bool _hasJumped;
-    public float MovementLockTimer { get; set; }
     private bool _hasDoubleJumped;
     private Vector3 _lastExternalForce;
 
-    public Vector3 ExternalForce { get; set; }
-    public Vector3 PlayerVelocity { get; set; }
-    public float FrictionMultiplier { get; set; } = 1f;
-    public float Gravity => _gravity;
-    public Vector3 WishDir => _wishDir;
-    public Rigidbody Rb => _rb;
-    public float Acceleration => _acceleration;
-    public float DefaultMaxSpeed => defaultMaxSpeed;
-    public MovementProperties CurrentMultipliers => _currentMultipliers;
-    public PlayerMoveState CurrentMovementState => _currentMovementState;
-    public PlayerActions PlayerInput => _playerActions;
+    public float MovementLockTimer { get; private set; }
+    public Vector3 ExternalForce { get; private set; }
+    public Vector3 PlayerVelocity { get; private set; }
+    public float FrictionMultiplier { get; private set; } = 1f;
+    public float Gravity { get; private set; }
+    public Vector3 WishDir { get; private set; }
+    public Rigidbody Rb { get; private set; }
+    public PlayerMoveState CurrentMovementState { get; private set; }
+    public PlayerActions PlayerInput { get; private set; }
     public PlayerModelRotationHandler PlayerModelRotationHandler { get; private set; }
 
+    #region Unity Functions
     private void Awake()
     {
-        _rb = GetComponent<Rigidbody>();
-        _playerActions = GetComponent<PlayerActions>();
+        Rb = GetComponent<Rigidbody>();
+        PlayerInput = GetComponent<PlayerActions>();
         _lassoTetherController = GetComponent<LassoTetherController>();
         _playerSwing = GetComponent<PlayerSwing>();
         _playerWallBounce = GetComponent<PlayerWallBounce>();
         PlayerModelRotationHandler = GetComponent<PlayerModelRotationHandler>();
 
-        _gravity = 2 * apexHeight / Mathf.Pow(apexTime, 2);
+        Gravity = 2 * apexHeight / Mathf.Pow(apexTime, 2);
         _jumpForce = 2 * apexHeight / apexTime;
-        _maxGravity = _gravity;
+        _maxGravity = Gravity;
         _friction = defaultMaxSpeed / timeToZero;
         _acceleration = defaultMaxSpeed / timeToMaxSpeed;
-        _currentMovementState = PlayerMoveState.InAir;
+        CurrentMovementState = PlayerMoveState.InAir;
         _useGravity = true;
         _useFriction = true;
 
@@ -138,18 +130,18 @@ public class PlayerMovement : MonoBehaviour
         HandleMovementState();
         HandleForward();
 
-        if (_currentMovementState == PlayerMoveState.Grabbing) return;
+        if (CurrentMovementState == PlayerMoveState.Grabbing) return;
 
-        Vector3 relVel = _rb.linearVelocity - _lastExternalForce;
+        Vector3 relVel = Rb.linearVelocity - _lastExternalForce;
 
         if (_useGravity)
         {
             HandleGravityRelative(ref relVel);
         }
 
-        if (_currentMovementState == PlayerMoveState.Swinging)
+        if (CurrentMovementState == PlayerMoveState.Swinging)
         {
-            _playerSwing.HandleSwingMovement(_wishDir, ref relVel);
+            _playerSwing.HandleSwingMovement(WishDir, ref relVel);
             _playerSwing.ConstrainToRope(ref relVel);
         }
         else
@@ -164,16 +156,20 @@ public class PlayerMovement : MonoBehaviour
             HandleVelocityOvershootRelative(ref relVel);
         }
 
-        _rb.linearVelocity = relVel + ExternalForce;
+        Rb.linearVelocity = relVel + ExternalForce;
         _lastExternalForce = ExternalForce;
     }
 
+    #endregion
+
+    #region Movement State
+
     public void SwitchMovementState(PlayerMoveState newMovementState)
     {
-        if (_currentMovementState == newMovementState) return;
-        _currentMovementState = newMovementState;
+        if (CurrentMovementState == newMovementState) return;
+        CurrentMovementState = newMovementState;
 
-        switch (_currentMovementState)
+        switch (CurrentMovementState)
         {
             case PlayerMoveState.Walking:
                 _currentMultipliers = MovementProperties.Default;
@@ -193,61 +189,9 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    public void SetGrabbing(bool isGrabbing)
-    {
-        if (isGrabbing) SwitchMovementState(PlayerMoveState.Grabbing);
-        else SwitchMovementState(PlayerMoveState.InAir);
-    }
-
-    public void InheritPlatformMomentum(Vector3 externalForce)
-    {
-        ExternalForce = externalForce;
-        _lastExternalForce = externalForce;
-    }
-
-    public Transform IsGrounded()
-    {
-        Ray downwardRay = new Ray(transform.position, Vector3.down);
-        Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, 1.1f, groundLayer);
-
-        return hit.transform;
-    }
-
-    public void ApplySlowFall(float multiplier)
-    {
-        if (_rb.linearVelocity.y < 0)
-        {
-            _gravity = _maxGravity * multiplier;
-
-            if (_rb.linearVelocity.y <= -_gravity)
-            {
-                _rb.linearVelocity = new Vector3(_rb.linearVelocity.x, -_gravity, _rb.linearVelocity.z);
-            }
-        }
-        else
-        {
-            _gravity = _maxGravity;
-        }
-    }
-
-    public void EnableGravity(bool enable)
-    {
-        _useGravity = enable;
-    }
-
-    public void ResetGravity()
-    {
-        _gravity = _maxGravity;
-    }
-
-    public void EnableFriction(bool enable)
-    {
-        _useFriction = enable;
-    }
-
     private void HandleMovementState()
     {
-        if (_currentMovementState == PlayerMoveState.Grabbing) return;
+        if (CurrentMovementState == PlayerMoveState.Grabbing) return;
 
         if (_lassoTetherController.CurrentLassoState == LassoState.Swinging)
         {
@@ -256,7 +200,6 @@ public class PlayerMovement : MonoBehaviour
         else if (IsGrounded())
         {
             SwitchMovementState(PlayerMoveState.Walking);
-            hasJumped = false;
         }
         else
         {
@@ -264,9 +207,35 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    public void SetGrabbing(bool isGrabbing)
+    {
+        if (isGrabbing) SwitchMovementState(PlayerMoveState.Grabbing);
+        else SwitchMovementState(PlayerMoveState.InAir);
+    }
+
+    private void HandleMovementLockTimer()
+    {
+        if (MovementLockTimer <= 0) return;
+        MovementLockTimer -= Time.deltaTime;
+    }
+    #endregion
+
+    #region Misc
+
+    public void InheritPlatformMomentum(Vector3 externalForce)
+    {
+        ExternalForce = externalForce;
+        _lastExternalForce = externalForce;
+    }
+
+    public void SetExternalForce(Vector3 externalForce)
+    {
+        ExternalForce = externalForce;
+    }
+
     private void HandleWalkingSFX()
     {
-        if (_wishDir != Vector3.zero && IsGrounded())
+        if (WishDir != Vector3.zero && IsGrounded())
         {
             AudioManager.Instance.SFXSource7.UnPause();
         }
@@ -275,11 +244,46 @@ public class PlayerMovement : MonoBehaviour
             AudioManager.Instance.SFXSource7.Pause(); //PlaySFX(aManage.Walk, 5, 1);
         }
     }
+    #endregion
+
+    #region Detection
+    public Transform IsGrounded()
+    {
+        Ray downwardRay = new Ray(transform.position, Vector3.down);
+        Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, 1.1f, groundLayer);
+
+        return hit.transform;
+    }
+    #endregion
+
+    #region Forward / Camera
+    public void HandleForward()
+    {
+        if (MovementLockTimer > 0) return;
+
+        Vector3 camForward = playerCam.transform.forward;
+        Vector3 camRight = playerCam.transform.right;
+
+        camRight.y = 0;
+        camForward.y = 0;
+
+        Vector3 forwardRelative = camForward * PlayerInput.MoveInput.y;
+        Vector3 rightRelative = camRight * PlayerInput.MoveInput.x;
+
+        Vector3 desiredDir = Vector3.ClampMagnitude(forwardRelative + rightRelative, 1f);
+        WishDir = (forwardRelative + rightRelative).normalized;
+        //WishDir = LedgeCheckWithoutAForLoop(desiredDir);
+    }
+    #endregion
+
+    #region Jumping
+
+    public bool useDoubleJump; //ALSO THIS SHIT
 
     private void HandleJumpBuffer()
     {
         //Jump Buffer
-        if (_playerActions.JumpDown)
+        if (PlayerInput.JumpDown)
         {
             //reset timer
             jumpBufferCounter = jumpBufferTime;
@@ -294,7 +298,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void HandleCoyoteTime()
     {
-        bool grounded = IsGrounded() && _rb.linearVelocity.y <= 0f; //THIS MAKES DOUBLE JUMP WEIRD
+        bool grounded = IsGrounded() && Rb.linearVelocity.y <= 0f; //THIS MAKES DOUBLE JUMP WEIRD
 
         if (IsGrounded())
         {
@@ -305,33 +309,6 @@ public class PlayerMovement : MonoBehaviour
             coyoteTimeCounter -= Time.deltaTime;
         }
     }
-
-
-    private void HandleMovementLockTimer()
-    {
-        if (MovementLockTimer <= 0) return;
-        MovementLockTimer -= Time.deltaTime;
-    }
-
-    public void HandleForward()
-    {
-        if (MovementLockTimer > 0) return;
-
-        Vector3 camForward = playerCam.transform.forward;
-        Vector3 camRight = playerCam.transform.right;
-
-        camRight.y = 0;
-        camForward.y = 0;
-
-        Vector3 forwardRelative = camForward * _playerActions.MoveInput.y;
-        Vector3 rightRelative = camRight * _playerActions.MoveInput.x;
-
-        Vector3 desiredDir = Vector3.ClampMagnitude(forwardRelative + rightRelative, 1f);
-        _wishDir = (forwardRelative + rightRelative).normalized;
-        //_wishDir = LedgeCheckWithoutAForLoop(desiredDir);
-    }
-
-    public bool useDoubleJump; //ALSO THIS SHIT
 
     private void HandleJump()
     {
@@ -369,16 +346,16 @@ public class PlayerMovement : MonoBehaviour
     {
         Vector3 jumpForce = Vector3.up * _jumpForce * multiplier;
 
-        _rb.linearVelocity = new Vector3(_rb.linearVelocity.x, 0, _rb.linearVelocity.z);
-        _rb.AddForce(jumpForce, ForceMode.Impulse);
+        Rb.linearVelocity = new Vector3(Rb.linearVelocity.x, 0, Rb.linearVelocity.z);
+        Rb.AddForce(jumpForce, ForceMode.Impulse);
         _hasJumped = true;
     }
 
     private void HandleDoubleJump()
     {
         /*//v1: original double jump that adds to current velocity
-        Vector3 newVel = _wishDir * doubleJumpForce.x + Vector3.up * doubleJumpForce.y;
-        Vector3 currentVel = _rb.linearVelocity;
+        Vector3 newVel = WishDir * doubleJumpForce.x + Vector3.up * doubleJumpForce.y;
+        Vector3 currentVel = Rb.linearVelocity;
 
         //if falling, cancel downward momentum
         float newY = currentVel.y;
@@ -389,48 +366,79 @@ public class PlayerMovement : MonoBehaviour
         Vector3 newHorizontal = new Vector3(currentVel.x, 0, currentVel.z);
         float currentSpeed = newHorizontal.magnitude;
 
-        if (_wishDir.sqrMagnitude > 0)
+        if (WishDir.sqrMagnitude > 0)
         {
-            float dot = Vector3.Dot(newHorizontal.normalized, _wishDir);
+            float dot = Vector3.Dot(newHorizontal.normalized, WishDir);
             if (dot < 0)
                 newHorizontal = Vector3.zero;
         }
 
-        _rb.linearVelocity = new Vector3(newHorizontal.x, newY, newHorizontal.z);
-        _rb.AddForce(newVel, ForceMode.Impulse);
-        //PlayerModelRotationHandler.SetNewRotationDir(_wishDir, doubleJumpDuration);
+        Rb.linearVelocity = new Vector3(newHorizontal.x, newY, newHorizontal.z);
+        Rb.AddForce(newVel, ForceMode.Impulse);
+        //PlayerModelRotationHandler.SetNewRotationDir(WishDir, doubleJumpDuration);
 
         _hasDoubleJumped = true;
         MovementLockTimer = doubleJumpDuration;*/
 
         //v2: redirect current horizontal velocity to wishDir, set vertical to jump force
-        Vector3 horizontalVel = new Vector3(_rb.linearVelocity.x, 0, _rb.linearVelocity.z);
+        Vector3 horizontalVel = new Vector3(Rb.linearVelocity.x, 0, Rb.linearVelocity.z);
         float speed = horizontalVel.magnitude;
 
         Vector3 redirectedVel = horizontalVel;
-        if (_wishDir.sqrMagnitude > 0)
-            redirectedVel = _wishDir.normalized * speed;
+        if (WishDir.sqrMagnitude > 0)
+            redirectedVel = WishDir.normalized * speed;
 
         Vector3 defaultJumpForce = Vector3.up * _jumpForce * doubleJumpMultiplier;
-        //Vector3 addedJumpForce = _wishDir.normalized * doubleJumpForce.x + Vector3.up * doubleJumpForce.y;
+        //Vector3 addedJumpForce = WishDir.normalized * doubleJumpForce.x + Vector3.up * doubleJumpForce.y;
 
-        _rb.linearVelocity = redirectedVel + defaultJumpForce; // + addedJumpForce;
+        Rb.linearVelocity = redirectedVel + defaultJumpForce; // + addedJumpForce;
         _hasDoubleJumped = true;
         MovementLockTimer = doubleJumpDuration;
     }
+    #endregion
 
+    #region Gravity
     private void HandleGravityRelative(ref Vector3 relVel)
     {
-        if (_currentMovementState == PlayerMoveState.Walking) return;
+        if (CurrentMovementState == PlayerMoveState.Walking) return;
 
         //apply gravity to the reference variable instead of addForce
-        relVel.y -= _gravity * Time.fixedDeltaTime;
+        relVel.y -= Gravity * Time.fixedDeltaTime;
         if (relVel.y < -_maxGravity)
         {
             relVel.y = -_maxGravity;
         }
     }
 
+    public void ApplySlowFall(float multiplier)
+    {
+        if (Rb.linearVelocity.y < 0)
+        {
+            Gravity = _maxGravity * multiplier;
+
+            if (Rb.linearVelocity.y <= -Gravity)
+            {
+                Rb.linearVelocity = new Vector3(Rb.linearVelocity.x, -Gravity, Rb.linearVelocity.z);
+            }
+        }
+        else
+        {
+            Gravity = _maxGravity;
+        }
+    }
+
+    public void EnableGravity(bool enable)
+    {
+        _useGravity = enable;
+    }
+
+    public void ResetGravity()
+    {
+        Gravity = _maxGravity;
+    }
+    #endregion
+
+    #region Velocity Overshoot
     private void HandleVelocityOvershootRelative(ref Vector3 relVel)
     {
         //I THINK THIS + FRICTION ARE STILL CAUSING STICKING ISSUES
@@ -453,8 +461,9 @@ public class PlayerMovement : MonoBehaviour
             relVel.z = (horizontalRel.z / speed) * newSpeed;
         }
     }
+    #endregion
 
-
+    #region Friction
     public void ApplyFriction(ref Vector3 playerVel, Vector3 frictionAxis)
     {
         if (MovementLockTimer > 0) return;
@@ -470,7 +479,7 @@ public class PlayerMovement : MonoBehaviour
         float frictionAccel;
 
         //stopping friction -> bring you to a stop
-        if (_wishDir == Vector3.zero || FrictionMultiplier < 1f)
+        if (WishDir == Vector3.zero || FrictionMultiplier < 1f)
         {
             float stopAccel = speed / Time.fixedDeltaTime;
             float rawFriction = _friction * _currentMultipliers.decelMultiplier;
@@ -487,17 +496,26 @@ public class PlayerMovement : MonoBehaviour
         float newSpeed = Mathf.Max(0f, speed - deltaV);
         playerVel = (playerVel - velocityOnAxis) + (velocityOnAxis.normalized * newSpeed);
     }
-
-
-    private void ApplyAccelerationRelative(ref Vector3 relVel)
+    public void EnableFriction(bool enable)
     {
-        if (_wishDir == Vector3.zero) return;
-
-        //apply accel to reference (same as Forcemode.Accel)
-        Vector3 accel = _wishDir * _acceleration * _currentMultipliers.accelMultiplier;
-        relVel += accel * Time.fixedDeltaTime;
+        _useFriction = enable;
     }
 
+
+    #endregion
+
+    #region Acceleration
+    private void ApplyAccelerationRelative(ref Vector3 relVel)
+    {
+        if (WishDir == Vector3.zero) return;
+
+        //apply accel to reference (same as Forcemode.Accel)
+        Vector3 accel = WishDir * _acceleration * _currentMultipliers.accelMultiplier;
+        relVel += accel * Time.fixedDeltaTime;
+    }
+    #endregion
+
+    #region Ledge Handling
     private Vector3 LedgeCheck()
     {
         //If there is a place the player can fall, the check will return where that is
@@ -535,5 +553,5 @@ public class PlayerMovement : MonoBehaviour
         Debug.DrawLine(feetPos.position + (intendedDirection * ledgeScanLength), feetPos.position + (intendedDirection * ledgeScanLength) + (Vector3.down * ledgeScanDepth), Color.red);
         return intendedDirection;
     }
-
+    #endregion
 }

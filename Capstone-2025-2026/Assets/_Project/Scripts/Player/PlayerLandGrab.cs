@@ -105,7 +105,7 @@ public class PlayerLandGrab : MonoBehaviour
         if (attachedObjBody != null)
         {
             playerController.InheritPlatformMomentum(attachedObjBody.linearVelocity);
-            playerController.ExternalForce = Vector3.zero;
+            playerController.SetExternalForce(Vector3.zero);
             attachedObjBody = null;
         }
         else

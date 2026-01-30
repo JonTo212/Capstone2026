@@ -35,6 +35,15 @@ public class PlayerModelRotationHandler : MonoBehaviour
     {
         if (dir == null || lockDuration == 0)
         {
+            if(_lockRotationCoroutine != null) StopCoroutine(_lockRotationCoroutine);
+            _currentRotationState = RotationState.Default;
+            return;
+        }
+
+        playerObj.transform.rotation = Quaternion.LookRotation(dir.Value);
+        /*
+        if (dir == null || lockDuration == 0)
+        {
             StopCoroutine(_lockRotationCoroutine);
             _currentRotationState = RotationState.Default;
             return;
@@ -65,5 +74,6 @@ public class PlayerModelRotationHandler : MonoBehaviour
 
         _playerController.PlayerInput.ChangeSpecificInput("Move", true);
         _currentRotationState = RotationState.Default;
+    }*/
     }
 }

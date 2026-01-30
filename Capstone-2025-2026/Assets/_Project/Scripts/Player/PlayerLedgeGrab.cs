@@ -100,11 +100,12 @@ public class PlayerLedgeGrab : MonoBehaviour
             Vector3 toHit = (sphereHit.point - transform.position).normalized;
             float angle = Vector3.Angle(forwardRef.forward, toHit);
 
-            if (angle > coneAngle)
+            if (angle > coneAngle) //filters out things that aren't within the 'vision cone'
                 return null;
 
             if (Physics.Raycast(sphereHit.point - forwardRef.forward * 0.1f, forwardRef.forward, out RaycastHit wallHit, 0.5f, grabbableLayers))
             {
+                //raycasts from the hit point to ensure you actually hit something with depth (e.g. not a corner or something)
                 return ValidateLedge(wallHit);
             }
         }
@@ -115,8 +116,20 @@ public class PlayerLedgeGrab : MonoBehaviour
 
     private Vector3? ValidateLedge(RaycastHit forwardHit)
     {
+        if (Vector3.Dot(forwardHit.normal, Vector3.up) > 0.5f)
+        {
+            //if the object that's hit is the top surface (i.e. on sloped ledges), raycast from a small buffer behind and below the hit point to get the actual wall face
+            Vector3 fixOrigin = forwardHit.point - (Vector3.up * 0.1f) - (forwardRef.forward * 0.1f);
+
+            if (Physics.Raycast(fixOrigin, forwardRef.forward, out RaycastHit sideHit, 0.5f, grabbableLayers))
+            {
+                forwardHit = sideHit;
+            }
+        }
+
         float secondCheckDist = _playerCol.height;
 
+        //check to ensure there's actually a ledge, you're not grabbing on to super thin walls
         Vector3 secondCheckStartPos =
             forwardHit.point +
             (forwardRef.forward * _playerCol.radius) +
@@ -128,7 +141,8 @@ public class PlayerLedgeGrab : MonoBehaviour
             if (Mathf.Abs(Vector3.Angle(topHit.normal, Vector3.up)) > maxLedgeAngle) return null;
             if (topHit.transform.TryGetComponent(out Rigidbody rb) && rb.linearVelocity.magnitude > 0.01f) return null;
 
-            lastLedgeNormal = -forwardHit.normal;
+            //for rotation - project the wall's face upwards to prevent rotation in weird axes
+            lastLedgeNormal = Vector3.ProjectOnPlane(-forwardHit.normal, Vector3.up);
 
             Vector3 upOffset = Vector3.down * (_playerCol.height * verticalCheckDistance / 2f);
             Vector3 backOffset = -forwardRef.forward * _playerCol.radius * 2f;

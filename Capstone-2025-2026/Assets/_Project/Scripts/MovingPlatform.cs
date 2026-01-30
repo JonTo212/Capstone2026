@@ -15,7 +15,7 @@ public class MovingPlatform : MonoBehaviour
     {
         if (playerRef != null)
         {
-            playerRef.ExternalForce = rb.linearVelocity * stickiness;
+            playerRef.SetExternalForce(rb.linearVelocity * stickiness);
             if (rb.interpolation != RigidbodyInterpolation.Interpolate)
             {
                 rb.interpolation = RigidbodyInterpolation.Interpolate;
