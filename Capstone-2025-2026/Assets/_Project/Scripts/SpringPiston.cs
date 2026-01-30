@@ -32,7 +32,7 @@ public class SpringPiston : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if(IsTetheredToBase())
+        if(IsTetheredInRightDirection())
         {
             HandleCompression(basePos, compressionTime);
         }
@@ -42,12 +42,24 @@ public class SpringPiston : MonoBehaviour
         }
     }
 
-    private bool IsTetheredToBase()
+    private bool IsTetheredInRightDirection()
     {
-        if(platformPiece.ConnectedObjects.Contains(basePiece) || platformPiece.ConnectedObjects.Contains(platformPiece.transform)) 
+        Vector3 dirToBase = platformPiece.transform.position - basePiece.transform.position;
+        if(Vector3.Dot(platformPiece.totalForceApplied, dirToBase) < 0)
+        { 
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+
+        /*
+        if (platformPiece.ConnectedObjects.Contains(basePiece) || platformPiece.ConnectedObjects.Contains(platformPiece.transform))
             return true;
         else
             return false;
+        */
     }
 
     private void GetPistonHeadSize()
