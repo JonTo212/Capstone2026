@@ -1,12 +1,11 @@
 using DG.Tweening;
 using UnityEngine;
-using static UnityEngine.InputSystem.DefaultInputActions;
 using UnityEngine.UI;
 
 
 public class UIImageMovement : MonoBehaviour
 {
-    //public AudioManager audioManager;
+    public GameObject objects;
 
     public RawImage RodIcon;
     public RawImage TetherIcon;
@@ -22,23 +21,17 @@ public class UIImageMovement : MonoBehaviour
 
     private float timeToMove = 0.5f; //time in seconds to move between points
 
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        //audioManager = GameObject.Find("AudioManager").GetComponent<AudioManager>();
-    }
-
-    // Update is called once per frame
     void Update()
     {
         //disable tether icon untill its picked up
         if (!lassoTetherControllerScript.tetherPickedUp)
         {
-            TetherIcon.texture = RodSprite;
+            objects.SetActive(false);
+            return;
         }
         else
         {
+            objects.SetActive(true);
             TetherIcon.texture = TetherSprite;
         }
 

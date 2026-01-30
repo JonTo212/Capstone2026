@@ -198,8 +198,7 @@ public class LassoTetherController : MonoBehaviour
     private void HandleEmptyControls()
     {
         //tool switching
-        if ((playerActions.toolSwitchDown) && (tetherPickedUp)) rodEquipped = !rodEquipped; // toggle state of rodEquipped bool 
-
+        if ((playerActions.toolSwitchDown) && tetherPickedUp) rodEquipped = !rodEquipped; // toggle state of rodEquipped bool 
 
         if (playerActions.LassoDown && rodEquipped)
         {
