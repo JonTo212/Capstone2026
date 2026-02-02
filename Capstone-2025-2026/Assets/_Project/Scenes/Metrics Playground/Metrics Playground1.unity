@@ -53472,7 +53472,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 640.9}
+  m_AnchoredPosition: {x: 0, y: 640.89996}
   m_SizeDelta: {x: 0, y: 874}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &2746268345543251318
@@ -55954,9 +55954,9 @@ MonoBehaviour:
   <PlayerCam>k__BackingField: {fileID: 4270019201415842798}
   lassoGrabVisualIndicator: {fileID: 1396640617117769499}
   reelIncrement: 2.5
-  minLassoRange: 5
-  maxLassoRange: 25
-  centerStrength: 2250
+  minLassoRange: 3
+  maxLassoRange: 13
+  centerStrength: 250
   throwStrength: 25
   lookAtStrength: 0.5
   lookAtDamping: 0.05
@@ -55969,13 +55969,15 @@ MonoBehaviour:
   aimAssistBufferRadius: 1.5
   useAimOutline: 1
   usePickupOutline: 1
-  useGrabPointsForHold: 1
+  useGrabPointsForHold: 0
   <usePhysicsLasso>k__BackingField: 1
   <usePhysicsTorque>k__BackingField: 1
   swingJumpForce: 10
   forwardRef: {fileID: 1107846747}
   <useSnapRotation>k__BackingField: 1
   <camInputController>k__BackingField: {fileID: 1205049040004138823}
+  liftSpeed: 1.5
+  maxLiftHeight: 9
   degreesPerSecond: 180
   mkSensMultiplier: 0.05
   snapAngle: 45
@@ -56114,7 +56116,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 4091486026056171216}
   m_HandleRect: {fileID: 1493070892826556514}
   m_Direction: 2
-  m_Value: -0.000000047616755
+  m_Value: 0.000000047616755
   m_Size: 0
   m_NumberOfSteps: 0
   m_OnValueChanged:

@@ -76,6 +76,13 @@ public class Lasso : MonoBehaviour
     public event Action OnLassoReleased;
 
 
+    [Header("Object Manipulation")]
+    [SerializeField] private float liftSpeed = 5f; // How fast it moves up/down
+    [SerializeField] private float maxLiftHeight = 3f; // Max distance up/down from center
+
+    private float _currentLiftOffset; // The actual offset value
+    private IInputAxisReader _yAxisReader; // To read input
+
     #region Unity Functions
     private void Awake()
     {
@@ -84,14 +91,39 @@ public class Lasso : MonoBehaviour
         _aimAssist = new AimAssist();
     }
 
+    private void Start()
+    {
+        if (camInputController != null)
+        {
+            foreach (var c in camInputController.Controllers)
+            {
+                if (c.Name == "Look Orbit Y") _yAxisReader = c.Input;
+            }
+        }
+    }
     private void Update()
     {
-        if (CheckIfBreak()) // destroyed
+        if (CheckIfBreak())
         {
             HandleObjectReleased();
         }
 
         CheckNearbyTargets();
+
+        // NEW LOGIC: Adjust Lift Offset based on Input
+        if (SnaredObject != null && _yAxisReader != null)
+        {
+            float yInput = PlayerController.PlayerInput.LookInput.y;
+
+            if (Mathf.Abs(yInput) > 0.001f)
+            {
+                // Add to offset
+                _currentLiftOffset += yInput * liftSpeed * Time.deltaTime;
+
+                // Clamp it so you can't lift it infinitely high
+                _currentLiftOffset = Mathf.Clamp(_currentLiftOffset, -maxLiftHeight, maxLiftHeight);
+            }
+        }
     }
 
     #endregion
@@ -143,7 +175,13 @@ public class Lasso : MonoBehaviour
 
         Vector3 camOffset = GetCameraWorldOffset();
         Ray ray = new Ray(PlayerCamLookPos.position + camOffset, screenRay.direction);
+
+        // Base position (Center of screen at distance)
         Vector3 maxDistancePos = PlayerCamLookPos.position + camOffset + ray.direction * AnchorDist;
+
+        // NEW: Apply the vertical offset relative to the Camera's Up direction
+        // This ensures "Up" on the stick means "Up" on the screen.
+        maxDistancePos += PlayerCam.transform.up * _currentLiftOffset;
 
         return maxDistancePos;
     }
@@ -243,6 +281,7 @@ public class Lasso : MonoBehaviour
             if (prop.transform == PlayerController.IsGrounded()) return;
 
             _snaredObjTransform = prop.transform;
+            //SetUpConfigurableJoint(prop.Rb, HitPos, transform);
             SnaredObject = prop;
             _snaredObjTransform.gameObject.tag = gameObject.tag;
             prop.OnSnare();
@@ -263,6 +302,44 @@ public class Lasso : MonoBehaviour
             AudioManager.Instance.PlaySFX(AudioManager.Instance.Thrown, 5, 1);
         }
     }
+
+    private Transform jointAnchor;
+    private ConfigurableJoint holdJoint;
+
+    private void SetUpConfigurableJoint(Rigidbody rb, Vector3 attachmentPosition, Transform parent)
+    {
+        GameObject go = new GameObject("JointAnchor");
+        go.transform.position = attachmentPosition;
+
+        //this rb acts as anchor
+        Rigidbody newRb = go.AddComponent<Rigidbody>();
+        newRb.isKinematic = true;
+
+        //make a new joint that uses jointdrive (like addForce in a direction, with damping)
+        float damping = 2f * Mathf.Sqrt(centerStrength * PlayerController.Rb.mass);
+        ConfigurableJoint joint = go.AddComponent<ConfigurableJoint>();
+        joint.autoConfigureConnectedAnchor = false;
+        joint.connectedBody = rb;
+        joint.xDrive = NewJointDrive(centerStrength, damping);
+        joint.yDrive = NewJointDrive(centerStrength, damping);
+        joint.zDrive = NewJointDrive(centerStrength, damping);
+        joint.slerpDrive = NewJointDrive(centerStrength, damping);
+        joint.rotationDriveMode = RotationDriveMode.Slerp;
+        joint.connectedAnchor = rb.transform.InverseTransformPoint(attachmentPosition);
+
+        jointAnchor = go.transform;
+        holdJoint = joint;
+    }
+
+    private JointDrive NewJointDrive(float force, float damping)
+    {
+        JointDrive drive = new JointDrive();
+        drive.positionSpring = force;
+        drive.positionDamper = damping;
+        drive.maximumForce = Mathf.Infinity;
+        return drive;
+    }
+
 
     private void GetHoldPoint(Prop prop, RaycastHit hit, bool useGrabPoint)
     {
@@ -304,6 +381,22 @@ public class Lasso : MonoBehaviour
 
     public void MoveObjectToPos(Vector3 desiredPos)
     {
+        /*if (SnaredObject == null) return;
+        if (jointAnchor != null)
+        {
+            jointAnchor.position = desiredPos;
+        }
+
+        float currentDist = Vector3.Distance(desiredPos, SnaredObject.transform.position);
+        float speedFactor = Mathf.Clamp01(currentDist / maxLassoRange);
+        float currentSpeed = Mathf.SmoothStep(0f, centerStrength, speedFactor);
+
+        currentSpeed *= Time.fixedDeltaTime;
+        Vector3 direction = desiredPos - SnaredObject.transform.position;
+
+        SnaredObject.Rb.linearVelocity = direction.normalized * currentSpeed;*/
+
+        
         if (usePhysicsLasso)
         {
             Vector3 attachPointWorld = SnaredObject.transform.TransformPoint(_attachPointLocal);
@@ -706,6 +799,13 @@ public class Lasso : MonoBehaviour
         if (SnaredObject == null) return;
 
         if (swingJoint != null) Destroy(swingJoint);
+
+        if (holdJoint != null)
+        {
+            Destroy(holdJoint);
+            Destroy(jointAnchor.gameObject);
+        }
+        _currentLiftOffset = 0f;
 
         SnaredObject.OnPropDestroyed -= HandleObjectReleased;
         SnaredObject.ActivateOutline(false);

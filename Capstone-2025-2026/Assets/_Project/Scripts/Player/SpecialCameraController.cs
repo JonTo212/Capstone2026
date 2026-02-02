@@ -87,20 +87,28 @@ public class SpecialCameraController : MonoBehaviour
         }
     }
 
-    public void TetherModeCamera()
-    {
-        cam.Lens.FieldOfView = Mathf.Lerp(cam.Lens.FieldOfView, CameraLens_T, Time.deltaTime * tetherModeAdjustSpeed);
-        camOffset.Offset = Vector3.Lerp(camOffset.Offset, camOffsetVector_T, Time.deltaTime * tetherModeAdjustSpeed);
-
-        ApplySensitivity(TetherSensMultiplier);
-    }
-
     public void LassoModeCamera()
     {
         cam.Lens.FieldOfView = Mathf.Lerp(cam.Lens.FieldOfView, CameraLens_L, Time.deltaTime * lassoModeAdjustSpeed);
         camOffset.Offset = Vector3.Lerp(camOffset.Offset, camOffsetVector_L, Time.deltaTime * lassoModeAdjustSpeed);
 
-        ApplySensitivity(LassoSensMultiplier);
+        ApplySensitivity(LassoSensMultiplier, 0f);
+    }
+
+    public void TetherModeCamera()
+    {
+        cam.Lens.FieldOfView = Mathf.Lerp(cam.Lens.FieldOfView, CameraLens_T, Time.deltaTime * tetherModeAdjustSpeed);
+        camOffset.Offset = Vector3.Lerp(camOffset.Offset, camOffsetVector_T, Time.deltaTime * tetherModeAdjustSpeed);
+
+        ApplySensitivity(TetherSensMultiplier, TetherSensMultiplier);
+    }
+
+    public void ResetCamera()
+    {
+        cam.Lens.FieldOfView = Mathf.Lerp(cam.Lens.FieldOfView, defaultCameraLens, Time.deltaTime * defaultAdjustSpeed);
+        camOffset.Offset = Vector3.Lerp(camOffset.Offset, defaultOffsetVector, Time.deltaTime * defaultAdjustSpeed);
+
+        ApplySensitivity(1f, 1f);
     }
 
     public void SwingModeCamera()
@@ -109,22 +117,14 @@ public class SpecialCameraController : MonoBehaviour
         camOffset.Offset = Vector3.Lerp(camOffset.Offset, camOffsetVector_S, Time.deltaTime * swingModeAdjustSpeed);
     }
 
-    public void ResetCamera()
-    {
-        cam.Lens.FieldOfView = Mathf.Lerp(cam.Lens.FieldOfView, defaultCameraLens, Time.deltaTime * defaultAdjustSpeed);
-        camOffset.Offset = Vector3.Lerp(camOffset.Offset, defaultOffsetVector, Time.deltaTime * defaultAdjustSpeed);
-
-        ApplySensitivity(1f);
-    }
-
-    public void ApplySensitivity(float multiplier)
+    public void ApplySensitivity(float xMult, float yMult)
     {
         foreach (var c in camInput.Controllers)
         {
             if (c.Name == "Look Orbit X")
-                c.Input.Gain = playerXSens * multiplier;
+                c.Input.Gain = playerXSens * xMult;
             if (c.Name == "Look Orbit Y")
-                c.Input.Gain = playerYSens * multiplier;
+                c.Input.Gain = playerYSens * yMult;
         }
     }
 }
