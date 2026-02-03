@@ -10,10 +10,8 @@ public enum LassoState
     SnaredTether,
     TetherMode,
     Swinging,
-    PlayerYanking,
     ObjectYanking,
     Held,
-    SnapRotating,
     FreeRotating,
     Using
 }
@@ -55,7 +53,7 @@ public class LassoTetherController : MonoBehaviour
 
         playerLasso.OnLassoReleased += OnLassoReleased;
         playerLasso.OnObjectHit += OnLassoHit;
-        playerLasso.OnSnapFinished += HandleSnapFinish;
+        //playerLasso.OnSnapFinished += HandleSnapFinish;
         playerTether.OnTetherStartHit += OnTetherStartHit;
         playerInventory.OnObjectYankCompleted += OnObjectYankCompleted;
 
@@ -114,10 +112,6 @@ public class LassoTetherController : MonoBehaviour
                     HandleYankingControls();
                     break;
 
-                case LassoState.SnapRotating:
-                    HandleSnapRotateControls();
-                    break;
-
                 case LassoState.FreeRotating:
                     HandleFreeRotateControls();
                     break;
@@ -133,22 +127,10 @@ public class LassoTetherController : MonoBehaviour
         {
             playerLasso.MoveObjectToPos(playerLasso.GetAnchoredCenterOfScreen());
         }
-        else if(CurrentLassoState == LassoState.SnapRotating)
-        {
-            playerLasso.MaintainObjectRotation();
-            playerLasso.MoveObjectToPos(playerLasso.GetAnchoredCenterOfScreen());
-        }
         else if(CurrentLassoState == LassoState.FreeRotating)
         {
             playerLasso.RotateWithInput(playerActions.LookInput, useObjectManipulationMode);
             playerLasso.MoveObjectToPos(playerLasso.GetAnchoredCenterOfScreen());
-        }
-        else if (CurrentLassoState == LassoState.SnaredTether)
-        {
-            if (playerLasso.Rotated)
-            {
-                playerLasso.MaintainObjectRotation();
-            }
         }
     }
 
@@ -176,7 +158,6 @@ public class LassoTetherController : MonoBehaviour
         }
         else
         {
-            playerLasso.HandleAnchorStart();
             SwitchLassoState(LassoState.Snared);
         }
     }
@@ -250,7 +231,8 @@ public class LassoTetherController : MonoBehaviour
     #region Snared Controls
     private void HandleSnaredControls()
     {
-        playerLasso.MoveAnchorPoint(playerActions.GetDPadScrollValue());
+        playerLasso.MoveAnchorPointZ(playerActions.GetDPadScrollValue());
+        playerLasso.MoveAnchorPointY(playerActions.LookInput.y);
 
         if (playerActions.PlaceTetherHeld)
         {
@@ -277,22 +259,6 @@ public class LassoTetherController : MonoBehaviour
             playerLasso.HandleObjectReleased();
         }
 
-        if(playerActions.SnapRotateToggleDown) //fix for free rotate
-        {
-            if (useObjectManipulationMode)
-            {
-                playerLasso.BeginCenterPivot();
-                playerLasso.HitPos = playerLasso.SnaredObject.transform.position;
-                wasUsingPhysicsLasso = playerLasso.usePhysicsLasso;
-                playerLasso.usePhysicsLasso = false;
-                playerLasso.InitializeRotationToClosestSnap();
-            }
-            else
-            {
-                playerLasso.camInputController.enabled = false;
-            }
-            SwitchLassoState(LassoState.SnapRotating);
-        }
         if(playerActions.FreeRotateToggleDown)
         {
             if (useObjectManipulationMode)
@@ -380,69 +346,6 @@ public class LassoTetherController : MonoBehaviour
         }
     }
 
-    #endregion
-
-    #region Snap Rotate Controls
-    private void HandleSnapRotateControls()
-    {
-        if (playerActions.DPadForwardDown)
-        {
-            playerLasso.ApplySnapRotation(Vector3.right);
-        }
-        if (playerActions.DPadBackwardDown)
-        {
-            playerLasso.ApplySnapRotation(Vector3.left);
-        }
-        if (playerActions.DPadRightDown)
-        {
-            playerLasso.ApplySnapRotation(Vector3.up);
-        }
-        if (playerActions.DPadLeftDown)
-        {
-            playerLasso.ApplySnapRotation(Vector3.down);
-        }
-
-        if (playerActions.SnapRotateToggleDown)
-        {
-            playerLasso.StartFinishSnap();
-        }
-        
-        if (playerActions.LassoUp)
-        {
-            if (useObjectManipulationMode)
-            {
-                playerLasso.usePhysicsLasso = wasUsingPhysicsLasso;
-            }
-            playerLasso.camInputController.enabled = true;
-            playerLasso.HandleObjectReleased();
-        }
-
-        if (playerActions.PlaceTetherDown && tetherPickedUp)
-        {
-            if (useObjectManipulationMode)
-            {
-                playerLasso.usePhysicsLasso = wasUsingPhysicsLasso;
-            }
-            playerTether.StartTetherPlacement(playerLasso.SnaredObject.transform, playerLasso.HitPos);
-            playerLasso.SnaredObject.Rb.constraints = RigidbodyConstraints.FreezePosition;
-            SwitchLassoState(LassoState.SnaredTether);
-        }
-    }
-
-    private void HandleSnapFinish()
-    {
-        if (CurrentLassoState == LassoState.SnapRotating)
-        {
-            if (useObjectManipulationMode)
-            {
-                playerLasso.usePhysicsLasso = wasUsingPhysicsLasso;
-            }
-
-            playerLasso.camInputController.enabled = true;
-            playerLasso.RestorePivot();
-            SwitchLassoState(LassoState.Snared);
-        }
-    }
     #endregion
 
     #region Free Rotate Controls

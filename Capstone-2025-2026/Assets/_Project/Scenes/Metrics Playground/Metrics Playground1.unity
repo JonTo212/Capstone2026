@@ -55957,7 +55957,6 @@ MonoBehaviour:
   minLassoRange: 3
   maxLassoRange: 13
   centerStrength: 250
-  throwStrength: 25
   lookAtStrength: 0.5
   lookAtDamping: 0.05
   rotationalDampingStrength: 0.5
@@ -55980,9 +55979,6 @@ MonoBehaviour:
   maxLiftHeight: 9
   degreesPerSecond: 180
   mkSensMultiplier: 0.05
-  snapAngle: 45
-  rotationSpring: 90
-  snapRatePerSecond: 360
 --- !u!1 &5767376196489656464
 GameObject:
   m_ObjectHideFlags: 0
@@ -56117,7 +56113,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1493070892826556514}
   m_Direction: 2
   m_Value: 0.000000047616755
-  m_Size: 0
+  m_Size: 0.2667048
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -63206,7 +63202,7 @@ MonoBehaviour:
     accelMultiplier: 0.1
     decelMultiplier: 0.1
     maxSpeedMultiplier: 2
-  overshootMaxForce: 10
+  overshootMaxForce: 50
   hardCapMultiplier: 5
   feetPos: {fileID: 8054164473340534100}
   feetRadius: 0.2
@@ -63222,7 +63218,7 @@ MonoBehaviour:
   doubleJumpDuration: 0.1
   doubleJumpMultiplier: 0.75
   playerCam: {fileID: 4270019201415842798}
-  useDoubleJump: 0
+  useDoubleJump: 1
 --- !u!222 &8640476336949275269
 CanvasRenderer:
   m_ObjectHideFlags: 0

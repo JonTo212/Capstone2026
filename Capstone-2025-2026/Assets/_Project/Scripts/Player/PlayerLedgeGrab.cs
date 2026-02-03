@@ -179,7 +179,7 @@ public class PlayerLedgeGrab : MonoBehaviour
     private void HandleLedgeJump()
     {
         ReleaseLedge();
-        _playerController.Jump(ledgeJumpForceMultiplier); //maybe add a directional thing to this too idk
+        _playerController.Jump(ledgeJumpForceMultiplier, true); //maybe add a directional thing to this too idk
         _playerController.PlayerModelRotationHandler.SetNewRotationDir(null, 0f);
     }
 }

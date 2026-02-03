@@ -71,10 +71,6 @@ public class ContextPrompts : MonoBehaviour
                 HoldingStateIcons.SetActive(true);
                 break;
 
-            case LassoState.SnapRotating:
-                RotationStateIcons.SetActive(true);
-                break;
-
             case LassoState.Tethering:
             case LassoState.SnaredTether:
                 TetheringStateIcons.SetActive(true);

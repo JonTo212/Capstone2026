@@ -64,7 +64,6 @@ public class PlayerMovement : MonoBehaviour
     [Header("Input")]
     private PlayerSwing _playerSwing;
     private LassoTetherController _lassoTetherController;
-    private PlayerWallBounce _playerWallBounce;
 
     private MovementProperties _currentMultipliers;
     private float _acceleration;
@@ -74,9 +73,10 @@ public class PlayerMovement : MonoBehaviour
     private bool _useGravity;
     private bool _useFriction;
     private bool _hasJumped;
-    private bool _hasDoubleJumped;
     private Vector3 _lastExternalForce;
+    private float _lastJumpFrame;
 
+    public bool CanDoubleJump { get; set; }
     public float MovementLockTimer { get; private set; }
     public Vector3 ExternalForce { get; private set; }
     public Vector3 PlayerVelocity { get; private set; }
@@ -95,7 +95,6 @@ public class PlayerMovement : MonoBehaviour
         PlayerInput = GetComponent<PlayerActions>();
         _lassoTetherController = GetComponent<LassoTetherController>();
         _playerSwing = GetComponent<PlayerSwing>();
-        _playerWallBounce = GetComponent<PlayerWallBounce>();
         PlayerModelRotationHandler = GetComponent<PlayerModelRotationHandler>();
 
         Gravity = 2 * apexHeight / Mathf.Pow(apexTime, 2);
@@ -174,7 +173,6 @@ public class PlayerMovement : MonoBehaviour
             case PlayerMoveState.Walking:
                 _currentMultipliers = MovementProperties.Default;
                 _hasJumped = false;
-                _hasDoubleJumped = false;
                 break;
 
             case PlayerMoveState.InAir:
@@ -184,7 +182,6 @@ public class PlayerMovement : MonoBehaviour
             case PlayerMoveState.Swinging:
                 _currentMultipliers = _swingingMultipliers;
                 _hasJumped = false;
-                _hasDoubleJumped = false;
                 break;
         }
     }
@@ -282,16 +279,14 @@ public class PlayerMovement : MonoBehaviour
 
     private void HandleJumpBuffer()
     {
-        //Jump Buffer
         if (PlayerInput.JumpDown)
         {
-            //reset timer
+            if (_lastJumpFrame == Time.frameCount) return; //to prevent ledge jump -> double jump misfires
             jumpBufferCounter = jumpBufferTime;
 
         }
         else if (jumpBufferCounter > 0)
         {
-            //count down timer
             jumpBufferCounter -= Time.deltaTime;
         }
     }
@@ -314,15 +309,6 @@ public class PlayerMovement : MonoBehaviour
     {
         if (jumpBufferCounter > 0)
         {
-            //wall bounce
-            if (_playerWallBounce != null && _playerWallBounce.TryWallBounce())
-            {
-                jumpBufferCounter = 0;
-                AudioManager.Instance.PlaySFX(AudioManager.Instance.Jump, 6, 1f);
-                _hasJumped = true;
-                return;
-            }
-
             //regular jump
             if (!_hasJumped && coyoteTimeCounter > 0f)
             {
@@ -330,25 +316,26 @@ public class PlayerMovement : MonoBehaviour
                 jumpBufferCounter = 0;
                 AudioManager.Instance.PlaySFX(AudioManager.Instance.Jump, 6, 1f);
 
-                Jump(1f);
+                Jump(1f, true);
             }
 
-            else if(_hasJumped && !_hasDoubleJumped && useDoubleJump)
+            else if(_hasJumped && CanDoubleJump && useDoubleJump)
             {
                 //Jump(doubleJumpMultiplier);
                 HandleDoubleJump();
-                _hasDoubleJumped = true;
             }
         }
     }
 
-    public void Jump(float multiplier)
+    public void Jump(float multiplier, bool enableDoubleJump)
     {
         Vector3 jumpForce = Vector3.up * _jumpForce * multiplier;
 
         Rb.linearVelocity = new Vector3(Rb.linearVelocity.x, 0, Rb.linearVelocity.z);
         Rb.AddForce(jumpForce, ForceMode.Impulse);
         _hasJumped = true;
+        CanDoubleJump = enableDoubleJump;
+        _lastJumpFrame = Time.frameCount;
     }
 
     private void HandleDoubleJump()
@@ -392,7 +379,7 @@ public class PlayerMovement : MonoBehaviour
         //Vector3 addedJumpForce = WishDir.normalized * doubleJumpForce.x + Vector3.up * doubleJumpForce.y;
 
         Rb.linearVelocity = redirectedVel + defaultJumpForce; // + addedJumpForce;
-        _hasDoubleJumped = true;
+        CanDoubleJump = false;
         MovementLockTimer = doubleJumpDuration;
     }
     #endregion
