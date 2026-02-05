@@ -57,7 +57,7 @@ public class PlayerRespawn : MonoBehaviour
             currentRespawnPoint = other.GetComponent<RespawnPointVisuals>();
             if (currentRespawnPoint.firstTime)
             {
-                currentRespawnPoint.PlayFanfare();
+                //currentRespawnPoint.PlayFanfare();
             }
             currentRespawnPoint.SetObjectActive();
             spawnPosition = other.transform.position;
