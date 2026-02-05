@@ -40972,7 +40972,7 @@ Transform:
   m_GameObject: {fileID: 2571145195721570073}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 11.75, y: 2.03, z: -22.62}
+  m_LocalPosition: {x: 5.75, y: 2.03, z: -22.62}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -52801,7 +52801,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6770766516549574151}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.000000047249898, y: -4.5719593e-16, z: 1.95445e-15, w: 1}
+  m_LocalRotation: {x: 0, y: 0.00000002980233, z: 1.0153021e-16, w: 1}
   m_LocalPosition: {x: 0, y: 1.75, z: -6.09}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -53472,7 +53472,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 640.89996}
+  m_AnchoredPosition: {x: 0, y: 640.9}
   m_SizeDelta: {x: 0, y: 874}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &2746268345543251318
@@ -55513,14 +55513,34 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SpecialCameraController
   lassoTetherController: {fileID: 187563628638676127}
+  playerCol: {fileID: 5884921808229931001}
+  directionPercentages:
+  - direction: {x: 0, y: 0, z: 0}
+    cameraState: 0
+    xPercentage: 0
+    yPercentage: 0
+    zPercentage: 0
+  - direction: {x: -1, y: -1, z: 0}
+    cameraState: 1
+    xPercentage: 25
+    yPercentage: 25
+    zPercentage: 0
+  - direction: {x: 0, y: 0, z: 0}
+    cameraState: 0
+    xPercentage: 0
+    yPercentage: 0
+    zPercentage: 0
   tetherModeAdjustSpeed: 2
   lassoModeAdjustSpeed: 5
   swingModeAdjustSpeed: 3
   defaultAdjustSpeed: 3
+  playerVerticalScreenPosition: 0.375
+  playerHeight: 2
+  defaultCameraDistance: 8
   CameraLens_T: 50
   camOffsetVector_T: {x: 2.25, y: 0.75, z: 0}
   TetherSensMultiplier: 0.75
-  CameraLens_L: 70
+  CameraLens_L: 75
   camOffsetVector_L: {x: 1, y: 1, z: 0}
   LassoSensMultiplier: 0.9
   CameraLens_S: 85
@@ -55883,7 +55903,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5396773551428727445}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.000000047249898, y: -4.5719583e-16, z: 2.1602456e-23, w: 1}
+  m_LocalRotation: {x: -3.025837e-24, y: 0.00000002980233, z: 9.017699e-32, w: 1}
   m_LocalPosition: {x: 0, y: 1.75, z: -5.09}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -55956,7 +55976,7 @@ MonoBehaviour:
   reelIncrement: 2.5
   minLassoRange: 3
   maxLassoRange: 13
-  centerStrength: 250
+  centerStrength: 1250
   lookAtStrength: 0.5
   lookAtDamping: 0.05
   rotationalDampingStrength: 0.5
@@ -55968,15 +55988,14 @@ MonoBehaviour:
   aimAssistBufferRadius: 1.5
   useAimOutline: 1
   usePickupOutline: 1
-  useGrabPointsForHold: 0
   <usePhysicsLasso>k__BackingField: 1
   <usePhysicsTorque>k__BackingField: 1
   swingJumpForce: 10
   forwardRef: {fileID: 1107846747}
-  <useSnapRotation>k__BackingField: 1
   <camInputController>k__BackingField: {fileID: 1205049040004138823}
   liftSpeed: 1.5
   maxLiftHeight: 9
+  minLiftHeight: 0.5
   degreesPerSecond: 180
   mkSensMultiplier: 0.05
 --- !u!1 &5767376196489656464
@@ -56112,8 +56131,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 4091486026056171216}
   m_HandleRect: {fileID: 1493070892826556514}
   m_Direction: 2
-  m_Value: 0.000000047616755
-  m_Size: 0.2667048
+  m_Value: -0.000000047616755
+  m_Size: 0
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -63189,8 +63208,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d54c8bc5b20034e94fc875eec19b75, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
-  defaultMaxSpeed: 7.5
-  apexHeight: 2.25
+  defaultMaxSpeed: 10
+  apexHeight: 2.75
   apexTime: 0.375
   timeToZero: 0.3
   timeToMaxSpeed: 0.2
@@ -63216,7 +63235,7 @@ MonoBehaviour:
   ledgeScanLength: 1.5
   ledgeScanDepth: 5
   doubleJumpDuration: 0.1
-  doubleJumpMultiplier: 0.75
+  doubleJumpMultiplier: 0.825
   playerCam: {fileID: 4270019201415842798}
   useDoubleJump: 1
 --- !u!222 &8640476336949275269
