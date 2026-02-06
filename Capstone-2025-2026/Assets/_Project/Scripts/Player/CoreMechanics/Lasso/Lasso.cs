@@ -125,18 +125,13 @@ public class Lasso : MonoBehaviour
 
     private Vector3 GetCameraWorldOffset()
     {
-        var camRotate = CinemachineBrain.GetComponent<CinemachineRotationComposer>();
-        var cam = CinemachineBrain.GetComponent<CinemachineCamera>();
-        var screenPos = camRotate.Composition.ScreenPosition;
-        float distance = Vector3.Distance(transform.position, PlayerCamLookPos.position);
-
-        float vFovRad = cam.Lens.FieldOfView * Mathf.Deg2Rad;
-        float frustumHeight = 2f * distance * Mathf.Tan(vFovRad / 2f);
-        float aspectRatio = PlayerCam.aspect;
-        float frustumWidth = aspectRatio * frustumHeight;
-
-        Vector3 localOffset = new Vector3(screenPos.x * frustumWidth, screenPos.y * frustumHeight, 0);
-        return transform.rotation * localOffset;
+        CinemachineCameraOffset cameraOffset = CinemachineBrain.GetComponent<CinemachineCameraOffset>();
+        if (cameraOffset != null)
+        {
+            Vector3 localOffset = cameraOffset.Offset;
+            return PlayerCam.transform.TransformDirection(localOffset);
+        }
+        return Vector3.zero;
     }
 
     public Vector3 GetAnchoredCenterOfScreen()
@@ -152,6 +147,7 @@ public class Lasso : MonoBehaviour
 
         return maxDistancePos;
     }
+
 
     private void CheckNearbyTargets()
     {
@@ -275,7 +271,7 @@ public class Lasso : MonoBehaviour
 
             else
             {
-                AnchorDist = Mathf.Clamp(Vector3.Distance(hit.point, PlayerCamLookPos.position), minLassoRange, maxLassoRange);
+                AnchorDist = Mathf.Clamp(Vector3.Distance(prop.transform.position, PlayerCamLookPos.position), minLassoRange, maxLassoRange);
                 _attachPointLocal = prop.transform.InverseTransformPoint(hit.point);
 
                 //AnchorDist = Mathf.Clamp(Vector3.Distance(hit.transform.position, PlayerCamLookPos.position), minLassoRange, maxLassoRange);

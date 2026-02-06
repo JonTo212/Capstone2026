@@ -156,15 +156,17 @@ public class LassoVisuals : MonoBehaviour
 
         //one point at midpoint, one at 3/4
         Vector3 controlPoint1 = Vector3.Lerp(startPoint, endPoint, 0.4f);
-        Vector3 controlPoint2 = Vector3.Lerp(startPoint, endPoint, 0.8f);
+        Vector3 controlPoint2 = Vector3.Lerp(startPoint, endPoint, 0.55f);
+        Vector3 controlPoint3 = Vector3.Lerp(startPoint, endPoint, 0.7f);
+        Vector3 controlPoint4 = Vector3.Lerp(startPoint, endPoint, 0.85f);
 
         //determine how much the object can bend
         float currentBendOffset = Mathf.Clamp(totalDistance * bendScale, minBend, maxBend);
         controlPoint1 += combinedBendAxis * currentBendOffset;
         controlPoint2 += combinedBendAxis * currentBendOffset; 
 
-        Vector3[] linePositions = new Vector3[4]
-        {  startPoint, controlPoint1, controlPoint2, endPoint };
+        Vector3[] linePositions = new Vector3[6]
+        {  startPoint, controlPoint1, controlPoint2, controlPoint3, controlPoint4, endPoint };
 
         Vector3[] smoothedPoints = LineSmoother.SmoothLine(linePositions, 0.1f);
 

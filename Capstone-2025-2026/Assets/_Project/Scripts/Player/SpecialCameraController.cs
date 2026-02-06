@@ -4,7 +4,8 @@ using UnityEngine;
 
 public enum CameraState
 {
-    Default,
+    LassoEquipped,
+    TetherEquipped,
     Lasso,
     Tether,
     LedgeGrab,
@@ -18,29 +19,29 @@ public struct CameraDirectionModifier
     public CameraState cameraState;
     [Range(0f, 100f)] public int xPercentage;
     [Range(0f, 100f)] public int yPercentage;
-    [Range(0f, 100f)] public int zPercentage;
+    [Range(60f, 100f)] public int FOV;
 
-    public CameraDirectionModifier(Vector3 dir, CameraState state, int xPercent, int yPercent, int zPercent)
+    public CameraDirectionModifier(Vector3 dir, CameraState state, int xPercent, int yPercent, int desiredFOV)
     {
         direction = dir;
         cameraState = state;
         xPercentage = xPercent;
         yPercentage = yPercent;
-        zPercentage = zPercent;
+        FOV = desiredFOV;
     }
 }
 
 public struct ScreenValues
 {
-    public float width;
-    public float height;
-    public float depth;
+    public float xOffset;
+    public float yOffset;
+    public float FOV;
 
-    public ScreenValues(float width, float height, float depth)
+    public ScreenValues(float x, float y, float z)
     {
-        this.width = width;
-        this.height = height;
-        this.depth = depth;
+        xOffset = x;
+        yOffset = y;
+        FOV = z;
     }
 }
 
@@ -55,34 +56,30 @@ public class SpecialCameraController : MonoBehaviour
     private CinemachineCameraOffset camOffset;
 
     [SerializeField] private LassoTetherController lassoTetherController;
-
     [SerializeField] private List<CameraDirectionModifier> directionPercentages = new();
-    private Dictionary<CameraDirectionModifier, ScreenValues> directionPercentageLookup;
 
     [SerializeField] private float tetherModeAdjustSpeed;
     [SerializeField] private float lassoModeAdjustSpeed;
-    [SerializeField] private float swingModeAdjustSpeed;
     [SerializeField] private float defaultAdjustSpeed;
+
+    [SerializeField] private Transform characterTransform;
+    [SerializeField] private float characterApproximateRadius = 0.5f;
+    [SerializeField] private float safetyMargin = 0.05f; //in percentage, from the screen edge
 
     [Header("Default Values")]
     private float defaultCameraLens;
     private Vector3 defaultOffsetVector;
+    private Vector2 defaultScreenPosition;
     public float playerXSens { get; set; }
     public float playerYSens { get; set; }
 
     [Header("Values Tether State")]
     [SerializeField] private float CameraLens_T;
-    [SerializeField] private Vector3 camOffsetVector_T;
     [SerializeField] private float TetherSensMultiplier;
 
     [Header("Values Lasso State")]
     [SerializeField] private float CameraLens_L;
-    [SerializeField] private Vector3 camOffsetVector_L;
     [SerializeField] private float LassoSensMultiplier;
-
-    [Header("Values Swing State")]
-    [SerializeField] private float CameraLens_S;
-    [SerializeField] private Vector3 camOffsetVector_S;
 
     private void Awake()
     {
@@ -95,6 +92,7 @@ public class SpecialCameraController : MonoBehaviour
 
         defaultCameraLens = cam.Lens.FieldOfView;
         defaultOffsetVector = camOffset.Offset;
+        defaultScreenPosition = camRotate != null ? camRotate.Composition.ScreenPosition : Vector2.zero;
 
         foreach (var c in camInput.Controllers)
         {
@@ -103,8 +101,6 @@ public class SpecialCameraController : MonoBehaviour
             if (c.Name == "Look Orbit Y")
                 playerYSens = c.Input.Gain;
         }
-
-        SetUpDictionary();
     }
 
     private void Update()
@@ -126,72 +122,74 @@ public class SpecialCameraController : MonoBehaviour
             case LassoState.SnaredTether:
                 TetherModeCamera();
                 break;
-
-            case LassoState.Swinging:
-                SwingModeCamera();
-                break;
-
         }
     }
 
-    private void SetUpDictionary()
+    private ScreenValues CalculateScreenOffsetForDirection(CameraDirectionModifier modifier)
     {
-        directionPercentageLookup = new Dictionary<CameraDirectionModifier, ScreenValues>();
+        float xPercent = modifier.xPercentage / 100f;
+        float yPercent = modifier.yPercentage / 100f;
+        float zPercent = modifier.FOV / 100f;
 
-        foreach (var entry in directionPercentages)
-        {
-            if (!directionPercentageLookup.ContainsKey(entry))
-            {
-                float xChange = entry.xPercentage / 100f;
-                float yChange = entry.yPercentage / 100f;
-                float zChange = entry.zPercentage / 100f;
+        Vector3 dir = modifier.direction;
+        float xDir = Mathf.Sign(dir.x); // -1 for left, +1 for right
+        float yDir = Mathf.Sign(dir.y); // -1 for down, +1 for up
+        float zDir = Mathf.Sign(dir.z); // -1 for closer, +1 for farther
 
-                Vector3 dir = entry.direction.normalized;
+        //character stats
+        Vector3 characterWorldPos = characterTransform.position;
+        Vector3 screenCenter = Camera.main.WorldToViewportPoint(characterWorldPos) + camOffset.Offset;
+        Vector3 characterEdge = Camera.main.WorldToViewportPoint(characterWorldPos + Camera.main.transform.right * characterApproximateRadius);
+        float characterScreenRadius = Mathf.Abs(characterEdge.x - screenCenter.x);
 
-                //int w = (int)(Screen.width + (Screen.width * xChange * dir.x));
-                //int h = (int)(Screen.height + (Screen.height * yChange * dir.y));
+        //max distance is between -0.5 and +0.5, minus character radius and safety margin
+        float maxSafeX = 0.5f - characterScreenRadius - safetyMargin;
+        float maxSafeY = 0.5f - characterScreenRadius - safetyMargin;
 
-                //converted to screen space, cinemachine is -0.5 to +0.5
-                float w = xChange * dir.x * 0.5f;
-                float h = yChange * -dir.y * 0.5f;
-                float d = camOffset.Offset.z + (camOffset.Offset.z * zChange * dir.z);
+        //apply the percentage to the maximum safe offset
+        float xOffset = xPercent * maxSafeX * xDir;
+        float yOffset = yPercent * maxSafeY * yDir;
+        float zOffset = defaultOffsetVector.z * (1f + (zPercent * zDir));
 
-                ScreenValues screenPos = new ScreenValues(w, h, d);
-                directionPercentageLookup.Add(entry, screenPos);
-            }
-        }
+        return new ScreenValues(xOffset, yOffset, zOffset);
     }
 
     private void ApplyCameraDirectionModifier(CameraState state, float lerpSpeed)
     {
-        foreach (var kvp in directionPercentageLookup)
+        CameraDirectionModifier? activeModifier = null;
+        foreach (var modifier in directionPercentages)
         {
-            if (kvp.Key.cameraState == state)
+            if (modifier.cameraState == state)
             {
-                ScreenValues values = kvp.Value;
-                if (camRotate != null)
-                {
-                    Vector2 currentPos = camRotate.Composition.ScreenPosition;
-                    Vector2 targetPos = Vector2.Lerp(currentPos, new Vector2(values.width, values.height), Time.deltaTime * lerpSpeed);
-                    camRotate.Composition.ScreenPosition = new Vector2(targetPos.x, targetPos.y);
-                }
-
-                // Apply depth offset to camera position if needed
-                // This is already handled by camOffset.Offset in your existing code
-                // But if you want to use the depth from dictionary:
-                // Vector3 currentOffset = camOffset.Offset;
-                // Vector3 targetOffset = new Vector3(currentOffset.x, currentOffset.y, values.depthOffset);
-                // camOffset.Offset = Vector3.Lerp(currentOffset, targetOffset, Time.deltaTime * lerpSpeed);
-
+                activeModifier = modifier;
                 break;
             }
+        }
+
+        //fallback
+        if (!activeModifier.HasValue)
+        {
+            if (camRotate != null)
+            {
+                Vector2 currentPos = camRotate.Composition.ScreenPosition;
+                Vector2 targetPos = Vector2.Lerp(currentPos, defaultScreenPosition, Time.deltaTime * lerpSpeed);
+                camRotate.Composition.ScreenPosition = targetPos;
+            }
+            return;
+        }
+
+        ScreenValues values = CalculateScreenOffsetForDirection(activeModifier.Value);
+        if (camRotate != null)
+        {
+            Vector2 currentPos = camRotate.Composition.ScreenPosition;
+            Vector2 targetPos = new Vector2(values.xOffset, values.yOffset);
+            camRotate.Composition.ScreenPosition = Vector2.Lerp(currentPos, targetPos, Time.deltaTime * lerpSpeed);
         }
     }
 
     public void LassoModeCamera()
     {
-        //cam.Lens.FieldOfView = Mathf.Lerp(cam.Lens.FieldOfView, CameraLens_L, Time.deltaTime * lassoModeAdjustSpeed);
-        //camOffset.Offset = Vector3.Lerp(camOffset.Offset, camOffsetVector_L, Time.deltaTime * lassoModeAdjustSpeed);
+        cam.Lens.FieldOfView = Mathf.Lerp(cam.Lens.FieldOfView, CameraLens_L, Time.deltaTime * lassoModeAdjustSpeed);
 
         ApplyCameraDirectionModifier(CameraState.Lasso, lassoModeAdjustSpeed);
         ApplySensitivity(LassoSensMultiplier, 0f);
@@ -200,24 +198,19 @@ public class SpecialCameraController : MonoBehaviour
     public void TetherModeCamera()
     {
         cam.Lens.FieldOfView = Mathf.Lerp(cam.Lens.FieldOfView, CameraLens_T, Time.deltaTime * tetherModeAdjustSpeed);
-        camOffset.Offset = Vector3.Lerp(camOffset.Offset, camOffsetVector_T, Time.deltaTime * tetherModeAdjustSpeed);
 
+        ApplyCameraDirectionModifier(CameraState.Tether, tetherModeAdjustSpeed);
         ApplySensitivity(TetherSensMultiplier, TetherSensMultiplier);
     }
 
     public void ResetCamera()
     {
-        //cam.Lens.FieldOfView = Mathf.Lerp(cam.Lens.FieldOfView, defaultCameraLens, Time.deltaTime * defaultAdjustSpeed);
-        //camOffset.Offset = Vector3.Lerp(camOffset.Offset, defaultOffsetVector, Time.deltaTime * defaultAdjustSpeed);
+        cam.Lens.FieldOfView = Mathf.Lerp(cam.Lens.FieldOfView, defaultCameraLens, Time.deltaTime * defaultAdjustSpeed);
 
-        ApplyCameraDirectionModifier(CameraState.Default, defaultAdjustSpeed);
+        if (lassoTetherController.rodEquipped) ApplyCameraDirectionModifier(CameraState.LassoEquipped, defaultAdjustSpeed);
+        else ApplyCameraDirectionModifier(CameraState.TetherEquipped, defaultAdjustSpeed);
+
         ApplySensitivity(1f, 1f);
-    }
-
-    public void SwingModeCamera()
-    {
-        cam.Lens.FieldOfView = Mathf.Lerp(cam.Lens.FieldOfView, CameraLens_S, Time.deltaTime * swingModeAdjustSpeed);
-        camOffset.Offset = Vector3.Lerp(camOffset.Offset, camOffsetVector_S, Time.deltaTime * swingModeAdjustSpeed);
     }
 
     public void ApplySensitivity(float xMult, float yMult)

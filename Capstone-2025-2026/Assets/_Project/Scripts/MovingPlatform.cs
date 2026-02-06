@@ -4,7 +4,10 @@ public class MovingPlatform : MonoBehaviour
 {
     private PlayerMovement playerRef;
     private Rigidbody rb;
+    private float previousFrameVelocityMagnitude;
     [SerializeField, Range(0,1)] private float stickiness;
+    [SerializeField, Range(0, 1)] private float jumpOnCrashMultiplier = 0.8f;
+    [SerializeField] private float crashSpeedThreshold = 5f;
 
     private void Awake()
     {
@@ -15,12 +18,20 @@ public class MovingPlatform : MonoBehaviour
     {
         if (playerRef != null)
         {
+            if(CheckCrash())
+            {
+                DisconnectPlayer(true);
+                return;
+            }
+
             playerRef.SetExternalForce(rb.linearVelocity * stickiness);
             if (rb.interpolation != RigidbodyInterpolation.Interpolate)
             {
                 rb.interpolation = RigidbodyInterpolation.Interpolate;
             }
         }
+
+        previousFrameVelocityMagnitude = rb.linearVelocity.magnitude;
     }
 
     private void OnTriggerEnter(Collider other)
@@ -35,9 +46,22 @@ public class MovingPlatform : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Player"))
         {
-            playerRef.InheritPlatformMomentum(Vector3.zero);
-            playerRef = null;
-            rb.interpolation = RigidbodyInterpolation.None;
+            DisconnectPlayer(false);
         }
+    }
+
+    private void DisconnectPlayer(bool jump)
+    {
+        playerRef.InheritPlatformMomentum(Vector3.zero);
+        if (jump) playerRef.Jump(jumpOnCrashMultiplier, true);
+        playerRef = null;
+        rb.interpolation = RigidbodyInterpolation.None;
+    }
+
+    private bool CheckCrash()
+    {
+        float speedLoss = previousFrameVelocityMagnitude - rb.linearVelocity.magnitude;
+        if (speedLoss > crashSpeedThreshold) return true;
+        return false;
     }
 }
