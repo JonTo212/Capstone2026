@@ -3634,12 +3634,12 @@ GameObject:
   - component: {fileID: 9141277693401130519}
   - component: {fileID: 1328274438649917707}
   - component: {fileID: 7136094397731902115}
-  - component: {fileID: 1355965055874304491}
   - component: {fileID: 7887010670107607874}
   - component: {fileID: 6363763804076954650}
   - component: {fileID: 7760591848601245013}
   - component: {fileID: 8924538367377645381}
   - component: {fileID: 7777431948427391573}
+  - component: {fileID: 3642584705358189346}
   m_Layer: 7
   m_Name: ThirdPersonPlayer
   m_TagString: Player
@@ -3942,7 +3942,7 @@ MonoBehaviour:
   tetherPreviewLinePrefab: {fileID: 9078681742910677703, guid: 069705ce75398c641bd5efaf40dbcc73, type: 3}
   jointTetherPrefab: {fileID: 9078681742910677703, guid: 06b97e6d73a6f2b449340cf5cd8d5111, type: 3}
   jointTether: {fileID: 0}
-  tetherRangeSphere: {fileID: 0}
+  tetherRangeSphere: {fileID: 971362536563278781}
   tetherLayerMask:
     serializedVersion: 2
     m_Bits: 128
@@ -4067,29 +4067,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   animator: {fileID: 7698665045928019192}
---- !u!114 &1355965055874304491
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2571145194382551425}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5726bb566f2d59045b174107d2fe05c4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerMantle
-  forwardCheckDistance: 1
-  verticalCheckDistance: 1
-  climbHeightBuffer: 0.5
-  forwardClimbBuffer: 0.5
-  climbDuration: 0.35
-  forwardDuration: 0.15
-  maxMantleableAngle: 10
-  forwardRef: {fileID: 4338949708580675202}
-  mantleableLayers:
-    serializedVersion: 2
-    m_Bits: 64
 --- !u!114 &7887010670107607874
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4260,6 +4237,30 @@ MonoBehaviour:
   pauseMenuUI: {fileID: 7893419456801497725}
   settingsUI: {fileID: 490518717254737633}
   playerActions: {fileID: 4800881338183066832}
+--- !u!114 &3642584705358189346
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2571145194382551425}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e71180ba7b551a4c879843c82b693f2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerLedgeGrab
+  forwardRef: {fileID: 4338949708580675202}
+  grabbableLayers:
+    serializedVersion: 2
+    m_Bits: 64
+  forwardCheckDistance: 1
+  verticalCheckDistance: 0.5
+  coneRadius: 0.5
+  coneAngle: 45
+  minimumGrabHeight: 2
+  hangDuration: 1
+  maxLedgeAngle: 5
+  ledgeJumpForceMultiplier: 1.25
 --- !u!1 &2716249237309918505
 GameObject:
   m_ObjectHideFlags: 0

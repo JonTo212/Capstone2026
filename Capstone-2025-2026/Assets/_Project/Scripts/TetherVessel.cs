@@ -20,7 +20,7 @@ public class TetherVessel : EnvironmentalProp
 
     //states
     public enum VesselState{Stuck, Underground, Surfaced}
-    public VesselState currentState;
+    public VesselState currentState = VesselState.Surfaced;
 
     private Coroutine clawBreakCoroutine;
 
@@ -83,12 +83,7 @@ public class TetherVessel : EnvironmentalProp
     {
         // Play particle here as the transition occurs
 
-        if (attachedTethers.Count == 1)
-        {
-            transform.position = Vector3.Lerp(transform.position, nudgePosition, raiseSpeed * Time.deltaTime);
-        }
-
-        if (attachedTethers.Count == 2)
+        if (attachedTethers.Count >= 1 && Vector3.Dot(GetForcesFromJoint().normalized, Vector3.up) > 0.7)
         {
             Rb.isKinematic = false;
         }
