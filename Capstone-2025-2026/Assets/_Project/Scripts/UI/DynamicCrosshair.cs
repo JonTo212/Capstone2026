@@ -24,4 +24,16 @@ public class DynamicCrosshair : MonoBehaviour
             crossCrosshair.SetActive(true);
         }
     }
+
+    public void MakeCrosshairInvalid()
+    {
+        dotCrosshair.SetActive(false);
+        crossCrosshair.SetActive(true);
+    }
+
+    public void MakeCrosshairValid()
+    {
+        dotCrosshair.SetActive(true);
+        crossCrosshair.SetActive(false);
+    }
 }
