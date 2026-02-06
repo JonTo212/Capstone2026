@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class UIImageMovement : MonoBehaviour
 {
-    public GameObject objects;
+    public GameObject tetherIconObject;
 
     public RawImage RodIcon;
     public RawImage TetherIcon;
@@ -26,12 +26,12 @@ public class UIImageMovement : MonoBehaviour
         //disable tether icon untill its picked up
         if (!lassoTetherControllerScript.tetherPickedUp)
         {
-            objects.SetActive(false);
+            tetherIconObject.SetActive(false);
             return;
         }
         else
         {
-            objects.SetActive(true);
+            tetherIconObject.SetActive(true);
             TetherIcon.texture = TetherSprite;
         }
 
