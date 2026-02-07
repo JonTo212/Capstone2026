@@ -52803,7 +52803,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6770766516549574151}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.0000000148237875, y: -0.0000000074505815, z: -9.039354e-17, w: 1}
+  m_LocalRotation: {x: -0.000000029428024, y: -0.00000002971184, z: -9.960789e-16, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -6.09}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -55525,22 +55525,21 @@ MonoBehaviour:
     cameraState: 1
     xPercentage: 10
     yPercentage: 5
-    FOV: 80
+    FOV: 70
   - direction: {x: 0, y: 0, z: 0}
     cameraState: 2
     xPercentage: 0
     yPercentage: 0
-    FOV: 65
+    FOV: 80
   - direction: {x: 0, y: 0, z: 0}
     cameraState: 3
     xPercentage: 0
     yPercentage: 0
-    FOV: 65
+    FOV: 60
   tetherModeAdjustSpeed: 5
-  lassoModeAdjustSpeed: 5
+  lassoModeAdjustSpeed: 15
   defaultAdjustSpeed: 3
-  characterTransform: {fileID: 1028906480}
-  characterApproximateRadius: 0.5
+  playerRef: {fileID: 412334986653674616}
   safetyMargin: 0.05
   TetherSensMultiplier: 0.75
   LassoSensMultiplier: 0.9
@@ -55851,7 +55850,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44d70cc20219cd84593f67d248eafe36, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineCameraOffset
-  Offset: {x: 0, y: 1.75, z: 0}
+  Offset: {x: 0, y: 1.75, z: 1}
   ApplyAfter: 1
   PreserveComposition: 0
 --- !u!224 &5578231001966305196
@@ -55902,8 +55901,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5396773551428727445}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.0000000148237875, y: -0.0000000074505815, z: -1.1044584e-16, w: 1}
-  m_LocalPosition: {x: 0, y: 1.75, z: -6.09}
+  m_LocalRotation: {x: -0.000000029428024, y: -0.00000002971184, z: -8.7436077e-16, w: 1}
+  m_LocalPosition: {x: 0, y: 1.75, z: -5.09}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -55975,7 +55974,7 @@ MonoBehaviour:
   reelIncrement: 1
   minLassoRange: 3
   maxLassoRange: 13
-  centerStrength: 1250
+  centerStrength: 250
   lookAtStrength: 0.5
   lookAtDamping: 0.05
   rotationalDampingStrength: 0.5
@@ -55987,14 +55986,14 @@ MonoBehaviour:
   aimAssistBufferRadius: 1.5
   useAimOutline: 1
   usePickupOutline: 1
-  <usePhysicsLasso>k__BackingField: 1
+  <usePhysicsLasso>k__BackingField: 0
   <usePhysicsTorque>k__BackingField: 1
   swingJumpForce: 10
   forwardRef: {fileID: 1107846747}
   <camInputController>k__BackingField: {fileID: 1205049040004138823}
   liftSpeed: 1
-  maxLiftHeight: 8.25
-  minLiftHeight: 0.25
+  maxLiftHeight: 9
+  minLiftHeight: 1
   degreesPerSecond: 180
   mkSensMultiplier: 0.05
 --- !u!1 &5767376196489656464
@@ -56131,7 +56130,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1493070892826556514}
   m_Direction: 2
   m_Value: -0.000000047616755
-  m_Size: 0
+  m_Size: 0.2667048
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -63877,7 +63876,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6770766516549574151}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dbe43d662878a7c43bcd44d43c9e2094, type: 3}
   m_Name: 

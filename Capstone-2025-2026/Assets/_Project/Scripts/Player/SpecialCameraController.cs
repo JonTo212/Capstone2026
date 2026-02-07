@@ -62,9 +62,10 @@ public class SpecialCameraController : MonoBehaviour
     [SerializeField] private float lassoModeAdjustSpeed;
     [SerializeField] private float defaultAdjustSpeed;
 
-    [SerializeField] private Transform characterTransform;
-    [SerializeField] private float characterApproximateRadius = 0.5f;
+    [SerializeField] private Transform playerRef;
     [SerializeField] private float safetyMargin = 0.05f; //in percentage, from the screen edge
+    private float characterHeight;
+    private float characterRadius;
 
     [Header("Default Values")]
     private float defaultCameraLens;
@@ -74,6 +75,8 @@ public class SpecialCameraController : MonoBehaviour
 
     [SerializeField] private float TetherSensMultiplier;
     [SerializeField] private float LassoSensMultiplier;
+    
+    private Vector2 screenPosVelocity;
 
     private void Awake()
     {
@@ -83,6 +86,9 @@ public class SpecialCameraController : MonoBehaviour
         camInput = GetComponent<CinemachineInputAxisController>();
         camCollider = GetComponent<CinemachineDeoccluder>();
         camOffset = GetComponent<CinemachineCameraOffset>();
+
+        characterHeight = playerRef.GetComponent<CapsuleCollider>().height;
+        characterRadius = playerRef.GetComponent<CapsuleCollider>().radius;
 
         defaultCameraLens = cam.Lens.FieldOfView;
         defaultScreenPosition = camRotate.Composition.ScreenPosition;
@@ -128,9 +134,9 @@ public class SpecialCameraController : MonoBehaviour
         float yDir = Mathf.Sign(dir.y); // -1 for down, +1 for up
 
         //character stats
-        Vector3 characterWorldPos = characterTransform.position;
+        Vector3 characterWorldPos = playerRef.position;
         Vector3 screenCenter = Camera.main.WorldToViewportPoint(characterWorldPos) + camOffset.Offset;
-        Vector3 characterEdge = Camera.main.WorldToViewportPoint(characterWorldPos + Camera.main.transform.right * characterApproximateRadius);
+        Vector3 characterEdge = Camera.main.WorldToViewportPoint(characterWorldPos + Camera.main.transform.right * characterRadius);
         float characterScreenRadius = Mathf.Abs(characterEdge.x - screenCenter.x);
 
         //max distance is between -0.5 and +0.5, minus character radius and safety margin
@@ -144,7 +150,7 @@ public class SpecialCameraController : MonoBehaviour
         return new ScreenValues(xOffset, yOffset, modifier.FOV);
     }
 
-    private void ApplyCameraDirectionModifier(CameraState state, float lerpSpeed)
+    private void ApplyCameraDirectionModifier(CameraState state, float smoothSpeed)
     {
         CameraDirectionModifier? activeModifier = null;
         foreach (var modifier in directionPercentages)
@@ -162,9 +168,10 @@ public class SpecialCameraController : MonoBehaviour
             if (camRotate != null)
             {
                 Vector2 currentPos = camRotate.Composition.ScreenPosition;
-                Vector2 targetPos = Vector2.Lerp(currentPos, defaultScreenPosition, Time.deltaTime * lerpSpeed);
+                Vector2 targetPos = Vector2.Lerp(currentPos, defaultScreenPosition, smoothSpeed * Time.deltaTime);
                 camRotate.Composition.ScreenPosition = targetPos;
-                cam.Lens.FieldOfView = Mathf.Lerp(cam.Lens.FieldOfView, defaultCameraLens, Time.deltaTime * lerpSpeed);
+                cam.Lens.FieldOfView = Mathf.Lerp(cam.Lens.FieldOfView, defaultCameraLens, smoothSpeed * Time.deltaTime);
+                camFollow.TargetOffset = Vector3.Lerp(camFollow.TargetOffset, Vector3.zero, smoothSpeed * Time.deltaTime);
             }
             return;
         }
@@ -174,19 +181,20 @@ public class SpecialCameraController : MonoBehaviour
         {
             Vector2 currentPos = camRotate.Composition.ScreenPosition;
             Vector2 targetPos = new Vector2(values.xOffset, values.yOffset);
-            camRotate.Composition.ScreenPosition = Vector2.Lerp(currentPos, targetPos, Time.deltaTime * lerpSpeed);
-            cam.Lens.FieldOfView = Mathf.Lerp(cam.Lens.FieldOfView, values.FOV, Time.deltaTime * lerpSpeed);
+            camRotate.Composition.ScreenPosition = Vector2.Lerp(currentPos, targetPos, smoothSpeed * Time.deltaTime);
+            cam.Lens.FieldOfView = Mathf.Lerp(cam.Lens.FieldOfView, values.FOV, smoothSpeed * Time.deltaTime);
+            camFollow.TargetOffset = Vector3.Lerp(camFollow.TargetOffset, Vector3.zero, smoothSpeed * Time.deltaTime);
         }
     }
 
-    private Vector2 screenPosVelocity;
-
-    private void LockCameraToCenter()
+    private void LockCameraToCenter(float smoothSpeed)
     {
         if (camRotate != null)
         {
             camRotate.Composition.ScreenPosition = Vector2.SmoothDamp(camRotate.Composition.ScreenPosition, Vector2.zero, ref screenPosVelocity, camFollow.VerticalAxis.Recentering.Time);
-            camFollow.VerticalAxis.TriggerRecentering();
+            camFollow.VerticalAxis.Value = Mathf.Lerp(camFollow.VerticalAxis.Value, camFollow.VerticalAxis.Center, smoothSpeed * Time.deltaTime);
+            camFollow.TargetOffset = Vector3.Lerp(camFollow.TargetOffset, new Vector3(0, 2, 0), smoothSpeed * Time.deltaTime);
+            //camFollow.VerticalAxis.TriggerRecentering();
         }
     }
 
@@ -213,18 +221,69 @@ public class SpecialCameraController : MonoBehaviour
         }
     }
 
+    private Vector2 CalculateMidpoint(Vector3 playerPos, Vector3 heldObjectPos)
+    {
+        Vector3 midpoint = (playerPos + heldObjectPos) / 2f;
+
+        // Convert to viewport space
+        Vector3 playerViewport = Camera.main.WorldToViewportPoint(playerPos);
+        Vector3 objectViewport = Camera.main.WorldToViewportPoint(heldObjectPos);
+        Vector3 targetViewport = Camera.main.WorldToViewportPoint(midpoint);
+
+        Vector3 playerTopEdge = Camera.main.WorldToViewportPoint(playerPos + Vector3.up * (characterHeight / 2f));
+        float playerScreenHeight = Mathf.Abs(playerTopEdge.y - playerViewport.y);
+        float yOffset = targetViewport.y - 0.5f;
+
+        float objectScreenHeight = 0f;
+        if (lassoTetherController.Lasso.SnaredObject != null)
+        {
+            Renderer objectRenderer = lassoTetherController.Lasso.SnaredObject.GetComponent<Renderer>();
+            if (objectRenderer != null)
+            {
+                Bounds bounds = objectRenderer.bounds;
+                Vector3 objectSize = bounds.extents; // extents are half-size
+
+                Vector3 objRightEdge = Camera.main.WorldToViewportPoint(heldObjectPos + Camera.main.transform.right * objectSize.x);
+                Vector3 objTopEdge = Camera.main.WorldToViewportPoint(heldObjectPos + Vector3.up * objectSize.y);
+                objectScreenHeight = Mathf.Abs(objTopEdge.y - objectViewport.y);
+            }
+        }
+
+        float maxScreenHeight = Mathf.Max(playerScreenHeight, objectScreenHeight);
+        float maxSafeY = 0.5f - maxScreenHeight - safetyMargin;
+        yOffset = Mathf.Clamp(yOffset, -maxSafeY, maxSafeY);
+
+        return new Vector2(0, yOffset);
+    }
+
     public void LassoModeCamera()
     {
-        LockCameraToCenter();
+        LockCameraToCenter(lassoModeAdjustSpeed);
         DisableCameraInput();
-        ApplyCameraDirectionModifier(CameraState.Lasso, lassoModeAdjustSpeed);
+
+        if (lassoTetherController.Lasso.SnaredObject != null)
+        {
+            Vector3 playerPos = playerRef.position;
+            Vector3 heldObjectPos = lassoTetherController.Lasso.SnaredObject.transform.position;
+
+            Vector2 dynamicScreenPos = CalculateMidpoint(playerPos, heldObjectPos);
+
+            if (camRotate != null)
+            {
+                Vector2 currentPos = camRotate.Composition.ScreenPosition;
+                camRotate.Composition.ScreenPosition = Vector2.Lerp(currentPos, dynamicScreenPos, Time.deltaTime * lassoModeAdjustSpeed);
+            }
+            ApplyCameraDirectionModifier(CameraState.Lasso, lassoModeAdjustSpeed);
+        }
+        else
+        {
+            ApplyCameraDirectionModifier(CameraState.Lasso, lassoModeAdjustSpeed);
+        }
         ApplySensitivity(LassoSensMultiplier, 0f);
     }
 
     public void TetherModeCamera()
     {
-        LockCameraToCenter();
-        DisableCameraInput();
         ApplyCameraDirectionModifier(CameraState.Tether, tetherModeAdjustSpeed);
         ApplySensitivity(TetherSensMultiplier, TetherSensMultiplier);
     }

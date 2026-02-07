@@ -1,3 +1,4 @@
+using NodeCanvas.Tasks.Actions;
 using System;
 using Unity.Cinemachine;
 using UnityEngine;
@@ -79,6 +80,7 @@ public class Lasso : MonoBehaviour
     public event Action OnLassoReleased;
 
     #region Unity Functions
+
     private void Awake()
     {
         PlayerController = GetComponent<PlayerMovement>();
@@ -236,6 +238,7 @@ public class Lasso : MonoBehaviour
             SnaredObject = prop;
             _snaredObjTransform.gameObject.tag = gameObject.tag;
             SetVerticalAnchor();
+            GetStartGrabRotation();
 
             prop.OnSnare();
             prop.OnPropDestroyed += HandleObjectReleased;
@@ -285,6 +288,19 @@ public class Lasso : MonoBehaviour
         }
     }
 
+    private Quaternion rotationOffset;
+
+    private void GetStartGrabRotation()
+    {
+        Vector3 targetDir = (PlayerCamLookPos.position - SnaredObject.transform.position).normalized;
+        float radians = Mathf.Atan2(targetDir.x, targetDir.z);
+        float degrees = radians * Mathf.Rad2Deg;
+        Quaternion lookRotation = Quaternion.Euler(0f, degrees, 0f);
+
+        rotationOffset = Quaternion.Inverse(lookRotation) * SnaredObject.transform.rotation;
+        bufferedTargetRotation = SnaredObject.transform.rotation;
+    }
+
     #endregion
 
     #region Hold Object At Center
@@ -318,27 +334,53 @@ public class Lasso : MonoBehaviour
             }
 
             SnaredObject.Rb.angularVelocity *= angularVelMultiplier; //stop excessive spin
-            LookAtPlayer();
         }
-    }
+        else
+        {
+            if (SnaredObject == null) return;
 
+            float currentDist = Vector3.Distance(desiredPos, HitPos);
+            float currentSpeed = Mathf.SmoothStep(0f, centerStrength * 10f, currentDist / 5f) * Time.fixedDeltaTime;
+            Vector3 direction = desiredPos - HitPos;
+            SnaredObject.Rb.linearVelocity = direction.normalized * currentSpeed;
+        }
+
+        if (!rotating) LookAtPlayer();
+    }
+    private Quaternion bufferedTargetRotation;
     public void LookAtPlayer()
     {
-        Vector3 targetDir = (PlayerCamLookPos.position - SnaredObject.transform.position).normalized;
-        Vector3 currentFaceDir = _localFaceNormal != Vector3.zero ? SnaredObject.transform.TransformDirection(_localFaceNormal) : SnaredObject.transform.forward;
+        Vector3 targetDir = (PlayerCamLookPos.position - SnaredObject.transform.position).normalized; 
+        Vector3 currentDir = SnaredObject.transform.forward;
 
-        Quaternion deltaRot = Quaternion.FromToRotation(currentFaceDir, targetDir);
-        deltaRot.ToAngleAxis(out float angle, out Vector3 axis);
-        if (angle > 180f) angle -= 360f;
+        float radians = Mathf.Atan2(targetDir.x, targetDir.z);
+        float degrees = radians * Mathf.Rad2Deg;
 
-        float currentAngularSpeed = Mathf.SmoothStep(0f, centerStrength * 5f, Mathf.Abs(angle) / 45f) * Time.fixedDeltaTime;
-        SnaredObject.Rb.angularVelocity = axis * (currentAngularSpeed * Mathf.Deg2Rad);
+        //get direction to rotate (toAngleAxis), get amount to rotate (angleDegrees)
+        Quaternion current = SnaredObject.transform.rotation;
+        Quaternion target = Quaternion.Euler(0f, degrees, 0f) * rotationOffset;
+
+        bufferedTargetRotation = Quaternion.Slerp(
+            bufferedTargetRotation,
+            target,
+            Time.fixedDeltaTime * 10f
+        );
+
+        Quaternion delta = bufferedTargetRotation * Quaternion.Inverse(current);
+        delta.ToAngleAxis(out float angleDeg, out Vector3 axis);
+        if (angleDeg > 180f) angleDeg -= 360f;
+
+        float angleRad = angleDeg * Mathf.Deg2Rad;
+        float rotationAccel = angleRad * centerStrength * 5f * Time.fixedDeltaTime;
+
+        SnaredObject.Rb.angularVelocity = axis.normalized * rotationAccel;
     }
+
 
     private Vector3 CalculateLinearForce(Vector3 displacement, Vector3 pointVelocity)
     {
         //linear force
-        float springStrength = centerStrength / 12.5f;
+        float springStrength = centerStrength;
         Vector3 springForce = springStrength * displacement; //F = -springRate * displacement
         float damping = 2f * Mathf.Sqrt(springStrength * SnaredObject.Rb.mass); //critical damping = 2 * sqrt(springRate * mass)
         Vector3 dampingForce = -pointVelocity * damping;
@@ -397,6 +439,7 @@ public class Lasso : MonoBehaviour
     [Header("Free Rotation")]
     [SerializeField] private float degreesPerSecond = 180f;
     [SerializeField] private float mkSensMultiplier = 0.05f; //multiply this in if using m/k in the future
+    private bool rotating;
 
     public void RotateWithInput(Vector2 input, bool centerPivot)
     {
@@ -437,6 +480,11 @@ public class Lasso : MonoBehaviour
         //}
     }
 
+    public void SetRotating(bool activated)
+    {
+        rotating = activated;
+    }
+
     #endregion
 
     #region Anchor Adjustment
@@ -460,9 +508,14 @@ public class Lasso : MonoBehaviour
 
     private void SetVerticalAnchor()
     {
-        float maxY = Mathf.Round(transform.position.y + maxLiftHeight) - 0.5f;
-        float minY = Mathf.Round(transform.position.y + minLiftHeight) - 0.5f;
+        float cinemachineOffset = CinemachineBrain.GetComponent<CinemachineCameraOffset>().Offset.y;
+        float characterFeetY = transform.position.y - 1f; //player is 2 units tall
+
+        float maxY = characterFeetY + maxLiftHeight - cinemachineOffset;
+        float minY = characterFeetY + minLiftHeight - cinemachineOffset;
+
         _currentLiftOffset = Mathf.Clamp(_currentLiftOffset, minY, maxY);
+        //PlayerCamLookPos.position = new Vector3(PlayerCamLookPos.position.x, _currentLiftOffset, PlayerCamLookPos.position.z);
     }
 
     #endregion

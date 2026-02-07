@@ -31,13 +31,13 @@ public class LassoTetherController : MonoBehaviour
     [Header("Object Manipulation Mode")]
     [SerializeField] private bool useObjectManipulationMode;
     private bool wasUsingPhysicsLasso;
-    private Vector3 cachedHitPos;
     public bool TetherMode = false;
 
     [Header("States")]
     public bool rodPickedUp = true;
     public bool tetherPickedUp = true;
     [field: SerializeField] public LassoState CurrentLassoState { get; private set; }
+    public Lasso Lasso => playerLasso;
 
     public bool rodEquipped = true;
     //public bool tetherEquipped = true;
@@ -242,12 +242,12 @@ public class LassoTetherController : MonoBehaviour
                 playerLasso.SnaredObject.Rb.constraints = RigidbodyConstraints.FreezePosition;
                 SwitchLassoState(LassoState.TetherMode);
             }
-            //else
-            //{
-            //    playerTether.StartTetherPlacement(playerLasso.SnaredObject.transform, playerLasso.HitPos);
-            //    playerLasso.SnaredObject.Rb.constraints = RigidbodyConstraints.FreezePosition;
-            //    SwitchLassoState(LassoState.SnaredTether);
-            //}
+            else
+            {
+                playerTether.StartTetherPlacement(playerLasso.SnaredObject.transform, playerLasso.HitPos);
+                playerLasso.SnaredObject.Rb.constraints = RigidbodyConstraints.FreezePosition;
+                SwitchLassoState(LassoState.SnaredTether);
+            }
         }
 
         if (playerActions.LassoUp)
@@ -273,6 +273,7 @@ public class LassoTetherController : MonoBehaviour
             {
                 playerLasso.camInputController.enabled = false;
             }
+            playerLasso.SetRotating(true);
             SwitchLassoState(LassoState.FreeRotating);
         }
     }
@@ -360,6 +361,7 @@ public class LassoTetherController : MonoBehaviour
                 playerLasso.RestorePivot();
             }
             playerLasso.camInputController.enabled = true;
+            playerLasso.SetRotating(false);
             SwitchLassoState(LassoState.Snared);
         }
 
@@ -370,6 +372,7 @@ public class LassoTetherController : MonoBehaviour
                 playerLasso.usePhysicsLasso = wasUsingPhysicsLasso;
             }
             playerLasso.camInputController.enabled = true;
+            playerLasso.SetRotating(false);
             playerLasso.HandleObjectReleased();
         }
 
@@ -381,6 +384,7 @@ public class LassoTetherController : MonoBehaviour
             }
             playerTether.StartTetherPlacement(playerLasso.SnaredObject.transform, playerLasso.HitPos);
             playerLasso.SnaredObject.Rb.constraints = RigidbodyConstraints.FreezePosition;
+            playerLasso.SetRotating(false);
             SwitchLassoState(LassoState.SnaredTether);
         }
     }
