@@ -483,6 +483,7 @@ public class PlayerMovement : MonoBehaviour
         float newSpeed = Mathf.Max(0f, speed - deltaV);
         playerVel = (playerVel - velocityOnAxis) + (velocityOnAxis.normalized * newSpeed);
     }
+
     public void EnableFriction(bool enable)
     {
         _useFriction = enable;

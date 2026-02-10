@@ -44,8 +44,8 @@ public class Lasso : MonoBehaviour
 
     [Header("Lifting")]
     [SerializeField] private float liftSpeed = 1.5f;
-    [SerializeField] private float maxLiftHeight = 9.5f;
-    [SerializeField] private float minLiftHeight = 0.5f;
+    [field: SerializeField] public float maxLiftHeight { get; private set; }
+    [field: SerializeField] public float minLiftHeight { get; private set; }
     private float _currentLiftOffset;
     private float _maxLiftY;
     private float _minLiftY;
@@ -94,8 +94,6 @@ public class Lasso : MonoBehaviour
         {
             HandleObjectReleased();
         }
-
-        CheckNearbyTargets();
     }
 
     #endregion
@@ -138,11 +136,12 @@ public class Lasso : MonoBehaviour
 
     public Vector3 GetAnchoredCenterOfScreen()
     {
+        Ray ray = PlayerCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
         Vector3 screenCenter = new Vector3(Screen.width / 2f, Screen.height / 2f, 0f);
         Ray screenRay = PlayerCam.ScreenPointToRay(screenCenter);
 
         Vector3 camOffset = GetCameraWorldOffset();
-        Ray ray = new Ray(PlayerCamLookPos.position + camOffset, screenRay.direction);
+        //Ray ray = new Ray(PlayerCamLookPos.position + camOffset, screenRay.direction);
 
         Vector3 maxDistancePos = PlayerCamLookPos.position + camOffset + ray.direction * AnchorDist;
         maxDistancePos += Vector3.up * _currentLiftOffset;
@@ -151,7 +150,7 @@ public class Lasso : MonoBehaviour
     }
 
 
-    private void CheckNearbyTargets()
+    public void CheckNearbyTargets(bool showGrabPoints)
     {
         Prop targetProp = null;
 
@@ -164,8 +163,11 @@ public class Lasso : MonoBehaviour
                 targetProp.SetOutlineColour(Color.green);
                 targetProp.SetOutlineWidth(2f);
 
-                Transform closestPointTransform = targetProp.CheckNearestGrabPoint(hit.Value.point);
-                lassoGrabVisualIndicator.transform.position = closestPointTransform != null ? closestPointTransform.position : hit.Value.point;
+                if (showGrabPoints)
+                {
+                    Transform closestPointTransform = targetProp.CheckNearestGrabPoint(hit.Value.point);
+                    lassoGrabVisualIndicator.transform.position = closestPointTransform != null ? closestPointTransform.position : hit.Value.point;
+                }
             }
         }
 
@@ -177,7 +179,7 @@ public class Lasso : MonoBehaviour
         }
 
         bool targetPropExists = targetProp != null;
-        lassoGrabVisualIndicator.SetActive(targetPropExists && SnaredObject == null);
+        lassoGrabVisualIndicator.SetActive(targetPropExists && SnaredObject == null && showGrabPoints);
         _aimAssist.HighlightSelectedProp(targetProp, false);
 
         //MVG BRAEDEN INPUT STUFF
