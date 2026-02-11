@@ -48,6 +48,8 @@ public class ClawHead : EnvironmentalProp
 
         OnPropSnared += DeactivateJointForceOnGrab;
         OnPropReleased += ReactivateJointForceOnRelease;
+
+        ReactivateJointForceOnRelease();
     }
 
     protected override void Update()
