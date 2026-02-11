@@ -7,12 +7,12 @@ public class ZeldaCameraController : MonoBehaviour
     [Header("Target Settings")]
     [SerializeField] private Transform target;
     [SerializeField] private Vector3 targetOffset = new Vector3(0, 1.5f, 0);
-    [SerializeField] private Vector2 screenSpaceOffset;
+    [SerializeField] private Vector2 screenOffset;
 
     [Header("Camera Distance")]
     [SerializeField] private float defaultDistance = 5f;
     [SerializeField] private float minDistance = 2f;
-    [SerializeField] private float maxDistance = 10f;
+    private float currentMaxDistance;
 
     [Header("Rotation Settings")]
     [SerializeField] private float mouseSensitivity = 3f;
@@ -56,9 +56,12 @@ public class ZeldaCameraController : MonoBehaviour
     private Vector3 positionVelocity;
     private Vector3 rotationVelocity;
     private Vector3 smoothedTargetPosition;
+    private float? overrideSmoothTime = null;
+    private float? pitchSmoothOverride = null;
 
     //input
     private bool hasInput = false;
+    private bool yAxisLocked = false;
     private Camera cam;
 
     private void Start()
@@ -111,8 +114,12 @@ public class ZeldaCameraController : MonoBehaviour
         hasInput = Mathf.Abs(mouseX) > 0.001f || Mathf.Abs(mouseY) > 0.001f || Mathf.Abs(input.MoveInput.sqrMagnitude) > 0.001f;
 
         targetYaw += mouseX;
-        targetPitch -= mouseY;
-        targetPitch = Mathf.Clamp(targetPitch, minVerticalAngle, maxVerticalAngle);
+
+        if (!yAxisLocked)
+        {
+            targetPitch -= mouseY;
+            targetPitch = Mathf.Clamp(targetPitch, minVerticalAngle, maxVerticalAngle);
+        }
     }
 
     private bool colliding;
@@ -122,7 +129,9 @@ public class ZeldaCameraController : MonoBehaviour
     {
         //rotation
         currentYaw = Mathf.SmoothDampAngle(currentYaw, targetYaw, ref rotationVelocity.y, rotationSmoothTime);
-        currentPitch = Mathf.SmoothDampAngle(currentPitch, targetPitch, ref rotationVelocity.x, rotationSmoothTime);
+        float smoothTime = pitchSmoothOverride.HasValue ? pitchSmoothOverride.Value : rotationSmoothTime;
+        currentPitch = Mathf.SmoothDampAngle(currentPitch, targetPitch, ref rotationVelocity.x, smoothTime);
+
 
         //desired rotation
         ghostRotation = Quaternion.Euler(currentPitch, currentYaw, 0f);
@@ -171,7 +180,10 @@ public class ZeldaCameraController : MonoBehaviour
             //change smooth time based on zooming in vs out
             bool zoomingIn = targetCollisionDistance < previousTargetDistance - 0.01f;
             bool zoomingOut = targetCollisionDistance > previousTargetDistance + 0.01f;
-            if (zoomingIn) 
+
+            if (overrideSmoothTime.HasValue)
+                collisionSmoothTime = overrideSmoothTime.Value;
+            else if (zoomingIn) 
                 collisionSmoothTime = collisionZoomInTime; 
             else if (zoomingOut)
                 collisionSmoothTime = collisionZoomOutTime;
@@ -197,17 +209,18 @@ public class ZeldaCameraController : MonoBehaviour
 
     private Vector3 ApplyScreenSpaceOffset(Vector3 cameraPosition)
     {
-        float xOffset = screenSpaceOffset.x;
-        float yOffset = screenSpaceOffset.y;
+        float xOffset = screenOffset.x;
+        float yOffset = screenOffset.y;
 
         Vector3 right = ghostRotation * Vector3.right;
+        Vector3 up = ghostRotation * Vector3.up;
         float fov = cam.fieldOfView * Mathf.Deg2Rad;
         float aspect = cam.aspect;
 
         float verticalSize = Mathf.Tan(fov / 2f) * currentDistance;
         float horizontalSize = verticalSize * aspect;
 
-        Vector3 offset = (right * (xOffset * horizontalSize)) + (Vector3.up * (yOffset * verticalSize));
+        Vector3 offset = (right * (xOffset * horizontalSize)) + (up * (yOffset * verticalSize));
 
         return cameraPosition + offset;
     }
@@ -225,15 +238,13 @@ public class ZeldaCameraController : MonoBehaviour
 
     public void SetRotation(float yaw, float pitch)
     {
-        targetYaw = yaw;
-        currentYaw = yaw;
+        targetYaw = yaw; 
         targetPitch = Mathf.Clamp(pitch, minVerticalAngle, maxVerticalAngle);
-        currentPitch = targetPitch;
     }
 
     public void SetDistance(float distance)
     {
-        targetDistance = Mathf.Clamp(distance, minDistance, maxDistance);
+        targetDistance = Mathf.Clamp(distance, minDistance, currentMaxDistance);
         currentDistance = targetDistance;
     }
 
@@ -253,4 +264,31 @@ public class ZeldaCameraController : MonoBehaviour
     public float GetCurrentDistance() => currentDistance;
     public float GetCurrentYaw() => currentYaw;
     public float GetCurrentPitch() => currentPitch;
+
+    public Vector2 GetScreenOffset() => screenOffset;
+    public Vector3 GetTargetOffset() => targetOffset;
+    public float GetDefaultDistance() => defaultDistance;
+    public float GetMouseSensitivity() => mouseSensitivity;
+    public void SetScreenOffset(Vector2 offset) => screenOffset = offset;
+    public void SetTargetOffset(Vector3 offset) => targetOffset = offset;
+    public void SetMouseSensitivity(float xSens, float ySens)
+    {
+        mouseSensitivity = xSens;
+    }
+    public void SetYAxisLocked(bool locked) => yAxisLocked = locked;
+    public void SetDistanceLimit(float max)
+    {
+        currentMaxDistance = max;
+    }
+
+    public void SetCollisionSmoothTimeOverride(float? time)
+    {
+        overrideSmoothTime = time;
+    }
+
+    public void SetPitchSmoothOverride(float? time)
+    {
+        pitchSmoothOverride = time;
+    }
+
 }
