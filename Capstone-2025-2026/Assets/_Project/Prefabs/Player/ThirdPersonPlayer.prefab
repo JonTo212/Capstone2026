@@ -3924,6 +3924,8 @@ MonoBehaviour:
   timeToActivateAllTethers: 0.8
   timeToDestroyAllTethers: 0.8
   placedTethers: []
+  currentSelectedTether: {fileID: 0}
+  previousTether: {fileID: 0}
   aManage: {fileID: 0}
   isLookingAtTether: 0
   isLookingAtActiveTether: 0
@@ -4236,6 +4238,8 @@ MonoBehaviour:
   pauseMenuScreen: {fileID: 2451864746126980711}
   pauseMenuUI: {fileID: 7893419456801497725}
   settingsUI: {fileID: 490518717254737633}
+  settingsFirst: {fileID: 4466312991506336320}
+  menuFirst: {fileID: 2013573229768598438}
   playerActions: {fileID: 4800881338183066832}
 --- !u!114 &3642584705358189346
 MonoBehaviour:
@@ -7137,7 +7141,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 7777431948427391573}
         m_TargetAssemblyTypeName: PauseMenu, Assembly-CSharp
-        m_MethodName: soundBack
+        m_MethodName: settingsBack
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -8453,8 +8457,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5396773552799198221}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: -1.9594996, y: 1.75, z: 0.00000023841858}
+  m_LocalRotation: {x: 0.1440329, y: -0.64980084, z: 0.12726736, w: 0.7354022}
+  m_LocalPosition: {x: -34.072975, y: 3.9061825, z: 141.81476}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -9095,8 +9099,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 4091486024729698376}
   m_HandleRect: {fileID: 1493070891470726906}
   m_Direction: 2
-  m_Value: 1
-  m_Size: 0.2667048
+  m_Value: 1.0000001
+  m_Size: 0.26670483
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -10172,8 +10176,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6770766517387362463}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: -6.090001, y: 1.75, z: 0.0000009536743}
+  m_LocalRotation: {x: 0.18946692, y: 0.08636991, z: -0.016733414, w: 0.9779379}
+  m_LocalPosition: {x: -1.0178612, y: 4.088026, z: -5.717506}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -10256,7 +10260,7 @@ MonoBehaviour:
     SplineCurvature: 1
   RecenteringTarget: 2
   HorizontalAxis:
-    Value: 0
+    Value: 10.09435
     Center: 0
     Range: {x: -180, y: 180}
     Wrap: 1
@@ -10266,7 +10270,7 @@ MonoBehaviour:
       Time: 2
     Restrictions: 0
   VerticalAxis:
-    Value: 17.5
+    Value: 22.239176
     Center: 17.5
     Range: {x: -10, y: 45}
     Wrap: 0
@@ -10349,7 +10353,7 @@ MonoBehaviour:
         InputAction: {fileID: -5630151704836100654, guid: 1d6e640e716dc4ff6989b73d02023f2b, type: 3}
         Gain: -0.25
         CancelDeltaTime: 0
-      InputValue: 0
+      InputValue: -0
       Driver:
         AccelTime: 0.2
         DecelTime: 0.2
@@ -10360,7 +10364,7 @@ MonoBehaviour:
         InputAction: {fileID: 5082991133974614888, guid: 1d6e640e716dc4ff6989b73d02023f2b, type: 3}
         Gain: -1
         CancelDeltaTime: 0
-      InputValue: 0
+      InputValue: -0
       Driver:
         AccelTime: 0
         DecelTime: 0
