@@ -64,7 +64,6 @@ public class CameraModeController : MonoBehaviour
         if (cameraController == null)
             cameraController = GetComponent<ZeldaCameraController>();
 
-        // Cache defaults
         defaultScreenOffset = cameraController.GetScreenOffset();
         defaultTargetOffset = cameraController.GetTargetOffset();
         defaultDistance = cameraController.GetDefaultDistance();
@@ -83,8 +82,8 @@ public class CameraModeController : MonoBehaviour
             }
         }
 
-        baseSensitivityX = cameraController.GetMouseSensitivity();
-        baseSensitivityY = baseSensitivityX; // Assuming uniform start
+        baseSensitivityX = cameraController.GetMouseXSensitivity();
+        baseSensitivityY = cameraController.GetMouseYSensitivity();
     }
 
     private void Update()
@@ -195,7 +194,7 @@ public class CameraModeController : MonoBehaviour
     {
         Camera mainCam = Camera.main;
 
-        // --- 1. Calculate Required Distance ---
+        //player and object sizes
         float playerBottom = playerPos.y - (characterHeight / 2f);
         float playerTop = playerPos.y + (characterHeight / 2f);
 
@@ -213,35 +212,24 @@ public class CameraModeController : MonoBehaviour
         float highestY = Mathf.Max(playerTop, objectTop);
         float verticalSpan = highestY - lowestY;
 
+        //add zoom padding
         verticalSpan *= zoomPadding;
 
         float fovRad = mainCam.fieldOfView * Mathf.Deg2Rad;
         float requiredDistance = verticalSpan / (2f * Mathf.Tan(fovRad / 2f));
         requiredDistance = Mathf.Max(requiredDistance, defaultDistance);
 
-        // --- 2. Midpoint Calculation ---
-        Vector3 worldMidpoint = new Vector3(
-            (playerPos.x + objectPos.x) / 2f,
-            (lowestY + highestY) / 2f,
-            (playerPos.z + objectPos.z) / 2f
-        );
-
+        //midpoint between player and object
+        Vector3 worldMidpoint = new Vector3((playerPos.x + objectPos.x) / 2f, (lowestY + highestY) / 2f, (playerPos.z + objectPos.z) / 2f);
         Vector3 midpointViewport = mainCam.WorldToViewportPoint(worldMidpoint);
 
+        //player's default position, inc offset
         float currentY = midpointViewport.y;
-
-        // Player should appear at playerDefaultYOffset in viewport
         float targetY = playerDefaultYOffset;
-
-        // Drift relative to desired anchor
         float delta = currentY - targetY;
-
-        // Convert to -1..1
         float normalized = Mathf.Clamp(delta * 2f, -1f, 1f);
 
-        // This is ONLY used by LassoModeCamera for pitch
         optimalFraming = new Vector2(0f, normalized);
-
         return requiredDistance - defaultDistance;
     }
 

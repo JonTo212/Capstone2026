@@ -15,19 +15,21 @@ public class ZeldaCameraController : MonoBehaviour
     private float currentMaxDistance;
 
     [Header("Rotation Settings")]
-    [SerializeField] private float mouseSensitivity = 3f;
+    [SerializeField] private float mouseXSensitivity = 1f;
+    [SerializeField] private float mouseYSensitivity = 1f;
+    [SerializeField] private float controllerXSensitivityMultiplier = 5f;
+    [SerializeField] private float controllerYSensitivityMultiplier = 5f;
     [SerializeField] private float minVerticalAngle = -30f;
     [SerializeField] private float maxVerticalAngle = 70f;
-    [SerializeField] private float rotationSmoothTime = 0.05f;
+    [SerializeField] private float rotationSmoothTime = 0f; //ANY NON-ZERO VALUE BREAKS ROTATION IF YOU SWEEP WITH YOUR MOUSE VERY QUICKLY
 
     [Header("Position Smoothing")]
-    [SerializeField] private float positionSmoothTime = 0.1f;
     [SerializeField] private Vector3 positionDamping;
 
     [Header("Collision")]
     [SerializeField] private bool handleCollision = true;
     [SerializeField] private float collisionBuffer = 0.2f;
-    [SerializeField] private float cameraRadius = 0.3f; // Sphere radius for collision detection
+    [SerializeField] private float cameraRadius = 0.3f;
     [SerializeField] private LayerMask collisionLayers = ~0;
     [SerializeField] private float collisionZoomInTime = 0.1f;
     [SerializeField] private float collisionZoomOutTime = 0.8f;
@@ -51,6 +53,7 @@ public class ZeldaCameraController : MonoBehaviour
     private float collisionVelocity;
     private float collisionSmoothTime;
     private float previousTargetDistance;
+    private bool colliding;
 
     //smoothing
     private Vector3 positionVelocity;
@@ -108,8 +111,19 @@ public class ZeldaCameraController : MonoBehaviour
 
     private void HandleInput()
     {
-        float mouseX = input.LookInput.x * mouseSensitivity;
-        float mouseY = input.LookInput.y * mouseSensitivity;
+        float mouseX = input.LookInput.x;
+        float mouseY = input.LookInput.y;
+
+        if (input.CurrentDevice.Equals(PlayerActions.InputType.MouseKeyboard))
+        {
+            mouseX *= mouseXSensitivity;
+            mouseY *= mouseYSensitivity;
+        }
+        else if(input.CurrentDevice.Equals(PlayerActions.InputType.Controller))
+        {
+            mouseX *= mouseXSensitivity * controllerXSensitivityMultiplier;
+            mouseY *= mouseYSensitivity * controllerYSensitivityMultiplier;
+        }
 
         hasInput = Mathf.Abs(mouseX) > 0.001f || Mathf.Abs(mouseY) > 0.001f || Mathf.Abs(input.MoveInput.sqrMagnitude) > 0.001f;
 
@@ -122,16 +136,12 @@ public class ZeldaCameraController : MonoBehaviour
         }
     }
 
-    private bool colliding;
-    private bool wasColliding;
-
     private void UpdateGhostTransform()
     {
         //rotation
         currentYaw = Mathf.SmoothDampAngle(currentYaw, targetYaw, ref rotationVelocity.y, rotationSmoothTime);
         float smoothTime = pitchSmoothOverride.HasValue ? pitchSmoothOverride.Value : rotationSmoothTime;
         currentPitch = Mathf.SmoothDampAngle(currentPitch, targetPitch, ref rotationVelocity.x, smoothTime);
-
 
         //desired rotation
         ghostRotation = Quaternion.Euler(currentPitch, currentYaw, 0f);
@@ -195,7 +205,6 @@ public class ZeldaCameraController : MonoBehaviour
                 collisionVelocity = 0f;
 
             previousTargetDistance = targetCollisionDistance;
-            wasColliding = colliding;
 
             //set ghost position for smoothing
             ghostPosition = smoothedTargetPosition + direction.normalized * collisionDistance;
@@ -268,12 +277,14 @@ public class ZeldaCameraController : MonoBehaviour
     public Vector2 GetScreenOffset() => screenOffset;
     public Vector3 GetTargetOffset() => targetOffset;
     public float GetDefaultDistance() => defaultDistance;
-    public float GetMouseSensitivity() => mouseSensitivity;
+    public float GetMouseXSensitivity() => mouseXSensitivity;
+    public float GetMouseYSensitivity() => mouseYSensitivity;
     public void SetScreenOffset(Vector2 offset) => screenOffset = offset;
     public void SetTargetOffset(Vector3 offset) => targetOffset = offset;
     public void SetMouseSensitivity(float xSens, float ySens)
     {
-        mouseSensitivity = xSens;
+        mouseXSensitivity = xSens;
+        mouseYSensitivity = ySens;
     }
     public void SetYAxisLocked(bool locked) => yAxisLocked = locked;
     public void SetDistanceLimit(float max)
