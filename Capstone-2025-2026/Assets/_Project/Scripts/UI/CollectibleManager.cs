@@ -1,16 +1,32 @@
+using TMPro;
 using UnityEngine;
 
 public class CollectibleManager : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
+    
+    public static CollectibleManager Instance { get; private set; }
+
+    public TextMeshProUGUI coinCounter;
         
+    public int coins = 0000;
+
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+
+        //DontDestroyOnLoad(gameObject);
+
     }
 
-    // Update is called once per frame
-    void Update()
+    public void CoinCollected()
     {
-        
+        coins++;
+        coinCounter.text = coins.ToString();
     }
 }
