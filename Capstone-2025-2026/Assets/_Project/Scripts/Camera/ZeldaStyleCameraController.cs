@@ -199,7 +199,7 @@ public class ZeldaCameraController : MonoBehaviour
                 collisionSmoothTime = collisionZoomOutTime;
 
             //only move camera on input or if colliding
-            if (colliding || hasInput) 
+            if (colliding || hasInput || overrideSmoothTime.HasValue) 
                 collisionDistance = Mathf.SmoothDamp(collisionDistance, targetCollisionDistance, ref collisionVelocity, collisionSmoothTime);
             else
                 collisionVelocity = 0f;

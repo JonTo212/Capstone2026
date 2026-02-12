@@ -42,6 +42,7 @@ public class CameraModeController : MonoBehaviour
     [Header("Lasso Mode Dynamic Zoom Settings")]
     [SerializeField] private float playerDefaultYOffset = 0.25f;
     [SerializeField] private float zoomPadding = 1.15f;
+    [SerializeField] private float lassoZoomOutSmoothTime = 0.1f;
 
     // Cached values
     private Vector2 defaultScreenOffset;
@@ -123,11 +124,11 @@ public class CameraModeController : MonoBehaviour
             currentTargetDistance = defaultDistance + requiredDistanceOffset;
 
             ApplyCameraSettings(optimalFraming, currentTargetOffset, currentTargetDistance, true, lassoModeAdjustSpeed);
-            cameraController.SetCollisionSmoothTimeOverride(0.1f);
+            cameraController.SetCollisionSmoothTimeOverride(lassoZoomOutSmoothTime);
 
             if (!hasSnappedToLasso)
             {
-                cameraController.SetPitchSmoothOverride(0.1f);
+                cameraController.SetPitchSmoothOverride(lassoZoomOutSmoothTime);
                 cameraController.SetRotation(cameraController.GetCurrentYaw(), 0f);
 
                 hasSnappedToLasso = true;
@@ -148,7 +149,7 @@ public class CameraModeController : MonoBehaviour
     {
         cameraController.SetCollisionSmoothTimeOverride(null);
         cameraController.SetPitchSmoothOverride(null);
-        cameraController.SetDistanceLimit(10f);
+        cameraController.SetDistanceLimit(defaultDistance);
         hasSnappedToLasso = false;
 
         if (lassoTetherController.rodEquipped)
