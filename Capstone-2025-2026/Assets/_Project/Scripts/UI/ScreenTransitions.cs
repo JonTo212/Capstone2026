@@ -1,16 +1,20 @@
-using UnityEngine;
-using UnityEngine.UI;
-using System.Collections;
 using DG.Tweening;
+using System.Collections;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class ScreenTransitions : MonoBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
 
+    public GameObject StartButton;
+
     void Start()
     {
         Tween fadeOut = gameObject.GetComponent<Image>().DOFade(0, 2f);
         fadeOut.onComplete += () => gameObject.SetActive(false);
+        fadeOut.onComplete += () => EventSystem.current.SetSelectedGameObject(StartButton);
         Sequence startFadeIn = DOTween.Sequence(fadeOut);
         startFadeIn.Play();
     }

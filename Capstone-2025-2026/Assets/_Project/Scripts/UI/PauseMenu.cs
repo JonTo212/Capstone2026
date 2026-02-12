@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 
 public class PauseMenu : MonoBehaviour
@@ -8,6 +9,9 @@ public class PauseMenu : MonoBehaviour
     public GameObject pauseMenuScreen;
     public GameObject pauseMenuUI;
     public GameObject settingsUI;
+
+    public GameObject settingsFirst;
+    public GameObject menuFirst;
 
     public PlayerActions playerActions;
 
@@ -45,28 +49,40 @@ public class PauseMenu : MonoBehaviour
         Time.timeScale = 0f;
         gameIsPaused = true;
         playerActions.DisableAllInput();
+        EventSystem.current.SetSelectedGameObject(menuFirst);
     }
 
-    public void Settings()
-    {
-        pauseMenuUI.SetActive(false);
-        settingsUI.SetActive(true);
-    }
 
     public void ReturnToTitle()
     {
         Time.timeScale = 1f;
         SceneManager.LoadScene("StartMenu");
     }
-    
+
     #endregion
 
     #region Settings
 
-    public void soundBack()
+    public void Settings()
+    {
+        pauseMenuUI.SetActive(false);
+        settingsUI.SetActive(true);
+        EventSystem.current.SetSelectedGameObject(settingsFirst);
+    }
+
+    public void settingsBack()
     {
         settingsUI.SetActive(false);
         pauseMenuUI.SetActive(true);
+        EventSystem.current.SetSelectedGameObject(menuFirst);
+    }
+
+    public void allBack()
+    {
+        settingsUI.SetActive(false) ;
+        pauseMenuUI.SetActive(true) ;
+
+        EventSystem.current.SetSelectedGameObject(null);
     }
     #endregion
 }
