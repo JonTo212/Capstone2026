@@ -5,7 +5,12 @@ using UnityEngine.UI;
 
 public class UIImageMovement : MonoBehaviour
 {
-    public GameObject tetherIconObject;
+    [SerializeField] private GameObject player;
+    [SerializeField] private LassoTetherController lassoTetherControllerScript;
+    [SerializeField] private PlayerActions playerActionsScript;
+
+
+    [SerializeField] private GameObject tetherIconObject;
 
     public RawImage RodIcon;
     public RawImage TetherIcon;
@@ -14,12 +19,24 @@ public class UIImageMovement : MonoBehaviour
     public Texture RodSprite; // needed to store the origional sprites
     public Texture TetherSprite; // needed to store the origional sprites
 
-    public LassoTetherController lassoTetherControllerScript;
-    public PlayerActions playerActionsScript;
+
     public Transform location1;
     public Transform location2;
 
+    
+
     private float timeToMove = 0.5f; //time in seconds to move between points
+
+
+    private void Start()
+    {
+        //player info
+        player = GameObject.FindWithTag("Player");
+        lassoTetherControllerScript = player.GetComponent<LassoTetherController>();
+        playerActionsScript = player.GetComponent<PlayerActions>();
+
+        tetherIconObject = transform.Find("childname").gameObject;
+    }
 
     void Update()
     {

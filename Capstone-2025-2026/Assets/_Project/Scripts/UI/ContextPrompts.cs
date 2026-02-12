@@ -49,6 +49,8 @@ public class ContextPrompts : MonoBehaviour
 
         lassoTetherController = player.GetComponent<LassoTetherController>();
         jointTetherActivator = player.GetComponent<JointTetherActivator>();
+        player = GameObject.FindWithTag("Player");
+
         //npcPufferfish = BigMama.GetComponent<NPC_Pufferfish>();
     }
 
