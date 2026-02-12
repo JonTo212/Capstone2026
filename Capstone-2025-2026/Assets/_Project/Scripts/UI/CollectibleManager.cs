@@ -1,4 +1,6 @@
 using TMPro;
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 //The new big mama B)
@@ -12,13 +14,18 @@ public class CollectibleManager : MonoBehaviour
         
     public int coins = 0000;
 
-    [HideInInspector]
-    public Sprite[] silSprites;
-    [HideInInspector]
-    public Sprite[] stampSprites;
-
     private CritterCountSpawner spawner;
-    private int numOfCritters = 0;
+
+    public class CritterCatalogue
+    {
+        public int critID { get; set; }
+        public Sprite silSpr { get; set; }
+        public Sprite stmSpr { get; set; }
+
+    }
+    List<CritterCatalogue> critLog = new List<CritterCatalogue>();
+    [HideInInspector]
+    public int count = 0;
 
     private void Awake()
     {
@@ -43,10 +50,28 @@ public class CollectibleManager : MonoBehaviour
         coinCounter.text = coins.ToString();
     }
 
-    public void SetUpCritter (Sprite critterSilSprite)
+    public void CritterCollected(Sprite critterStampSprite)
     {
-        numOfCritters++;
-        
-        spawner.SetUpSilUI(critterSilSprite);
+
     }
+
+
+    public void SetUpCritter (Sprite critterSilSprite, Sprite critterStampSprite)
+    {
+
+        critLog.Add(new CritterCatalogue());
+        critLog[count].critID = count;
+        critLog[count].silSpr = critterSilSprite;
+        critLog[count].stmSpr = critterStampSprite;
+
+
+        PopulateSetUp();
+    }
+
+    private void PopulateSetUp() 
+    {
+        spawner.SetUpSilUI(critLog[count].silSpr);
+        count++;
+    }
+
 }

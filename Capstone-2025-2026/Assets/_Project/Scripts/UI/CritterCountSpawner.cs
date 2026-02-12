@@ -37,7 +37,7 @@ public class CritterCountSpawner : MonoBehaviour
 
         silSprites.Add(silSprite);
 
-        
+
     }
 
     private void Populate()
@@ -54,15 +54,17 @@ public class CritterCountSpawner : MonoBehaviour
             
             c_UIs[i] = Instantiate(critter_UI,this.transform);
 
+            //will be obsolete once Prefab is established
+            c_UIs[i].SetActive(true);
+            Debug.Log(silSprites[i]);
+
             Vector3 placement = c_UIs[i].transform.position + new Vector3((i * 40) - 100, 0, 0);
             c_UIs[i].transform.position = placement;
             
             Image silh = c_UIs[i].GetComponent<Image>();
             silh.sprite = silSprites[i];
             
-            //will be obsolete once Prefab is established
-            c_UIs[i].SetActive(true);
-            Debug.Log(silSprites[i]);
+
         }
     }
 }
