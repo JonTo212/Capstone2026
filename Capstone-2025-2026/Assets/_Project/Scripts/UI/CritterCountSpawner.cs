@@ -54,7 +54,7 @@ public class CritterCountSpawner : MonoBehaviour
             
             c_UIs[i] = Instantiate(critter_UI,this.transform);
 
-            Vector3 placement = c_UIs[i].transform.position + new Vector3((i * 40) - 95, 0, 0);
+            Vector3 placement = c_UIs[i].transform.position + new Vector3((i * 40) - 100, 0, 0);
             c_UIs[i].transform.position = placement;
             
             Image silh = c_UIs[i].GetComponent<Image>();
