@@ -280,7 +280,7 @@ public class SpecialCameraController : MonoBehaviour
 
         //calculate dynamic offset based on actual position of object relative to the player's feet
         float relativeObjectHeight = objectPos.y - playerGroundY;
-        float minLiftHeight = lassoTetherController.Lasso.minLiftHeight;
+        float minLiftHeight = lassoTetherController.Lasso.GetMinimumLiftHeight();
         float maxLiftHeight = lassoTetherController.Lasso.maxLiftHeight;
         float objectHeightAboveGround = objectPos.y - playerGroundY;
         float heightRatio = Mathf.InverseLerp(minLiftHeight, maxLiftHeight, objectHeightAboveGround);

@@ -40,8 +40,6 @@ public class CameraModeController : MonoBehaviour
     [SerializeField] private float lassoSensMultiplier = 0.75f;
 
     [Header("Lasso Mode Dynamic Zoom Settings")]
-    [SerializeField] private float baseMidpointOffset = 0.05f;
-    [SerializeField] private float maxMidpointOffset = 0.1f;
     [SerializeField] private float playerDefaultYOffset = 0.25f;
     [SerializeField] private float zoomPadding = 1.15f;
 
@@ -52,6 +50,8 @@ public class CameraModeController : MonoBehaviour
     private float characterHeight;
     private float baseSensitivityX;
     private float baseSensitivityY;
+    private bool hasSnappedToLasso;
+
 
     private Vector2 currentScreenOffset;
     private Vector3 currentTargetOffset;
@@ -107,7 +107,7 @@ public class CameraModeController : MonoBehaviour
                 break;
         }
     }
-    private bool hasSnappedToLasso;
+
     private void LassoModeCamera()
     {
         Prop snaredProp = lassoTetherController.Lasso.SnaredObject;

@@ -59164,7 +59164,7 @@ MonoBehaviour:
     distanceOffset: 0
     lockYAxis: 0
   - cameraState: 3
-    screenOffset: {x: 0, y: 0}
+    screenOffset: {x: 0.15, y: 0.05}
     targetOffset: {x: 0, y: 2.5, z: 0}
     distanceOffset: 0
     lockYAxis: 0
@@ -59173,10 +59173,10 @@ MonoBehaviour:
   defaultAdjustSpeed: 2.5
   tetherSensMultiplier: 0.75
   lassoSensMultiplier: 0.9
-  baseMidpointOffset: 0.05
-  maxMidpointOffset: 0.1
-  playerDefaultYOffset: 0.4
-  zoomPadding: 0.75
+  baseMidpointOffset: 0.1
+  maxMidpointOffset: 0.2
+  playerDefaultYOffset: 0.35
+  zoomPadding: 0.85
 --- !u!33 &5670328801655667638
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -59261,10 +59261,15 @@ MonoBehaviour:
   forwardRef: {fileID: 1107846747}
   <camInputController>k__BackingField: {fileID: 1205049040004138823}
   liftSpeed: 1
-  <maxLiftHeight>k__BackingField: 11
-  <minLiftHeight>k__BackingField: 1
+  <maxLiftHeight>k__BackingField: 15
+  <minHeightAboveGround>k__BackingField: 0.5
+  groundCheckDistance: 100
+  groundLayers:
+    serializedVersion: 2
+    m_Bits: 64
   degreesPerSecond: 180
   mkSensMultiplier: 0.05
+  maxBelowGround: 3
 --- !u!1 &5767376196489656464
 GameObject:
   m_ObjectHideFlags: 0
@@ -64634,7 +64639,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &6839994865126792758
 GameObject:
   m_ObjectHideFlags: 0
@@ -66506,7 +66511,7 @@ MonoBehaviour:
   coyoteTimeCounter: 0
   ledgeScanLength: 1.5
   ledgeScanDepth: 5
-  doubleJumpDuration: 0.1
+  doubleJumpDuration: 0
   doubleJumpMultiplier: 0.825
   playerCam: {fileID: 4270019201415842798}
   useDoubleJump: 1

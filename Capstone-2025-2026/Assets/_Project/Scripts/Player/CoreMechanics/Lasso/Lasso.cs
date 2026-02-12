@@ -45,10 +45,11 @@ public class Lasso : MonoBehaviour
     [Header("Lifting")]
     [SerializeField] private float liftSpeed = 1.5f;
     [field: SerializeField] public float maxLiftHeight { get; private set; }
-    [field: SerializeField] public float minLiftHeight { get; private set; }
+    [field: SerializeField] public float minHeightAboveGround { get; private set; }
+    [SerializeField] private float groundCheckDistance = 100f;
+    [SerializeField] private LayerMask groundLayers;
     private float _currentLiftOffset;
-    private float _maxLiftY;
-    private float _minLiftY;
+
 
     [Header("Internal Variables")]
     private AimAssist _aimAssist;
@@ -94,6 +95,8 @@ public class Lasso : MonoBehaviour
         {
             HandleObjectReleased();
         }
+
+        if (SnaredObject != null) SetVerticalAnchor();
     }
 
     #endregion
@@ -134,16 +137,17 @@ public class Lasso : MonoBehaviour
         return Vector3.zero;
     }
 
-    public Vector3 GetAnchoredCenterOfScreen()
+    private Vector3 GetBaseTargetPos()
     {
         Ray ray = PlayerCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
-        Vector3 screenCenter = new Vector3(Screen.width / 2f, Screen.height / 2f, 0f);
-        Ray screenRay = PlayerCam.ScreenPointToRay(screenCenter);
 
         Vector3 camOffset = GetCameraWorldOffset();
-        //Ray ray = new Ray(PlayerCamLookPos.position + camOffset, screenRay.direction);
+        return PlayerCamLookPos.position + camOffset + (ray.direction * AnchorDist);
+    }
 
-        Vector3 maxDistancePos = PlayerCamLookPos.position + camOffset + ray.direction * AnchorDist;
+    public Vector3 GetAnchoredCenterOfScreen()
+    {
+        Vector3 maxDistancePos = GetBaseTargetPos();
         maxDistancePos += Vector3.up * _currentLiftOffset;
 
         return maxDistancePos;
@@ -232,10 +236,10 @@ public class Lasso : MonoBehaviour
         {
             RaycastHit actualHit = hit.Value;
             Prop prop = actualHit.transform.GetComponentInParent<Prop>();
-            GetHoldPoint(prop, actualHit, prop.IsTetherPulled);
 
             if (prop.transform == PlayerController.IsGrounded()) return;
 
+            GetHoldPoint(prop, actualHit, prop.IsTetherPulled);
             _snaredObjTransform = prop.transform;
             SnaredObject = prop;
             _snaredObjTransform.gameObject.tag = gameObject.tag;
@@ -510,15 +514,82 @@ public class Lasso : MonoBehaviour
 
     private void SetVerticalAnchor()
     {
-        float cinemachineOffset = CinemachineBrain.GetComponent<CinemachineCameraOffset>().Offset.y;
-        float characterFeetY = transform.position.y - 1f; //player is 2 units tall
+        //get base position (same as 
+        Vector3 baseTargetPos = GetBaseTargetPos();
 
-        float maxY = characterFeetY + maxLiftHeight - cinemachineOffset;
-        float minY = characterFeetY + minLiftHeight - cinemachineOffset;
+        //get world space limits
+        float characterFeetY = transform.position.y - 1f;
+        float absoluteMaxY = characterFeetY + maxLiftHeight;
+        float absoluteMinY = GetMinimumLiftHeight();
 
-        _currentLiftOffset = Mathf.Clamp(_currentLiftOffset, minY, maxY);
-        //PlayerCamLookPos.position = new Vector3(PlayerCamLookPos.position.x, _currentLiftOffset, PlayerCamLookPos.position.z);
+        //convert those limits relative to the base position
+        float maxAllowedOffset = absoluteMaxY - baseTargetPos.y;
+        float minAllowedOffset = absoluteMinY - baseTargetPos.y;
+
+        _currentLiftOffset = Mathf.Clamp(_currentLiftOffset, minAllowedOffset, maxAllowedOffset);
     }
+
+    public float maxBelowGround = -3f;
+
+    public float GetMinimumLiftHeight()
+    {
+        if (SnaredObject == null || _snaredObjTransform == null)
+            return 0f;
+
+        if (!TryGetObjectBounds(SnaredObject.gameObject, out Bounds bounds))
+            return 0f;
+
+        Vector3 boxOrigin = new Vector3(bounds.center.x, bounds.min.y + 0.01f, bounds.center.z);
+        Vector3 halfExtents = new Vector3(bounds.extents.x * 0.9f, 0.01f, bounds.extents.z * 0.9f);
+
+        float groundYBelowObject = float.NegativeInfinity;
+
+        if (Physics.BoxCast(boxOrigin, halfExtents, Vector3.down, out RaycastHit hit, Quaternion.identity, groundCheckDistance, groundLayers))
+        {
+            groundYBelowObject = hit.point.y;
+        }
+
+        float objectHalfHeight = bounds.extents.y;
+
+        //ground found under object -> minHeightAboveGround + hit
+        if (!float.IsNegativeInfinity(groundYBelowObject))
+        {
+            return groundYBelowObject + objectHalfHeight + minHeightAboveGround;
+        }
+
+        //fallback -> object is floating above the void
+        float playerFeetY = transform.position.y - 1f;
+        return playerFeetY - maxBelowGround;
+    }
+
+    bool TryGetObjectBounds(GameObject obj, out Bounds bounds)
+    {
+        bounds = new Bounds();
+
+        Collider[] colliders = obj.GetComponentsInChildren<Collider>();
+        if (colliders.Length > 0)
+        {
+            bounds = colliders[0].bounds;
+            for (int i = 1; i < colliders.Length; i++)
+                bounds.Encapsulate(colliders[i].bounds);
+
+            return true;
+        }
+
+        Renderer[] renderers = obj.GetComponentsInChildren<Renderer>();
+        if (renderers.Length > 0)
+        {
+            bounds = renderers[0].bounds;
+            for (int i = 1; i < renderers.Length; i++)
+                bounds.Encapsulate(renderers[i].bounds);
+
+            return true;
+        }
+
+        return false;
+    }
+
+
 
     #endregion
 
