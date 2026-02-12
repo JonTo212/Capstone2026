@@ -40,6 +40,7 @@ public class LassoTetherController : MonoBehaviour
     public Lasso Lasso => playerLasso;
 
     public bool rodEquipped = true;
+    public bool CanUseTools { get; private set; }
     //public bool tetherEquipped = true;
 
     #region Unity Functions
@@ -171,6 +172,11 @@ public class LassoTetherController : MonoBehaviour
     {
         playerLasso.HandleHold();
         SwitchLassoState(LassoState.Empty);
+    }
+
+    public void EnableTools(bool enable)
+    {
+
     }
 
     #endregion
