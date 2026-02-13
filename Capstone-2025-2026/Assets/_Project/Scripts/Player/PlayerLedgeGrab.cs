@@ -227,6 +227,5 @@ public class PlayerLedgeGrab : MonoBehaviour
     {
         ReleaseLedge();
         _playerController.Jump(ledgeJumpForceMultiplier, true);
-        _playerController.PlayerModelRotationHandler.SetNewRotationDir(Quaternion.identity);
     }
 }

@@ -97,7 +97,7 @@ public class Lasso : MonoBehaviour
             HandleObjectReleased();
         }
 
-        if (SnaredObject != null) SetVerticalAnchor();
+        if (SnaredObject != null) SetVerticalAnchor(false);
     }
 
     #endregion
@@ -174,6 +174,10 @@ public class Lasso : MonoBehaviour
                     lassoGrabVisualIndicator.transform.position = closestPointTransform != null ? closestPointTransform.position : hit.Value.point;
                 }
             }
+            else
+            {
+                lassoGrabVisualIndicator.transform.position = transform.position;
+            }
         }
 
         if (SnaredObject != null)
@@ -184,7 +188,7 @@ public class Lasso : MonoBehaviour
         }
 
         bool targetPropExists = targetProp != null;
-        bool showIndicator = showGrabPoints || targetProp.IsTetherPulled;
+        bool showIndicator = showGrabPoints || (targetPropExists ? targetProp.IsTetherPulled : false);
         lassoGrabVisualIndicator.SetActive(targetPropExists && SnaredObject == null && showIndicator);
         _aimAssist.HighlightSelectedProp(targetProp, false);
 
@@ -245,7 +249,6 @@ public class Lasso : MonoBehaviour
             _snaredObjTransform = prop.transform;
             SnaredObject = prop;
             _snaredObjTransform.gameObject.tag = gameObject.tag;
-            SetVerticalAnchor();
             GetStartGrabRotation();
 
             prop.OnSnare();
@@ -512,12 +515,11 @@ public class Lasso : MonoBehaviour
         if (Mathf.Approximately(lookInputY, 0f)) return;
 
         _currentLiftOffset += lookInputY * liftSpeed * Time.deltaTime;
-        SetVerticalAnchor();
     }
 
-    private void SetVerticalAnchor()
+    public void SetVerticalAnchor(bool setMinimum)
     {
-        //get base position (same as 
+        //get base position
         Vector3 baseTargetPos = GetBaseTargetPos();
 
         //get world space limits
@@ -528,6 +530,8 @@ public class Lasso : MonoBehaviour
         //convert those limits relative to the base position
         float maxAllowedOffset = absoluteMaxY - baseTargetPos.y;
         float minAllowedOffset = absoluteMinY - baseTargetPos.y;
+
+        if (setMinimum) _currentLiftOffset = minAllowedOffset;
 
         _currentLiftOffset = Mathf.Clamp(_currentLiftOffset, minAllowedOffset, maxAllowedOffset);
     }

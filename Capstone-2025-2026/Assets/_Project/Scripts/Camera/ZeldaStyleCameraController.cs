@@ -104,7 +104,8 @@ public class ZeldaCameraController : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (target == null) return;
+        if (Time.timeScale == 0f || Time.deltaTime <= float.Epsilon || target == null)
+            return;
 
         UpdateGhostTransform();
         SmoothCameraToGhost();
@@ -143,9 +144,27 @@ public class ZeldaCameraController : MonoBehaviour
     private void UpdateGhostTransform()
     {
         //rotation
-        currentYaw = Mathf.SmoothDampAngle(currentYaw, targetYaw, ref rotationVelocity.y, rotationSmoothTime);
+        if (rotationSmoothTime > 0.001f)
+        {
+            currentYaw = Mathf.SmoothDampAngle(currentYaw, targetYaw, ref rotationVelocity.y, rotationSmoothTime);
+        }
+        else
+        {
+            //pausing was causing infinite division, so in a circumstance where the value is 0, this is a safety net
+            currentYaw = targetYaw;
+            rotationVelocity.y = 0f;
+        }
+
         float smoothTime = pitchSmoothOverride.HasValue ? pitchSmoothOverride.Value : rotationSmoothTime;
-        currentPitch = Mathf.SmoothDampAngle(currentPitch, targetPitch, ref rotationVelocity.x, smoothTime);
+        if (smoothTime > 0.001f)
+        {
+            currentPitch = Mathf.SmoothDampAngle(currentPitch, targetPitch, ref rotationVelocity.x, smoothTime);
+        }
+        else
+        {
+            currentPitch = targetPitch;
+            rotationVelocity.x = 0f;
+        }
 
         //desired rotation
         ghostRotation = Quaternion.Euler(currentPitch, currentYaw, 0f);
