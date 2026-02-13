@@ -97,6 +97,7 @@ public class Lasso : MonoBehaviour
             HandleObjectReleased();
         }
 
+        CheckNearbyTargets(true);
         if (SnaredObject != null) SetVerticalAnchor(false);
     }
 
@@ -123,7 +124,7 @@ public class Lasso : MonoBehaviour
 
     public void SetLayer(Prop obj, bool original)
     {
-        if(original) obj.gameObject.tag = obj.OriginalTag;
+        if (original) obj.gameObject.tag = obj.OriginalTag;
         else obj.gameObject.tag = gameObject.tag;
     }
 
@@ -173,6 +174,10 @@ public class Lasso : MonoBehaviour
                     Transform closestPointTransform = targetProp.CheckNearestGrabPoint(hit.Value.point);
                     lassoGrabVisualIndicator.transform.position = closestPointTransform != null ? closestPointTransform.position : hit.Value.point;
                 }
+            }
+            else
+            {
+                lassoGrabVisualIndicator.transform.position = transform.position;
             }
         }
 
@@ -256,7 +261,7 @@ public class Lasso : MonoBehaviour
                 activatable.Activate();
             }
 
-            if(prop.TryGetComponent(out INPC npc))
+            if (prop.TryGetComponent(out INPC npc))
             {
                 OnNPCHit?.Invoke();
             }
@@ -357,7 +362,7 @@ public class Lasso : MonoBehaviour
     private Quaternion bufferedTargetRotation;
     public void LookAtPlayer()
     {
-        Vector3 targetDir = (PlayerCamLookPos.position - SnaredObject.transform.position).normalized; 
+        Vector3 targetDir = (PlayerCamLookPos.position - SnaredObject.transform.position).normalized;
         Vector3 currentDir = SnaredObject.transform.forward;
 
         float radians = Mathf.Atan2(targetDir.x, targetDir.z);
@@ -481,9 +486,9 @@ public class Lasso : MonoBehaviour
         }
         else
         {*/
-            SnaredObject.Rb.MoveRotation(nextRotation);
-            SnaredObject.Rb.MovePosition(nextPosition);
-            SnaredObject.Rb.angularVelocity = Vector3.zero;
+        SnaredObject.Rb.MoveRotation(nextRotation);
+        SnaredObject.Rb.MovePosition(nextPosition);
+        SnaredObject.Rb.angularVelocity = Vector3.zero;
         //}
     }
 
