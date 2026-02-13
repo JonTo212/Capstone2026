@@ -24,7 +24,6 @@ public class TetherPreviewLine : MonoBehaviour
 
     private void Start()
     {
-        Debug.Log("Start run");
         tetherPreviewMaterials = new Material[5];
         tetherPreviewMaterials[0] = lineRenderer.material;
         tetherPreviewMaterials[1] = startPointVisuals.GetChild(0).GetComponent<Renderer>().material;

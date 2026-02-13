@@ -1,6 +1,5 @@
 using NodeCanvas.Tasks.Actions;
 using System;
-using System.Collections;
 using Unity.Cinemachine;
 using UnityEngine;
 
@@ -19,7 +18,6 @@ public class Lasso : MonoBehaviour
     [SerializeField] private float minLassoRange = 1f;
     [SerializeField] private float maxLassoRange = 25f;
     [SerializeField] private float centerStrength = 250f;
-    [SerializeField] private float throwStrength = 25f;
     [SerializeField, Range(0, 1)] private float lookAtStrength = 0.5f;
     [SerializeField, Range(0, 0.2f)] private float lookAtDamping = 0.05f;
     [SerializeField] private float rotationalDampingStrength = 0.5f;
@@ -33,7 +31,6 @@ public class Lasso : MonoBehaviour
     [SerializeField] private float aimAssistBufferRadius = 1.5f;
     [SerializeField] private bool useAimOutline = true;
     [SerializeField] private bool usePickupOutline = true;
-    [SerializeField] private bool useGrabPointsForHold = false;
     [field: SerializeField] public bool usePhysicsLasso { get; set; } = true;
     [field: SerializeField] public bool usePhysicsTorque { get; private set; } = true;
 
@@ -42,9 +39,17 @@ public class Lasso : MonoBehaviour
     [SerializeField] private Transform forwardRef;
 
     [Header("Rotation")]
-    [field: SerializeField] public bool useSnapRotation { get; private set; } = false;
     [field: SerializeField] public CinemachineInputAxisController camInputController { get; private set; }
     public bool Rotated { get; private set; }
+
+    [Header("Lifting")]
+    [SerializeField] private float liftSpeed = 1.5f;
+    [field: SerializeField] public float maxLiftHeight { get; private set; }
+    [field: SerializeField] public float minHeightAboveGround { get; private set; }
+    [SerializeField] private float groundCheckDistance = 100f;
+    [SerializeField] private LayerMask groundLayers;
+    private float _currentLiftOffset;
+
 
     [Header("Internal Variables")]
     private AimAssist _aimAssist;
@@ -75,8 +80,8 @@ public class Lasso : MonoBehaviour
     public event Action OnNPCHit;
     public event Action OnLassoReleased;
 
-
     #region Unity Functions
+
     private void Awake()
     {
         PlayerController = GetComponent<PlayerMovement>();
@@ -86,12 +91,12 @@ public class Lasso : MonoBehaviour
 
     private void Update()
     {
-        if (CheckIfBreak()) // destroyed
+        if (CheckIfBreak())
         {
             HandleObjectReleased();
         }
 
-        CheckNearbyTargets();
+        if (SnaredObject != null) SetVerticalAnchor();
     }
 
     #endregion
@@ -115,14 +120,10 @@ public class Lasso : MonoBehaviour
         return false;
     }
 
-    public void ResetLayer(Prop obj)
+    public void SetLayer(Prop obj, bool original)
     {
-        obj.gameObject.tag = obj.OriginalTag;
-    }
-
-    public void SetToNoCollisionLayer(Prop obj)
-    {
-        obj.gameObject.tag = gameObject.tag;
+        if(original) obj.gameObject.tag = obj.OriginalTag;
+        else obj.gameObject.tag = gameObject.tag;
     }
 
     private Vector3 GetCameraWorldOffset()
@@ -136,19 +137,24 @@ public class Lasso : MonoBehaviour
         return Vector3.zero;
     }
 
-    public Vector3 GetAnchoredCenterOfScreen()
+    private Vector3 GetBaseTargetPos()
     {
-        Vector3 screenCenter = new Vector3(Screen.width / 2f, Screen.height / 2f, 0f);
-        Ray screenRay = PlayerCam.ScreenPointToRay(screenCenter);
+        Ray ray = PlayerCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
 
         Vector3 camOffset = GetCameraWorldOffset();
-        Ray ray = new Ray(PlayerCamLookPos.position + camOffset, screenRay.direction);
-        Vector3 maxDistancePos = PlayerCamLookPos.position + camOffset + ray.direction * AnchorDist;
+        return PlayerCamLookPos.position + camOffset + (ray.direction * AnchorDist);
+    }
+
+    public Vector3 GetAnchoredCenterOfScreen()
+    {
+        Vector3 maxDistancePos = GetBaseTargetPos();
+        maxDistancePos += Vector3.up * _currentLiftOffset;
 
         return maxDistancePos;
     }
 
-    private void CheckNearbyTargets()
+
+    public void CheckNearbyTargets(bool showGrabPoints)
     {
         Prop targetProp = null;
 
@@ -161,20 +167,13 @@ public class Lasso : MonoBehaviour
                 targetProp.SetOutlineColour(Color.green);
                 targetProp.SetOutlineWidth(2f);
 
-                Transform closestPointTransform = targetProp.CheckNearestGrabPoint(hit.Value.point);
-
-                if (closestPointTransform != null)
+                if (showGrabPoints)
                 {
-                    lassoGrabVisualIndicator.transform.position = closestPointTransform.position;
-                }
-                else
-                {
-                    lassoGrabVisualIndicator.transform.position = hit.Value.point;
+                    Transform closestPointTransform = targetProp.CheckNearestGrabPoint(hit.Value.point);
+                    lassoGrabVisualIndicator.transform.position = closestPointTransform != null ? closestPointTransform.position : hit.Value.point;
                 }
             }
-
         }
-
 
         if (SnaredObject != null)
         {
@@ -183,10 +182,9 @@ public class Lasso : MonoBehaviour
             SnaredObject.SetOutlineWidth(4f);
         }
 
-        lassoGrabVisualIndicator.SetActive(targetProp != null && SnaredObject == null);
-        _aimAssist.HighlightSelectedProp(targetProp, false);
-
         bool targetPropExists = targetProp != null;
+        lassoGrabVisualIndicator.SetActive(targetPropExists && SnaredObject == null && showGrabPoints);
+        _aimAssist.HighlightSelectedProp(targetProp, false);
 
         //MVG BRAEDEN INPUT STUFF
         ContextPrompts.Instance.LookingAtObject(targetPropExists);
@@ -238,13 +236,16 @@ public class Lasso : MonoBehaviour
         {
             RaycastHit actualHit = hit.Value;
             Prop prop = actualHit.transform.GetComponentInParent<Prop>();
-            GetHoldPoint(prop, actualHit, useGrabPointsForHold);
 
             if (prop.transform == PlayerController.IsGrounded()) return;
 
+            GetHoldPoint(prop, actualHit, prop.IsTetherPulled);
             _snaredObjTransform = prop.transform;
             SnaredObject = prop;
             _snaredObjTransform.gameObject.tag = gameObject.tag;
+            SetVerticalAnchor();
+            GetStartGrabRotation();
+
             prop.OnSnare();
             prop.OnPropDestroyed += HandleObjectReleased;
             if (usePickupOutline) SnaredObject.ActivateOutline(true);
@@ -279,7 +280,7 @@ public class Lasso : MonoBehaviour
 
             else
             {
-                AnchorDist = Mathf.Clamp(Vector3.Distance(hit.point, PlayerCamLookPos.position), minLassoRange, maxLassoRange);
+                AnchorDist = Mathf.Clamp(Vector3.Distance(prop.transform.position, PlayerCamLookPos.position), minLassoRange, maxLassoRange);
                 _attachPointLocal = prop.transform.InverseTransformPoint(hit.point);
 
                 //AnchorDist = Mathf.Clamp(Vector3.Distance(hit.transform.position, PlayerCamLookPos.position), minLassoRange, maxLassoRange);
@@ -293,14 +294,22 @@ public class Lasso : MonoBehaviour
         }
     }
 
+    private Quaternion rotationOffset;
+
+    private void GetStartGrabRotation()
+    {
+        Vector3 targetDir = (PlayerCamLookPos.position - SnaredObject.transform.position).normalized;
+        float radians = Mathf.Atan2(targetDir.x, targetDir.z);
+        float degrees = radians * Mathf.Rad2Deg;
+        Quaternion lookRotation = Quaternion.Euler(0f, degrees, 0f);
+
+        rotationOffset = Quaternion.Inverse(lookRotation) * SnaredObject.transform.rotation;
+        bufferedTargetRotation = SnaredObject.transform.rotation;
+    }
+
     #endregion
 
     #region Hold Object At Center
-    public void RotateHeldObject()
-    {
-        Quaternion targetRotation = Quaternion.LookRotation(HoldPos.forward, Vector3.up);
-        SnaredObject.Rb.MoveRotation(targetRotation);
-    }
 
     public void MoveObjectToPos(Vector3 desiredPos)
     {
@@ -323,10 +332,6 @@ public class Lasso : MonoBehaviour
                 totalTorque /= effectiveMassScale;
             }
 
-            //SnaredObject.Rb.AddForceAtPosition(linearForce, attachPointWorld, ForceMode.Force); //accel works because the damping already takes into account mass
-            //if (SnaredObject.IsTouchingSurface) linearAcceleration = Vector3.ClampMagnitude(linearForce / effectiveMassScale, centerStrength);
-            //if (!SnaredObject.IsTouchingSurface) SnaredObject.Rb.AddTorque(angularAcceleration, ForceMode.Acceleration);
-
             SnaredObject.ApplyForceInDirection(linearForce.normalized, linearForce.magnitude, ForceMode.Force, transform);
 
             if (usePhysicsTorque)
@@ -336,35 +341,52 @@ public class Lasso : MonoBehaviour
 
             SnaredObject.Rb.angularVelocity *= angularVelMultiplier; //stop excessive spin
         }
-
         else
         {
             if (SnaredObject == null) return;
 
             float currentDist = Vector3.Distance(desiredPos, HitPos);
-            float currentSpeed = Mathf.SmoothStep(0f, centerStrength, currentDist / 5f) * Time.fixedDeltaTime;
+            float currentSpeed = Mathf.SmoothStep(0f, centerStrength * 10f, currentDist / 5f) * Time.fixedDeltaTime;
             Vector3 direction = desiredPos - HitPos;
             SnaredObject.Rb.linearVelocity = direction.normalized * currentSpeed;
         }
-    }
 
+        if (!rotating) LookAtPlayer();
+    }
+    private Quaternion bufferedTargetRotation;
     public void LookAtPlayer()
     {
-        Vector3 targetDir = (PlayerCamLookPos.position - SnaredObject.transform.position).normalized;
-        Vector3 currentFaceDir = _localFaceNormal != Vector3.zero ? SnaredObject.transform.TransformDirection(_localFaceNormal) : SnaredObject.transform.forward;
+        Vector3 targetDir = (PlayerCamLookPos.position - SnaredObject.transform.position).normalized; 
+        Vector3 currentDir = SnaredObject.transform.forward;
 
-        Quaternion deltaRot = Quaternion.FromToRotation(currentFaceDir, targetDir);
-        deltaRot.ToAngleAxis(out float angle, out Vector3 axis);
-        if (angle > 180f) angle -= 360f;
+        float radians = Mathf.Atan2(targetDir.x, targetDir.z);
+        float degrees = radians * Mathf.Rad2Deg;
 
-        float currentAngularSpeed = Mathf.SmoothStep(0f, centerStrength * 5f, Mathf.Abs(angle) / 45f) * Time.fixedDeltaTime;
-        SnaredObject.Rb.angularVelocity = axis.normalized * (Mathf.Sign(angle) * currentAngularSpeed * Mathf.Deg2Rad);
+        //get direction to rotate (toAngleAxis), get amount to rotate (angleDegrees)
+        Quaternion current = SnaredObject.transform.rotation;
+        Quaternion target = Quaternion.Euler(0f, degrees, 0f) * rotationOffset;
+
+        bufferedTargetRotation = Quaternion.Slerp(
+            bufferedTargetRotation,
+            target,
+            Time.fixedDeltaTime * 10f
+        );
+
+        Quaternion delta = bufferedTargetRotation * Quaternion.Inverse(current);
+        delta.ToAngleAxis(out float angleDeg, out Vector3 axis);
+        if (angleDeg > 180f) angleDeg -= 360f;
+
+        float angleRad = angleDeg * Mathf.Deg2Rad;
+        float rotationAccel = angleRad * centerStrength * 5f * Time.fixedDeltaTime;
+
+        SnaredObject.Rb.angularVelocity = axis.normalized * rotationAccel;
     }
+
 
     private Vector3 CalculateLinearForce(Vector3 displacement, Vector3 pointVelocity)
     {
         //linear force
-        float springStrength = centerStrength / 12.5f;
+        float springStrength = centerStrength;
         Vector3 springForce = springStrength * displacement; //F = -springRate * displacement
         float damping = 2f * Mathf.Sqrt(springStrength * SnaredObject.Rb.mass); //critical damping = 2 * sqrt(springRate * mass)
         Vector3 dampingForce = -pointVelocity * damping;
@@ -394,6 +416,7 @@ public class Lasso : MonoBehaviour
     {
         Vector3 lookAtSpringTorque = Vector3.zero;
         Vector3 lookAtDampingTorque = Vector3.zero;
+
         if (_localFaceNormal != Vector3.zero)
         {
             Vector3 worldFaceNormal = SnaredObject.transform.TransformDirection(_localFaceNormal);
@@ -422,6 +445,7 @@ public class Lasso : MonoBehaviour
     [Header("Free Rotation")]
     [SerializeField] private float degreesPerSecond = 180f;
     [SerializeField] private float mkSensMultiplier = 0.05f; //multiply this in if using m/k in the future
+    private bool rotating;
 
     public void RotateWithInput(Vector2 input, bool centerPivot)
     {
@@ -460,182 +484,18 @@ public class Lasso : MonoBehaviour
             SnaredObject.Rb.MovePosition(nextPosition);
             SnaredObject.Rb.angularVelocity = Vector3.zero;
         //}
-
-        Rotated = true;
     }
 
-    #endregion
-
-    #region Snap Rotation
-
-    [Header("Snap Rotation")]
-    [SerializeField] private float snapAngle = 45f;
-    [SerializeField] private float rotationSpring = 50f;
-    [SerializeField] private float snapRatePerSecond = 360f;
-    private float snapAccum;
-    private float yaw;
-    private float pitch;
-    private Coroutine finishSnapRoutine;
-    public Action OnSnapFinished;
-
-    private Quaternion GetBaseLookRotation()
+    public void SetRotating(bool activated)
     {
-        if (PlayerCam == null) return Quaternion.identity;
-
-        //flatten the Y of camera's forward so it's only on XZ plane
-        Vector3 lookDirection = PlayerCam.transform.forward;
-        lookDirection.y = 0;
-
-        //this just makes a rotation with the Z axis aligned with player's look direction
-        return Quaternion.LookRotation(lookDirection.normalized, Vector3.up);
-    }
-
-    public void InitializeRotationToClosestSnap()
-    {
-        if (SnaredObject == null || SnaredObject.Rb == null) return;
-
-        Quaternion baseLookRotation = GetBaseLookRotation();
-        Quaternion currentObjectRotation = SnaredObject.Rb.rotation;
-
-        //simulate every angle from -180 to 180 and choose the closest one
-        //just deriving from eulerAngles makes the pitch flip, this was the only way that worked
-        int steps = Mathf.RoundToInt(360f / snapAngle);
-        float bestYaw = 0f;
-        float bestPitch = 0f;
-        float bestAngle = float.MaxValue;
-
-        for (int p = 0; p < steps; p++)
-        {
-            float candidatePitch = -180f + p * snapAngle;
-            Quaternion pitchRot = Quaternion.AngleAxis(candidatePitch, Vector3.right);
-
-            for (int y = 0; y < steps; y++)
-            {
-                float candidateYaw = -180f + y * snapAngle;
-                Quaternion yawRot = Quaternion.AngleAxis(candidateYaw, Vector3.up);
-                Quaternion candidateRotation = baseLookRotation * pitchRot * yawRot;
-
-                float angleBetween = Quaternion.Angle(candidateRotation, currentObjectRotation);
-                if (angleBetween < bestAngle)
-                {
-                    bestAngle = angleBetween;
-                    bestYaw = candidateYaw;
-                    bestPitch = candidatePitch;
-                }
-            }
-        }
-
-        yaw = Mathf.Round(bestYaw / snapAngle) * snapAngle;
-        pitch = Mathf.Round(bestPitch / snapAngle) * snapAngle;
-    }
-
-
-    public void MaintainObjectRotation()
-    {
-        if (SnaredObject == null || SnaredObject.Rb == null) return;
-
-        //look at player + accumulated rotation
-        Quaternion baseLookRotation = GetBaseLookRotation();
-
-        Quaternion yawRotation = Quaternion.AngleAxis(yaw, Vector3.up);
-        Quaternion pitchRotation = Quaternion.AngleAxis(pitch, Vector3.right);
-
-        Quaternion combinedTargetRotation = baseLookRotation * pitchRotation * yawRotation; //accumulatedSnapRotation;
-
-        //rotation required to get to the desired rotation
-        Quaternion delta = combinedTargetRotation * Quaternion.Inverse(SnaredObject.Rb.rotation);
-        delta.ToAngleAxis(out float angle, out Vector3 axis);
-        if (angle > 180f) angle -= 360f;
-
-        Vector3 angularDisplacement = axis.normalized * Mathf.Deg2Rad * angle;
-
-        //spring + critical damping
-        Vector3 springTorque = rotationSpring * angularDisplacement;
-        Vector3 dampingTorque = -2f * Mathf.Sqrt(rotationSpring) * SnaredObject.Rb.angularVelocity;
-
-        SnaredObject.Rb.AddTorque(springTorque + dampingTorque, ForceMode.Acceleration);
-    }
-
-    public void ApplySnapRotation(Vector3 axis)
-    {
-        if (SnaredObject == null || axis == Vector3.zero) return;
-
-        if (axis == Vector3.up)  yaw += snapAngle;
-        else if (axis == Vector3.down) yaw -= snapAngle;
-        else if (axis == Vector3.right) pitch += snapAngle;
-        else if (axis == Vector3.left) pitch -= snapAngle;
-
-        Rotated = true;
-        RodAnimations.Instance.PlayRandomSound();
-    }
-
-    public void StartFinishSnap()
-    {
-        if (finishSnapRoutine != null)
-            StopCoroutine(finishSnapRoutine);
-
-        finishSnapRoutine = StartCoroutine(FinishSnapCoroutine());
-    }
-
-    public void StopFinishSnap()
-    {
-        if (finishSnapRoutine != null)
-        {
-            StopCoroutine(finishSnapRoutine);
-            finishSnapRoutine = null;
-        }
-    }
-
-    private IEnumerator FinishSnapCoroutine()
-    {
-        if (SnaredObject == null)
-            yield break;
-
-        //runs until the angle's close enough to completion or cancelled externally
-        while (true)
-        {
-            MaintainObjectRotation();
-
-            Quaternion baseLook = GetBaseLookRotation();
-            Quaternion yawRot = Quaternion.AngleAxis(yaw, Vector3.up);
-            Quaternion pitchRot = Quaternion.AngleAxis(pitch, Vector3.right);
-            Quaternion targetRot = baseLook * pitchRot * yawRot;
-
-            float angle = Quaternion.Angle(SnaredObject.Rb.rotation, targetRot);
-
-            if (angle < 1f)
-                break;
-
-            yield return new WaitForFixedUpdate();
-        }
-
-        finishSnapRoutine = null;
-        OnSnapFinished?.Invoke();
-    }
-
-    public void ContinuousSnapStep(Vector3 axis)
-    {
-        if (SnaredObject == null) return;
-
-        snapAccum += snapRatePerSecond * Time.fixedDeltaTime;
-        while (snapAccum >= snapAngle)
-        {
-            snapAccum -= snapAngle;
-
-            if (axis == Vector3.up) yaw += snapAngle;
-            else if (axis == Vector3.down) yaw -= snapAngle;
-            else if (axis == Vector3.right) pitch += snapAngle;
-            else if (axis == Vector3.left) pitch -= snapAngle;
-
-            Rotated = true;
-        }
+        rotating = activated;
     }
 
     #endregion
 
     #region Anchor Adjustment
 
-    public void MoveAnchorPoint(float scrollInput)
+    public void MoveAnchorPointZ(float scrollInput)
     {
         if (Mathf.Approximately(scrollInput, 0f)) return;
 
@@ -643,6 +503,93 @@ public class Lasso : MonoBehaviour
         AnchorDist = Mathf.Round(AnchorDist / reelIncrement) * reelIncrement;
         AnchorDist = Mathf.Clamp(AnchorDist, minLassoRange, maxLassoRange);
     }
+
+    public void MoveAnchorPointY(float lookInputY)
+    {
+        if (Mathf.Approximately(lookInputY, 0f)) return;
+
+        _currentLiftOffset += lookInputY * liftSpeed * Time.deltaTime;
+        SetVerticalAnchor();
+    }
+
+    private void SetVerticalAnchor()
+    {
+        //get base position (same as 
+        Vector3 baseTargetPos = GetBaseTargetPos();
+
+        //get world space limits
+        float characterFeetY = transform.position.y - 1f;
+        float absoluteMaxY = characterFeetY + maxLiftHeight;
+        float absoluteMinY = GetMinimumLiftHeight();
+
+        //convert those limits relative to the base position
+        float maxAllowedOffset = absoluteMaxY - baseTargetPos.y;
+        float minAllowedOffset = absoluteMinY - baseTargetPos.y;
+
+        _currentLiftOffset = Mathf.Clamp(_currentLiftOffset, minAllowedOffset, maxAllowedOffset);
+    }
+
+    public float maxBelowGround = -3f;
+
+    public float GetMinimumLiftHeight()
+    {
+        if (SnaredObject == null || _snaredObjTransform == null)
+            return 0f;
+
+        if (!TryGetObjectBounds(SnaredObject.gameObject, out Bounds bounds))
+            return 0f;
+
+        Vector3 boxOrigin = new Vector3(bounds.center.x, bounds.min.y + 0.01f, bounds.center.z);
+        Vector3 halfExtents = new Vector3(bounds.extents.x * 0.9f, 0.01f, bounds.extents.z * 0.9f);
+
+        float groundYBelowObject = float.NegativeInfinity;
+
+        if (Physics.BoxCast(boxOrigin, halfExtents, Vector3.down, out RaycastHit hit, Quaternion.identity, groundCheckDistance, groundLayers))
+        {
+            groundYBelowObject = hit.point.y;
+        }
+
+        float objectHalfHeight = bounds.extents.y;
+
+        //ground found under object -> minHeightAboveGround + hit
+        if (!float.IsNegativeInfinity(groundYBelowObject))
+        {
+            return groundYBelowObject + objectHalfHeight + minHeightAboveGround;
+        }
+
+        //fallback -> object is floating above the void
+        float playerFeetY = transform.position.y - 1f;
+        return playerFeetY - maxBelowGround;
+    }
+
+    bool TryGetObjectBounds(GameObject obj, out Bounds bounds)
+    {
+        bounds = new Bounds();
+
+        Collider[] colliders = obj.GetComponentsInChildren<Collider>();
+        if (colliders.Length > 0)
+        {
+            bounds = colliders[0].bounds;
+            for (int i = 1; i < colliders.Length; i++)
+                bounds.Encapsulate(colliders[i].bounds);
+
+            return true;
+        }
+
+        Renderer[] renderers = obj.GetComponentsInChildren<Renderer>();
+        if (renderers.Length > 0)
+        {
+            bounds = renderers[0].bounds;
+            for (int i = 1; i < renderers.Length; i++)
+                bounds.Encapsulate(renderers[i].bounds);
+
+            return true;
+        }
+
+        return false;
+    }
+
+
 
     #endregion
 
@@ -689,24 +636,14 @@ public class Lasso : MonoBehaviour
 
     #endregion
 
-    #region Throw / Release
-
-    public void HandleObjectThrow()
-    {
-        if (SnaredObject == null) return;
-
-        Ray ray = PlayerCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
-        SnaredObject.OnThrow(ray.direction, throwStrength);
-        AudioManager.Instance.PlaySFX(AudioManager.Instance.Thrown, 5, 1);
-        HandleObjectReleased();
-    }
-
+    #region Release
     public void HandleObjectReleased()
     {
         if (SnaredObject == null) return;
 
         if (swingJoint != null) Destroy(swingJoint);
 
+        _currentLiftOffset = 0f;
         SnaredObject.OnPropDestroyed -= HandleObjectReleased;
         SnaredObject.ActivateOutline(false);
         SnaredObject.OnRelease();
@@ -715,9 +652,7 @@ public class Lasso : MonoBehaviour
         SnaredObject = null;
         _localFaceNormal = Vector3.zero;
 
-        Rotated = false;
         lassoGrabVisualIndicator.SetActive(false);
-        StopFinishSnap();
         OnLassoReleased?.Invoke();
     }
 
@@ -734,18 +669,4 @@ public class Lasso : MonoBehaviour
 
     #endregion
 
-    #region Anchoring
-
-    public void AnchorToObject()
-    {
-        _swingController.UpdateAnchorPoint(HitPos);
-        //_swingController.ConstrainToRope();
-    }
-
-    public void HandleAnchorStart()
-    {
-        _swingController.SetRopeLength(maxLassoRange * 1.1f);
-    }
-
-    #endregion
 }
