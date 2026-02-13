@@ -139,6 +139,7 @@ public class JointTetherPlacer : MonoBehaviour
 
         if (GetObjectInPlayerFront(out RaycastHit hit))
         {
+            if (Vector3.Distance(transform.position, hit.point) > maxTetherStartDist) return;
             CreateTetherPreviewLine();
             SetTetherStartPoint(hit.transform, hit.point);
             startWorldLocation = hit.point;

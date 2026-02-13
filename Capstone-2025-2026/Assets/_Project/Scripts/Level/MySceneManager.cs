@@ -67,7 +67,7 @@ public class MySceneManager : MonoBehaviour
         {
             transitions.FadeToBlack();
         }
-        yield return new WaitForSeconds(2);
+        yield return new WaitForSeconds(4);
         SceneManager.LoadScene(SceneNames[sceneIndex]);
         currentScene = SceneNames[sceneIndex];
     }
