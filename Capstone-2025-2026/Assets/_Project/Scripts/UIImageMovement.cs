@@ -11,6 +11,7 @@ public class UIImageMovement : MonoBehaviour
 
 
     [SerializeField] private GameObject tetherIconObject;
+    [SerializeField] private GameObject toolSwitchIconObject;
 
     public RawImage RodIcon;
     public RawImage TetherIcon;
@@ -34,8 +35,6 @@ public class UIImageMovement : MonoBehaviour
         player = GameObject.FindWithTag("Player");
         lassoTetherControllerScript = player.GetComponent<LassoTetherController>();
         playerActionsScript = player.GetComponent<PlayerActions>();
-
-        tetherIconObject = transform.Find("childname").gameObject;
     }
 
     void Update()
@@ -44,11 +43,13 @@ public class UIImageMovement : MonoBehaviour
         if (!lassoTetherControllerScript.tetherPickedUp)
         {
             tetherIconObject.SetActive(false);
+            toolSwitchIconObject.SetActive(false);
             return;
         }
         else
         {
             tetherIconObject.SetActive(true);
+            toolSwitchIconObject.SetActive(true);
             TetherIcon.texture = TetherSprite;
         }
 
