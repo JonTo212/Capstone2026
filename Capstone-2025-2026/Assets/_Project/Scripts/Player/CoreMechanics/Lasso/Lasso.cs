@@ -97,6 +97,7 @@ public class Lasso : MonoBehaviour
             HandleObjectReleased();
         }
 
+        CheckNearbyTargets(true);
         if (SnaredObject != null) SetVerticalAnchor(false);
     }
 

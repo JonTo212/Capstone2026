@@ -186,7 +186,7 @@ public class LassoTetherController : MonoBehaviour
     {
         //tool switching
         if ((playerActions.toolSwitchDown) && tetherPickedUp) rodEquipped = !rodEquipped; // toggle state of rodEquipped bool 
-        playerLasso.CheckNearbyTargets(!rodEquipped);
+        //playerLasso.CheckNearbyTargets(!rodEquipped);
 
         if (playerActions.LassoDown && rodEquipped)
         {
