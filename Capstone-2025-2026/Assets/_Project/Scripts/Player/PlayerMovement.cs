@@ -238,6 +238,11 @@ public class PlayerMovement : MonoBehaviour
         ExternalForce = externalForce;
     }
 
+    public void SetMovementLockTimer(float newTimer)
+    {
+        MovementLockTimer = newTimer;
+    }
+
     private void HandleWalkingSFX()
     {
         if (WishDir != Vector3.zero && IsGrounded())

@@ -27,8 +27,8 @@ public class PlayerModelRotationHandler : MonoBehaviour
         if (_playerController.WishDir == Vector3.zero) return;
         if (_currentRotationState == RotationState.WallJump) return;
 
-        desiredRot = Quaternion.LookRotation(_playerController.WishDir);
         playerObj.transform.rotation = Quaternion.Slerp(playerObj.transform.rotation, desiredRot, rotationSpeed * Time.deltaTime);
+        desiredRot = Quaternion.LookRotation(_playerController.WishDir);
     }
 
     /*public void SetNewRotationDir(Vector3? dir, float lockDuration)
@@ -80,5 +80,6 @@ public class PlayerModelRotationHandler : MonoBehaviour
     public void SetNewRotationDir(Quaternion desiredRotation)
     {
         playerObj.transform.rotation = desiredRotation;
+        desiredRot = desiredRotation;
     }
 }
