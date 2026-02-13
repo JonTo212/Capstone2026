@@ -46,6 +46,7 @@ public class Lasso : MonoBehaviour
     [SerializeField] private float liftSpeed = 1.5f;
     [field: SerializeField] public float maxLiftHeight { get; private set; }
     [field: SerializeField] public float minHeightAboveGround { get; private set; }
+    [SerializeField] private float maxBelowGround = -3f;
     [SerializeField] private float groundCheckDistance = 100f;
     [SerializeField] private LayerMask groundLayers;
     private float _currentLiftOffset;
@@ -91,7 +92,7 @@ public class Lasso : MonoBehaviour
 
     private void Update()
     {
-        if (CheckIfBreak())
+        if (CheckIfStandingOn() || Vector3.Distance(_snaredObjTransform.position, transform.position) > maxLassoRange * 1.1f)
         {
             HandleObjectReleased();
         }
@@ -103,7 +104,7 @@ public class Lasso : MonoBehaviour
 
     #region Helper Functions
 
-    public bool CheckIfBreak()
+    public bool CheckIfStandingOn()
     {
         Transform standingOn = PlayerController.IsGrounded();
         bool nulled = _snaredObjTransform == null || SnaredObject == null;
@@ -167,7 +168,7 @@ public class Lasso : MonoBehaviour
                 targetProp.SetOutlineColour(Color.green);
                 targetProp.SetOutlineWidth(2f);
 
-                if (showGrabPoints)
+                if (showGrabPoints || targetProp.IsTetherPulled)
                 {
                     Transform closestPointTransform = targetProp.CheckNearestGrabPoint(hit.Value.point);
                     lassoGrabVisualIndicator.transform.position = closestPointTransform != null ? closestPointTransform.position : hit.Value.point;
@@ -183,7 +184,8 @@ public class Lasso : MonoBehaviour
         }
 
         bool targetPropExists = targetProp != null;
-        lassoGrabVisualIndicator.SetActive(targetPropExists && SnaredObject == null && showGrabPoints);
+        bool showIndicator = showGrabPoints || targetProp.IsTetherPulled;
+        lassoGrabVisualIndicator.SetActive(targetPropExists && SnaredObject == null && showIndicator);
         _aimAssist.HighlightSelectedProp(targetProp, false);
 
         //MVG BRAEDEN INPUT STUFF
@@ -351,7 +353,7 @@ public class Lasso : MonoBehaviour
             SnaredObject.Rb.linearVelocity = direction.normalized * currentSpeed;
         }
 
-        if (!rotating) LookAtPlayer();
+        //if (!rotating) LookAtPlayer(); //this causes issues
     }
     private Quaternion bufferedTargetRotation;
     public void LookAtPlayer()
@@ -489,6 +491,7 @@ public class Lasso : MonoBehaviour
     public void SetRotating(bool activated)
     {
         rotating = activated;
+        GetStartGrabRotation();
     }
 
     #endregion
@@ -528,8 +531,6 @@ public class Lasso : MonoBehaviour
 
         _currentLiftOffset = Mathf.Clamp(_currentLiftOffset, minAllowedOffset, maxAllowedOffset);
     }
-
-    public float maxBelowGround = -3f;
 
     public float GetMinimumLiftHeight()
     {

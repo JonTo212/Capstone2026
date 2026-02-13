@@ -44228,7 +44228,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineRotationComposer
   Composition:
-    ScreenPosition: {x: -0.04154457, y: 0.02077229}
+    ScreenPosition: {x: 0, y: 0}
     DeadZone:
       Enabled: 0
       Size: {x: 0.2, y: 0.2}
@@ -56008,7 +56008,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6770766516549574151}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.014534171, y: 0.029049886, z: 0.00042243896, w: 0.99947226}
+  m_LocalRotation: {x: 0.0000000017978945, y: -0.000000029733222, z: 3.484519e-17, w: 1}
   m_LocalPosition: {x: 5.75, y: 2.03, z: -28.62}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -59158,25 +59158,27 @@ MonoBehaviour:
     targetOffset: {x: 0, y: 1.5, z: 0}
     distanceOffset: 0
     lockYAxis: 0
+    lockXAxis: 0
   - cameraState: 1
     screenOffset: {x: 0.1, y: 0.05}
     targetOffset: {x: 0, y: 1.5, z: 0}
     distanceOffset: 0
     lockYAxis: 0
+    lockXAxis: 0
   - cameraState: 3
-    screenOffset: {x: 0.15, y: 0.05}
+    screenOffset: {x: 0, y: 0}
     targetOffset: {x: 0, y: 2.5, z: 0}
     distanceOffset: 0
     lockYAxis: 0
+    lockXAxis: 0
   tetherModeAdjustSpeed: 2.5
   lassoModeAdjustSpeed: 5
   defaultAdjustSpeed: 2.5
   tetherSensMultiplier: 0.75
   lassoSensMultiplier: 0.9
-  baseMidpointOffset: 0.1
-  maxMidpointOffset: 0.2
   playerDefaultYOffset: 0.35
   zoomPadding: 0.85
+  lassoZoomOutSmoothTime: 0.1
 --- !u!33 &5670328801655667638
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -59242,7 +59244,7 @@ MonoBehaviour:
   lassoGrabVisualIndicator: {fileID: 1396640617117769499}
   reelIncrement: 1
   minLassoRange: 3
-  maxLassoRange: 13
+  maxLassoRange: 15
   centerStrength: 250
   lookAtStrength: 0.5
   lookAtDamping: 0.05
@@ -59404,7 +59406,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1493070892826556514}
   m_Direction: 2
   m_Value: -0.000000047616755
-  m_Size: 0.2667048
+  m_Size: 0
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -67116,6 +67118,10 @@ MonoBehaviour:
   maxLedgeAngle: 30
   ledgeJumpForceMultiplier: 1.25
   maxObjectFollowSpeed: 25
+  target: {x: 0, y: 0, z: 0}
+  lookPos: {fileID: 5362378367816610832}
+  climbDuration: 0.5
+  forwardDuration: 0.1
 --- !u!1 &9144879099637709779
 GameObject:
   m_ObjectHideFlags: 0
