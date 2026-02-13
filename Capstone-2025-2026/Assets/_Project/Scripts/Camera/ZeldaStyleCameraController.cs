@@ -65,6 +65,7 @@ public class ZeldaCameraController : MonoBehaviour
     //input
     private bool hasInput = false;
     private bool yAxisLocked = false;
+    private bool xAxisLocked = false;
     private Camera cam;
 
     private void Start()
@@ -127,7 +128,10 @@ public class ZeldaCameraController : MonoBehaviour
 
         hasInput = Mathf.Abs(mouseX) > 0.001f || Mathf.Abs(mouseY) > 0.001f || Mathf.Abs(input.MoveInput.sqrMagnitude) > 0.001f;
 
-        targetYaw += mouseX;
+        if (!xAxisLocked)
+        {
+            targetYaw += mouseX;
+        }
 
         if (!yAxisLocked)
         {
@@ -287,6 +291,7 @@ public class ZeldaCameraController : MonoBehaviour
         mouseYSensitivity = ySens;
     }
     public void SetYAxisLocked(bool locked) => yAxisLocked = locked;
+    public void SetXAxisLocked(bool locked) => xAxisLocked = locked;
     public void SetDistanceLimit(float max)
     {
         currentMaxDistance = max;

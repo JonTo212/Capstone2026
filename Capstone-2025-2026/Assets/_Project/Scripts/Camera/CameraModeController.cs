@@ -9,14 +9,16 @@ public struct CameraStateSettings
     public Vector3 targetOffset; // World-space
     public float distanceOffset; // Zoom relative to default
     public bool lockYAxis;
+    public bool lockXAxis;
 
-    public CameraStateSettings(CamState state, Vector2 screenPos, Vector3 targetOff, float distOff, bool lockY)
+    public CameraStateSettings(CamState state, Vector2 screenPos, Vector3 targetOff, float distOff, bool lockY, bool lockX)
     {
         cameraState = state;
         screenOffset = screenPos;
         targetOffset = targetOff;
         distanceOffset = distOff;
         lockYAxis = lockY;
+        lockXAxis = lockX;
     }
 }
 
@@ -92,6 +94,7 @@ public class CameraModeController : MonoBehaviour
         switch (lassoTetherController.CurrentLassoState)
         {
             case LassoState.Snared:
+            case LassoState.FreeRotating:
                 LassoModeCamera();
                 break;
 
@@ -112,7 +115,7 @@ public class CameraModeController : MonoBehaviour
     private void LassoModeCamera()
     {
         Prop snaredProp = lassoTetherController.Lasso.SnaredObject;
-        if (snaredProp != null && !snaredProp.IsTetherPulled)
+        if (snaredProp != null)
         {
             //more zoom outwards in lasso mode
             cameraController.SetDistanceLimit(25f);
@@ -123,7 +126,8 @@ public class CameraModeController : MonoBehaviour
             float requiredDistanceOffset = CalculateRequiredDistanceOffset(playerPos, heldObjectPos, out optimalFraming);
             currentTargetDistance = defaultDistance + requiredDistanceOffset;
 
-            ApplyCameraSettings(optimalFraming, currentTargetOffset, currentTargetDistance, true, lassoModeAdjustSpeed);
+            bool rotateMode = lassoTetherController.CurrentLassoState == LassoState.FreeRotating;
+            ApplyCameraSettings(optimalFraming, currentTargetOffset, currentTargetDistance, true, rotateMode, lassoModeAdjustSpeed);
             cameraController.SetCollisionSmoothTimeOverride(lassoZoomOutSmoothTime);
 
             if (!hasSnappedToLasso)
@@ -170,15 +174,15 @@ public class CameraModeController : MonoBehaviour
             CameraStateSettings camSettings = settings.Value;
             float targetDistance = defaultDistance + camSettings.distanceOffset;
 
-            ApplyCameraSettings(camSettings.screenOffset, defaultTargetOffset + camSettings.targetOffset, targetDistance, camSettings.lockYAxis, smoothSpeed);
+            ApplyCameraSettings(camSettings.screenOffset, defaultTargetOffset + camSettings.targetOffset, targetDistance, camSettings.lockYAxis, camSettings.lockXAxis, smoothSpeed);
         }
         else
         {
-            ApplyCameraSettings(defaultScreenOffset, defaultTargetOffset, defaultDistance, false, smoothSpeed);
+            ApplyCameraSettings(defaultScreenOffset, defaultTargetOffset, defaultDistance, false, false, smoothSpeed);
         }
     }
 
-    private void ApplyCameraSettings(Vector2 targetScreenOffset, Vector3 targetOffset, float targetDistance, bool lockY, float smoothSpeed)
+    private void ApplyCameraSettings(Vector2 targetScreenOffset, Vector3 targetOffset, float targetDistance, bool lockY, bool lockX, float smoothSpeed)
     {
         currentScreenOffset = Vector2.Lerp(currentScreenOffset, targetScreenOffset, smoothSpeed * Time.deltaTime);
         currentTargetOffset = Vector3.Lerp(currentTargetOffset, targetOffset, smoothSpeed * Time.deltaTime);
@@ -189,6 +193,7 @@ public class CameraModeController : MonoBehaviour
         cameraController.SetDistance(defaultDistance + currentDistanceOffset);
 
         cameraController.SetYAxisLocked(lockY);
+        cameraController.SetXAxisLocked(lockX);
     }
 
     private float CalculateRequiredDistanceOffset(Vector3 playerPos, Vector3 objectPos, out Vector2 optimalFraming)
