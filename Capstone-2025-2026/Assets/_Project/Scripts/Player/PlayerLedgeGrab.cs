@@ -82,7 +82,7 @@ public class PlayerLedgeGrab : MonoBehaviour
             _playerController.Rb.MovePosition(worldGrabPos);
 
             Quaternion targetRot = grabbedLedge.rotation * _localLedgeRotation;
-            _playerController.PlayerModelRotationHandler.SetNewRotationDir(targetRot);
+            _playerController.PlayerModelRotationHandler.SetNewRotationDir(targetRot, true);
         }
     }
 
@@ -165,7 +165,6 @@ public class PlayerLedgeGrab : MonoBehaviour
     {
         //_playerController.PlayerInput.ChangeSpecificInput("Move", false);
         Quaternion initialRot = grabbedLedge.rotation * _localLedgeRotation;
-        _playerController.PlayerModelRotationHandler.SetNewRotationDir(initialRot);
         _playerController.Rb.MovePosition(ledgePos);
         _playerController.EnableGravity(false);
         _playerController.SetGrabbing(true);
@@ -185,6 +184,7 @@ public class PlayerLedgeGrab : MonoBehaviour
 
     private void ReleaseLedge()
     {
+        _playerController.PlayerModelRotationHandler.SetNewRotationDir(null, false);
         _playerController.PlayerInput.ChangeSpecificInput("Move", true);
         _playerController.SetGrabbing(false);
         _playerController.EnableGravity(true);
@@ -213,7 +213,6 @@ public class PlayerLedgeGrab : MonoBehaviour
         _mantleCoroutine = StartCoroutine(Mantle(ledgePos));
     }
 
-    public Transform lookPos;
     public float climbDuration;
     public float forwardDuration;
     public Coroutine _mantleCoroutine;

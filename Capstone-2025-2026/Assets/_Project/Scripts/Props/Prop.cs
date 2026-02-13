@@ -29,6 +29,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     private float originalMass;
 
     public string OriginalTag { get; private set; }
+    public RigidbodyConstraints OriginalConstraints { get; protected set; }
 
     public Rigidbody Rb { get; protected set; }
     public Transform AttachedTransform { get; set; }
@@ -55,6 +56,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     protected virtual void Init()
     {
         Rb = GetComponent<Rigidbody>();
+        OriginalConstraints = Rb.constraints;
 
         ObjectOutline = GetComponent<Outline>();
         ObjectOutline.OutlineColor = Color.green;
@@ -343,6 +345,18 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     protected virtual void CoyoteFall()
     {
         Rb.useGravity = true;
+    }
+
+    public void SetRigidbodyConstraints(RigidbodyConstraints? tempConstraints)
+    {
+        if (tempConstraints != null)
+        {
+            Rb.constraints = tempConstraints.Value;
+        }
+        else
+        {
+            Rb.constraints = OriginalConstraints;
+        }
     }
 
     protected void PropDebug(object message) { if (debugThisProp == true) Debug.Log(message); }

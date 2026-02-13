@@ -246,13 +246,13 @@ public class LassoTetherController : MonoBehaviour
             if (TetherMode)
             {
                 playerTether.EnterTetherMode(playerLasso.SnaredObject);
-                playerLasso.SnaredObject.Rb.constraints = RigidbodyConstraints.FreezePosition;
+                playerLasso.SnaredObject.SetRigidbodyConstraints(RigidbodyConstraints.FreezePosition);
                 SwitchLassoState(LassoState.TetherMode);
             }
             else
             {
                 playerTether.StartTetherPlacement(playerLasso.SnaredObject.transform, playerLasso.HitPos);
-                playerLasso.SnaredObject.Rb.constraints = RigidbodyConstraints.FreezePosition;
+                playerLasso.SnaredObject.SetRigidbodyConstraints(RigidbodyConstraints.FreezePosition);
                 SwitchLassoState(LassoState.SnaredTether);
             }
         }
@@ -292,7 +292,7 @@ public class LassoTetherController : MonoBehaviour
     {
         if (playerActions.PlaceTetherUp)
         {
-            playerLasso.SnaredObject.Rb.constraints = RigidbodyConstraints.None;
+            playerLasso.SnaredObject.SetRigidbodyConstraints(null);
             playerTether.EndTetherPlacement(false);
             playerLasso.HandleObjectReleased();
             SwitchLassoState(LassoState.Empty);
@@ -314,7 +314,7 @@ public class LassoTetherController : MonoBehaviour
         }
         if (playerActions.LassoUp)
         {
-            playerLasso.SnaredObject.Rb.constraints = RigidbodyConstraints.None;
+            playerLasso.SnaredObject.SetRigidbodyConstraints(null);
             playerTether.ExitTetherMode();
             playerLasso.HandleObjectReleased();
             SwitchLassoState(LassoState.Empty);

@@ -464,6 +464,8 @@ public class Lasso : MonoBehaviour
         Quaternion pitchRot = Quaternion.AngleAxis(-stepY, PlayerCam.transform.right);
 
         Quaternion rotationStep = pitchRot * yawRot;
+        rotationStep = GetConstrainedRotation(rotationStep, SnaredObject.Rb.constraints);
+
         Quaternion nextRotation = rotationStep * SnaredObject.Rb.rotation;
 
         Vector3 pivotPoint = HitPos;
@@ -490,6 +492,25 @@ public class Lasso : MonoBehaviour
         SnaredObject.Rb.MovePosition(nextPosition);
         SnaredObject.Rb.angularVelocity = Vector3.zero;
         //}
+    }
+
+    private Quaternion GetConstrainedRotation(Quaternion rot, RigidbodyConstraints constraints)
+    {
+        rot.ToAngleAxis(out float angle, out Vector3 axis);
+
+        if (Mathf.Abs(angle) < Mathf.Epsilon || axis == Vector3.zero)
+            return Quaternion.identity;
+
+        //use constraints to remove axis rotation components
+        if ((constraints & RigidbodyConstraints.FreezeRotationX) != 0) axis.x = 0;
+        if ((constraints & RigidbodyConstraints.FreezeRotationY) != 0) axis.y = 0;
+        if ((constraints & RigidbodyConstraints.FreezeRotationZ) != 0) axis.z = 0;
+
+        //if everything is zero'd out, no rotation
+        if (axis == Vector3.zero) return Quaternion.identity;
+
+        //otherwise, recreate the quaternion
+        return Quaternion.AngleAxis(angle, axis.normalized);
     }
 
     public void SetRotating(bool activated)
