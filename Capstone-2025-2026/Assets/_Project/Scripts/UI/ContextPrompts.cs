@@ -24,8 +24,9 @@ public class ContextPrompts : MonoBehaviour
     [SerializeField] private GameObject TetheringStateIcons;
 
     //Looking at tether
-    [SerializeField] private GameObject LookAtTetherPrompts;
-    [SerializeField] private GameObject LookAtActiveTetherPrompts; //decided if i make activeate text appear
+    //[SerializeField] private GameObject LookAtTetherPrompts;
+    //[SerializeField] LookAtActiveTetherPrompts; //decided if i make activeate text appear
+    [SerializeField] private GameObject ActiveTetherPrompts;
 
     //Big Mama
     [SerializeField] private GameObject MamaInBagPrompts;
@@ -91,11 +92,8 @@ public class ContextPrompts : MonoBehaviour
 
     private void UpdateTetherLookUI()
     {
-        bool isLooking = jointTetherActivator.isLookingAtTether;
-        bool isActiveTether = jointTetherActivator.isLookingAtActiveTether;
-
-        LookAtTetherPrompts.SetActive(isLooking && !isActiveTether);
-        LookAtActiveTetherPrompts.SetActive(isLooking && isActiveTether);
+        if (jointTetherActivator.placedTethers.Count > 0) ActiveTetherPrompts.SetActive(true);
+        else ActiveTetherPrompts.SetActive(false);
     }
 
 

@@ -87,7 +87,6 @@ public class BridgeBreakSetpiece : MonoBehaviour
 
         //disable black screen
         fadeToBlackScript.FadeOut();
-        yield return new WaitForSeconds(1f);
 
         //RESET//
         //Enable Components
