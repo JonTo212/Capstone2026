@@ -16,12 +16,17 @@ public class PlayerLedgeGrab : MonoBehaviour
     [SerializeField] private float hangDuration;
     [SerializeField] private float maxLedgeAngle = 5f;
     [SerializeField] private float ledgeJumpForceMultiplier = 1.25f;
+    [SerializeField] private float maxObjectFollowSpeed;
 
     private CapsuleCollider _playerCol;
     private PlayerMovement _playerController;
     private float hangTimer;
     private bool canGrab;
     private Vector3 lastLedgeNormal;
+    private Transform grabbedLedge;
+    private Vector3 grabPosLocal;
+    private Collider grabbedLedgeCollider;
+    private Quaternion _localLedgeRotation;
 
     public bool IsHanging { get; private set; }
 
@@ -36,6 +41,23 @@ public class PlayerLedgeGrab : MonoBehaviour
 
     private void Update()
     {
+        if (IsHanging)
+        {
+            hangTimer += Time.deltaTime;
+            bool release = grabbedLedge.TryGetComponent(out Rigidbody rb) && (rb.linearVelocity.magnitude > maxObjectFollowSpeed);
+            bool tooLow = _playerController.IsGrounded();
+
+            if (_playerController.PlayerInput.JumpDown)
+            {
+                HandleLedgeJump();
+            }
+            else if (hangTimer >= hangDuration || release || tooLow)
+            {
+                ReleaseLedge();
+            }
+            return;
+        }
+
         var ledgePos = CheckForLedge();
         if (CanGrabLedge() && ledgePos != null)
         {
@@ -43,20 +65,21 @@ public class PlayerLedgeGrab : MonoBehaviour
             return;
         }
 
-        if (IsHanging)
-        {
-            hangTimer += Time.deltaTime;
-            if (_playerController.PlayerInput.JumpDown)
-            {
-                HandleLedgeJump();
-            }
-            else if (hangTimer >= hangDuration)
-            {
-                ReleaseLedge();
-            }
-        }
 
         if (_playerController.IsGrounded()) canGrab = true;
+    }
+
+    private void FixedUpdate()
+    {
+        if(IsHanging && grabbedLedge != null)
+        {
+            //convert relative ledge location back to world space and move rigidbody to follow it
+            Vector3 worldGrabPos = grabbedLedge.TransformPoint(grabPosLocal);
+            _playerController.Rb.MovePosition(worldGrabPos);
+
+            Quaternion targetRot = grabbedLedge.rotation * _localLedgeRotation;
+            _playerController.PlayerModelRotationHandler.SetNewRotationDir(targetRot);
+        }
     }
 
     private bool CanGrabLedge()
@@ -129,24 +152,32 @@ public class PlayerLedgeGrab : MonoBehaviour
 
         float secondCheckDist = _playerCol.height;
 
-        //check to ensure there's actually a ledge, you're not grabbing on to super thin walls
+        //start 2nd check to ensure the ledge is big enough for the player to stand on
         Vector3 secondCheckStartPos =
             forwardHit.point +
             (forwardRef.forward * _playerCol.radius) +
             (Vector3.up * verticalCheckDistance * secondCheckDist);
 
+        //raycast downward from the 2nd spot, which is above the ledge
         if (Physics.Raycast(secondCheckStartPos, Vector3.down, out RaycastHit topHit, secondCheckDist, grabbableLayers))
         {
             if (topHit.collider != forwardHit.collider) return null;
             if (Mathf.Abs(Vector3.Angle(topHit.normal, Vector3.up)) > maxLedgeAngle) return null;
-            if (topHit.transform.TryGetComponent(out Rigidbody rb) && rb.linearVelocity.magnitude > 0.01f) return null;
 
             //for rotation - project the wall's face upwards to prevent rotation in weird axes
             lastLedgeNormal = Vector3.ProjectOnPlane(-forwardHit.normal, Vector3.up);
+            Quaternion worldLookRot = Quaternion.LookRotation(-forwardHit.normal, topHit.normal);
+            _localLedgeRotation = Quaternion.Inverse(topHit.transform.rotation) * worldLookRot;
 
+            //desired position is 2nd spot moved backwards to accommodate for player size, then back down to accommodate for player's height
             Vector3 upOffset = Vector3.down * (_playerCol.height * verticalCheckDistance / 2f);
             Vector3 backOffset = -forwardRef.forward * _playerCol.radius * 2f;
             Vector3 target = topHit.point + backOffset + upOffset;
+
+            //save relative location to the ledge for movement tracking
+            grabbedLedge = topHit.transform;
+            grabbedLedgeCollider = topHit.collider;
+            grabPosLocal = grabbedLedge.InverseTransformPoint(target);
 
             return target;
         }
@@ -157,11 +188,19 @@ public class PlayerLedgeGrab : MonoBehaviour
     private void HangOnLedge(Vector3 ledgePos)
     {
         _playerController.PlayerInput.ChangeSpecificInput("Move", false);
-        _playerController.PlayerModelRotationHandler.SetNewRotationDir(lastLedgeNormal, hangDuration);
-        _playerController.Rb.linearVelocity = Vector3.zero;
-        _playerController.Rb.MovePosition(ledgePos);
+        Quaternion initialRot = grabbedLedge.rotation * _localLedgeRotation;
+        _playerController.PlayerModelRotationHandler.SetNewRotationDir(initialRot);
+        _playerController.Rb.position = ledgePos;
         _playerController.EnableGravity(false);
         _playerController.SetGrabbing(true);
+        _playerController.Rb.linearVelocity = Vector3.zero;
+        _playerController.Rb.angularVelocity = Vector3.zero;
+
+        //disable grabbed ledge collision, otherwise there's stuttering
+        if (grabbedLedgeCollider != null)
+        {
+            Physics.IgnoreCollision(_playerCol, grabbedLedgeCollider, true);
+        }
 
         hangTimer = 0;
         IsHanging = true;
@@ -172,6 +211,14 @@ public class PlayerLedgeGrab : MonoBehaviour
         _playerController.PlayerInput.ChangeSpecificInput("Move", true);
         _playerController.SetGrabbing(false);
         _playerController.EnableGravity(true);
+        _playerController.SetExternalForce(Vector3.zero);
+
+        if (grabbedLedgeCollider != null)
+        {
+            Physics.IgnoreCollision(_playerCol, grabbedLedgeCollider, false);
+            grabbedLedgeCollider = null;
+        }
+
         IsHanging = false;
         canGrab = false;
     }
@@ -179,7 +226,7 @@ public class PlayerLedgeGrab : MonoBehaviour
     private void HandleLedgeJump()
     {
         ReleaseLedge();
-        _playerController.Jump(ledgeJumpForceMultiplier, true); //maybe add a directional thing to this too idk
-        _playerController.PlayerModelRotationHandler.SetNewRotationDir(null, 0f);
+        _playerController.Jump(ledgeJumpForceMultiplier, true);
+        _playerController.PlayerModelRotationHandler.SetNewRotationDir(Quaternion.identity);
     }
 }

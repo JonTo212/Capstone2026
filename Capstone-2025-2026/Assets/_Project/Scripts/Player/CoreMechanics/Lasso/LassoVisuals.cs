@@ -56,7 +56,7 @@ public class LassoVisuals : MonoBehaviour
             return;
         }
 
-        if (lassoController.CurrentLassoState == LassoState.ObjectYanking || lassoController.CurrentLassoState == LassoState.PlayerYanking)
+        if (lassoController.CurrentLassoState == LassoState.ObjectYanking)
         {
             ResetRope();
             DrawSnapLasso();
@@ -90,7 +90,6 @@ public class LassoVisuals : MonoBehaviour
 
     private bool DisableVisuals()
     {
-        bool isPlayerYanking = lassoController.CurrentLassoState == LassoState.PlayerYanking;
         bool isHolding = lassoController.CurrentLassoState == LassoState.Held;
         bool isUsing = lassoController.CurrentLassoState == LassoState.Using;
         return isHolding || isUsing;
@@ -156,16 +155,19 @@ public class LassoVisuals : MonoBehaviour
         Vector3 combinedBendAxis = worldPerpendicular.normalized;
 
         //one point at midpoint, one at 3/4
-        Vector3 controlPoint1 = Vector3.Lerp(startPoint, endPoint, 0.4f);
-        Vector3 controlPoint2 = Vector3.Lerp(startPoint, endPoint, 0.8f);
+        Vector3 controlPoint1 = Vector3.Lerp(startPoint, endPoint, 0.175f);
+        Vector3 controlPoint2 = Vector3.Lerp(startPoint, endPoint, 0.35f);
+        Vector3 controlPoint3 = Vector3.Lerp(startPoint, endPoint, 0.525f);
+        Vector3 controlPoint4 = Vector3.Lerp(startPoint, endPoint, 0.7f);
+        Vector3 controlPoint5 = Vector3.Lerp(startPoint, endPoint, 0.875f);
 
         //determine how much the object can bend
         float currentBendOffset = Mathf.Clamp(totalDistance * bendScale, minBend, maxBend);
         controlPoint1 += combinedBendAxis * currentBendOffset;
         controlPoint2 += combinedBendAxis * currentBendOffset; 
 
-        Vector3[] linePositions = new Vector3[4]
-        {  startPoint, controlPoint1, controlPoint2, endPoint };
+        Vector3[] linePositions = new Vector3[7]
+        {  startPoint, controlPoint1, controlPoint2, controlPoint3, controlPoint4, controlPoint5, endPoint };
 
         Vector3[] smoothedPoints = LineSmoother.SmoothLine(linePositions, 0.1f);
 

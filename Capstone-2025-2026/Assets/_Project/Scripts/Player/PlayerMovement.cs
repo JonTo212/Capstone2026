@@ -319,7 +319,7 @@ public class PlayerMovement : MonoBehaviour
                 Jump(1f, true);
             }
 
-            else if (_hasJumped && CanDoubleJump && useDoubleJump)
+            else if(_hasJumped && CanDoubleJump && useDoubleJump)
             {
                 //Jump(doubleJumpMultiplier);
                 HandleDoubleJump();
@@ -483,6 +483,7 @@ public class PlayerMovement : MonoBehaviour
         float newSpeed = Mathf.Max(0f, speed - deltaV);
         playerVel = (playerVel - velocityOnAxis) + (velocityOnAxis.normalized * newSpeed);
     }
+
     public void EnableFriction(bool enable)
     {
         _useFriction = enable;
