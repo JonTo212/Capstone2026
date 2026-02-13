@@ -56,6 +56,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float ledgeScanDepth;
     [SerializeField] private float doubleJumpDuration = 0.1f;
     [SerializeField] private float doubleJumpMultiplier = 0.8f;
+    [SerializeField] private bool useDoubleJump;
     //[SerializeField] private Vector2 doubleJumpForce;
 
     [Header("Camera")]
@@ -173,15 +174,22 @@ public class PlayerMovement : MonoBehaviour
             case PlayerMoveState.Walking:
                 _currentMultipliers = MovementProperties.Default;
                 _hasJumped = false;
+                CanDoubleJump = false;
                 break;
 
             case PlayerMoveState.InAir:
                 _currentMultipliers = _airMultipliers;
+                if (!_hasJumped && useDoubleJump)
+                {
+                    Debug.Log("ENABLING DOUBLE JUMP");
+                    CanDoubleJump = true;
+                }
                 break;
 
             case PlayerMoveState.Swinging:
                 _currentMultipliers = _swingingMultipliers;
                 _hasJumped = false;
+                CanDoubleJump = false;
                 break;
         }
     }
@@ -275,8 +283,6 @@ public class PlayerMovement : MonoBehaviour
 
     #region Jumping
 
-    public bool useDoubleJump; //ALSO THIS SHIT
-
     private void HandleJumpBuffer()
     {
         if (PlayerInput.JumpDown)
@@ -290,10 +296,10 @@ public class PlayerMovement : MonoBehaviour
             jumpBufferCounter -= Time.deltaTime;
         }
     }
-
+    private bool _doubleJumpGrantedThisAirTime = false;
     private void HandleCoyoteTime()
     {
-        bool grounded = IsGrounded() && Rb.linearVelocity.y <= 0f; //THIS MAKES DOUBLE JUMP WEIRD
+        bool grounded = IsGrounded() && Rb.linearVelocity.y <= 0f;
 
         if (IsGrounded())
         {
@@ -319,7 +325,7 @@ public class PlayerMovement : MonoBehaviour
                 Jump(1f, true);
             }
 
-            else if(_hasJumped && CanDoubleJump && useDoubleJump)
+            else if(CanDoubleJump && useDoubleJump)
             {
                 //Jump(doubleJumpMultiplier);
                 HandleDoubleJump();
