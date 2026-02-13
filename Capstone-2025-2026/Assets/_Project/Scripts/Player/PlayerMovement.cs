@@ -39,8 +39,9 @@ public class PlayerMovement : MonoBehaviour
     [Header("Multipliers")]
     [SerializeField] private MovementProperties _airMultipliers;
     [SerializeField] private MovementProperties _swingingMultipliers;
-    [SerializeField] private float overshootMaxForce = 10f;
+    [SerializeField] private float overshootMaxForce = 50f;
     [SerializeField] private float hardCapMultiplier = 5f;
+    [SerializeField] private float steeringMultiplier = 1.5f;
 
     [Header("Ground Check")]
     [SerializeField] private Transform feetPos;
@@ -181,6 +182,7 @@ public class PlayerMovement : MonoBehaviour
                 _currentMultipliers = _airMultipliers;
                 if (!_hasJumped && useDoubleJump)
                 {
+                    Debug.Log("ENABLING DOUBLE JUMP");
                     CanDoubleJump = true;
                 }
                 break;
@@ -472,11 +474,17 @@ public class PlayerMovement : MonoBehaviour
         if (velocityOnAxis.sqrMagnitude < 0.0001f) return;
 
         float speed = velocityOnAxis.magnitude;
+        float targetSpeed = defaultMaxSpeed * _currentMultipliers.maxSpeedMultiplier;
         Vector3 frictionDir = -velocityOnAxis.normalized;
+
+        Vector3 horizontalVel = new Vector3(playerVel.x, 0, playerVel.z);
+        bool isAboveMaxSpeed = horizontalVel.magnitude > targetSpeed;
+
         float frictionAccel;
 
         //stopping friction -> bring you to a stop
-        if (WishDir == Vector3.zero || FrictionMultiplier < 1f)
+        //also runs a flat friction amount when above max speed (i.e. when launched)
+        if (WishDir == Vector3.zero || FrictionMultiplier < 1f || isAboveMaxSpeed)
         {
             float stopAccel = speed / Time.fixedDeltaTime;
             float rawFriction = _friction * _currentMultipliers.decelMultiplier;
@@ -485,7 +493,6 @@ public class PlayerMovement : MonoBehaviour
         //movement friction -> keep you at maxSpeed
         else
         {
-            float targetSpeed = defaultMaxSpeed * _currentMultipliers.maxSpeedMultiplier;
             frictionAccel = _acceleration * _currentMultipliers.accelMultiplier * (speed / targetSpeed);
         }
 
@@ -507,9 +514,32 @@ public class PlayerMovement : MonoBehaviour
     {
         if (WishDir == Vector3.zero) return;
 
-        //apply accel to reference (same as Forcemode.Accel)
-        Vector3 accel = WishDir * _acceleration * _currentMultipliers.accelMultiplier;
-        relVel += accel * Time.fixedDeltaTime;
+        Vector3 wishDirNormalized = WishDir.normalized;
+        Vector3 horizontalVel = new Vector3(relVel.x, 0, relVel.z);
+        float currentSpeed = horizontalVel.magnitude;
+        float targetSpeed = defaultMaxSpeed * _currentMultipliers.maxSpeedMultiplier;
+
+        //regular acceleration, when below max speed
+        if (currentSpeed < targetSpeed)
+        {
+            float currentSpeedInWishDir = Vector3.Dot(horizontalVel, wishDirNormalized);
+            float accelAmount = _acceleration * _currentMultipliers.accelMultiplier * Time.fixedDeltaTime;
+            float speedDeficit = targetSpeed - currentSpeedInWishDir;
+            float clampedAccel = Mathf.Min(accelAmount, speedDeficit);
+
+            relVel += wishDirNormalized * clampedAccel;
+        }
+
+        //redirect acceleration when over max speed
+        else
+        {
+            Vector3 targetVelocity = wishDirNormalized * currentSpeed;
+            float steerStrength = _acceleration * _currentMultipliers.accelMultiplier * steeringMultiplier * Time.fixedDeltaTime;
+
+            Vector3 newHorizontalVel = Vector3.MoveTowards(horizontalVel, targetVelocity, steerStrength);
+            relVel.x = newHorizontalVel.x;
+            relVel.z = newHorizontalVel.z;
+        }
     }
     #endregion
 
