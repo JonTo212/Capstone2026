@@ -76,6 +76,7 @@ public class Lasso : MonoBehaviour
         set => _attachPointLocal = _snaredObjTransform.InverseTransformPoint(value);
     }
     public float AnchorDist { get; private set; }
+    public float MaxLassoRange => maxLassoRange;
 
     public event Action OnObjectHit;
     public event Action OnNPCHit;
@@ -97,7 +98,7 @@ public class Lasso : MonoBehaviour
             HandleObjectReleased();
         }
 
-        CheckNearbyTargets(true);
+        //CheckNearbyTargets(true);
         if (SnaredObject != null) SetVerticalAnchor(false);
     }
 
@@ -156,13 +157,13 @@ public class Lasso : MonoBehaviour
     }
 
 
-    public void CheckNearbyTargets(bool showGrabPoints)
+    public void CheckNearbyTargets(bool showGrabPoints, float range)
     {
         Prop targetProp = null;
 
         if (useAimOutline)
         {
-            RaycastHit? hit = _aimAssist.GetAssistHitPoint(PlayerCam, PlayerCamLookPos.position, maxLassoRange * 1.2f, aimAssistType, aimAssistBufferRadius);
+            RaycastHit? hit = _aimAssist.GetAssistHitPoint(PlayerCam, PlayerCamLookPos.position, range, aimAssistType, aimAssistBufferRadius);
             if (hit.HasValue)
             {
                 targetProp = hit.Value.transform.GetComponentInParent<Prop>();
@@ -238,7 +239,7 @@ public class Lasso : MonoBehaviour
     #region Start Lasso
     public void HandleLassoStart()
     {
-        RaycastHit? hit = _aimAssist.GetAssistHitPoint(PlayerCam, PlayerCamLookPos.position, maxLassoRange * 1.2f, aimAssistType, aimAssistBufferRadius);
+        RaycastHit? hit = _aimAssist.GetAssistHitPoint(PlayerCam, PlayerCamLookPos.position, maxLassoRange, aimAssistType, aimAssistBufferRadius);
         if (hit.HasValue)
         {
             RaycastHit actualHit = hit.Value;

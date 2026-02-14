@@ -74,6 +74,9 @@ public class LassoTetherController : MonoBehaviour
     {
         if (rodPickedUp)
         {
+            float currentRange = rodEquipped ? playerLasso.MaxLassoRange : playerTether.MaxTetherStartRange;
+            playerLasso.CheckNearbyTargets(!rodEquipped, currentRange);
+
             if (playerActions.RecallNPCDown)
             {
                 if (playerInventory.CurrentNPC == null) return;
