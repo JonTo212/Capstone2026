@@ -181,7 +181,6 @@ public class PlayerMovement : MonoBehaviour
                 _currentMultipliers = _airMultipliers;
                 if (!_hasJumped && useDoubleJump)
                 {
-                    Debug.Log("ENABLING DOUBLE JUMP");
                     CanDoubleJump = true;
                 }
                 break;
@@ -236,6 +235,11 @@ public class PlayerMovement : MonoBehaviour
     public void SetExternalForce(Vector3 externalForce)
     {
         ExternalForce = externalForce;
+    }
+
+    public void SetMovementLockTimer(float newTimer)
+    {
+        MovementLockTimer = newTimer;
     }
 
     private void HandleWalkingSFX()

@@ -6,7 +6,7 @@ public class PlayerModelRotationHandler : MonoBehaviour
     public enum RotationState
     {
         Default,
-        WallJump
+        Hanging
     }
 
     [SerializeField] private GameObject playerObj;
@@ -25,10 +25,10 @@ public class PlayerModelRotationHandler : MonoBehaviour
     void Update()
     {
         if (_playerController.WishDir == Vector3.zero) return;
-        if (_currentRotationState == RotationState.WallJump) return;
+        if (_currentRotationState == RotationState.Hanging) return;
 
-        desiredRot = Quaternion.LookRotation(_playerController.WishDir);
         playerObj.transform.rotation = Quaternion.Slerp(playerObj.transform.rotation, desiredRot, rotationSpeed * Time.deltaTime);
+        desiredRot = Quaternion.LookRotation(_playerController.WishDir);
     }
 
     /*public void SetNewRotationDir(Vector3? dir, float lockDuration)
@@ -77,8 +77,10 @@ public class PlayerModelRotationHandler : MonoBehaviour
     }
     }*/
 
-    public void SetNewRotationDir(Quaternion desiredRotation)
+    public void SetNewRotationDir(Quaternion? desiredRotation, bool hanging)
     {
-        playerObj.transform.rotation = desiredRotation;
+        if(desiredRotation != null) playerObj.transform.rotation = desiredRotation.Value;
+        if(hanging) _currentRotationState = RotationState.Hanging;
+        else _currentRotationState = RotationState.Default;
     }
 }

@@ -94,6 +94,15 @@ public class ThirdPersonAnimatorController : MonoBehaviour
         {
             animator.SetBool("IsHanging", false);
         }
+
+        if(_playerLedgeGrab._mantleCoroutine != null)
+        {
+            animator.SetBool("Mantling", true);
+        }
+        else
+        {
+            animator.SetBool("Mantling", false);
+        }
     }
 
     private void SetLassoBool()

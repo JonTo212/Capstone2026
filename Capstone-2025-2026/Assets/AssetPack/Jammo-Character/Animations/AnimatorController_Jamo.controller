@@ -11,17 +11,20 @@ AnimatorStateTransition:
   - m_ConditionMode: 1
     m_ConditionEvent: IsHanging
     m_EventTreshold: 0
+  - m_ConditionMode: 2
+    m_ConditionEvent: Mantling
+    m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: -7637610359549434193}
   m_Solo: 0
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.2
+  m_TransitionDuration: 0
   m_TransitionOffset: 0
   m_ExitTime: 0
   m_HasExitTime: 0
-  m_HasFixedDuration: 1
+  m_HasFixedDuration: 0
   m_InterruptionSource: 0
   m_OrderedInterruption: 1
   m_CanTransitionToSelf: 0
@@ -909,7 +912,7 @@ AnimatorState:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Braced Hang To Crouch
-  m_Speed: 1
+  m_Speed: 1.33
   m_CycleOffset: 0
   m_Transitions:
   - {fileID: -8356260873744855443}
@@ -1153,7 +1156,7 @@ AnimatorStateMachine:
   m_ChildStates:
   - serializedVersion: 1
     m_State: {fileID: -2249991496441068082}
-    m_Position: {x: 20, y: 210, z: 0}
+    m_Position: {x: 0, y: 210, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -6943080246351686350}
     m_Position: {x: 360, y: 70, z: 0}
@@ -1165,7 +1168,7 @@ AnimatorStateMachine:
     m_Position: {x: -80, y: 910, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -2450488894084032637}
-    m_Position: {x: -590, y: 130, z: 0}
+    m_Position: {x: -470, y: 200, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 424074636991294763}
     m_Position: {x: -300, y: 910, z: 0}
@@ -1211,8 +1214,8 @@ AnimatorStateMachine:
   m_EntryTransitions: []
   m_StateMachineTransitions: {}
   m_StateMachineBehaviours: []
-  m_AnyStatePosition: {x: 10, y: -150, z: 0}
-  m_EntryPosition: {x: 40, y: 320, z: 0}
+  m_AnyStatePosition: {x: 20, y: -150, z: 0}
+  m_EntryPosition: {x: 20, y: 330, z: 0}
   m_ExitPosition: {x: 610, y: 70, z: 0}
   m_ParentStateMachinePosition: {x: 800, y: 20, z: 0}
   m_DefaultState: {fileID: -2249991496441068082}
@@ -1227,17 +1230,20 @@ AnimatorStateTransition:
   - m_ConditionMode: 1
     m_ConditionEvent: Mantling
     m_EventTreshold: 0
+  - m_ConditionMode: 1
+    m_ConditionEvent: IsHanging
+    m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 4007498776077785068}
   m_Solo: 0
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.25
+  m_TransitionDuration: 0.1
   m_TransitionOffset: 0
   m_ExitTime: 0
   m_HasExitTime: 0
-  m_HasFixedDuration: 1
+  m_HasFixedDuration: 0
   m_InterruptionSource: 0
   m_OrderedInterruption: 1
   m_CanTransitionToSelf: 0
