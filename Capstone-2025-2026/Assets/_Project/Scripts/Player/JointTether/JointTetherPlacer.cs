@@ -61,12 +61,12 @@ public class JointTetherPlacer : MonoBehaviour
     public float originalAmountTextPosition;
     public event Action<bool> OnPlacementValidityUpdate;
     public event Action OnTetherStartHit;
-    public AudioManager aManage;
+    
+    public float MaxTetherStartRange => maxTetherStartDist;
 
     #region Unity Functions
     private void Awake()
     {
-        aManage = GameObject.Find("AudioManager").GetComponent<AudioManager>();
         _playerCamera = Camera.main;
         originalAmountTextPosition = tetherAmountText.gameObject.transform.position.y;
     }
@@ -148,7 +148,7 @@ public class JointTetherPlacer : MonoBehaviour
             isStartPointValid = true;
             tetherRangeSphere.gameObject.SetActive(true);
         }
-        if(IsTetherPointValid(hit.transform) == false)
+        if(hit.transform != null && IsTetherPointValid(hit.transform) == false)
         {
             isStartPointValid = false;
         }
@@ -210,7 +210,7 @@ public class JointTetherPlacer : MonoBehaviour
         }
         startLocalPosition = startTransform.InverseTransformPoint(startPosition);
 
-        aManage.PlaySFX(aManage.TetherStart, 4, 1f);
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.TetherStart, 4, 1f);
     }
 
     private void SetTetherEndPoint(Transform endTransform, Vector3 endPosition)
@@ -230,7 +230,7 @@ public class JointTetherPlacer : MonoBehaviour
         endLocalPosition = endTransform.InverseTransformPoint(endPosition);
 
         
-        aManage.PlaySFX(aManage.TetherEnd, 4, 1f);
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.TetherEnd, 4, 1f);
     }
 
     //Creates and initializes tether parameters like hit transforms and positions
@@ -456,7 +456,7 @@ public class JointTetherPlacer : MonoBehaviour
     private bool GetObjectInPlayerFront(out RaycastHit hit)
     {
         Ray ray = _playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
-        Physics.Raycast(ray, out hit, 500f, ~layersToIgnore, QueryTriggerInteraction.Ignore);
+        Physics.Raycast(ray, out hit, maxTetherStartDist, ~layersToIgnore, QueryTriggerInteraction.Ignore);
 
         Vector3 hitToPlayer = transform.position - hit.point;
         Vector3 hitToCamera = _playerCamera.transform.position - hit.point;
@@ -467,6 +467,11 @@ public class JointTetherPlacer : MonoBehaviour
         Vector3 projectedCameraToPlayer = Vector3.Project(cameraToPlayer, cameraToHit);
 
         cameraMaxDistance = projectedCameraToPlayer.magnitude + projectedPlayerToCameraHit.magnitude;
+        float distanceFromPlayer = Vector3.Distance(transform.position, hit.point);
+        if (distanceFromPlayer > maxTetherStartDist)
+        {
+            cameraMaxDistance = Mathf.Min(cameraMaxDistance, maxTetherStartDist);
+        }
 
         hit = new RaycastHit();
 
