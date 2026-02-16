@@ -73,11 +73,15 @@ public class JointTether : MonoBehaviour
         joint.xMotion = ConfigurableJointMotion.Limited;
         joint.yMotion = ConfigurableJointMotion.Limited;
         joint.zMotion = ConfigurableJointMotion.Limited;
+
+        joint.angularXMotion = ConfigurableJointMotion.Free;
+        joint.angularYMotion = ConfigurableJointMotion.Free;
+        joint.angularZMotion = ConfigurableJointMotion.Free;
     }
 
     private void FixedUpdate()
     {
-        MoveToTetherCenter();   
+        MoveToTetherCenter();
     }
 
     private void AttachTether()
@@ -86,6 +90,10 @@ public class JointTether : MonoBehaviour
 
         joint = CreateJoint(startRb, endRb);
         //endJoint = CreateJoint(endRb, startRb);
+
+        Quaternion anchorRot = (endRb != null) ? endRb.transform.rotation : Quaternion.identity;
+        Quaternion currentRelativeRot = Quaternion.Inverse(anchorRot) * startRb.transform.rotation;
+        joint.targetRotation = Quaternion.Inverse(currentRelativeRot);
 
         CreateJointConnections(joint, startLocalPosition, endLocalPosition, startAnchor, endAnchor);
         //CreateJointConnections(endJoint, endLocalPosition, startLocalPosition, endAnchor, startAnchor);
@@ -180,7 +188,7 @@ public class JointTether : MonoBehaviour
         endLocalPosition = storedStartLocalPosition;
     }
 
-    private void ActivateJoint(ConfigurableJoint joint)
+    public void ActivateJoint()
     {
         JointDrive xDrive = new JointDrive();
         JointDrive yDrive = new JointDrive();
@@ -221,6 +229,47 @@ public class JointTether : MonoBehaviour
         joint.xMotion = ConfigurableJointMotion.Free;
         joint.yMotion = ConfigurableJointMotion.Free;
         joint.zMotion = ConfigurableJointMotion.Free;
+    }
+
+    public void DisableJoint()
+    {
+        if (joint == null) return;
+
+        JointDrive xDrive = new JointDrive();
+        JointDrive yDrive = new JointDrive();
+        JointDrive zDrive = new JointDrive();
+        JointDrive angularXDrive = new JointDrive();
+        JointDrive angularYZDrive = new JointDrive();
+
+        xDrive.positionSpring = 0f;
+        xDrive.positionDamper = 0f;
+        xDrive.maximumForce = 0f;
+
+        yDrive.positionSpring = 0f;
+        yDrive.positionDamper = 0f;
+        yDrive.maximumForce = 0f;
+
+        zDrive.positionSpring = 0f;
+        zDrive.positionDamper = 0f;
+        zDrive.maximumForce = 0f;
+
+        angularXDrive.positionSpring = 0f;
+        angularXDrive.positionDamper = 0f;
+        angularXDrive.maximumForce = 0f;
+
+        angularYZDrive.positionSpring = 0f;
+        angularYZDrive.positionDamper = 0f;
+        angularYZDrive.maximumForce = 0f;
+
+        joint.xDrive = xDrive;
+        joint.yDrive = yDrive;
+        joint.zDrive = zDrive;
+
+        joint.angularXDrive = angularXDrive;
+        joint.angularYZDrive = angularYZDrive;
+
+        joint.autoConfigureConnectedAnchor = false;
+        joint.enableCollision = true;
     }
 
     private void BigMamaJoint(ConfigurableJoint joint)
@@ -366,13 +415,70 @@ public class JointTether : MonoBehaviour
             joint.connectedMassScale = 1f;
         }
     }
+    public void UpdateTetherRotation(Quaternion desiredWorldRot)
+    {
+        if (joint == null || startRb == null) return;
+
+        joint.rotationDriveMode = RotationDriveMode.XYAndZ;
+
+        //we're passing in the rotation at the time of release
+        //find the anchor's rotation
+        Quaternion anchorRot = Quaternion.identity;
+        if (endRb != null)
+        {
+            anchorRot = endRb.transform.rotation;
+        }
+
+        //convert it to local space of the anchor
+        Quaternion relativeRot = Quaternion.Inverse(anchorRot) * desiredWorldRot;
+
+        //targetRotation is the inverse of desired local rotation
+        joint.targetRotation = Quaternion.Inverse(relativeRot);
+    }
+
+    public void UpdateGrabPointToNearest()
+    {
+        if (joint == null || startRb == null) return;
+
+        Prop startProp = startTransform.GetComponent<Prop>();
+        if (startProp == null || startProp.GrabPoints == null || startProp.GrabPoints.Count == 0) return;
+
+        //get tether direction
+        Vector3 endWorldPos = endTransform.TransformPoint(endLocalPosition);
+        Vector3 objectCenter = startRb.worldCenterOfMass;
+        Vector3 tetherDirection = (endWorldPos - objectCenter).normalized;
+
+        //find nearest grab point to the alignment of the tether
+        Transform bestGrabPoint = null;
+        float bestAlignment = float.MinValue;
+
+        foreach (Transform grabPoint in startProp.GrabPoints)
+        {
+            Vector3 grabPointDir = (grabPoint.position - objectCenter).normalized;
+            float alignment = Vector3.Dot(grabPointDir, tetherDirection);
+
+            if (alignment > bestAlignment)
+            {
+                bestAlignment = alignment;
+                bestGrabPoint = grabPoint;
+            }
+        }
+
+        if (bestGrabPoint != null)
+        {
+            //update start pos, anchor and visuals
+            startLocalPosition = startTransform.InverseTransformPoint(bestGrabPoint.position);
+            joint.anchor = startLocalPosition;
+            tetherVisuals.Init(startTransform, startLocalPosition, endTransform, endLocalPosition, isActivated, activationDelay);
+        }
+    }
 
     IEnumerator ActivateTetherAfterDelay()
     {
         tetherVisuals.SetLineColorActive();
         yield return new WaitForSeconds(activationDelay);
 
-        ActivateJoint(joint);
+        ActivateJoint();
         //ActivateJoint(endJoint);
 
         isActivated = true;

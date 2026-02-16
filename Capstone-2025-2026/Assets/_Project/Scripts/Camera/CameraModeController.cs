@@ -132,7 +132,6 @@ public class CameraModeController : MonoBehaviour
 
             if (!hasSnappedToLasso)
             {
-                lassoTetherController.Lasso.SetVerticalAnchor(true);
                 cameraController.SetPitchSmoothOverride(lassoZoomOutSmoothTime);
                 cameraController.SetRotation(cameraController.GetCurrentYaw(), 0f);
 

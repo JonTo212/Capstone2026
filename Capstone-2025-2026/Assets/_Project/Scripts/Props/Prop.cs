@@ -145,6 +145,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         Rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
         AttachedTransform = null;
 
+
         Invoke(nameof(CoyoteFall), coyoteFallDelay);
         OnPropReleased?.Invoke();
 
@@ -356,6 +357,31 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         else
         {
             Rb.constraints = OriginalConstraints;
+        }
+    }
+
+    public void UpdateTetherGrabPointsAndLockRotation()
+    {
+        foreach (var tether in attachedTethers)
+        {
+            tether.UpdateGrabPointToNearest();
+            tether.UpdateTetherRotation(transform.rotation);
+        }
+    }
+
+    public void DisableJointTemp()
+    {
+        foreach (var tether in attachedTethers)
+        {
+            tether.DisableJoint();
+        }
+    }
+
+    public void EnableJoint()
+    {
+        foreach (var tether in attachedTethers)
+        {
+            tether.ActivateJoint();
         }
     }
 

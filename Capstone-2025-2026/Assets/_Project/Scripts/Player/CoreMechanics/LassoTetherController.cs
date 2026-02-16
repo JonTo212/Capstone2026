@@ -283,6 +283,7 @@ public class LassoTetherController : MonoBehaviour
             {
                 playerLasso.camInputController.enabled = false;
             }
+            playerLasso.SnaredObject.DisableJointTemp();
             playerLasso.SetRotating(true);
             SwitchLassoState(LassoState.FreeRotating);
         }
@@ -370,6 +371,13 @@ public class LassoTetherController : MonoBehaviour
                 playerLasso.usePhysicsLasso = wasUsingPhysicsLasso;
                 playerLasso.RestorePivot();
             }
+
+            if (playerLasso.SnaredObject.IsTetherPulled)
+            {
+                playerLasso.SnaredObject.UpdateTetherGrabPointsAndLockRotation();
+            }
+
+            playerLasso.SnaredObject.EnableJoint();
             playerLasso.camInputController.enabled = true;
             playerLasso.SetRotating(false);
             SwitchLassoState(LassoState.Snared);
@@ -381,6 +389,13 @@ public class LassoTetherController : MonoBehaviour
             {
                 playerLasso.usePhysicsLasso = wasUsingPhysicsLasso;
             }
+
+            if (playerLasso.SnaredObject.IsTetherPulled)
+            {
+                playerLasso.SnaredObject.UpdateTetherGrabPointsAndLockRotation();
+            }
+
+            playerLasso.SnaredObject.EnableJoint();
             playerLasso.camInputController.enabled = true;
             playerLasso.SetRotating(false);
             playerLasso.HandleObjectReleased();
@@ -392,6 +407,13 @@ public class LassoTetherController : MonoBehaviour
             {
                 playerLasso.usePhysicsLasso = wasUsingPhysicsLasso;
             }
+
+            if (playerLasso.SnaredObject.IsTetherPulled)
+            {
+                playerLasso.SnaredObject.UpdateTetherGrabPointsAndLockRotation();
+            }
+
+            playerLasso.SnaredObject.EnableJoint();
             playerTether.StartTetherPlacement(playerLasso.SnaredObject.transform, playerLasso.HitPos);
             playerLasso.SnaredObject.Rb.constraints = RigidbodyConstraints.FreezePosition;
             playerLasso.SetRotating(false);
