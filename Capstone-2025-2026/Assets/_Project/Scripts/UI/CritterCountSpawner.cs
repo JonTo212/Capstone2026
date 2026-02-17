@@ -10,12 +10,13 @@ using System.Collections.Generic;
 public class CritterCountSpawner : MonoBehaviour
 {
     public GameObject critter_UI;
+    public int spacing = 50;
+    public int offset = 100;
 
     private int critterCount = 0;
-    private List<Sprite> silSprites = new List<Sprite>();
 
 
-    private GameObject[] c_UIs;
+    public GameObject[] c_UIs;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -36,20 +37,12 @@ public class CritterCountSpawner : MonoBehaviour
     private void Populate()
     {
         critterCount = CollectibleManager.Instance.count;
-        c_UIs = new GameObject[critterCount];
 
 
         for (int i = 0; i < critterCount; i++)
         {
-            
-            c_UIs[i] = Instantiate(critter_UI,this.transform);
-
             //will be obsolete once Prefab is established
             c_UIs[i].SetActive(true);
-
-
-            Vector3 placement = c_UIs[i].transform.position + new Vector3((i * 40) - 100, 0, 0);
-            c_UIs[i].transform.position = placement;
             
             Image silh = c_UIs[i].GetComponent<Image>();
             silh.sprite = CollectibleManager.Instance.critLog[i].silSpr;
