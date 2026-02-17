@@ -1,5 +1,6 @@
-using UnityEngine;
+using FMODUnity;
 using System.Collections;
+using UnityEngine;
 
 [RequireComponent(typeof(SphereCollider))]
 public class CoinPickup : MonoBehaviour
@@ -45,7 +46,8 @@ public class CoinPickup : MonoBehaviour
     {
         if (AudioManager.Instance != null)
         {
-            AudioManager.Instance.PlaySFX(AudioManager.Instance.Collection, 10, 1);
+            //AudioManager.Instance.PlaySFX(AudioManager.Instance.Collection, 10, 1);
+            RuntimeManager.PlayOneShot("event:/Collectible", transform.position);
         }
 
         Destroy(gameObject);

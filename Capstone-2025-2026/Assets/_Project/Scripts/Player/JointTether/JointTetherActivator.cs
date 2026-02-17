@@ -1,3 +1,4 @@
+using FMODUnity;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -120,8 +121,8 @@ public class JointTetherActivator : MonoBehaviour
         JointTether tether = TryGetTether();
         if (tether != null)
         {
-            
-            aManage.PlaySFX(aManage.TetherTighten, 4, 1f);
+
+            RuntimeManager.PlayOneShot("event:/TetherActivate", transform.position);
             tether.ActivateTether();
 
             OnTetherActivated?.Invoke();
@@ -136,7 +137,7 @@ public class JointTetherActivator : MonoBehaviour
         
         foreach (JointTether tether in placedTethers)
         {
-            aManage.PlaySFX(aManage.TetherTighten, 4, 1f);
+            RuntimeManager.PlayOneShot("event:/TetherActivate", transform.position);
             tether.ActivateTether();
 
             OnTetherActivated?.Invoke();
@@ -148,7 +149,7 @@ public class JointTetherActivator : MonoBehaviour
     {
         foreach (JointTether tether in placedTethers)
         {
-            aManage.PlaySFX(aManage.TetherTighten, 4, 1f);
+            RuntimeManager.PlayOneShot("event:/TetherActivate", transform.position);
             tether.ActivateTether();
 
             OnTetherActivated?.Invoke();

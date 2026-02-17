@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 5768134484534371758}
   - component: {fileID: 1877282574267407646}
   - component: {fileID: -6076895131007957374}
+  - component: {fileID: 5733814902483481911}
   m_Layer: 0
   m_Name: AudioManager
   m_TagString: AudioManager
@@ -83,8 +84,8 @@ MonoBehaviour:
   flagFare: {fileID: 8300000, guid: 41a1597bf39e5e54c84b1656cbcb041f, type: 3}
   rodCollect: {fileID: 8300000, guid: b393be5ae2b07d34ba26915dab3abfb3, type: 3}
   grabberClick: {fileID: 0}
-  crackingVessel: {fileID: 0}
-  grabberExplode: {fileID: 0}
+  crackingVessel: {fileID: 8300000, guid: 683a0509f221a3540ba12bd054582837, type: 3}
+  grabberExplode: {fileID: 8300000, guid: ba254b7eb623ca243bc1cc1bf43f51b5, type: 3}
   bossHurt: {fileID: 8300000, guid: 002af071d27232642a94b3587db7b798, type: 3}
   bossPerish: {fileID: 8300000, guid: e558dab971aa21545b9b860aa2b9fd95, type: 3}
   bossLaserCharge: {fileID: 8300000, guid: 683a0509f221a3540ba12bd054582837, type: 3}
@@ -128,3 +129,20 @@ MonoBehaviour:
   OverrideAttenuation: 0
   OverrideMinDistance: -1
   OverrideMaxDistance: -1
+--- !u!114 &5733814902483481911
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 46650012720826449}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b9468c5f457ace64f8d4df6d642b107f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FMODUnity::FMODUnity.StudioBankLoader
+  LoadEvent: 0
+  UnloadEvent: 0
+  Banks: []
+  CollisionTag: 
+  PreloadSamples: 0

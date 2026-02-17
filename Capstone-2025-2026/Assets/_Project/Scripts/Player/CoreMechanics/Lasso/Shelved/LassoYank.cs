@@ -155,7 +155,7 @@ public class LassoYank : MonoBehaviour
         else
         {
             //apply initial velocity
-            AudioManager.Instance.PlaySFX(AudioManager.Instance.Pull, 5, 1);
+            //AudioManager.Instance.PlaySFX(AudioManager.Instance.Pull, 5, 1);
             Vector3 startVel = CalculateObjectYankVelocity(startPosition, playerLasso.HoldPos.position, objectYankDuration);
             playerLasso.SnaredObject.Rb.linearVelocity = Vector3.zero;
             playerLasso.SnaredObject.Rb.AddForce(startVel * playerLasso.SnaredObject.Rb.mass, ForceMode.Impulse);
@@ -235,7 +235,7 @@ public class LassoYank : MonoBehaviour
         }
 
 
-        AudioManager.Instance.PlaySFX(AudioManager.Instance.Pull, 5, 1);
+        //AudioManager.Instance.PlaySFX(AudioManager.Instance.Pull, 5, 1);
         _playerYankCoroutine = StartCoroutine(YankPlayerCoroutine());
     }
 
@@ -307,9 +307,9 @@ public class LassoYank : MonoBehaviour
         if (tempVignetteVolume.profile.TryGet<Vignette>(out var _vignette))
         {
             _vignette.intensity.value = tensionFactor / 3f;
-            if (tensionFactor > 0.5f && !AudioManager.Instance.SFXSource5.isPlaying)
+            if (tensionFactor > 0.5f)
             {
-                AudioManager.Instance.PlaySFX(AudioManager.Instance.TetherTighten, 5, 1);
+                //AudioManager.Instance.PlaySFX(AudioManager.Instance.TetherTighten, 5, 1);
             }
         }
 
@@ -346,7 +346,7 @@ public class LassoYank : MonoBehaviour
         Vector3 pullDirection = dirToPlayer.normalized;
         playerLasso.PlayerController.Rb.AddForce(-pullDirection * snapbackImpulseStrength * impulseMultiplier, ForceMode.Impulse);
 
-        AudioManager.Instance.PlaySFX(AudioManager.Instance.Pull, 5, 1);
+        //AudioManager.Instance.PlaySFX(AudioManager.Instance.Pull, 5, 1);
     }
 
     #endregion

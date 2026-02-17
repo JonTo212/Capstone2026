@@ -1,5 +1,6 @@
-using System.Collections.Generic;
+using FMODUnity;
 using System.Collections;
+using System.Collections.Generic;
 using Unity.Hierarchy;
 using UnityEngine;
 
@@ -103,14 +104,15 @@ public class TetherVessel : EnvironmentalProp
 
     IEnumerator BreakClawsAfterDelay()
     {
-            yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(2f);
 
-            AudioManager.Instance.PlaySFX(AudioManager.Instance.GrabberExplode, 1, .8f);
+        //AudioManager.Instance.PlaySFX(AudioManager.Instance.GrabberExplode, 1, .8f);
+        RuntimeManager.PlayOneShot("event:/ClawBreak", transform.position);
 
-            Destroy(attachedClawSetPieces[1].gameObject);
-            Destroy(attachedClawSetPieces[2].gameObject);
+        Destroy(attachedClawSetPieces[1].gameObject);
+        Destroy(attachedClawSetPieces[2].gameObject);
 
-            currentState = VesselState.Underground;
-            windPipeEntranceParticles.Play();
+        currentState = VesselState.Underground;
+        windPipeEntranceParticles.Play();
     }
 }

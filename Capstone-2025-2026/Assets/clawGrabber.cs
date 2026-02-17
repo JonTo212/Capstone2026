@@ -1,3 +1,4 @@
+using FMODUnity;
 using NodeCanvas.Tasks.Actions;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -51,7 +52,10 @@ public class clawGrabber : MonoBehaviour
         //play sound when extending
         if (dist.magnitude > clickSoundDistance+4) // needs a small buffer zone so the extending and retracting dont fight over subtracting and adding
         {
-            audioManager.PlaySFX(audioManager.GrabberClick, 1, 1);
+
+            RuntimeManager.PlayOneShot("event:/MenuSelect", transform.position);
+            Debug.Log("clawGrabber.cs");
+            //audioManager.PlaySFX(audioManager.GrabberClick, 1, 1);
 
             clickSoundDistance += 2f;
         }
@@ -59,7 +63,8 @@ public class clawGrabber : MonoBehaviour
         //playsound when retracting
         if (dist.magnitude < clickSoundDistance-4)
         {
-            audioManager.PlaySFX(audioManager.GrabberClick, 1, 1);
+            Debug.Log("clawGrabber.cs");
+            RuntimeManager.PlayOneShot("event:/MenuSelect", transform.position);
 
             clickSoundDistance -= 2f;
         }
