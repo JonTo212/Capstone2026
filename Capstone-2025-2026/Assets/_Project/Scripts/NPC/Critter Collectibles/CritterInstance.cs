@@ -7,7 +7,7 @@ public class CritterInstance : MonoBehaviour
 {
     public CritterColllectible CritterCollectibleData;
 
-    private int instID;
+    public int instID;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -42,8 +42,7 @@ public class CritterInstance : MonoBehaviour
     {
         GameObject critterVisual = Instantiate(CritterCollectibleData.CritterModelPrefab, this.transform);
 
-        CollectibleManager.Instance.SetUpCritter(CritterCollectibleData.CritterStampSilhouette, CritterCollectibleData.CritterStampImg);
-        instID = CollectibleManager.Instance.count;
-        Debug.Log(instID);
+        CollectibleManager.Instance.RegisterCritter(CritterCollectibleData.CritterStampSilhouette, CritterCollectibleData.CritterStampImg);
+        instID = CollectibleManager.Instance.GetID();
     }
 }

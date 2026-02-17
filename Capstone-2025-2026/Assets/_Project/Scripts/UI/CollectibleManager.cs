@@ -23,7 +23,8 @@ public class CollectibleManager : MonoBehaviour
         public Sprite stmSpr { get; set; }
 
     }
-    List<CritterCatalogue> critLog = new List<CritterCatalogue>();
+    public List<CritterCatalogue> critLog = new List<CritterCatalogue>();
+    
     [HideInInspector]
     public int count = 0;
 
@@ -44,6 +45,11 @@ public class CollectibleManager : MonoBehaviour
 
     }
 
+    public int GetID ()
+    {
+        return count;
+    }
+
     public void CoinCollected()
     {
         coins++;
@@ -56,22 +62,15 @@ public class CollectibleManager : MonoBehaviour
     }
 
 
-    public void SetUpCritter (Sprite critterSilSprite, Sprite critterStampSprite)
+    public void RegisterCritter (Sprite critterSilSprite, Sprite critterStampSprite)
     {
+        count++;
 
         critLog.Add(new CritterCatalogue());
-        critLog[count].critID = count;
-        critLog[count].silSpr = critterSilSprite;
-        critLog[count].stmSpr = critterStampSprite;
+        critLog[count-1].critID = count;
+        critLog[count-1].silSpr = critterSilSprite;
+        critLog[count-1].stmSpr = critterStampSprite;
 
-
-        PopulateSetUp();
-    }
-
-    private void PopulateSetUp() 
-    {
-        spawner.SetUpSilUI(critLog[count].silSpr);
-        count++;
     }
 
 }
