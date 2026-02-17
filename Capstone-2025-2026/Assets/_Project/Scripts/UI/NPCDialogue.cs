@@ -33,8 +33,8 @@ public class NPCDialogue : MonoBehaviour
     public GameObject dialogueBox;
 
     [Header("Typewriter Settings")]
-    [SerializeField] private float charactersPerSecond = 5;
-    [SerializeField] private float interpunctuationDelay = 0.5f;
+    [SerializeField] public float charactersPerSecond = 5;
+    [SerializeField] public float interpunctuationDelay = 0.5f;
 
     [Header("Profile Settings")]
     public Image currentSpeaker;
@@ -112,5 +112,10 @@ public class NPCDialogue : MonoBehaviour
     public void TextOffScreen()
     {
         dialogueBox.GetComponent<RectTransform>().DOAnchorPos(hiddenPosition, 1); // DOMove(hiddenPosition, 2);
+    }
+
+    public void DestroyBox()
+    {
+        Destroy(dialogueBox);
     }
 }
