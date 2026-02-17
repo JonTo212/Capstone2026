@@ -16,6 +16,7 @@ public class CameraCutsceneHandler : MonoBehaviour
 
     [Header("Transition Settings")]
     [SerializeField] private float blendInTime = 0.5f;
+    [SerializeField] private float blendInDelay = 0.5f;
 
     [Header("Camera Settings")]
     [Tooltip("Lock player input to camera rotation during the swing")]
@@ -51,6 +52,7 @@ public class CameraCutsceneHandler : MonoBehaviour
 
     private bool _isActive = false;
     private bool _isPlaying = false;
+    public bool IsCutsceneActive => _isPlaying;
 
     // Path data
     private float _startTime;
@@ -62,8 +64,11 @@ public class CameraCutsceneHandler : MonoBehaviour
     // Blend state
     private bool _isBlendingIn = false;
     private float _blendStartTime;
+    private float _blendInDelayTimer;
     private Vector3 _blendPlayerFrom;
     private Vector3 _blendPlayerTo;
+    public bool BlendingIn => _isBlendingIn;
+    public bool BlendDelayActive { get; private set; }
 
     // Store original camera lock states
     private bool _originalXLock;
@@ -171,12 +176,16 @@ public class CameraCutsceneHandler : MonoBehaviour
             cameraController.SetYAxisLocked(true);
         }
 
-        // Setup blend in - smoothly move player to start of path
+        _isBlendingIn = true;
+        _blendInDelayTimer = 0f;
         _blendPlayerFrom = playerRb.position;
         _blendPlayerTo = GetPathPosition(0f);
+        BlendDelayActive = true;
+        yield return new WaitForSeconds(blendInDelay);
 
-        _isBlendingIn = true;
+        // Setup blend in - smoothly move player to start of path
         _blendStartTime = Time.time;
+        BlendDelayActive = false;
 
         // Wait for blend in
         yield return new WaitForSeconds(blendInTime);
@@ -217,6 +226,12 @@ public class CameraCutsceneHandler : MonoBehaviour
 
         if (_isBlendingIn)
         {
+            if (_blendInDelayTimer < blendInDelay)
+            {
+                _blendInDelayTimer += Time.fixedDeltaTime;
+                return;
+            }
+
             // Smoothly blend player from current position to path start
             float elapsed = Time.time - _blendStartTime;
             float t = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / blendInTime));

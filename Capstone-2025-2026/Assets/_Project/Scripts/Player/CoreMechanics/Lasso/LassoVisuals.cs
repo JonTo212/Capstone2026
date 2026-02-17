@@ -49,7 +49,7 @@ public class LassoVisuals : MonoBehaviour
         lastMousePosition = currentMousePosition;
 
         // During a rope-swing cutscene, draw the rope from the hand to the current spline position
-        if (cutsceneHandler != null && cutsceneHandler.IsActive())
+        if (cutsceneHandler != null && cutsceneHandler.IsActive() && !cutsceneHandler.BlendDelayActive)
         {
             DrawCutsceneRope(lassoScript.HoldPos.position, cutsceneHandler.CurrentRopeAttachmentPosition);
             return;
@@ -171,7 +171,7 @@ public class LassoVisuals : MonoBehaviour
         //determine how much the object can bend
         float currentBendOffset = Mathf.Clamp(totalDistance * bendScale, minBend, maxBend);
         controlPoint1 += combinedBendAxis * currentBendOffset;
-        controlPoint2 += combinedBendAxis * currentBendOffset;
+        controlPoint2 += combinedBendAxis * currentBendOffset; 
 
         Vector3[] linePositions = new Vector3[7]
         {  startPoint, controlPoint1, controlPoint2, controlPoint3, controlPoint4, controlPoint5, endPoint };

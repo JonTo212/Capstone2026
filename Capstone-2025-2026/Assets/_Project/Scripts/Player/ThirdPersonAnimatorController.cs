@@ -10,7 +10,7 @@ public class ThirdPersonAnimatorController : MonoBehaviour
     private JointTetherActivator _jointTetherActivator;
     private PlayerLedgeGrab _playerLedgeGrab;
     private Lasso _lasso;
-    [SerializeField] private ZeldaCameraController _cameraController;
+    [SerializeField] private CameraCutsceneHandler _cameraController;
     [SerializeField] private Animator animator;
 
     private void Awake()
@@ -44,7 +44,8 @@ public class ThirdPersonAnimatorController : MonoBehaviour
         animator.SetBool("TetherEndPointHit", _jointTetherPlacer.didEndPointHit);
         animator.SetBool("IsHanging", _playerLedgeGrab.IsHanging);
         animator.SetBool("Mantling", _playerLedgeGrab._mantleCoroutine != null);
-        animator.SetBool("Swinging", _cameraController.IsInCutscene);
+        animator.SetBool("Swinging", _cameraController.IsCutsceneActive);
+        animator.SetBool("AttachingToRail", _cameraController.BlendingIn);
     }
 
     private void SetLassoBool()
