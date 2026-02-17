@@ -56,8 +56,19 @@ public class CollectibleManager : MonoBehaviour
         coinCounter.text = coins.ToString();
     }
 
-    public void CritterCollected(Sprite critterStampSprite)
+    public void CritterCollected(int ID)
     {
+
+        for (int i = 0; i < critLog.Count; i++)
+        {
+            if (critLog[i].critID == ID)
+            {
+                spawner.UpdateVisual(critLog[i].stmSpr, i);
+            }
+
+
+        }
+
 
     }
 

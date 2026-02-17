@@ -57,4 +57,12 @@ public class CritterCountSpawner : MonoBehaviour
 
         }
     }
+
+    public void UpdateVisual(Sprite newImg, int ID)
+    {
+        Image stamp = c_UIs[ID].GetComponent<Image>();
+        stamp.sprite = newImg;
+
+
+    }
 }
