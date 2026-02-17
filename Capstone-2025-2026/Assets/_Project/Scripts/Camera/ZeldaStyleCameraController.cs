@@ -75,6 +75,8 @@ public class ZeldaCameraController : MonoBehaviour
     private bool lookAtTarget = true;
     private bool hasTargetRotation = false;
 
+    public bool IsInCutscene => cutsceneMode;
+
     private void Start()
     {
         cam = GetComponent<Camera>();
@@ -150,33 +152,6 @@ public class ZeldaCameraController : MonoBehaviour
 
     private void UpdateGhostTransform()
     {
-        if (cutsceneMode)
-        {
-            // In cutscene mode, ghost position is set externally
-            ghostPosition = cutsceneTargetPosition;
-
-            if (lookAtTarget && target != null)
-            {
-                // Look at the target (player)
-                Vector3 dirToTarget = target.position - ghostPosition;
-                if (dirToTarget != Vector3.zero)
-                {
-                    ghostRotation = Quaternion.LookRotation(dirToTarget);
-                }
-                hasTargetRotation = false;
-            }
-            // If not looking at target but we have a target rotation, blend to it
-            else if (hasTargetRotation)
-            {
-                ghostRotation = Quaternion.Slerp(transform.rotation, cutsceneTargetRotation, Time.deltaTime * 5f);
-            }
-            // Otherwise maintain current rotation
-            else
-            {
-                ghostRotation = transform.rotation;
-            }
-            return;
-        }
 
         //rotation
         if (rotationSmoothTime > 0.001f)
@@ -383,8 +358,6 @@ public class ZeldaCameraController : MonoBehaviour
     public void EnterCutsceneMode()
     {
         cutsceneMode = true;
-        lookAtTarget = true; // Default to looking at target
-        cutsceneTargetPosition = transform.position;
     }
 
     public void ExitCutsceneMode()
@@ -407,37 +380,4 @@ public class ZeldaCameraController : MonoBehaviour
         cutsceneTargetRotation = rotation;
         hasTargetRotation = true;
     }
-
-    public bool IsCutsceneMode() => cutsceneMode;
-
-    // Call this when handing control BACK to this script
-    public void ForceSyncToCurrentTransform()
-    {
-        if (target == null) return;
-
-        // 1. Calculate Distance
-        Vector3 direction = transform.position - target.position;
-        currentDistance = direction.magnitude;
-        targetDistance = currentDistance;
-
-        // 2. Calculate Angles
-        Vector3 euler = transform.eulerAngles;
-        currentPitch = euler.x;
-        if (currentPitch > 180f) currentPitch -= 360f; // Normalize to -180 to 180
-
-        currentYaw = euler.y;
-
-        targetPitch = currentPitch;
-        targetYaw = currentYaw;
-
-        // 3. Reset Smoothing Velocities
-        rotationVelocity = Vector3.zero;
-        positionVelocity = Vector3.zero;
-        collisionVelocity = 0f;
-
-        // 4. Update Ghost
-        smoothedTargetPosition = target.position + targetOffset;
-        UpdateGhostTransform();
-    }
-
 }

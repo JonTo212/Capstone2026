@@ -10,6 +10,7 @@ public class CameraCutsceneHandler : MonoBehaviour
     [SerializeField] private PlayerActions input;
     [SerializeField] private Rigidbody playerRb;
     [SerializeField] private PlayerMovement playerController;
+    [SerializeField] private PlayerModelRotationHandler playerModelRotation;
     [SerializeField] private ZeldaCameraController cameraController;
     [SerializeField] private CameraModeController cameraModeController;
 
@@ -39,8 +40,14 @@ public class CameraCutsceneHandler : MonoBehaviour
     [Tooltip("Maximum tilt angle when swaying")]
     [SerializeField] private float maxSwayAngle = 15f;
 
-    [Tooltip("Speed of the sway oscillation")]
-    [SerializeField] private float swaySpeed = 2f;
+    [Tooltip("Time in seconds to reach the maximum sway angle")]
+    [SerializeField] private float durationUntilMaxAngle = 0.3f;
+
+    [Tooltip("Maximum forward pitch angle when moving along the path")]
+    [SerializeField] private float maxLeanAngle = 20f;
+
+    [Tooltip("Time in seconds to build up to the maximum forward lean")]
+    [SerializeField] private float durationUntilMaxLean = 0.4f;
 
     private bool _isActive = false;
     private bool _isPlaying = false;
@@ -62,6 +69,26 @@ public class CameraCutsceneHandler : MonoBehaviour
     private bool _originalXLock;
     private bool _originalYLock;
 
+    // Sway/lean state
+    private float _smoothedCurvature = 0f;
+    private float _smoothedSpeed = 0f;
+    private Vector3 _previousPathPosition;
+
+    // Explicit yaw driven by cutscene so model methods don't need to read-back world rotation
+    private float _currentModelYaw = 0f;
+
+    // Optional delegate: given normalised t, returns the player offset vector (rope pos = player pos - offset)
+    private System.Func<float, Vector3> _offsetSampler = null;
+    private float _currentT = 0f;
+
+    // Start/end orientation
+    private Quaternion _pathStartRotation;
+    private Quaternion _pathEndRotation;
+
+    [Header("Orientation Settings")]
+    [Tooltip("How much of the swing duration (0-1) is used to blend into upright at the end")]
+    [SerializeField] private float uprightBlendFraction = 0.2f;
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -78,6 +105,7 @@ public class CameraCutsceneHandler : MonoBehaviour
             if (input == null) input = playerObj.GetComponent<PlayerActions>();
             if (playerRb == null) playerRb = playerObj.GetComponent<Rigidbody>();
             if (playerController == null) playerController = playerObj.GetComponent<PlayerMovement>();
+            if (playerModelRotation == null) playerModelRotation = playerObj.GetComponent<PlayerModelRotationHandler>();
         }
 
         if (cameraController == null)
@@ -86,6 +114,10 @@ public class CameraCutsceneHandler : MonoBehaviour
         if (cameraModeController == null)
             cameraModeController = Camera.main?.GetComponent<CameraModeController>();
     }
+
+    // Register an offset sampler so rope visuals can recover the rope attachment position.
+    // Call before StartRopeSwingWithSpline. Pass null to clear.
+    public void SetOffsetSampler(System.Func<float, Vector3> sampler) => _offsetSampler = sampler;
 
     public void StartRopeSwing(List<Transform> playerPath, float duration)
     {
@@ -113,9 +145,22 @@ public class CameraCutsceneHandler : MonoBehaviour
     {
         _isActive = true;
         _duration = duration;
+        _smoothedCurvature = 0f;
+        _smoothedSpeed = 0f;
+        _previousPathPosition = GetPathPosition(0f);
+        CurrentPathPosition = _previousPathPosition;
+        _currentT = 0f;
+        _currentModelYaw = _pathStartRotation.eulerAngles.y;
+
+        // Cache the forward rotation of the first and last path points
+        _pathStartRotation = GetPathRotationFromForward(0f);
+        _pathEndRotation = GetPathRotationFromForward(1f);
 
         // Disable player movement control
         DisablePlayerControl();
+
+        // Stop PlayerModelRotationHandler.Update() from overwriting rotations
+        if (playerModelRotation != null) playerModelRotation.SetNewRotationDir(null, true);
 
         // Lock camera input during swing if enabled
         if (lockCameraInput && cameraController != null)
@@ -136,6 +181,7 @@ public class CameraCutsceneHandler : MonoBehaviour
         // Wait for blend in
         yield return new WaitForSeconds(blendInTime);
         _isBlendingIn = false;
+        cameraController.EnterCutsceneMode();
 
         // Start main rope swing
         _isPlaying = true;
@@ -145,12 +191,19 @@ public class CameraCutsceneHandler : MonoBehaviour
         yield return new WaitForSeconds(duration);
         _isPlaying = false;
 
+        // Ensure model is left upright
+        if (playerModelRotation != null) { playerModelRotation.SetSwayAngle(0f, 0f); playerModelRotation.SetLeanAngle(0f); }
+
         // Restore camera lock states
         if (lockCameraInput && cameraController != null)
         {
             cameraController.SetXAxisLocked(_originalXLock);
             cameraController.SetYAxisLocked(_originalYLock);
         }
+
+        // Restore normal model rotation
+        _offsetSampler = null;
+        if (playerModelRotation != null) playerModelRotation.SetNewRotationDir(null, false);
 
         // Re-enable player control
         EnablePlayerControl();
@@ -171,14 +224,11 @@ public class CameraCutsceneHandler : MonoBehaviour
             Vector3 playerPos = Vector3.Lerp(_blendPlayerFrom, _blendPlayerTo, t);
             playerRb.MovePosition(playerPos);
 
-            // Rotate to face direction of movement
-            Vector3 direction = (_blendPlayerTo - _blendPlayerFrom).normalized;
-            direction.y = 0;
-            if (direction.sqrMagnitude > 0.01f)
-            {
-                Quaternion targetRot = Quaternion.LookRotation(direction);
-                playerRb.MoveRotation(Quaternion.Slerp(playerRb.rotation, targetRot, t));
-            }
+            // Slerp rigidbody toward path start
+            playerRb.MoveRotation(Quaternion.Slerp(playerRb.rotation, _pathStartRotation, t));
+            // Drive model mesh directly with explicit yaw (no readback)
+            if (playerModelRotation != null)
+                playerModelRotation.SetSwayAngle(_pathStartRotation.eulerAngles.y, 0f);
         }
         else if (_isPlaying)
         {
@@ -188,6 +238,12 @@ public class CameraCutsceneHandler : MonoBehaviour
 
             Vector3 playerPos = GetPathPosition(t);
             playerRb.MovePosition(playerPos);
+            CurrentPathPosition = playerPos;
+            _currentT = t;
+
+            // Compute real world-space speed (units/sec) from frame-to-frame displacement
+            float frameSpeed = Vector3.Distance(playerPos, _previousPathPosition) / Mathf.Max(Time.fixedDeltaTime, 0.0001f);
+            _previousPathPosition = playerPos;
 
             // Calculate direction along path and rotate to face it
             Vector3 direction = GetPathDirection(t);
@@ -197,11 +253,72 @@ public class CameraCutsceneHandler : MonoBehaviour
             {
                 Quaternion targetRot = Quaternion.LookRotation(horizontalDir);
 
-                // Add sway if enabled
-                if (enablePlayerSway)
+                // Compute sway angle from curvature and apply to model separately
+                if (enablePlayerSway && playerModelRotation != null)
                 {
-                    float swayAngle = Mathf.Sin(Time.time * swaySpeed) * maxSwayAngle;
-                    targetRot *= Quaternion.Euler(0f, 0f, swayAngle);
+                    // Sample a point slightly behind to measure how much the direction has changed
+                    float lookDelta = 0.05f;
+                    float tBehind = Mathf.Clamp01(t - lookDelta);
+                    Vector3 prevDirection = GetPathDirection(tBehind);
+                    Vector3 prevHorizontal = new Vector3(prevDirection.x, 0f, prevDirection.z).normalized;
+
+                    // Cross product Y component: positive = curving right, negative = curving left
+                    float curvature = 0f;
+                    if (prevHorizontal.sqrMagnitude > 0.01f)
+                    {
+                        Vector3 cross = Vector3.Cross(prevHorizontal, horizontalDir);
+                        curvature = cross.y / lookDelta;
+                    }
+
+                    // Lerp rate derived from durationUntilMaxAngle: reaches target in ~that many seconds
+                    float swayLerpRate = 1f - Mathf.Exp(-Time.fixedDeltaTime / Mathf.Max(durationUntilMaxAngle, 0.001f));
+                    _smoothedCurvature = Mathf.Lerp(_smoothedCurvature, curvature, swayLerpRate);
+
+                    // Fade sway out to zero in the final uprightBlendFraction of the swing
+                    float uprightBlendStart = 1f - uprightBlendFraction;
+                    float uprightFade = (t >= uprightBlendStart)
+                        ? Mathf.Clamp01((t - uprightBlendStart) / uprightBlendFraction)
+                        : 0f;
+
+                    float swayAngle = Mathf.Clamp(_smoothedCurvature * maxSwayAngle, -maxSwayAngle, maxSwayAngle)
+                        * (1f - uprightFade);
+
+                    // Forward lean: driven by actual world-space speed this frame
+                    // Estimate peak speed as total arc length / duration for normalisation
+                    float arcLength = 0f;
+                    int arcSamples = 20;
+                    for (int i = 0; i < arcSamples; i++)
+                        arcLength += Vector3.Distance(GetPathPosition(i / (float)arcSamples), GetPathPosition((i + 1) / (float)arcSamples));
+                    float peakSpeed = arcLength / Mathf.Max(_duration, 0.001f);
+                    float normalizedSpeed = Mathf.Clamp01(frameSpeed / Mathf.Max(peakSpeed, 0.001f));
+
+                    float leanLerpRate = 1f - Mathf.Exp(-Time.fixedDeltaTime / Mathf.Max(durationUntilMaxLean, 0.001f));
+                    _smoothedSpeed = Mathf.Lerp(_smoothedSpeed, normalizedSpeed, leanLerpRate);
+
+                    float leanAngle = _smoothedSpeed * maxLeanAngle * (1f - uprightFade);
+
+                    // Track model yaw: blend from start to end over the upright fade window
+                    float endBlendStartYaw = 1f - uprightBlendFraction;
+                    if (t >= endBlendStartYaw)
+                    {
+                        float yawBlendT = Mathf.Clamp01((t - endBlendStartYaw) / uprightBlendFraction);
+                        _currentModelYaw = Mathf.LerpAngle(_currentModelYaw, _pathEndRotation.eulerAngles.y, yawBlendT);
+                    }
+                    else
+                    {
+                        _currentModelYaw = Mathf.LerpAngle(_currentModelYaw, targetRot.eulerAngles.y, 0.3f);
+                    }
+
+                    playerModelRotation.SetSwayAngle(_currentModelYaw, swayAngle);
+                    playerModelRotation.SetLeanAngle(leanAngle);
+                }
+
+                // Blend rigidbody yaw toward the last point's forward in final fraction
+                float endBlendStart = 1f - uprightBlendFraction;
+                if (t >= endBlendStart)
+                {
+                    float endT = Mathf.Clamp01((t - endBlendStart) / uprightBlendFraction);
+                    targetRot = Quaternion.Slerp(targetRot, _pathEndRotation, endT);
                 }
 
                 playerRb.MoveRotation(targetRot);
@@ -278,6 +395,29 @@ public class CameraCutsceneHandler : MonoBehaviour
         }
     }
 
+    // Returns the flat (upright) rotation the player should face at the given path position.
+    // For transform paths, uses the Transform's own forward. For spline paths, derives from direction.
+    private Quaternion GetPathRotationFromForward(float t)
+    {
+        if (!_useSplinePath && _playerPath != null)
+        {
+            // Use the actual Transform forward of the first or last point
+            int index = t <= 0f ? 0 : _playerPath.Count - 1;
+            Vector3 forward = _playerPath[index].forward;
+            forward.y = 0f;
+            if (forward.sqrMagnitude > 0.001f)
+                return Quaternion.LookRotation(forward.normalized);
+        }
+
+        // Fallback: derive from path direction
+        Vector3 dir = GetPathDirection(t);
+        Vector3 horizontal = new Vector3(dir.x, 0f, dir.z).normalized;
+        if (horizontal.sqrMagnitude > 0.001f)
+            return Quaternion.LookRotation(horizontal);
+
+        return Quaternion.identity;
+    }
+
     private Vector3 GetPathDirection(float t)
     {
         // Sample a point slightly ahead to get direction
@@ -317,7 +457,24 @@ public class CameraCutsceneHandler : MonoBehaviour
         if (input != null) input.EnableAllInput();
         if (playerController != null) playerController.enabled = true;
         if (playerRb != null) playerRb.isKinematic = false;
+        cameraController.ExitCutsceneMode();
     }
 
     public bool IsActive() => _isActive;
+
+    // Current world-space position of the player on the path (for rope visuals)
+    public Vector3 CurrentPathPosition { get; private set; }
+
+    // World-space rope attachment point: player position minus the player offset at current t
+    public Vector3 CurrentRopeAttachmentPosition
+    {
+        get
+        {
+            Vector3 offset = _offsetSampler != null ? _offsetSampler(_currentT) : Vector3.zero;
+            return CurrentPathPosition - offset;
+        }
+    }
+
+    // Provides read access to the active spline path for visual components (e.g. LassoVisuals)
+    public IReadOnlyList<Vector3> SplinePath => (_isActive && _useSplinePath) ? _splinePath : null;
 }

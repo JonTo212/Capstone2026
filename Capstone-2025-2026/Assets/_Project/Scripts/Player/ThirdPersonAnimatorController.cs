@@ -10,6 +10,7 @@ public class ThirdPersonAnimatorController : MonoBehaviour
     private JointTetherActivator _jointTetherActivator;
     private PlayerLedgeGrab _playerLedgeGrab;
     private Lasso _lasso;
+    [SerializeField] private ZeldaCameraController _cameraController;
     [SerializeField] private Animator animator;
 
     private void Awake()
@@ -34,75 +35,16 @@ public class ThirdPersonAnimatorController : MonoBehaviour
 
     private void Update()
     {
-        if (_playerController.WishDir != Vector3.zero)
-        {
-            animator.SetBool("MoveInput", true);
-        }
-        else
-        {
-            animator.SetBool("MoveInput", false);
-        }
-
+        animator.SetBool("MoveInput", _playerController.WishDir != Vector3.zero);
         animator.SetBool("Jump", _playerInput.JumpDown);
         animator.SetBool("Swinging", _lassoTetherController.CurrentLassoState == LassoState.Swinging);
-
-
-        //ground check 
-        if (_playerController.IsGrounded())
-        {
-            animator.SetBool("IsGrounded", true);
-        }
-        else
-        {
-            animator.SetBool("IsGrounded", false);
-        }
-
-        //check if laso is currently active
-        if (_lassoTetherController.CurrentLassoState == LassoState.Snared)
-        {
-            animator.SetBool("LassoSnared", true);
-        }
-        else
-        {
-            animator.SetBool("LassoSnared", false);
-        }
-
-        //check tether
-        if (_jointTetherPlacer.didStartPointHit)
-        {
-            animator.SetBool("TetherStartPointHit", true);
-        }
-        else
-        {
-            animator.SetBool("TetherStartPointHit", false);
-        }
-
-        if (_jointTetherPlacer.didEndPointHit)
-        {
-            animator.SetBool("TetherEndPointHit", true);
-        }
-        else
-        {
-            animator.SetBool("TetherEndPointHit", false);
-        }
-
-        if (_playerLedgeGrab.IsHanging)
-        {
-            animator.SetBool("IsHanging", true);
-        }
-        else
-        {
-            animator.SetBool("IsHanging", false);
-        }
-
-        if(_playerLedgeGrab._mantleCoroutine != null)
-        {
-            animator.SetBool("Mantling", true);
-        }
-        else
-        {
-            animator.SetBool("Mantling", false);
-        }
+        animator.SetBool("IsGrounded", _playerController.IsGrounded());
+        animator.SetBool("LassoSnared", _lassoTetherController.CurrentLassoState == LassoState.Snared);
+        animator.SetBool("TetherStartPointHit", _jointTetherPlacer.didStartPointHit);
+        animator.SetBool("TetherEndPointHit", _jointTetherPlacer.didEndPointHit);
+        animator.SetBool("IsHanging", _playerLedgeGrab.IsHanging);
+        animator.SetBool("Mantling", _playerLedgeGrab._mantleCoroutine != null);
+        animator.SetBool("Swinging", _cameraController.IsInCutscene);
     }
 
     private void SetLassoBool()

@@ -1,5 +1,4 @@
-using NUnit.Framework;
-using System.Net;
+using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(LineRenderer))]
@@ -10,6 +9,7 @@ public class LassoVisuals : MonoBehaviour
     [SerializeField] private LassoTetherController lassoController;
     [SerializeField] private PlayerActions playerActions;
     [SerializeField] private Transform lassoPointVisuals;
+    [SerializeField] private CameraCutsceneHandler cutsceneHandler;
 
     [Header("Spring Wave Values")]
     [SerializeField] private int ropeSegmentCount = 50; // reduced for performance
@@ -47,6 +47,13 @@ public class LassoVisuals : MonoBehaviour
         Vector3 currentMousePosition = playerActions.LookInput;
         hasMouseMoved = (currentMousePosition - lastMousePosition).sqrMagnitude > 1f;
         lastMousePosition = currentMousePosition;
+
+        // During a rope-swing cutscene, draw the rope from the hand to the current spline position
+        if (cutsceneHandler != null && cutsceneHandler.IsActive())
+        {
+            DrawCutsceneRope(lassoScript.HoldPos.position, cutsceneHandler.CurrentRopeAttachmentPosition);
+            return;
+        }
 
         if (lassoScript.SnaredObject == null || DisableVisuals())
         {
@@ -164,7 +171,7 @@ public class LassoVisuals : MonoBehaviour
         //determine how much the object can bend
         float currentBendOffset = Mathf.Clamp(totalDistance * bendScale, minBend, maxBend);
         controlPoint1 += combinedBendAxis * currentBendOffset;
-        controlPoint2 += combinedBendAxis * currentBendOffset; 
+        controlPoint2 += combinedBendAxis * currentBendOffset;
 
         Vector3[] linePositions = new Vector3[7]
         {  startPoint, controlPoint1, controlPoint2, controlPoint3, controlPoint4, controlPoint5, endPoint };
@@ -180,6 +187,22 @@ public class LassoVisuals : MonoBehaviour
         currentPullPos = lassoScript.HitPos;
         lassoPointVisuals.transform.position = currentPullPos;
         lassoPointVisuals.transform.rotation = Quaternion.Euler(Vector3.zero);
+    }
+
+    // Draws a straight rope from the hand to the player's current position on the spline.
+    // This shows the rope attachment - taut from hand to where the player currently is.
+    private void DrawCutsceneRope(Vector3 handPos, Vector3 currentPos)
+    {
+        lineRenderer.positionCount = 2;
+        lineRenderer.SetPosition(0, handPos);
+        lineRenderer.SetPosition(1, currentPos);
+
+        lassoPointVisuals.gameObject.SetActive(true);
+        lassoPointVisuals.transform.position = currentPos;
+        lassoPointVisuals.transform.rotation = Quaternion.identity;
+
+        spring.Reset();
+        isSpringSettled = false;
     }
 
     private void ResetRope()
