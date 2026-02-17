@@ -1,3 +1,4 @@
+using FMODUnity;
 using UnityEngine;
 
 public enum PlayerMoveState
@@ -113,8 +114,11 @@ public class PlayerMovement : MonoBehaviour
 
     private void Start()
     {
-        AudioManager.Instance.PlaySFX(AudioManager.Instance.Walk, 7, 1);
-        AudioManager.Instance.SFXSource7.loop = true;
+        //AudioManager.Instance.PlaySFX(AudioManager.Instance.Walk, 7, 1);
+        //AudioManager.Instance.SFXSource7.loop = true;
+
+        RuntimeManager.PlayOneShot("event:/Run", transform.position);
+        Debug.Log("PlayerMovement.cs Start: Run, handle walking sfx");
     }
 
     private void Update()
@@ -248,11 +252,11 @@ public class PlayerMovement : MonoBehaviour
     {
         if (WishDir != Vector3.zero && IsGrounded())
         {
-            AudioManager.Instance.SFXSource7.UnPause();
+            //AudioManager.Instance.SFXSource7.UnPause();
         }
         else
         {
-            AudioManager.Instance.SFXSource7.Pause(); //PlaySFX(aManage.Walk, 5, 1);
+            //AudioManager.Instance.SFXSource7.Pause(); //PlaySFX(aManage.Walk, 5, 1);
         }
     }
     #endregion
@@ -326,7 +330,8 @@ public class PlayerMovement : MonoBehaviour
             {
                 coyoteTimeCounter = 0;
                 jumpBufferCounter = 0;
-                AudioManager.Instance.PlaySFX(AudioManager.Instance.Jump, 6, 1f);
+                //AudioManager.Instance.PlaySFX(AudioManager.Instance.Jump, 6, 1f);
+                RuntimeManager.PlayOneShot("event:/Jump", transform.position);
 
                 Jump(1f, true);
             }

@@ -1,3 +1,4 @@
+using FMODUnity;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -78,7 +79,8 @@ public class RodObtained : MonoBehaviour
         if (rodModel != null) rodModel.SetActive(true);
 
         //play sfx and disable game object
-        AudioManager.Instance.PlaySFX(AudioManager.Instance.RodCollect, 10, 1);
+        //AudioManager.Instance.PlaySFX(AudioManager.Instance.RodCollect, 10, 1);
+        RuntimeManager.PlayOneShot("event:/Fanfare", transform.position);
         gameObject.SetActive(false);
 
     }
@@ -99,7 +101,8 @@ public class RodObtained : MonoBehaviour
         if (tetherModel!=null) tetherModel.SetActive(true);
 
         gameObject.SetActive(false);
-        AudioManager.Instance.PlaySFX(AudioManager.Instance.RodCollect, 10, 1);
+        //AudioManager.Instance.PlaySFX(AudioManager.Instance.RodCollect, 10, 1);
+        RuntimeManager.PlayOneShot("event:/Fanfare", transform.position);
 
         //InsertVisuals
     }

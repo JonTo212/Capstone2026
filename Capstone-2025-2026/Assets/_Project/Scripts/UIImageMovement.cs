@@ -1,4 +1,5 @@
 using DG.Tweening;
+using FMODUnity;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -56,7 +57,8 @@ public class UIImageMovement : MonoBehaviour
         if (playerActionsScript.toolSwitchDown)
         {
             //playsound
-            AudioManager.Instance.PlaySFX(AudioManager.Instance.MenuOk, 10, 1);
+
+            RuntimeManager.PlayOneShot("event:/MenuSelect", transform.position);
 
             RotateIcon();
 
