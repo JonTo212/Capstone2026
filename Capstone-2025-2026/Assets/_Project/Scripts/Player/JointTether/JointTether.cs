@@ -436,41 +436,146 @@ public class JointTether : MonoBehaviour
         joint.targetRotation = Quaternion.Inverse(relativeRot);
     }
 
+
     public void UpdateGrabPointToNearest()
     {
         if (joint == null || startRb == null) return;
 
         Prop startProp = startTransform.GetComponent<Prop>();
-        if (startProp == null || startProp.GrabPoints == null || startProp.GrabPoints.Count == 0) return;
 
         //get tether direction
         Vector3 endWorldPos = endTransform.TransformPoint(endLocalPosition);
         Vector3 objectCenter = startRb.worldCenterOfMass;
         Vector3 tetherDirection = (endWorldPos - objectCenter).normalized;
 
-        //find nearest grab point to the alignment of the tether
-        Transform bestGrabPoint = null;
-        float bestAlignment = float.MinValue;
+        Vector3 newWorldPosition = Vector3.zero;
+        bool foundPosition = false;
 
-        foreach (Transform grabPoint in startProp.GrabPoints)
+        // First try to use grab points if they exist
+        if (startProp != null && startProp.GrabPoints != null && startProp.GrabPoints.Count > 0)
         {
-            Vector3 grabPointDir = (grabPoint.position - objectCenter).normalized;
-            float alignment = Vector3.Dot(grabPointDir, tetherDirection);
+            //find nearest grab point to the alignment of the tether
+            Transform bestGrabPoint = null;
+            float bestAlignment = float.MinValue;
 
-            if (alignment > bestAlignment)
+            foreach (Transform grabPoint in startProp.GrabPoints)
             {
-                bestAlignment = alignment;
-                bestGrabPoint = grabPoint;
+                Vector3 grabPointDir = (grabPoint.position - objectCenter).normalized;
+                float alignment = Vector3.Dot(grabPointDir, tetherDirection);
+
+                if (alignment > bestAlignment)
+                {
+                    bestAlignment = alignment;
+                    bestGrabPoint = grabPoint;
+                }
+            }
+
+            if (bestGrabPoint != null)
+            {
+                newWorldPosition = bestGrabPoint.position;
+                foundPosition = true;
             }
         }
 
-        if (bestGrabPoint != null)
+        // Fallback: if no grab points, find closest point on surface
+        if (!foundPosition)
+        {
+            newWorldPosition = FindClosestPointOnSurface(startTransform, objectCenter, tetherDirection);
+            foundPosition = true;
+        }
+
+        if (foundPosition)
         {
             //update start pos, anchor and visuals
-            startLocalPosition = startTransform.InverseTransformPoint(bestGrabPoint.position);
+            startLocalPosition = startTransform.InverseTransformPoint(newWorldPosition);
             joint.anchor = startLocalPosition;
             tetherVisuals.Init(startTransform, startLocalPosition, endTransform, endLocalPosition, isActivated, activationDelay);
         }
+    }
+
+    private Vector3 FindClosestPointOnSurface(Transform objTransform, Vector3 objectCenter, Vector3 direction)
+    {
+        // We want to find the face most aligned with the tether direction, then use its center
+
+        Collider[] colliders = objTransform.GetComponentsInChildren<Collider>();
+
+        if (colliders.Length == 0)
+        {
+            // No colliders found, return a point on a sphere approximation
+            return objectCenter + direction * 0.5f;
+        }
+
+        // Cast multiple rays from outside the object to sample face normals and positions
+        Vector3 bestFaceCenter = objectCenter;
+        float bestAlignment = float.MinValue;
+        int hitCount = 0;
+
+        // Sample rays in a grid pattern around the tether direction
+        int gridSize = 5;
+        float spreadAngle = 30f; // degrees
+
+        for (int x = -gridSize; x <= gridSize; x++)
+        {
+            for (int y = -gridSize; y <= gridSize; y++)
+            {
+                // Create a ray slightly offset from the main tether direction
+                Vector3 right = Vector3.Cross(direction, Vector3.up);
+                if (right.sqrMagnitude < 0.001f)
+                    right = Vector3.Cross(direction, Vector3.right);
+                right.Normalize();
+
+                Vector3 up = Vector3.Cross(right, direction).normalized;
+
+                float xOffset = (x / (float)gridSize) * Mathf.Tan(spreadAngle * Mathf.Deg2Rad);
+                float yOffset = (y / (float)gridSize) * Mathf.Tan(spreadAngle * Mathf.Deg2Rad);
+
+                Vector3 rayDir = (direction + right * xOffset + up * yOffset).normalized;
+                Vector3 rayOrigin = objectCenter + rayDir * 100f;
+
+                // Raycast back toward the object
+                foreach (Collider col in colliders)
+                {
+                    bool wasTrigger = col.isTrigger;
+                    col.isTrigger = false;
+
+                    if (col.Raycast(new Ray(rayOrigin, -rayDir), out RaycastHit hit, 200f))
+                    {
+                        // Check how well this face normal aligns with the tether direction
+                        float alignment = Vector3.Dot(hit.normal, direction);
+
+                        if (alignment > bestAlignment)
+                        {
+                            bestAlignment = alignment;
+                            bestFaceCenter = hit.point;
+                            hitCount++;
+                        }
+                    }
+
+                    col.isTrigger = wasTrigger;
+                }
+            }
+        }
+
+        if (hitCount > 0)
+        {
+            return bestFaceCenter;
+        }
+
+        // Fallback: if no raycast hits, use ClosestPoint directly along tether direction
+        Vector3 targetPoint = objectCenter + direction * 100f;
+        Vector3 closestPoint = colliders[0].ClosestPoint(targetPoint);
+
+        foreach (Collider col in colliders)
+        {
+            Vector3 pointOnCollider = col.ClosestPoint(targetPoint);
+            if (Vector3.Dot(pointOnCollider - objectCenter, direction) >
+                Vector3.Dot(closestPoint - objectCenter, direction))
+            {
+                closestPoint = pointOnCollider;
+            }
+        }
+
+        return closestPoint;
     }
 
     IEnumerator ActivateTetherAfterDelay()

@@ -367,7 +367,7 @@ public class Lasso : MonoBehaviour
             SnaredObject.Rb.linearVelocity = direction.normalized * currentSpeed;
         }
 
-        //if (!rotating) LookAtPlayer(); //this causes issues
+        if (!rotating && !SnaredObject.IsTetherPulled) LookAtPlayer(); //this causes issues
     }
     private Quaternion bufferedTargetRotation;
     public void LookAtPlayer()
