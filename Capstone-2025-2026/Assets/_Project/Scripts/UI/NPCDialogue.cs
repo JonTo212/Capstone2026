@@ -6,6 +6,8 @@ using TMPro;
 using System.Globalization;
 using System.Collections.Generic;
 using DG.Tweening;
+using UnityEditor.PackageManager;
+using Unity.VisualScripting;
 
 public enum SpeakerType
     {
@@ -59,13 +61,13 @@ public class NPCDialogue : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
-        dialogueBox.GetComponent<RectTransform>().anchoredPosition = hiddenPosition;
+        //dialogueBox.GetComponent<RectTransform>().anchoredPosition = hiddenPosition;
         //SetText(testText, 0);
     }
 
     public void SetText(string text, SpeakerType speakerType)
     {
+        dialogueBox.GetComponent<RectTransform>().anchoredPosition = hiddenPosition;
         currentSpeaker.sprite = speakerImageDictionary[speakerType];
 
         if(_typewriterCoroutine != null)

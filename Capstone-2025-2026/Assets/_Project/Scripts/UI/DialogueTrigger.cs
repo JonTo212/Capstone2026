@@ -1,6 +1,8 @@
 using StarterAssets;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class DialogueTrigger : MonoBehaviour
 {
@@ -15,8 +17,8 @@ public class DialogueTrigger : MonoBehaviour
     
     [SerializeField] private float delay = 0;
 
-    public GameObject template;
-    public GameObject uICanvas;
+    private GameObject template;
+    private GameObject uICanvas;
     private void Start()
     {
         uICanvas = GameObject.Find("PlayerUICanvas");
@@ -39,7 +41,11 @@ public class DialogueTrigger : MonoBehaviour
     private void CreateNPCDialogue()
     {
         NPCDialogue npcText;
-        GameObject newBox = Instantiate(template, template.transform.position + new Vector3(834,26,0), Quaternion.identity, uICanvas.transform);
+        GameObject newBox = Instantiate(template, template.transform.position , Quaternion.identity, uICanvas.transform);
+        Image[] images = newBox.GetComponentsInChildren<Image>();
+        foreach (Image image in images) { image.enabled = true; }
+        TMP_Text text = newBox.GetComponentInChildren<TMP_Text>();
+        text.enabled = true;
         npcText = newBox.GetComponentInChildren<NPCDialogue>();
         npcText.charactersPerSecond = characterSpeed;
         npcText.interpunctuationDelay = punctuationSpeed;
