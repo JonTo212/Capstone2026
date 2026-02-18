@@ -1,19 +1,30 @@
+using Unity.XR.OpenVR;
 using UnityEngine;
 
 public class RodAnimations : MonoBehaviour
 {
+    [Header("Rod Animations")]
+    [SerializeField] private Animator animator;
+    [SerializeField] private LassoTetherController lassoTetherControllerScript;
+
+
+    [Header("Rotate Handle")]
     public static RodAnimations Instance;
     [SerializeField] private PlayerActions playerActions;
-    public GameObject Handle;
+    [SerializeField] private GameObject handle;
     public float rotationAmount = 5f;
 
-    //sound
+    [Header("SFX (STILL NEEDS UPDATE TO JUAN NEW SYSTE)")]
     [SerializeField] private AudioSource audioSource; // The AudioSource component
     [SerializeField] private AudioClip[] clips;
 
+
+
     private void Awake()
     {
-        if(Instance == null)
+        animator = GetComponent<Animator>();
+
+        if (Instance == null)
         {
             Instance = this;
         }
@@ -25,14 +36,28 @@ public class RodAnimations : MonoBehaviour
 
     void Update()
     {
+        //Transformations
+        if (lassoTetherControllerScript.rodEquipped)
+        {
+            animator.SetBool("isRod", true);
+            animator.SetBool("isTether", false);
+        }
+        else
+        {
+            animator.SetBool("isRod", false);
+            animator.SetBool("isTether", true);
+        }
+
+
+
         float scrollValue = playerActions.GetDPadScrollValue();
 
         if (scrollValue != 0)
         {
             Debug.Log("Scroll value: " + scrollValue);
             
-            Handle.transform.Rotate(Vector3.left, scrollValue * rotationAmount);
-            PlayRandomSound();
+            handle.transform.Rotate(Vector3.left, scrollValue * rotationAmount);
+            //PlayRandomSound();
         }
 
     }
