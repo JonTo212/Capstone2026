@@ -215,15 +215,6 @@ public class NPC_Pufferfish : Prop, INPC
         SwitchNPCState(NPCState.Deactivated);
     }
 
-    private void DestroyAllAttachedTethers()
-    {
-        List<JointTether> tetherCopies = new List<JointTether>(attachedTethers);
-        foreach (var tether in tetherCopies)
-        {
-            tether.DestroyTether();
-        }
-    }
-
     private void CounteractTetherForces()
     {
         Vector3 netJointForce = Vector3.zero;

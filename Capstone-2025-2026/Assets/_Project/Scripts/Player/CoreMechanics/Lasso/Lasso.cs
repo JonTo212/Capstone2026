@@ -273,7 +273,7 @@ public class Lasso : MonoBehaviour
                 activatable.Activate();
             }
 
-            if (prop.TryGetComponent(out INPC npc))
+            if (prop.TryGetComponent(out PickupNPCProp npc)) //used to be out IPNC npc for mama
             {
                 OnNPCHit?.Invoke();
             }
@@ -367,7 +367,7 @@ public class Lasso : MonoBehaviour
             SnaredObject.Rb.linearVelocity = direction.normalized * currentSpeed;
         }
 
-        if (!rotating && !SnaredObject.IsTetherPulled) LookAtPlayer(); //this causes issues
+        //if (!rotating && !SnaredObject.IsTetherPulled) LookAtPlayer(); //this causes issues
     }
     private Quaternion bufferedTargetRotation;
     public void LookAtPlayer()

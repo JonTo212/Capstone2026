@@ -385,6 +385,15 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         }
     }
 
+    public void DestroyAllAttachedTethers()
+    {
+        List<JointTether> tetherCopies = new List<JointTether>(attachedTethers);
+        foreach (var tether in tetherCopies)
+        {
+            tether.DestroyTether();
+        }
+    }
+
     protected void PropDebug(object message) { if (debugThisProp == true) Debug.Log(message); }
 
     protected void PropWarning(object message) { if (debugThisProp == true) Debug.LogWarning(message); }

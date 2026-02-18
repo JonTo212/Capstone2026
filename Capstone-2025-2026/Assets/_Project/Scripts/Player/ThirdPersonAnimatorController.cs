@@ -44,8 +44,8 @@ public class ThirdPersonAnimatorController : MonoBehaviour
         animator.SetBool("TetherEndPointHit", _jointTetherPlacer.didEndPointHit);
         animator.SetBool("IsHanging", _playerLedgeGrab.IsHanging);
         animator.SetBool("Mantling", _playerLedgeGrab._mantleCoroutine != null);
-        animator.SetBool("Swinging", _cameraController.IsCutsceneActive);
-        animator.SetBool("AttachingToRail", _cameraController.BlendingIn);
+        animator.SetBool("Swinging", _cameraController.IsActive() && _cameraController.CurrentCutscene is RopeSwingCutscene);
+        animator.SetBool("AttachingToRail", _cameraController.BlendingIn && _cameraController.CurrentCutscene is RopeSwingCutscene);
     }
 
     private void SetLassoBool()

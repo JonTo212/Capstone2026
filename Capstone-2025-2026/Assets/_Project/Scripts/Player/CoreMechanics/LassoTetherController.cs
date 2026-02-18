@@ -23,7 +23,8 @@ public class LassoTetherController : MonoBehaviour
 
     [Header("Components")]
     private Lasso playerLasso;
-    private PlayerNPCHolder playerInventory;
+    //private PlayerNPCHolder playerInventory;
+    private PlayerNPCCapture playerNPCCapture;
     private PlayerActions playerActions;
     private JointTetherPlacer playerTether;
     private JointTetherActivator playerTetherActivator;
@@ -48,7 +49,8 @@ public class LassoTetherController : MonoBehaviour
     {
         playerLasso = GetComponent<Lasso>();
         playerActions = GetComponent<PlayerActions>();
-        playerInventory = GetComponent<PlayerNPCHolder>();
+        //playerInventory = GetComponent<PlayerNPCHolder>();
+        playerNPCCapture = GetComponent<PlayerNPCCapture>();
         playerTether = GetComponent<JointTetherPlacer>();
         playerTetherActivator = GetComponent<JointTetherActivator>();
 
@@ -56,7 +58,8 @@ public class LassoTetherController : MonoBehaviour
         playerLasso.OnObjectHit += OnLassoHit;
         //playerLasso.OnSnapFinished += HandleSnapFinish;
         playerTether.OnTetherStartHit += OnTetherStartHit;
-        playerInventory.OnObjectYankCompleted += OnObjectYankCompleted;
+        //playerInventory.OnObjectYankCompleted += OnObjectYankCompleted;
+        playerNPCCapture.OnObjectYankCompleted += OnObjectYankCompleted;
 
         wasUsingPhysicsLasso = playerLasso.usePhysicsLasso;
 
@@ -77,14 +80,14 @@ public class LassoTetherController : MonoBehaviour
             float currentRange = rodEquipped ? playerLasso.MaxLassoRange : playerTether.MaxTetherStartRange;
             playerLasso.CheckNearbyTargets(!rodEquipped, currentRange);
 
-            if (playerActions.RecallNPCDown)
+            /*if (playerActions.RecallNPCDown)
             {
                 if (playerInventory.CurrentNPC == null) return;
 
                 playerInventory.HandleObjectYank();
                 SwitchLassoState(LassoState.ObjectYanking);
                 return;
-            }
+            }*/
 
             switch (CurrentLassoState)
             {

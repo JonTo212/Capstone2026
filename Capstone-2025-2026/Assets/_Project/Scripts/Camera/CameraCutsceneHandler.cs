@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class CameraCutsceneHandler : MonoBehaviour
@@ -14,96 +13,46 @@ public class CameraCutsceneHandler : MonoBehaviour
     [SerializeField] private ZeldaCameraController cameraController;
     [SerializeField] private CameraModeController cameraModeController;
 
-    [Header("Transition Settings")]
-    [SerializeField] private float blendInTime = 0.5f;
-    [SerializeField] private float blendInDelay = 0.5f;
-
-    [Header("Camera Settings")]
-    [Tooltip("Lock player input to camera rotation during the swing")]
-    [SerializeField] private bool lockCameraInput = true;
-
-    [Tooltip("Camera will automatically rotate to face the direction of movement")]
-    [SerializeField] private bool autoRotateCamera = true;
-
-    [Tooltip("How quickly the camera rotates to face movement direction")]
-    [SerializeField] private float cameraRotationSpeed = 3f;
-
-    [Tooltip("Pitch angle for the camera (negative looks down, positive looks up)")]
-    [SerializeField] private float cameraPitch = 10f;
-
-    [Tooltip("Apply RopeHangCutscene camera state during swing")]
-    [SerializeField] private bool useCustomCameraState = true;
-
-    [Header("Player Animation")]
-    [Tooltip("Make the player sway/tilt during the swing")]
-    [SerializeField] private bool enablePlayerSway = true;
-
-    [Tooltip("Maximum tilt angle when swaying")]
-    [SerializeField] private float maxSwayAngle = 15f;
-
-    [Tooltip("Time in seconds to reach the maximum sway angle")]
-    [SerializeField] private float durationUntilMaxAngle = 0.3f;
-
-    [Tooltip("Maximum forward pitch angle when moving along the path")]
-    [SerializeField] private float maxLeanAngle = 20f;
-
-    [Tooltip("Time in seconds to build up to the maximum forward lean")]
-    [SerializeField] private float durationUntilMaxLean = 0.4f;
 
     private bool _isActive = false;
     private bool _isPlaying = false;
-    public bool IsCutsceneActive => _isPlaying;
 
-    // Path data
-    private float _startTime;
+    public bool IsActive() => _isActive;
+    public bool IsPlaying() => _isPlaying;
+
+    private CutsceneBase _cutscene;
     private float _duration;
-    private List<Transform> _playerPath;
-    private List<Vector3> _splinePath;
-    private bool _useSplinePath = false;
+    private float _startTime;
 
-    // Blend state
     private bool _isBlendingIn = false;
     private float _blendStartTime;
-    private float _blendInDelayTimer;
     private Vector3 _blendPlayerFrom;
     private Vector3 _blendPlayerTo;
-    public bool BlendingIn => _isBlendingIn;
     public bool BlendDelayActive { get; private set; }
+    public bool BlendingIn => _isBlendingIn;
+    public CutsceneBase CurrentCutscene => _cutscene;
 
-    // Store original camera lock states
-    private bool _originalXLock;
-    private bool _originalYLock;
-
-    // Sway/lean state
-    private float _smoothedCurvature = 0f;
-    private float _smoothedSpeed = 0f;
     private Vector3 _previousPathPosition;
-
-    // Explicit yaw driven by cutscene so model methods don't need to read-back world rotation
-    private float _currentModelYaw = 0f;
-
-    // Optional delegate: given normalised t, returns the player offset vector (rope pos = player pos - offset)
-    private System.Func<float, Vector3> _offsetSampler = null;
     private float _currentT = 0f;
 
-    // Start/end orientation
-    private Quaternion _pathStartRotation;
-    private Quaternion _pathEndRotation;
+    public Vector3 CurrentPathPosition { get; private set; }
 
-    [Header("Orientation Settings")]
-    [Tooltip("How much of the swing duration (0-1) is used to blend into upright at the end")]
-    [SerializeField] private float uprightBlendFraction = 0.2f;
+    public Vector3 CurrentRopeAttachmentPosition
+    {
+        get
+        {
+            if (_cutscene is RopeSwingCutscene rope)
+                return CurrentPathPosition - rope.SampleOffsetAtT(_currentT);
+            return CurrentPathPosition;
+        }
+    }
+
 
     private void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
+        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
 
-        // Auto-find references
         GameObject playerObj = GameObject.FindWithTag("Player");
         if (playerObj != null)
         {
@@ -113,352 +62,174 @@ public class CameraCutsceneHandler : MonoBehaviour
             if (playerModelRotation == null) playerModelRotation = playerObj.GetComponent<PlayerModelRotationHandler>();
         }
 
-        if (cameraController == null)
-            cameraController = Camera.main?.GetComponent<ZeldaCameraController>();
-
-        if (cameraModeController == null)
-            cameraModeController = Camera.main?.GetComponent<CameraModeController>();
+        if (cameraController == null) cameraController = Camera.main?.GetComponent<ZeldaCameraController>();
+        if (cameraModeController == null) cameraModeController = Camera.main?.GetComponent<CameraModeController>();
     }
 
-    // Register an offset sampler so rope visuals can recover the rope attachment position.
-    // Call before StartRopeSwingWithSpline. Pass null to clear.
-    public void SetOffsetSampler(System.Func<float, Vector3> sampler) => _offsetSampler = sampler;
-
-    public void StartRopeSwing(List<Transform> playerPath, float duration)
+    public void StartCutscene(CutsceneBase cutscene)
     {
-        if (_isActive || playerPath == null || playerPath.Count < 2)
-            return;
+        if (_isActive) return;
+        if (cutscene == null) return;
+        if (!cutscene.IsValid()) return;
 
-        _useSplinePath = false;
-        _playerPath = playerPath;
-        _splinePath = null;
-        StartCoroutine(RopeSwingSequence(duration));
+        _cutscene = cutscene;
+        StartCoroutine(CutsceneSequence());
     }
 
-    public void StartRopeSwingWithSpline(List<Vector3> splinePath, float duration)
-    {
-        if (_isActive || splinePath == null || splinePath.Count < 2)
-            return;
 
-        _useSplinePath = true;
-        _splinePath = splinePath;
-        _playerPath = null;
-        StartCoroutine(RopeSwingSequence(duration));
-    }
-
-    private IEnumerator RopeSwingSequence(float duration)
+    private IEnumerator CutsceneSequence()
     {
         _isActive = true;
-        _duration = duration;
-        _smoothedCurvature = 0f;
-        _smoothedSpeed = 0f;
-        _previousPathPosition = GetPathPosition(0f);
-        CurrentPathPosition = _previousPathPosition;
+        _duration = _cutscene.duration;
         _currentT = 0f;
-        _currentModelYaw = _pathStartRotation.eulerAngles.y;
 
-        // Cache the forward rotation of the first and last path points
-        _pathStartRotation = GetPathRotationFromForward(0f);
-        _pathEndRotation = GetPathRotationFromForward(1f);
+        _cutscene.OnCutscenePrepare();
 
-        // Disable player movement control
-        DisablePlayerControl();
+        if (_cutscene.disablePlayerControl)
+            DisablePlayerControl();
 
-        // Stop PlayerModelRotationHandler.Update() from overwriting rotations
-        if (playerModelRotation != null) playerModelRotation.SetNewRotationDir(null, true);
+        if (playerModelRotation != null)
+            playerModelRotation.SetNewRotationDir(null, true);
 
-        // Lock camera input during swing if enabled
-        if (lockCameraInput && cameraController != null)
+        if (_cutscene.lockCameraInput && cameraController != null)
         {
-            _originalXLock = false; // We don't have getters, so assume false
-            _originalYLock = false;
             cameraController.SetXAxisLocked(true);
             cameraController.SetYAxisLocked(true);
         }
 
         _isBlendingIn = true;
-        _blendInDelayTimer = 0f;
-        _blendPlayerFrom = playerRb.position;
-        _blendPlayerTo = GetPathPosition(0f);
         BlendDelayActive = true;
-        yield return new WaitForSeconds(blendInDelay);
+        _blendPlayerFrom = playerRb != null ? playerRb.position : Vector3.zero;
+        _blendPlayerTo = _cutscene.GetPlayerPosition(0f);
+        _previousPathPosition = _blendPlayerTo;
+        CurrentPathPosition = _blendPlayerTo;
 
-        // Setup blend in - smoothly move player to start of path
-        _blendStartTime = Time.time;
+        yield return new WaitForSeconds(_cutscene.blendInDelay);
         BlendDelayActive = false;
 
-        // Wait for blend in
-        yield return new WaitForSeconds(blendInTime);
-        _isBlendingIn = false;
-        cameraController.EnterCutsceneMode();
+        _blendStartTime = Time.time;
 
-        // Start main rope swing
+        yield return new WaitForSeconds(_cutscene.blendInTime);
+        _isBlendingIn = false;
+
+        cameraController?.EnterCutsceneMode();
+        _cutscene.OnCutsceneStart();
+
         _isPlaying = true;
         _startTime = Time.time;
 
-        // Wait for swing to complete
-        yield return new WaitForSeconds(duration);
+        yield return new WaitForSeconds(_duration);
+
         _isPlaying = false;
 
-        // Ensure model is left upright
-        if (playerModelRotation != null) { playerModelRotation.SetSwayAngle(0f, 0f); playerModelRotation.SetLeanAngle(0f); }
+        _cutscene.OnCutsceneEnd();
 
-        // Restore camera lock states
-        if (lockCameraInput && cameraController != null)
+        if (_cutscene.lockCameraInput && cameraController != null)
         {
-            cameraController.SetXAxisLocked(_originalXLock);
-            cameraController.SetYAxisLocked(_originalYLock);
+            cameraController.SetXAxisLocked(false);
+            cameraController.SetYAxisLocked(false);
         }
 
-        // Restore normal model rotation
-        _offsetSampler = null;
-        if (playerModelRotation != null) playerModelRotation.SetNewRotationDir(null, false);
+        if (playerModelRotation != null)
+        {
+            playerModelRotation.SetSwayAngle(0f, 0f);
+            playerModelRotation.SetLeanAngle(0f);
+            playerModelRotation.SetNewRotationDir(null, false);
+        }
 
-        // Re-enable player control
-        EnablePlayerControl();
+        if (_cutscene.disablePlayerControl)
+            EnablePlayerControl();
 
+        _cutscene = null;
         _isActive = false;
     }
 
+
     private void FixedUpdate()
     {
-        if (!_isActive) return;
+        if (!_isActive || _cutscene == null) return;
 
         if (_isBlendingIn)
         {
-            if (_blendInDelayTimer < blendInDelay)
+            if (!BlendDelayActive)
             {
-                _blendInDelayTimer += Time.fixedDeltaTime;
-                return;
+                float elapsed = Time.time - _blendStartTime;
+                float t = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / _cutscene.blendInTime));
+
+                if (_cutscene.disablePlayerControl && playerRb != null)
+                {
+                    playerRb.MovePosition(Vector3.Lerp(_blendPlayerFrom, _blendPlayerTo, t));
+
+                    if (_cutscene is RopeSwingCutscene rope)
+                        playerRb.MoveRotation(Quaternion.Slerp(playerRb.rotation, rope.PathStartRotation, t));
+                }
             }
-
-            // Smoothly blend player from current position to path start
-            float elapsed = Time.time - _blendStartTime;
-            float t = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / blendInTime));
-
-            Vector3 playerPos = Vector3.Lerp(_blendPlayerFrom, _blendPlayerTo, t);
-            playerRb.MovePosition(playerPos);
-
-            // Slerp rigidbody toward path start
-            playerRb.MoveRotation(Quaternion.Slerp(playerRb.rotation, _pathStartRotation, t));
-            // Drive model mesh directly with explicit yaw (no readback)
-            if (playerModelRotation != null)
-                playerModelRotation.SetSwayAngle(_pathStartRotation.eulerAngles.y, 0f);
+            return;
         }
-        else if (_isPlaying)
+
+        if (!_isPlaying) return;
+
+        float elapsed2 = Time.time - _startTime;
+        _currentT = Mathf.Clamp01(elapsed2 / _duration);
+
+        Vector3 pos = _cutscene.GetPlayerPosition(_currentT);
+        float speed = Vector3.Distance(pos, _previousPathPosition)
+                        / Mathf.Max(Time.fixedDeltaTime, 0.0001f);
+        _previousPathPosition = pos;
+        CurrentPathPosition = pos;
+
+        if (_cutscene.disablePlayerControl && playerRb != null)
         {
-            // Move player along the path
-            float elapsed = Time.time - _startTime;
-            float t = Mathf.Clamp01(elapsed / _duration);
+            playerRb.MovePosition(pos);
 
-            Vector3 playerPos = GetPathPosition(t);
-            playerRb.MovePosition(playerPos);
-            CurrentPathPosition = playerPos;
-            _currentT = t;
-
-            // Compute real world-space speed (units/sec) from frame-to-frame displacement
-            float frameSpeed = Vector3.Distance(playerPos, _previousPathPosition) / Mathf.Max(Time.fixedDeltaTime, 0.0001f);
-            _previousPathPosition = playerPos;
-
-            // Calculate direction along path and rotate to face it
-            Vector3 direction = GetPathDirection(t);
-            Vector3 horizontalDir = new Vector3(direction.x, 0f, direction.z).normalized;
-
-            if (horizontalDir.sqrMagnitude > 0.01f)
-            {
-                Quaternion targetRot = Quaternion.LookRotation(horizontalDir);
-
-                // Compute sway angle from curvature and apply to model separately
-                if (enablePlayerSway && playerModelRotation != null)
-                {
-                    // Sample a point slightly behind to measure how much the direction has changed
-                    float lookDelta = 0.05f;
-                    float tBehind = Mathf.Clamp01(t - lookDelta);
-                    Vector3 prevDirection = GetPathDirection(tBehind);
-                    Vector3 prevHorizontal = new Vector3(prevDirection.x, 0f, prevDirection.z).normalized;
-
-                    // Cross product Y component: positive = curving right, negative = curving left
-                    float curvature = 0f;
-                    if (prevHorizontal.sqrMagnitude > 0.01f)
-                    {
-                        Vector3 cross = Vector3.Cross(prevHorizontal, horizontalDir);
-                        curvature = cross.y / lookDelta;
-                    }
-
-                    // Lerp rate derived from durationUntilMaxAngle: reaches target in ~that many seconds
-                    float swayLerpRate = 1f - Mathf.Exp(-Time.fixedDeltaTime / Mathf.Max(durationUntilMaxAngle, 0.001f));
-                    _smoothedCurvature = Mathf.Lerp(_smoothedCurvature, curvature, swayLerpRate);
-
-                    // Fade sway out to zero in the final uprightBlendFraction of the swing
-                    float uprightBlendStart = 1f - uprightBlendFraction;
-                    float uprightFade = (t >= uprightBlendStart)
-                        ? Mathf.Clamp01((t - uprightBlendStart) / uprightBlendFraction)
-                        : 0f;
-
-                    float swayAngle = Mathf.Clamp(_smoothedCurvature * maxSwayAngle, -maxSwayAngle, maxSwayAngle)
-                        * (1f - uprightFade);
-
-                    // Forward lean: driven by actual world-space speed this frame
-                    // Estimate peak speed as total arc length / duration for normalisation
-                    float arcLength = 0f;
-                    int arcSamples = 20;
-                    for (int i = 0; i < arcSamples; i++)
-                        arcLength += Vector3.Distance(GetPathPosition(i / (float)arcSamples), GetPathPosition((i + 1) / (float)arcSamples));
-                    float peakSpeed = arcLength / Mathf.Max(_duration, 0.001f);
-                    float normalizedSpeed = Mathf.Clamp01(frameSpeed / Mathf.Max(peakSpeed, 0.001f));
-
-                    float leanLerpRate = 1f - Mathf.Exp(-Time.fixedDeltaTime / Mathf.Max(durationUntilMaxLean, 0.001f));
-                    _smoothedSpeed = Mathf.Lerp(_smoothedSpeed, normalizedSpeed, leanLerpRate);
-
-                    float leanAngle = _smoothedSpeed * maxLeanAngle * (1f - uprightFade);
-
-                    // Track model yaw: blend from start to end over the upright fade window
-                    float endBlendStartYaw = 1f - uprightBlendFraction;
-                    if (t >= endBlendStartYaw)
-                    {
-                        float yawBlendT = Mathf.Clamp01((t - endBlendStartYaw) / uprightBlendFraction);
-                        _currentModelYaw = Mathf.LerpAngle(_currentModelYaw, _pathEndRotation.eulerAngles.y, yawBlendT);
-                    }
-                    else
-                    {
-                        _currentModelYaw = Mathf.LerpAngle(_currentModelYaw, targetRot.eulerAngles.y, 0.3f);
-                    }
-
-                    playerModelRotation.SetSwayAngle(_currentModelYaw, swayAngle);
-                    playerModelRotation.SetLeanAngle(leanAngle);
-                }
-
-                // Blend rigidbody yaw toward the last point's forward in final fraction
-                float endBlendStart = 1f - uprightBlendFraction;
-                if (t >= endBlendStart)
-                {
-                    float endT = Mathf.Clamp01((t - endBlendStart) / uprightBlendFraction);
-                    targetRot = Quaternion.Slerp(targetRot, _pathEndRotation, endT);
-                }
-
-                playerRb.MoveRotation(targetRot);
-            }
+            if (_cutscene is RopeSwingCutscene rope)
+                playerRb.MoveRotation(rope.GetPlayerBodyRotation(_currentT));
         }
+
+        if (_cutscene is RopeSwingCutscene ropeAnim)
+            ropeAnim.TickAnimation(_currentT, speed, playerModelRotation);
+        else
+            _cutscene.OnCutsceneTick(_currentT, pos, speed);
     }
+
 
     private void LateUpdate()
     {
-        if (!_isActive || !autoRotateCamera || cameraController == null) return;
+        if (!_isActive || _cutscene == null) return;
+
+        _cutscene.OnCutsceneLateUpdate();
+
+        if (!_cutscene.autoRotateCamera || cameraController == null) return;
+
+        Vector3 direction = Vector3.zero;
 
         if (_isBlendingIn)
         {
-            // Rotate camera to face the initial movement direction
-            Vector3 direction = (_blendPlayerTo - _blendPlayerFrom).normalized;
-            RotateCameraToDirection(direction);
+            direction = (_blendPlayerTo - _blendPlayerFrom).normalized;
         }
         else if (_isPlaying)
         {
-            // Rotate camera to face the path direction
-            float elapsed = Time.time - _startTime;
-            float t = Mathf.Clamp01(elapsed / _duration);
-
-            Vector3 direction = GetPathDirection(t);
-            RotateCameraToDirection(direction);
+            if (_cutscene is RopeSwingCutscene rope)
+                direction = rope.GetPathDirection(_currentT);
         }
+
+        if (direction.sqrMagnitude > 0.01f)
+            RotateCameraToDirection(direction, _cutscene.cameraRotationSpeed, _cutscene.cameraPitch);
     }
 
-    private void RotateCameraToDirection(Vector3 direction)
+
+    private void RotateCameraToDirection(Vector3 direction, float speed, float pitch)
     {
-        if (direction.sqrMagnitude < 0.01f) return;
-
-        // Calculate target yaw from direction
         float targetYaw = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg;
-
-        // Get current camera rotation
         float currentYaw = cameraController.GetCurrentYaw();
         float currentPitch = cameraController.GetCurrentPitch();
 
-        // Smoothly interpolate to target rotation
-        float newYaw = Mathf.LerpAngle(currentYaw, targetYaw, cameraRotationSpeed * Time.deltaTime);
-        float newPitch = Mathf.Lerp(currentPitch, cameraPitch, cameraRotationSpeed * Time.deltaTime);
+        float newYaw = Mathf.LerpAngle(currentYaw, targetYaw, speed * Time.deltaTime);
+        float newPitch = Mathf.Lerp(currentPitch, pitch, speed * Time.deltaTime);
 
-        // Apply rotation to camera
         cameraController.SetRotation(newYaw, newPitch);
     }
 
-    private Vector3 GetPathPosition(float t)
-    {
-        if (_useSplinePath)
-        {
-            // Use pre-generated spline path
-            float index = t * (_splinePath.Count - 1);
-            int i = Mathf.FloorToInt(index);
-
-            if (i >= _splinePath.Count - 1)
-                return _splinePath[_splinePath.Count - 1];
-
-            float localT = index - i;
-            return Vector3.Lerp(_splinePath[i], _splinePath[i + 1], localT);
-        }
-        else
-        {
-            // Use linear interpolation between transforms
-            float totalSegments = _playerPath.Count - 1;
-            float scaledT = t * totalSegments;
-            int currentIndex = Mathf.FloorToInt(scaledT);
-
-            if (currentIndex >= _playerPath.Count - 1)
-                return _playerPath[_playerPath.Count - 1].position;
-
-            float segmentT = scaledT - currentIndex;
-            return Vector3.Lerp(_playerPath[currentIndex].position, _playerPath[currentIndex + 1].position, segmentT);
-        }
-    }
-
-    // Returns the flat (upright) rotation the player should face at the given path position.
-    // For transform paths, uses the Transform's own forward. For spline paths, derives from direction.
-    private Quaternion GetPathRotationFromForward(float t)
-    {
-        if (!_useSplinePath && _playerPath != null)
-        {
-            // Use the actual Transform forward of the first or last point
-            int index = t <= 0f ? 0 : _playerPath.Count - 1;
-            Vector3 forward = _playerPath[index].forward;
-            forward.y = 0f;
-            if (forward.sqrMagnitude > 0.001f)
-                return Quaternion.LookRotation(forward.normalized);
-        }
-
-        // Fallback: derive from path direction
-        Vector3 dir = GetPathDirection(t);
-        Vector3 horizontal = new Vector3(dir.x, 0f, dir.z).normalized;
-        if (horizontal.sqrMagnitude > 0.001f)
-            return Quaternion.LookRotation(horizontal);
-
-        return Quaternion.identity;
-    }
-
-    private Vector3 GetPathDirection(float t)
-    {
-        // Sample a point slightly ahead to get direction
-        float lookAhead = 0.05f;
-        float t2 = Mathf.Clamp01(t + lookAhead);
-
-        Vector3 currentPos = GetPathPosition(t);
-        Vector3 futurePos = GetPathPosition(t2);
-
-        Vector3 direction = (futurePos - currentPos).normalized;
-
-        // If we're at the very end, use the direction from the previous segment
-        if (direction.sqrMagnitude < 0.01f)
-        {
-            if (_useSplinePath && _splinePath.Count >= 2)
-            {
-                direction = (_splinePath[_splinePath.Count - 1] - _splinePath[_splinePath.Count - 2]).normalized;
-            }
-            else if (_playerPath != null && _playerPath.Count >= 2)
-            {
-                direction = (_playerPath[_playerPath.Count - 1].position - _playerPath[_playerPath.Count - 2].position).normalized;
-            }
-        }
-
-        return direction;
-    }
 
     private void DisablePlayerControl()
     {
@@ -472,24 +243,6 @@ public class CameraCutsceneHandler : MonoBehaviour
         if (input != null) input.EnableAllInput();
         if (playerController != null) playerController.enabled = true;
         if (playerRb != null) playerRb.isKinematic = false;
-        cameraController.ExitCutsceneMode();
+        cameraController?.ExitCutsceneMode();
     }
-
-    public bool IsActive() => _isActive;
-
-    // Current world-space position of the player on the path (for rope visuals)
-    public Vector3 CurrentPathPosition { get; private set; }
-
-    // World-space rope attachment point: player position minus the player offset at current t
-    public Vector3 CurrentRopeAttachmentPosition
-    {
-        get
-        {
-            Vector3 offset = _offsetSampler != null ? _offsetSampler(_currentT) : Vector3.zero;
-            return CurrentPathPosition - offset;
-        }
-    }
-
-    // Provides read access to the active spline path for visual components (e.g. LassoVisuals)
-    public IReadOnlyList<Vector3> SplinePath => (_isActive && _useSplinePath) ? _splinePath : null;
 }
