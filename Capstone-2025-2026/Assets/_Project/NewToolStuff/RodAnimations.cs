@@ -1,3 +1,4 @@
+using System;
 using Unity.XR.OpenVR;
 using UnityEngine;
 
@@ -17,6 +18,9 @@ public class RodAnimations : MonoBehaviour
     [Header("SFX (STILL NEEDS UPDATE TO JUAN NEW SYSTE)")]
     [SerializeField] private AudioSource audioSource; // The AudioSource component
     [SerializeField] private AudioClip[] clips;
+
+    [Header("ITS FMOD YOU SHOULD KNOW HOW TO ADD THE SOUND")]
+    [SerializeField] public bool facts = true;
 
 
 
@@ -68,10 +72,10 @@ public class RodAnimations : MonoBehaviour
         if (clips.Length == 0) return;
 
         // Pick a random clip
-        int randomIndex = Random.Range(0, clips.Length);
+        //int randomIndex = Random.Range(0, clips.Length);
 
         // Play the clip as a one-shot
-        audioSource.PlayOneShot(clips[randomIndex]);
+        //audioSource.PlayOneShot(clips[randomIndex]);
 
     }
 }
