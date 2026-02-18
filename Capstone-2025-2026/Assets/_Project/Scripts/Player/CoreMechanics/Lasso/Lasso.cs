@@ -248,6 +248,27 @@ public class Lasso : MonoBehaviour
     #endregion
 
     #region Start Lasso
+
+    public void SetupHeldProp(Prop newProp, RaycastHit? hit)
+    {
+        //clear old reference if it exists
+        if (SnaredObject != null) 
+        { 
+            SnaredObject.OnPropDestroyed -= HandleObjectReleased; 
+            SnaredObject.ActivateOutline(false);
+        }
+
+        SnaredObject = newProp;
+        _snaredObjTransform = newProp.transform;
+        _snaredObjTransform.gameObject.tag = gameObject.tag;
+        if (usePickupOutline) SnaredObject.ActivateOutline(true);
+
+        GetHoldPoint(newProp, hit, false);
+        GetStartGrabRotation();
+
+        SnaredObject.OnPropDestroyed += HandleObjectReleased;
+    }
+
     public void HandleLassoStart()
     {
         RaycastHit? hit = _aimAssist.GetAssistHitPoint(PlayerCam, PlayerCamLookPos.position, maxLassoRange, aimAssistType, aimAssistBufferRadius);
@@ -258,15 +279,9 @@ public class Lasso : MonoBehaviour
 
             if (prop.transform == PlayerController.IsGrounded()) return;
 
-            GetHoldPoint(prop, actualHit, false);
-            _snaredObjTransform = prop.transform;
-            SnaredObject = prop;
-            _snaredObjTransform.gameObject.tag = gameObject.tag;
-            GetStartGrabRotation();
+            SetupHeldProp(prop, hit.Value);
 
-            prop.OnSnare();
-            prop.OnPropDestroyed += HandleObjectReleased;
-            if (usePickupOutline) SnaredObject.ActivateOutline(true);
+            prop.OnSnare(this);
 
             if (prop.TryGetComponent(out IActivatable activatable))
             {
@@ -283,9 +298,16 @@ public class Lasso : MonoBehaviour
         }
     }
 
-    private void GetHoldPoint(Prop prop, RaycastHit hit, bool useGrabPoint)
+    private void GetHoldPoint(Prop prop, RaycastHit? hit, bool useGrabPoint)
     {
-        _nearestGrabPoint = prop.CheckNearestGrabPoint(hit.point);
+        if (hit == null)
+        {
+            _attachPointLocal = prop.transform.InverseTransformPoint(prop.transform.position);
+            AnchorDist = Mathf.Clamp(Vector3.Distance(prop.transform.position, PlayerCamLookPos.position), minLassoRange, maxLassoRange);
+            return;
+        }
+
+        _nearestGrabPoint = prop.CheckNearestGrabPoint(hit.Value.point);
 
         if (useGrabPoint)
         {
@@ -299,7 +321,7 @@ public class Lasso : MonoBehaviour
             else
             {
                 AnchorDist = Mathf.Clamp(Vector3.Distance(prop.transform.position, PlayerCamLookPos.position), minLassoRange, maxLassoRange);
-                _attachPointLocal = prop.transform.InverseTransformPoint(hit.point);
+                _attachPointLocal = prop.transform.InverseTransformPoint(hit.Value.point);
 
                 //AnchorDist = Mathf.Clamp(Vector3.Distance(hit.transform.position, PlayerCamLookPos.position), minLassoRange, maxLassoRange);
                 //_attachPointLocal = prop.transform.InverseTransformPoint(hit.transform.position);
@@ -307,8 +329,8 @@ public class Lasso : MonoBehaviour
         }
         else
         {
-            AnchorDist = Mathf.Clamp(Vector3.Distance(hit.transform.position, PlayerCamLookPos.position), minLassoRange, maxLassoRange);
-            _attachPointLocal = prop.transform.InverseTransformPoint(hit.transform.position);
+            AnchorDist = Mathf.Clamp(Vector3.Distance(hit.Value.transform.position, PlayerCamLookPos.position), minLassoRange, maxLassoRange);
+            _attachPointLocal = prop.transform.InverseTransformPoint(hit.Value.transform.position);
         }
     }
 

@@ -15,6 +15,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     [SerializeField] protected List<JointTether> attachedTethers = new List<JointTether>();
     [SerializeField] protected List<Transform> connectedObject = new List<Transform>();
     [SerializeField] protected List<Transform> connectedAnchors = new List<Transform>();
+    protected Lasso lassoRef;
 
 
     //getters/setters - default value is false (protected set means only derived classes can change IsHeld)
@@ -125,7 +126,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     }
 
     #region ISnareable
-    public virtual void OnSnare()
+    public virtual void OnSnare(Lasso lasso)
     {
         IsSnared = true;
         IsHeld = false;
@@ -133,6 +134,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         Rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
         Rb.angularVelocity = Vector3.zero;
         Rb.linearVelocity = Vector3.zero;
+        lassoRef = lasso;
         OnPropSnared?.Invoke();
     }
 
@@ -144,7 +146,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         Rb.interpolation = RigidbodyInterpolation.None;
         Rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
         AttachedTransform = null;
-
+        lassoRef = null;
 
         Invoke(nameof(CoyoteFall), coyoteFallDelay);
         OnPropReleased?.Invoke();
