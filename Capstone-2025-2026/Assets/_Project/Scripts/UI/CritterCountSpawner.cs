@@ -10,8 +10,6 @@ using System.Collections.Generic;
 public class CritterCountSpawner : MonoBehaviour
 {
     public GameObject critter_UI;
-    public int spacing = 50;
-    public int offset = 100;
 
     private int critterCount = 0;
 
@@ -36,8 +34,11 @@ public class CritterCountSpawner : MonoBehaviour
 
     private void Populate()
     {
+
+        
         critterCount = CollectibleManager.Instance.count;
 
+        Debug.Log("Critters in level: " + critterCount);
 
         for (int i = 0; i < critterCount; i++)
         {

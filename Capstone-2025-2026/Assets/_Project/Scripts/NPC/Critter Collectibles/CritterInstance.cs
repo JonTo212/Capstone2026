@@ -38,6 +38,8 @@ public class CritterInstance : MonoBehaviour
 
         CollectibleManager.Instance.CritterCollected(instID);
 
+        Destroy(this.gameObject);
+
     }
 
     private void SetUp()
