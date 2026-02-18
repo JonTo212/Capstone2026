@@ -12,8 +12,10 @@ public class CoinPickup : MonoBehaviour
     private SphereCollider trigger;
     private Coroutine collectionCoroutine;
 
+
     private void Start()
     {
+
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj != null) player = playerObj.transform;
 
@@ -27,6 +29,7 @@ public class CoinPickup : MonoBehaviour
         if (other.CompareTag("Player") && collectionCoroutine == null)
         {
             collectionCoroutine = StartCoroutine(CollectCoroutine());
+            CollectibleManager.Instance.CoinCollected();
         }
     }
 
