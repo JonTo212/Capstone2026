@@ -50,6 +50,7 @@ public class BridgeBreakSetpiece : MonoBehaviour
 
     IEnumerator BridgeBreak()
     {
+        GetComponent<DialogueTrigger>().CreateNPCDialogue();
         yield return new WaitForSeconds(1f);
         Destroy(bridge);
 
