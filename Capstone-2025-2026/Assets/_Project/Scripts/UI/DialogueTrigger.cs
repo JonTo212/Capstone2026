@@ -38,7 +38,7 @@ public class DialogueTrigger : MonoBehaviour
         }
     }
 
-    private void CreateNPCDialogue()
+    public void CreateNPCDialogue()
     {
         NPCDialogue npcText;
         GameObject newBox = Instantiate(template, template.transform.position , Quaternion.identity, uICanvas.transform);
