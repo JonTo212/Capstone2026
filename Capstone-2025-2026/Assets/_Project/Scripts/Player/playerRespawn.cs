@@ -1,8 +1,9 @@
-using UnityEngine;
-using System.Collections;
-using UnityEngine.Rendering;
-using UnityEngine.EventSystems;
+using FMODUnity;
 using NodeCanvas.Tasks.Actions;
+using System.Collections;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.Rendering;
 
 public class PlayerRespawn : MonoBehaviour
 {
@@ -57,7 +58,7 @@ public class PlayerRespawn : MonoBehaviour
             currentRespawnPoint = other.GetComponent<RespawnPointVisuals>();
             if (currentRespawnPoint.firstTime)
             {
-                currentRespawnPoint.PlayFanfare();
+                //currentRespawnPoint.PlayFanfare();
             }
             currentRespawnPoint.SetObjectActive();
             spawnPosition = other.transform.position;
@@ -78,7 +79,8 @@ public class PlayerRespawn : MonoBehaviour
 
         //play particle effect
         tinyTornado.Play();
-        AudioManager.Instance.PlaySFX(AudioManager.Instance.PlayerSaved, 6, 1);
+        //AudioManager.Instance.PlaySFX(AudioManager.Instance.PlayerSaved, 6, 1);
+        RuntimeManager.PlayOneShot("event:/Respawn", transform.position);
 
         yield return new WaitUntil(() => fadeToBlackScript.FadeComplete);
 

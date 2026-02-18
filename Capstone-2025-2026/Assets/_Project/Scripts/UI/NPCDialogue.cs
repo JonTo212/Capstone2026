@@ -6,6 +6,8 @@ using TMPro;
 using System.Globalization;
 using System.Collections.Generic;
 using DG.Tweening;
+using UnityEditor.PackageManager;
+using Unity.VisualScripting;
 
 public enum SpeakerType
     {
@@ -33,8 +35,8 @@ public class NPCDialogue : MonoBehaviour
     public GameObject dialogueBox;
 
     [Header("Typewriter Settings")]
-    [SerializeField] private float charactersPerSecond = 5;
-    [SerializeField] private float interpunctuationDelay = 0.5f;
+    [SerializeField] public float charactersPerSecond = 5;
+    [SerializeField] public float interpunctuationDelay = 0.5f;
 
     [Header("Profile Settings")]
     public Image currentSpeaker;
@@ -59,13 +61,13 @@ public class NPCDialogue : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
-        dialogueBox.GetComponent<RectTransform>().anchoredPosition = hiddenPosition;
+        //dialogueBox.GetComponent<RectTransform>().anchoredPosition = hiddenPosition;
         //SetText(testText, 0);
     }
 
     public void SetText(string text, SpeakerType speakerType)
     {
+        dialogueBox.GetComponent<RectTransform>().anchoredPosition = hiddenPosition;
         currentSpeaker.sprite = speakerImageDictionary[speakerType];
 
         if(_typewriterCoroutine != null)
@@ -112,5 +114,10 @@ public class NPCDialogue : MonoBehaviour
     public void TextOffScreen()
     {
         dialogueBox.GetComponent<RectTransform>().DOAnchorPos(hiddenPosition, 1); // DOMove(hiddenPosition, 2);
+    }
+
+    public void DestroyBox()
+    {
+        Destroy(dialogueBox);
     }
 }

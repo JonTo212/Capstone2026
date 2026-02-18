@@ -10,12 +10,13 @@ public class PlayerMantle : MonoBehaviour
     [SerializeField] private float forwardClimbBuffer = 0.5f;
     [SerializeField] private float climbDuration = 0.3f;
     [SerializeField] private float forwardDuration = 0.2f;
+    [SerializeField] private float maxMantleableAngle = 10f;
     [SerializeField] private Transform forwardRef;
     [SerializeField] private LayerMask mantleableLayers;
 
     private CapsuleCollider _playerCol;
     private PlayerActions _playerActions;
-    private PlayerController _playerController;
+    private PlayerMovement _playerController;
     private Coroutine _mantleCoroutine;
 
     public Coroutine MantleCoroutine => _mantleCoroutine;
@@ -26,7 +27,7 @@ public class PlayerMantle : MonoBehaviour
     {
         _playerCol = GetComponent<CapsuleCollider>();
         _playerActions = GetComponent<PlayerActions>();
-        _playerController = GetComponent<PlayerController>();
+        _playerController = GetComponent<PlayerMovement>();
 
         if (forwardRef == null) forwardRef = Camera.main.transform;
     }
@@ -52,10 +53,10 @@ public class PlayerMantle : MonoBehaviour
 
             if (Physics.Raycast(secondCheckStartPos, Vector3.down, out RaycastHit topHit, secondCheckDist, mantleableLayers))
             {
-                if(topHit.collider != forwardHit.collider)
-                {
-                    return null;
-                }
+                if (topHit.collider != forwardHit.collider) return null;
+
+                float slopeThreshold = Mathf.Cos(maxMantleableAngle * Mathf.Deg2Rad);
+                if (Vector3.Dot(topHit.normal, Vector3.up) < slopeThreshold) return null;
 
                 Vector3 upOffset = Vector3.up * (_playerCol.height * 0.5f);
                 Vector3 backOffset = -forwardRef.forward * _playerCol.radius + forwardRef.forward * forwardClimbBuffer;
@@ -69,7 +70,7 @@ public class PlayerMantle : MonoBehaviour
         return null;
     }
 
-    private IEnumerator Mantle(Vector3 targetPos)
+    /*private IEnumerator Mantle(Vector3 targetPos)
     {
         _playerController.Rb.isKinematic = true;
         OnMantle?.Invoke(true);
@@ -102,9 +103,9 @@ public class PlayerMantle : MonoBehaviour
         _mantleCoroutine = null;
 
         OnMantle?.Invoke(false);
-    }
+    }*/
 
-    /*private IEnumerator Mantle(Vector3 targetPos)
+    private IEnumerator Mantle(Vector3 targetPos)
     {
         _playerController.Rb.isKinematic = true;
         OnMantle?.Invoke(true);
@@ -127,6 +128,6 @@ public class PlayerMantle : MonoBehaviour
         _mantleCoroutine = null;
 
         OnMantle?.Invoke(false);
-    }*/
+    }
 
 }

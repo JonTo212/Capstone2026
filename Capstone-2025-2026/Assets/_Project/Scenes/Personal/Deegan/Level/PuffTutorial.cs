@@ -21,6 +21,7 @@ public class PuffTutorial : PluckOutProp
         helpText.gameObject.SetActive(false);
         savedFishTransform.gameObject.SetActive(true);
         platform.gameObject.SetActive(true);
+        GetComponent<DialogueTrigger>().CreateNPCDialogue();
         foreach(Transform t in debrisToDestroy)
         {
             Destroy(t.gameObject);

@@ -1,3 +1,4 @@
+using FMODUnity;
 using UnityEngine;
 
 public class RockClimb : MonoBehaviour
@@ -30,7 +31,8 @@ public class RockClimb : MonoBehaviour
             //force jump
             rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
             rb.AddForce(Vector3.up * wallJumpForce, ForceMode.Impulse);
-            AudioManager.Instance.PlaySFX(AudioManager.Instance.Jump, 6, 1f);
+            //AudioManager.Instance.PlaySFX(AudioManager.Instance.Jump, 6, 1f);
+            RuntimeManager.PlayOneShot("event:/Jump", transform.position);
 
             //destroy holder
             Destroy(connectedObject.transform.parent.gameObject);

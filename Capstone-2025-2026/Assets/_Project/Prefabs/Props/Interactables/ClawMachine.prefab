@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1035520072651578719}
   - component: {fileID: 5969378217586745985}
   - component: {fileID: 7228752264601834450}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Cube (4)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -100,7 +100,7 @@ GameObject:
   - component: {fileID: 6799895233896386157}
   - component: {fileID: 4001449302589246214}
   - component: {fileID: 415581654904807651}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -189,7 +189,7 @@ GameObject:
   - component: {fileID: 5275307159222117818}
   - component: {fileID: 2886081382610890758}
   - component: {fileID: 1660996399793898370}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Cube (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -276,7 +276,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6206273086138396554}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: RightClaw
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -311,7 +311,7 @@ GameObject:
   - component: {fileID: 4737610930616505062}
   - component: {fileID: 8554756886491861709}
   - component: {fileID: 1524776418502662387}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Cube (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -398,7 +398,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3423562437493320289}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: ClawMachine
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -431,7 +431,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5797184107197295445}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: LeftClaw
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -466,7 +466,7 @@ GameObject:
   - component: {fileID: 5940925310687509466}
   - component: {fileID: 3919657419574699599}
   - component: {fileID: 2813228420512665159}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: ClawBase
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -629,7 +629,7 @@ GameObject:
   - component: {fileID: 351428210179827456}
   - component: {fileID: 3249457906579745210}
   - component: {fileID: 7680223600152719641}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Cube (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -721,7 +721,7 @@ GameObject:
   - component: {fileID: 3410006403444283160}
   - component: {fileID: 8762477109840729203}
   - component: {fileID: 4995039465545145352}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Claw
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -829,11 +829,10 @@ MonoBehaviour:
   attachedTethers: []
   connectedObject: []
   connectedAnchors: []
+  <CanHoldWhileStandingOn>k__BackingField: 0
   <GrabPoints>k__BackingField: []
   <FaceRows>k__BackingField: 0
   <FaceColumns>k__BackingField: 0
-  clawRetractSpeed: 10
-  maxClawLength: 20
   clawBase: {fileID: 5940925310687509466}
   machineBase: {fileID: 3423562437493320289}
   clawModel: {fileID: 3415476476788636794}
@@ -844,11 +843,16 @@ MonoBehaviour:
   grabbedProp: {fileID: 0}
   currentSelectedProp: {fileID: 0}
   lineRenderer: {fileID: 4995039465545145352}
+  clawRetractSpeed: 10
+  maxClawLength: 20
+  isInteractable: 1
+  attachOnStart: 0
   driveStrength: 100
+  driveMax: 200
   driveDamper: 10
   angularStrength: 100
   angularDamper: 5
-  wasLetGo: 0
+  isOpen: 0
 --- !u!120 &4995039465545145352
 LineRenderer:
   serializedVersion: 2
@@ -969,7 +973,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3415476476788636794}
   - component: {fileID: 2162515526343357327}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: ClawModel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1026,7 +1030,7 @@ GameObject:
   - component: {fileID: 4215362072360617958}
   - component: {fileID: 6230123028535018780}
   - component: {fileID: 269671187432484258}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Sphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}

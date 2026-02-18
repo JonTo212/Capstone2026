@@ -6,7 +6,7 @@ public class ContextPrompts : MonoBehaviour
     public static ContextPrompts Instance;
 
     [SerializeField] private GameObject player;
-    [SerializeField] private GameObject BigMama;
+    //[SerializeField] private GameObject BigMama;
     private LassoTetherController lassoTetherController;
     private JointTetherActivator jointTetherActivator;
     private NPC_Pufferfish npcPufferfish;
@@ -24,8 +24,9 @@ public class ContextPrompts : MonoBehaviour
     [SerializeField] private GameObject TetheringStateIcons;
 
     //Looking at tether
-    [SerializeField] private GameObject LookAtTetherPrompts;
-    [SerializeField] private GameObject LookAtActiveTetherPrompts; //decided if i make activeate text appear
+    //[SerializeField] private GameObject LookAtTetherPrompts;
+    //[SerializeField] LookAtActiveTetherPrompts; //decided if i make activeate text appear
+    [SerializeField] private GameObject ActiveTetherPrompts;
 
     //Big Mama
     [SerializeField] private GameObject MamaInBagPrompts;
@@ -49,14 +50,16 @@ public class ContextPrompts : MonoBehaviour
 
         lassoTetherController = player.GetComponent<LassoTetherController>();
         jointTetherActivator = player.GetComponent<JointTetherActivator>();
-        npcPufferfish = BigMama.GetComponent<NPC_Pufferfish>();
+        player = GameObject.FindWithTag("Player");
+
+        //npcPufferfish = BigMama.GetComponent<NPC_Pufferfish>();
     }
 
     void Update()
     {
         UpdateLassoStateUI();
         UpdateTetherLookUI();
-        UpdateNPCUI();
+        //UpdateNPCUI();
     }
 
     private void UpdateLassoStateUI()
@@ -69,10 +72,6 @@ public class ContextPrompts : MonoBehaviour
         {
             case LassoState.Snared:
                 HoldingStateIcons.SetActive(true);
-                break;
-
-            case LassoState.SnapRotating:
-                RotationStateIcons.SetActive(true);
                 break;
 
             case LassoState.Tethering:
@@ -89,20 +88,10 @@ public class ContextPrompts : MonoBehaviour
 
     private void UpdateTetherLookUI()
     {
-        bool isLooking = jointTetherActivator.isLookingAtTether;
-        bool isActiveTether = jointTetherActivator.isLookingAtActiveTether;
-
-        LookAtTetherPrompts.SetActive(isLooking && !isActiveTether);
-        LookAtActiveTetherPrompts.SetActive(isLooking && isActiveTether);
+        if (jointTetherActivator.placedTethers.Count > 0) ActiveTetherPrompts.SetActive(true);
+        else ActiveTetherPrompts.SetActive(false);
     }
 
-    private void UpdateNPCUI()
-    {
-        bool inBag = npcPufferfish.CurrentNPCState == NPCState.InBag;
-
-        MamaInBagPrompts.SetActive(inBag);
-        MamaInFieldPrompts.SetActive(!inBag);
-    }
 
     public void LookingAtObject(bool active)
     {
@@ -122,6 +111,17 @@ public class ContextPrompts : MonoBehaviour
 
     }
 
+    #region Big Mama Prompts
+    
+    private void UpdateNPCUI()
+    {
+        bool inBag = npcPufferfish.CurrentNPCState == NPCState.InBag;
+
+        MamaInBagPrompts.SetActive(inBag);
+        MamaInFieldPrompts.SetActive(!inBag);
+    }
+    
+    #endregion
 
 
 }

@@ -1,11 +1,11 @@
-using Unity.VisualScripting;
 using UnityEngine;
+using System;
+using System.Collections.Generic;
+using Unity.VisualScripting;
 
 public class ClawHead : EnvironmentalProp
 {
-    [Header("Claw Parameters")]
-    [SerializeField] private float clawRetractSpeed = 10f;
-    [SerializeField] private float maxClawLength = 20f;
+    [Header("Claw Components")]
     [SerializeField] private Transform clawBase;
     [SerializeField] private Transform machineBase;
     [SerializeField] private Transform clawModel;
@@ -17,7 +17,13 @@ public class ClawHead : EnvironmentalProp
     [SerializeField] public Prop currentSelectedProp;
     [SerializeField] private LineRenderer lineRenderer;
 
-    [Header("Claw Joint")]
+    [Header("Editable Claw Params")]
+    [SerializeField] private float clawRetractSpeed = 10f;
+    [SerializeField] private float maxClawLength = 20f;
+    [SerializeField] private bool isInteractable = true;
+    [SerializeField] private bool attachOnStart = false;
+
+    [Header("Editable Joint Params")]
     [SerializeField] private float driveStrength = 100f;
     [SerializeField] private float driveMax = 200f;
     [SerializeField] private float driveDamper = 5f;
@@ -26,7 +32,10 @@ public class ClawHead : EnvironmentalProp
 
     private Rigidbody rb;
 
-    public bool wasLetGo = false;
+    public bool isOpen = false;
+
+    public event Action OnAttachToObject;
+    public event Action OnDetachToObject;
 
     private void Awake()
     {
@@ -39,6 +48,8 @@ public class ClawHead : EnvironmentalProp
 
         OnPropSnared += DeactivateJointForceOnGrab;
         OnPropReleased += ReactivateJointForceOnRelease;
+
+        ReactivateJointForceOnRelease();
     }
 
     protected override void Update()
@@ -49,15 +60,19 @@ public class ClawHead : EnvironmentalProp
         lineRenderer.SetPosition(0, clawBase.position);
         lineRenderer.SetPosition(1, transform.position);
 
+        if (!isInteractable) return;
+
+        if (IsSnared) isOpen = true;
+
         if(currentSelectedProp != null && clawAttachmentJoint == null)
         {
-            if(IsSnared == false)
+            if(IsSnared == false && isOpen)
             {
                 ConnectObjectWithClaw(currentSelectedProp.transform);
                 grabbedProp = currentSelectedProp;
             }
 
-            OpenClaw();
+            if(isOpen) OpenClaw();
         }
         else CloseClaw();
 
@@ -68,6 +83,8 @@ public class ClawHead : EnvironmentalProp
                 DisconnectObjectWithClaw();
             }
         }
+
+        if(!IsSnared) isOpen = false;
     }
 
     protected override void FixedUpdate()
@@ -172,12 +189,14 @@ public class ClawHead : EnvironmentalProp
     {
         clawAttachmentJoint = connectedObject.AddComponent<FixedJoint>();
         clawAttachmentJoint.connectedBody = rb;
+        OnAttachToObject();
     }
 
     private void DisconnectObjectWithClaw()
     {
         Destroy(clawAttachmentJoint);
         clawAttachmentJoint = null;
+        OnDetachToObject();
     }
 
     private void OpenClaw()
@@ -203,7 +222,11 @@ public class ClawHead : EnvironmentalProp
     {
         if (other.gameObject.TryGetComponent<Prop>(out Prop prop))
         {
+            if (prop.transform.GetComponent<ClawHead>() != null) return;
+
             currentSelectedProp = prop;
+
+            if (attachOnStart) ConnectObjectWithClaw(prop.transform);
         }
     }
 
@@ -216,5 +239,10 @@ public class ClawHead : EnvironmentalProp
                 currentSelectedProp = null;
             }
         }
+    }
+
+    public void DisableInteraction()
+    {
+        isInteractable = false;
     }
 }

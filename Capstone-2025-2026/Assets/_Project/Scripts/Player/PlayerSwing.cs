@@ -27,36 +27,34 @@ public class PlayerSwing : MonoBehaviour
         playerMovement.Rb.linearVelocity = tangentialVel;
     }
 
-    public void HandleSwingMovement(Vector3 moveDir)
+    public void HandleSwingMovement(Vector3 moveDir, ref Vector3 relVel)
     {
         Vector3 directionToGrapple = swingPoint - transform.position;
         Vector3 ropeDir = directionToGrapple.normalized;
 
         Vector3 tangentialMoveDir = Vector3.ProjectOnPlane(moveDir, ropeDir);
-        Vector3 swingForce = tangentialMoveDir * airAccel;
-
-        playerMovement.Rb.AddForce(swingForce, ForceMode.Acceleration);
+        relVel += tangentialMoveDir * airAccel * Time.fixedDeltaTime;
     }
 
-    public void ConstrainToRope()
+    public void ConstrainToRope(ref Vector3 relVel)
     {
         Vector3 directionToGrapple = swingPoint - transform.position;
         float currentDistance = directionToGrapple.magnitude;
-        Vector3 ropeDir = directionToGrapple.normalized;
-        Vector3 velocityAlongRope = Vector3.Project(playerMovement.Rb.linearVelocity, ropeDir);
 
         if (currentDistance > ropeLength)
         {
-            float stretch = currentDistance - ropeLength;
+            Vector3 ropeDir = directionToGrapple.normalized;
 
-            float stiffness = 25f;
+            Vector3 velocityAlongRope = Vector3.Project(relVel, ropeDir);
+
+            float stretch = currentDistance - ropeLength;
+            float stiffness = 25f; 
             float damping = 2f * Mathf.Sqrt(stiffness * playerMovement.Rb.mass);
 
-            //pull towards rope length with spring/damper
-            Vector3 correctiveForce = ropeDir * (stretch * stiffness);  
+            Vector3 correctiveForce = ropeDir * (stretch * stiffness);
             correctiveForce -= velocityAlongRope * damping;
 
-            playerMovement.Rb.AddForce(correctiveForce, ForceMode.Acceleration);
+            relVel += correctiveForce * Time.fixedDeltaTime;
         }
     }
 

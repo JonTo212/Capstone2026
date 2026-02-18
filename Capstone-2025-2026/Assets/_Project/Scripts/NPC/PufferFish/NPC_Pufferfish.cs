@@ -294,15 +294,16 @@ public class NPC_Pufferfish : Prop, INPC
                 playerMovement.EnableGravity(false);
                 Vector3 force = EnvironmentalForce.CalculateForce() * playerWindForceMultiplier;
                 playerMovement.Rb.AddForce(force, ForceMode.Acceleration);
+                Vector3 playerVel = playerMovement.Rb.linearVelocity;
 
-                playerMovement.ApplyFriction(Vector3.up); //needa do this to match sideways/vertical movement
+                playerMovement.ApplyFriction(ref playerVel, Vector3.up); //needa do this to match sideways/vertical movement
             }
             else
             {
                 playerMovement.EnableGravity(true);
                 playerMovement.ApplySlowFall(playerSlowfallGravMultiplier);
             }
-            AudioManager.Instance.TempPlayOneShot(AudioManager.Instance.BM_Glide, 8, 1f);
+            //AudioManager.Instance.TempPlayOneShot(AudioManager.Instance.BM_Glide, 8, 1f);
         }
     }
 
@@ -314,7 +315,7 @@ public class NPC_Pufferfish : Prop, INPC
             playerMovement.ResetGravity();
         }
 
-        AudioManager.Instance.StopSFX(8);
+        //AudioManager.Instance.StopSFX(8);
     }
 
     #endregion

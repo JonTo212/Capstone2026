@@ -434,7 +434,7 @@ public class PlayerNPCHolder : MonoBehaviour
             prop.OnHold(endPos);
             prop.AttachedTransform = transform;
             CurrentNPC.OnCaptureComplete();
-            _playerLasso.SetToNoCollisionLayer(prop);
+            _playerLasso.SetLayer(prop, false);
         }
         else
         {
@@ -442,7 +442,7 @@ public class PlayerNPCHolder : MonoBehaviour
             prop.Rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
             ReleaseNPC();
             CurrentNPC.OnReleaseComplete();
-            _playerLasso.ResetLayer(prop);
+            _playerLasso.SetLayer(prop, true);
         }
 
         if (invokeEvent)

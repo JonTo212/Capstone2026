@@ -1,3 +1,4 @@
+using FMODUnity;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -15,6 +16,8 @@ public class JointTetherActivator : MonoBehaviour
     [SerializeField] private float timeToActivateAllTethers = 0.8f;
     [SerializeField] private float timeToDestroyAllTethers = 0.8f;
     public List<JointTether> placedTethers = new List<JointTether>();
+    [SerializeField] private JointTether currentSelectedTether = null;
+    [SerializeField] private JointTether previousTether = null;
 
     [Header("Coroutines")]
     private Coroutine activateAllTethersCoroutine;
@@ -34,20 +37,19 @@ public class JointTetherActivator : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-
         aManage = GameObject.Find("AudioManager").GetComponent<AudioManager>();
         _playerCamera = Camera.main;
         placedTethers = gameObject.GetComponent<JointTetherPlacer>().placedTethers;
     }
     void Update()
     {
-        JointTether hoverTether = TryGetTether();
+        currentSelectedTether = TryGetTether();
 
-        if(hoverTether != null)
+        if (currentSelectedTether != null)
         {
             isLookingAtTether = true;
 
-            if (hoverTether.isActivated)
+            if (currentSelectedTether.isActivated)
             {
                 isLookingAtActiveTether = true;
             }
@@ -59,30 +61,38 @@ public class JointTetherActivator : MonoBehaviour
         else
         {
             // MVG BRAEDEN INPUT STUFF
+            if(placedTethers.Count >= 1) currentSelectedTether = placedTethers[placedTethers.Count - 1];
             isLookingAtTether = false;
             isLookingAtActiveTether = false;
         }
 
-        if (hoverTether != null && hoverTether.isActivated == false)
+        if (currentSelectedTether != null)
         {
+            currentSelectedTether.gameObject.GetComponent<JointTetherVisuals>().SetLineColorSelected();
+
+            if(previousTether != null && currentSelectedTether != previousTether)
+            {
+                previousTether.gameObject.GetComponent<JointTetherVisuals>().SetLineColorActive();
+            }
+
             // MVG BRAEDEN INPUT STUFF
 
-
-            hoverTether.gameObject.GetComponent<JointTetherVisuals>().SetLineColorSelected();
         }
-        else
-        {
+            //else
+            //{
 
 
-            foreach (JointTether tether in placedTethers)
-            {
-                if (!tether.isActivated)
-                {
-                    tether.gameObject.GetComponent<JointTetherVisuals>().SetLineColorInactive();
-                }
-            }
-        }
-        
+            //    foreach (JointTether tether in placedTethers)
+            //    {
+            //        if (!tether.isActivated)
+            //        {
+            //            tether.gameObject.GetComponent<JointTetherVisuals>().SetLineColorInactive();
+            //        }
+            //    }
+            //}
+
+            previousTether = currentSelectedTether;
+
     }
     #endregion
 
@@ -111,8 +121,8 @@ public class JointTetherActivator : MonoBehaviour
         JointTether tether = TryGetTether();
         if (tether != null)
         {
-            
-            aManage.PlaySFX(aManage.TetherTighten, 4, 1f);
+
+            RuntimeManager.PlayOneShot("event:/TetherActivate", transform.position);
             tether.ActivateTether();
 
             OnTetherActivated?.Invoke();
@@ -127,7 +137,7 @@ public class JointTetherActivator : MonoBehaviour
         
         foreach (JointTether tether in placedTethers)
         {
-            aManage.PlaySFX(aManage.TetherTighten, 4, 1f);
+            RuntimeManager.PlayOneShot("event:/TetherActivate", transform.position);
             tether.ActivateTether();
 
             OnTetherActivated?.Invoke();
@@ -139,7 +149,7 @@ public class JointTetherActivator : MonoBehaviour
     {
         foreach (JointTether tether in placedTethers)
         {
-            aManage.PlaySFX(aManage.TetherTighten, 4, 1f);
+            RuntimeManager.PlayOneShot("event:/TetherActivate", transform.position);
             tether.ActivateTether();
 
             OnTetherActivated?.Invoke();
@@ -152,14 +162,7 @@ public class JointTetherActivator : MonoBehaviour
     #region Tether Destroy
     public void StartDestroyTether()
     {
-        /*DestroySelectedTether();
-
-        if(activateAllTethersCoroutine == null )
-        {
-            destroyAllTethersCoroutine= StartCoroutine(DestroyAllTether());
-        }*/
-
-        DestroyMostRecentTether(); // TEMP
+        DestroySelectedTether(currentSelectedTether);
     }
 
     public void EndDestroyTether()

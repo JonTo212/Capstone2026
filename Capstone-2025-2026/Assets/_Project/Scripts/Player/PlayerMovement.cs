@@ -1,3 +1,4 @@
+using FMODUnity;
 using UnityEngine;
 
 public enum PlayerMoveState
@@ -6,7 +7,8 @@ public enum PlayerMoveState
     InAir,
     Swinging,
     Mantling,
-    UsingNPC
+    UsingNPC,
+    Grabbing
 }
 
 [System.Serializable]
@@ -38,14 +40,14 @@ public class PlayerMovement : MonoBehaviour
     [Header("Multipliers")]
     [SerializeField] private MovementProperties _airMultipliers;
     [SerializeField] private MovementProperties _swingingMultipliers;
-    [SerializeField] private float overshootCorrectionMultiplier = 10f;
+    [SerializeField] private float overshootMaxForce = 50f;
     [SerializeField] private float hardCapMultiplier = 5f;
+    [SerializeField] private float steeringMultiplier = 1.5f;
 
     [Header("Ground Check")]
     [SerializeField] private Transform feetPos;
     [SerializeField] private float feetRadius;
     [SerializeField] private LayerMask groundLayer;
-    private bool hasJumped = false;
 
     [Header("Jump Buffer + Coyote Time + LedgeScan")]
     [SerializeField] private float jumpBufferTime = 0.2f;
@@ -54,67 +56,69 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float coyoteTimeCounter;
     [SerializeField] private float ledgeScanLength;
     [SerializeField] private float ledgeScanDepth;
+    [SerializeField] private float doubleJumpDuration = 0.1f;
+    [SerializeField] private float doubleJumpMultiplier = 0.8f;
+    [SerializeField] private bool useDoubleJump;
+    //[SerializeField] private Vector2 doubleJumpForce;
 
     [Header("Camera")]
-    //[SerializeField] private float yawSensitivity;
-    //[SerializeField] private float pitchSensitivity;
     [SerializeField] private Camera playerCam;
-    //[SerializeField] private float desiredSwingFOV = 90f;
-    //[SerializeField] private float desiredHoldFOV = 75f;
-    //[SerializeField] private float FOVChangeSpeed = 5f;
 
     [Header("Input")]
-    private PlayerActions _playerActions;
     private PlayerSwing _playerSwing;
     private LassoTetherController _lassoTetherController;
 
     private MovementProperties _currentMultipliers;
-    private PlayerMoveState _currentMovementState;
-    private Vector3 _wishDir;
-    private Rigidbody _rb;
-    private CapsuleCollider _playerCol;
     private float _acceleration;
-    private float _gravity;
     private float _jumpForce;
     private float _friction;
-    private float _defaultFOV;
     private float _maxGravity;
     private bool _useGravity;
+    private bool _useFriction;
+    private bool _hasJumped;
+    private Vector3 _lastExternalForce;
+    private float _lastJumpFrame;
 
-    public Vector3 ExternalForce { get; set; }
-    public float Gravity => _gravity;
-    public Vector3 WishDir => _wishDir;
-    public Rigidbody Rb => _rb;
-    public float Acceleration => _acceleration;
-    public float DefaultMaxSpeed => defaultMaxSpeed;
-    public MovementProperties CurrentMultipliers => _currentMultipliers;
-    public PlayerMoveState CurrentMovementState => _currentMovementState;
+    public bool CanDoubleJump { get; set; }
+    public float MovementLockTimer { get; private set; }
+    public Vector3 ExternalForce { get; private set; }
+    public Vector3 PlayerVelocity { get; private set; }
+    public float FrictionMultiplier { get; private set; } = 1f;
+    public float Gravity { get; private set; }
+    public Vector3 WishDir { get; private set; }
+    public Rigidbody Rb { get; private set; }
+    public PlayerMoveState CurrentMovementState { get; private set; }
+    public PlayerActions PlayerInput { get; private set; }
+    public PlayerModelRotationHandler PlayerModelRotationHandler { get; private set; }
 
+    #region Unity Functions
     private void Awake()
     {
-        _rb = GetComponent<Rigidbody>();
-        _playerCol = GetComponent<CapsuleCollider>();
-        _playerActions = GetComponent<PlayerActions>();
+        Rb = GetComponent<Rigidbody>();
+        PlayerInput = GetComponent<PlayerActions>();
         _lassoTetherController = GetComponent<LassoTetherController>();
         _playerSwing = GetComponent<PlayerSwing>();
+        PlayerModelRotationHandler = GetComponent<PlayerModelRotationHandler>();
 
-        _gravity = 2 * apexHeight / Mathf.Pow(apexTime, 2);
+        Gravity = 2 * apexHeight / Mathf.Pow(apexTime, 2);
         _jumpForce = 2 * apexHeight / apexTime;
-        _maxGravity = _gravity;
+        _maxGravity = Gravity;
         _friction = defaultMaxSpeed / timeToZero;
         _acceleration = defaultMaxSpeed / timeToMaxSpeed;
-        _defaultFOV = playerCam.fieldOfView;
-        _currentMovementState = PlayerMoveState.InAir;
+        CurrentMovementState = PlayerMoveState.InAir;
         _useGravity = true;
+        _useFriction = true;
 
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        ExternalForce = Vector3.zero;
     }
 
     private void Start()
     {
-        AudioManager.Instance.PlaySFX(AudioManager.Instance.Walk, 7, 1);
-        AudioManager.Instance.SFXSource7.loop = true;
+        //AudioManager.Instance.PlaySFX(AudioManager.Instance.Walk, 7, 1);
+        //AudioManager.Instance.SFXSource7.loop = true;
+
+        RuntimeManager.PlayOneShot("event:/Run", transform.position);
+        Debug.Log("PlayerMovement.cs Start: Run, handle walking sfx");
     }
 
     private void Update()
@@ -122,7 +126,7 @@ public class PlayerMovement : MonoBehaviour
         HandleJumpBuffer();
         HandleCoyoteTime();
         HandleJump();
-        //HandleFOV();
+        HandleMovementLockTimer();
         HandleWalkingSFX();
     }
 
@@ -131,69 +135,299 @@ public class PlayerMovement : MonoBehaviour
         HandleMovementState();
         HandleForward();
 
+        if (CurrentMovementState == PlayerMoveState.Grabbing) return;
+
+        Vector3 relVel = Rb.linearVelocity - _lastExternalForce;
+
         if (_useGravity)
         {
-            HandleGravity();
+            HandleGravityRelative(ref relVel);
         }
 
-        if (_currentMovementState == PlayerMoveState.Swinging)
+        if (CurrentMovementState == PlayerMoveState.Swinging)
         {
-            _playerSwing.HandleSwingMovement(_wishDir);
-            _playerSwing.ConstrainToRope();
+            _playerSwing.HandleSwingMovement(WishDir, ref relVel);
+            _playerSwing.ConstrainToRope(ref relVel);
         }
         else
         {
-            ApplyAcceleration();
+            ApplyAccelerationRelative(ref relVel);
         }
 
-        ApplyFriction(Vector3.forward);
-        ApplyFriction(Vector3.right);
-        HandleVelocityOvershoot();
+        if (_useFriction)
+        {
+            ApplyFriction(ref relVel, Vector3.forward);
+            ApplyFriction(ref relVel, Vector3.right);
+            HandleVelocityOvershootRelative(ref relVel);
+        }
+
+        Rb.linearVelocity = relVel + ExternalForce;
+        _lastExternalForce = ExternalForce;
     }
+
+    #endregion
+
+    #region Movement State
 
     public void SwitchMovementState(PlayerMoveState newMovementState)
     {
-        if(_currentMovementState == newMovementState) return;
-        _currentMovementState = newMovementState;
+        if (CurrentMovementState == newMovementState) return;
+        CurrentMovementState = newMovementState;
 
-        switch (_currentMovementState)
+        switch (CurrentMovementState)
         {
             case PlayerMoveState.Walking:
                 _currentMultipliers = MovementProperties.Default;
+                _hasJumped = false;
+                CanDoubleJump = false;
                 break;
 
             case PlayerMoveState.InAir:
                 _currentMultipliers = _airMultipliers;
+                if (!_hasJumped && useDoubleJump)
+                {
+                    Debug.Log("ENABLING DOUBLE JUMP");
+                    CanDoubleJump = true;
+                }
                 break;
 
             case PlayerMoveState.Swinging:
                 _currentMultipliers = _swingingMultipliers;
+                _hasJumped = false;
+                CanDoubleJump = false;
                 break;
         }
     }
 
-    public bool IsGrounded()
+    private void HandleMovementState()
     {
-        //feetPos.localPosition = new Vector3(0, -_playerCol.height / 2f, 0);
-        //return Physics.CheckSphere(feetPos.position, feetRadius, groundLayer);
+        if (CurrentMovementState == PlayerMoveState.Grabbing) return;
 
-        return (Physics.Raycast(transform.position, Vector3.down, 1.05f, groundLayer));
+        if (_lassoTetherController.CurrentLassoState == LassoState.Swinging)
+        {
+            SwitchMovementState(PlayerMoveState.Swinging);
+        }
+        else if (IsGrounded())
+        {
+            SwitchMovementState(PlayerMoveState.Walking);
+        }
+        else
+        {
+            SwitchMovementState(PlayerMoveState.InAir);
+        }
+    }
+
+    public void SetGrabbing(bool isGrabbing)
+    {
+        if (isGrabbing) SwitchMovementState(PlayerMoveState.Grabbing);
+        else SwitchMovementState(PlayerMoveState.InAir);
+    }
+
+    private void HandleMovementLockTimer()
+    {
+        if (MovementLockTimer <= 0) return;
+        MovementLockTimer -= Time.deltaTime;
+    }
+    #endregion
+
+    #region Misc
+
+    public void InheritPlatformMomentum(Vector3 externalForce)
+    {
+        ExternalForce = externalForce;
+        _lastExternalForce = externalForce;
+    }
+
+    public void SetExternalForce(Vector3 externalForce)
+    {
+        ExternalForce = externalForce;
+    }
+
+    public void SetMovementLockTimer(float newTimer)
+    {
+        MovementLockTimer = newTimer;
+    }
+
+    private void HandleWalkingSFX()
+    {
+        if (WishDir != Vector3.zero && IsGrounded())
+        {
+            //AudioManager.Instance.SFXSource7.UnPause();
+        }
+        else
+        {
+            //AudioManager.Instance.SFXSource7.Pause(); //PlaySFX(aManage.Walk, 5, 1);
+        }
+    }
+    #endregion
+
+    #region Detection
+    public Transform IsGrounded()
+    {
+        Ray downwardRay = new Ray(transform.position, Vector3.down);
+        Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, 1.1f, groundLayer);
+
+        return hit.transform;
+    }
+    #endregion
+
+    #region Forward / Camera
+    public void HandleForward()
+    {
+        if (MovementLockTimer > 0) return;
+
+        Vector3 camForward = playerCam.transform.forward;
+        Vector3 camRight = playerCam.transform.right;
+
+        camRight.y = 0;
+        camForward.y = 0;
+
+        Vector3 forwardRelative = camForward * PlayerInput.MoveInput.y;
+        Vector3 rightRelative = camRight * PlayerInput.MoveInput.x;
+
+        Vector3 desiredDir = Vector3.ClampMagnitude(forwardRelative + rightRelative, 1f);
+        WishDir = (forwardRelative + rightRelative).normalized;
+        //WishDir = LedgeCheckWithoutAForLoop(desiredDir);
+    }
+    #endregion
+
+    #region Jumping
+
+    private void HandleJumpBuffer()
+    {
+        if (PlayerInput.JumpDown)
+        {
+            if (_lastJumpFrame == Time.frameCount) return; //to prevent ledge jump -> double jump misfires
+            jumpBufferCounter = jumpBufferTime;
+
+        }
+        else if (jumpBufferCounter > 0)
+        {
+            jumpBufferCounter -= Time.deltaTime;
+        }
+    }
+    private bool _doubleJumpGrantedThisAirTime = false;
+    private void HandleCoyoteTime()
+    {
+        bool grounded = IsGrounded() && Rb.linearVelocity.y <= 0f;
+
+        if (IsGrounded())
+        {
+            coyoteTimeCounter = coyoteTime;
+        }
+        else
+        {
+            coyoteTimeCounter -= Time.deltaTime;
+        }
+    }
+
+    private void HandleJump()
+    {
+        if (jumpBufferCounter > 0)
+        {
+            //regular jump
+            if (!_hasJumped && coyoteTimeCounter > 0f)
+            {
+                coyoteTimeCounter = 0;
+                jumpBufferCounter = 0;
+                //AudioManager.Instance.PlaySFX(AudioManager.Instance.Jump, 6, 1f);
+                RuntimeManager.PlayOneShot("event:/Jump", transform.position);
+
+                Jump(1f, true);
+            }
+
+            else if(CanDoubleJump && useDoubleJump)
+            {
+                //Jump(doubleJumpMultiplier);
+                HandleDoubleJump();
+            }
+        }
+    }
+
+    public void Jump(float multiplier, bool enableDoubleJump)
+    {
+        Vector3 jumpForce = Vector3.up * _jumpForce * multiplier;
+
+        Rb.linearVelocity = new Vector3(Rb.linearVelocity.x, 0, Rb.linearVelocity.z);
+        Rb.AddForce(jumpForce, ForceMode.Impulse);
+        _hasJumped = true;
+        CanDoubleJump = enableDoubleJump;
+        _lastJumpFrame = Time.frameCount;
+    }
+
+    private void HandleDoubleJump()
+    {
+        /*//v1: original double jump that adds to current velocity
+        Vector3 newVel = WishDir * doubleJumpForce.x + Vector3.up * doubleJumpForce.y;
+        Vector3 currentVel = Rb.linearVelocity;
+
+        //if falling, cancel downward momentum
+        float newY = currentVel.y;
+        if (newY < 0)
+            newY = 0;
+
+        //cancel momentum opposite to wishDir
+        Vector3 newHorizontal = new Vector3(currentVel.x, 0, currentVel.z);
+        float currentSpeed = newHorizontal.magnitude;
+
+        if (WishDir.sqrMagnitude > 0)
+        {
+            float dot = Vector3.Dot(newHorizontal.normalized, WishDir);
+            if (dot < 0)
+                newHorizontal = Vector3.zero;
+        }
+
+        Rb.linearVelocity = new Vector3(newHorizontal.x, newY, newHorizontal.z);
+        Rb.AddForce(newVel, ForceMode.Impulse);
+        //PlayerModelRotationHandler.SetNewRotationDir(WishDir, doubleJumpDuration);
+
+        _hasDoubleJumped = true;
+        MovementLockTimer = doubleJumpDuration;*/
+
+        //v2: redirect current horizontal velocity to wishDir, set vertical to jump force
+        Vector3 horizontalVel = new Vector3(Rb.linearVelocity.x, 0, Rb.linearVelocity.z);
+        float speed = horizontalVel.magnitude;
+
+        Vector3 redirectedVel = horizontalVel;
+        if (WishDir.sqrMagnitude > 0)
+            redirectedVel = WishDir.normalized * speed;
+
+        Vector3 defaultJumpForce = Vector3.up * _jumpForce * doubleJumpMultiplier;
+        //Vector3 addedJumpForce = WishDir.normalized * doubleJumpForce.x + Vector3.up * doubleJumpForce.y;
+
+        Rb.linearVelocity = redirectedVel + defaultJumpForce; // + addedJumpForce;
+        CanDoubleJump = false;
+        MovementLockTimer = doubleJumpDuration;
+    }
+    #endregion
+
+    #region Gravity
+    private void HandleGravityRelative(ref Vector3 relVel)
+    {
+        if (CurrentMovementState == PlayerMoveState.Walking) return;
+
+        //apply gravity to the reference variable instead of addForce
+        relVel.y -= Gravity * Time.fixedDeltaTime;
+        if (relVel.y < -_maxGravity)
+        {
+            relVel.y = -_maxGravity;
+        }
     }
 
     public void ApplySlowFall(float multiplier)
     {
-        if (_rb.linearVelocity.y < 0)
+        if (Rb.linearVelocity.y < 0)
         {
-            _gravity = _maxGravity * multiplier;
+            Gravity = _maxGravity * multiplier;
 
-            if (_rb.linearVelocity.y <= -_gravity)
+            if (Rb.linearVelocity.y <= -Gravity)
             {
-                _rb.linearVelocity = new Vector3(_rb.linearVelocity.x, -_gravity, _rb.linearVelocity.z);
+                Rb.linearVelocity = new Vector3(Rb.linearVelocity.x, -Gravity, Rb.linearVelocity.z);
             }
         }
         else
         {
-            _gravity = _maxGravity;
+            Gravity = _maxGravity;
         }
     }
 
@@ -204,208 +438,129 @@ public class PlayerMovement : MonoBehaviour
 
     public void ResetGravity()
     {
-        _gravity = _maxGravity;
+        Gravity = _maxGravity;
     }
+    #endregion
 
-    private void HandleMovementState()
+    #region Velocity Overshoot
+    private void HandleVelocityOvershootRelative(ref Vector3 relVel)
     {
-        if (_lassoTetherController.CurrentLassoState == LassoState.Swinging)
-        {
-            SwitchMovementState(PlayerMoveState.Swinging);
-        }
-        else if (IsGrounded())
-        {
-            SwitchMovementState(PlayerMoveState.Walking);
-            hasJumped = false;
-        }
-        else
-        {
-            SwitchMovementState(PlayerMoveState.InAir);
-        }
-    }
-
-    private void HandleWalkingSFX()
-    {
-        if (_wishDir != Vector3.zero && IsGrounded())
-        {
-            AudioManager.Instance.SFXSource7.UnPause();
-        }
-        else
-        {
-            AudioManager.Instance.SFXSource7.Pause(); //PlaySFX(aManage.Walk, 5, 1);
-        }
-    }
-
-    private void HandleJumpBuffer()
-    {
-        //Jump Buffer
-        if (_playerActions.JumpDown)
-        {
-            //reset timer
-            jumpBufferCounter = jumpBufferTime;
-
-        }
-        else if (jumpBufferCounter > 0)
-        {
-            //count down timer
-            jumpBufferCounter -= Time.deltaTime;
-        }
-    }
-
-    private void HandleCoyoteTime()
-    {
-        if (IsGrounded())
-        {
-            coyoteTimeCounter = coyoteTime;
-        }
-        else
-        {
-            //countdown timer
-            coyoteTimeCounter -= Time.deltaTime;
-        }
-    }
-
-
-    /*private void HandleFOV()
-    {
-        float desiredFOV = _defaultFOV;
-        float changeSpeed = FOVChangeSpeed;
-
-        if (_lassoTetherController.CurrentLassoState == LassoState.Swinging)
-        {
-            desiredFOV = desiredSwingFOV;
-            changeSpeed = FOVChangeSpeed;
-        }
-        else if (_lassoTetherController.CurrentLassoState == LassoState.Snared || _lassoTetherController.CurrentLassoState == LassoState.SnaredTether)
-        {
-            desiredFOV = desiredHoldFOV;
-            changeSpeed = FOVChangeSpeed * 2f;
-        }
-
-        playerCam.fieldOfView = Mathf.SmoothStep(playerCam.fieldOfView, desiredFOV, Time.deltaTime * changeSpeed);
-    }*/
-
-    public void HandleForward()
-    {
-        Vector3 camForward = playerCam.transform.forward;
-        Vector3 camRight = playerCam.transform.right;
-
-        camRight.y = 0;
-        camForward.y = 0;
-
-        Vector3 forwardRelative = camForward * _playerActions.MoveInput.y;
-        Vector3 rightRelative = camRight * _playerActions.MoveInput.x;
-        
-        _wishDir = LedgeCheckWithoutAForLoop((forwardRelative + rightRelative).normalized);
-        
-
-    }
-
-    private void HandleJump()
-    {
-        if ((jumpBufferCounter > 0) && (coyoteTimeCounter > 0) && !hasJumped)
-        {
-            _rb.linearVelocity = new Vector3(_rb.linearVelocity.x, 0, _rb.linearVelocity.z);
-            _rb.AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
-
-            coyoteTimeCounter = 0f;
-            jumpBufferCounter = 0;
-            AudioManager.Instance.PlaySFX(AudioManager.Instance.Jump, 6, 1f);
-            hasJumped = true;
-        }
-    }
-
-    private void HandleGravity()
-    {
-        if (_currentMovementState == PlayerMoveState.Walking) return;
-        if (_rb.linearVelocity.y <= 0 && _rb.linearVelocity.y <= - _maxGravity)
-        {
-            _rb.linearVelocity = new Vector3(_rb.linearVelocity.x, -_maxGravity, _rb.linearVelocity.z);
-            return;
-        }
-
-        _rb.AddForce(Vector3.down * _gravity, ForceMode.Acceleration);
-    }
-
-    private void HandleVelocityOvershoot()
-    {
+        //I THINK THIS + FRICTION ARE STILL CAUSING STICKING ISSUES
+        float hardMax = defaultMaxSpeed * hardCapMultiplier;
         float currentMax = _currentMultipliers.maxSpeedMultiplier * defaultMaxSpeed;
-        float hardCap = currentMax * hardCapMultiplier;
-        Vector3 vel = _rb.linearVelocity;
-        Vector3 absVel = new Vector3(Mathf.Abs(vel.x), Mathf.Abs(vel.y), Mathf.Abs(vel.z));
-        Vector3 correction = Vector3.zero;
 
-        if (absVel.x > currentMax)
+        Vector3 horizontalRel = new Vector3(relVel.x, 0, relVel.z);
+        float speed = horizontalRel.magnitude;
+
+        if (speed > currentMax)
         {
-            float overshootX = absVel.x - currentMax;
-            float t = Mathf.Clamp01(overshootX / (hardCap - currentMax));
-            float accel = overshootX * t;
-            correction.x = -Mathf.Sign(vel.x) * accel;
-        }
+            float t = Mathf.InverseLerp(currentMax, hardMax, speed); //gives 0-1 based on how far between currentMax and hardMax the speed is
+            float easedT = Mathf.SmoothStep(0f, 1f, t);
+            float decayStrength = overshootMaxForce * easedT;
 
-        if (absVel.z > currentMax)
-        {
-            float overshootZ = absVel.z - currentMax;
-            float t = Mathf.Clamp01(overshootZ / (hardCap - currentMax));
-            float accel = overshootZ * t;
-            correction.z = -Mathf.Sign(vel.z) * accel;
-        }
+            if (!IsGrounded()) decayStrength /= 2f;
 
-        if (correction != Vector3.zero) _rb.AddForce(correction * overshootCorrectionMultiplier, ForceMode.Acceleration);
+            float newSpeed = Mathf.MoveTowards(speed, currentMax, decayStrength * Time.fixedDeltaTime);
+            relVel.x = (horizontalRel.x / speed) * newSpeed;
+            relVel.z = (horizontalRel.z / speed) * newSpeed;
+        }
     }
+    #endregion
 
-    public void ApplyFriction(Vector3 frictionAxis)
+    #region Friction
+    public void ApplyFriction(ref Vector3 playerVel, Vector3 frictionAxis)
     {
+        if (MovementLockTimer > 0) return;
+        if (frictionAxis.sqrMagnitude < 0.0001f) return;
+
         frictionAxis.Normalize();
-        Vector3 velocityOnAxis = Vector3.Project(_rb.linearVelocity, frictionAxis);
+        Vector3 velocityOnAxis = Vector3.Project(playerVel, frictionAxis);
+
+        if (velocityOnAxis.sqrMagnitude < 0.0001f) return;
+
         float speed = velocityOnAxis.magnitude;
-
-        if (speed <= 0f)
-        {
-            return;
-        }
-
+        float targetSpeed = defaultMaxSpeed * _currentMultipliers.maxSpeedMultiplier;
         Vector3 frictionDir = -velocityOnAxis.normalized;
 
-        if (_wishDir == Vector3.zero)
+        Vector3 horizontalVel = new Vector3(playerVel.x, 0, playerVel.z);
+        bool isAboveMaxSpeed = horizontalVel.magnitude > targetSpeed;
+
+        float frictionAccel;
+
+        //stopping friction -> bring you to a stop
+        //also runs a flat friction amount when above max speed (i.e. when launched)
+        if (WishDir == Vector3.zero || FrictionMultiplier < 1f || isAboveMaxSpeed)
         {
             float stopAccel = speed / Time.fixedDeltaTime;
-            float frictionAccel = _friction * _currentMultipliers.decelMultiplier;
-            float finalAccel = Mathf.Min(frictionAccel, stopAccel);
-
-            _rb.AddForce(frictionDir * finalAccel, ForceMode.Acceleration);
+            float rawFriction = _friction * _currentMultipliers.decelMultiplier;
+            frictionAccel = Mathf.Min(rawFriction, stopAccel);
         }
+        //movement friction -> keep you at maxSpeed
         else
         {
-            float targetSpeed = defaultMaxSpeed * _currentMultipliers.maxSpeedMultiplier;
-            float frictionAccel = _acceleration * _currentMultipliers.accelMultiplier * (speed / targetSpeed);
+            frictionAccel = _acceleration * _currentMultipliers.accelMultiplier * (speed / targetSpeed);
+        }
 
-            _rb.AddForce(frictionDir * frictionAccel, ForceMode.Acceleration);
+        float deltaV = frictionAccel * FrictionMultiplier * Time.fixedDeltaTime;
+        float newSpeed = Mathf.Max(0f, speed - deltaV);
+        playerVel = (playerVel - velocityOnAxis) + (velocityOnAxis.normalized * newSpeed);
+    }
+
+    public void EnableFriction(bool enable)
+    {
+        _useFriction = enable;
+    }
+
+
+    #endregion
+
+    #region Acceleration
+    private void ApplyAccelerationRelative(ref Vector3 relVel)
+    {
+        if (WishDir == Vector3.zero) return;
+
+        Vector3 wishDirNormalized = WishDir.normalized;
+        Vector3 horizontalVel = new Vector3(relVel.x, 0, relVel.z);
+        float currentSpeed = horizontalVel.magnitude;
+        float targetSpeed = defaultMaxSpeed * _currentMultipliers.maxSpeedMultiplier;
+
+        //regular acceleration, when below max speed
+        if (currentSpeed < targetSpeed)
+        {
+            float currentSpeedInWishDir = Vector3.Dot(horizontalVel, wishDirNormalized);
+            float accelAmount = _acceleration * _currentMultipliers.accelMultiplier * Time.fixedDeltaTime;
+            float speedDeficit = targetSpeed - currentSpeedInWishDir;
+            float clampedAccel = Mathf.Min(accelAmount, speedDeficit);
+
+            relVel += wishDirNormalized * clampedAccel;
+        }
+
+        //redirect acceleration when over max speed
+        else
+        {
+            Vector3 targetVelocity = wishDirNormalized * currentSpeed;
+            float steerStrength = _acceleration * _currentMultipliers.accelMultiplier * steeringMultiplier * Time.fixedDeltaTime;
+
+            Vector3 newHorizontalVel = Vector3.MoveTowards(horizontalVel, targetVelocity, steerStrength);
+            relVel.x = newHorizontalVel.x;
+            relVel.z = newHorizontalVel.z;
         }
     }
+    #endregion
 
-    private void ApplyAcceleration()
-    {
-        if (_wishDir == Vector3.zero) return;
-
-        Vector3 accelForce = _wishDir * _acceleration * _currentMultipliers.accelMultiplier;
-        if (ExternalForce != Vector3.zero) accelForce = ExternalForce;
-
-        _rb.AddForce(accelForce, ForceMode.Acceleration);
-    }
-
+    #region Ledge Handling
     private Vector3 LedgeCheck()
     {
         //If there is a place the player can fall, the check will return where that is
 
         Vector3 fallOffArea = new Vector3(0, 0, 0);
-        for(int i = -1; i < 2; i++)
+        for (int i = -1; i < 2; i++)
         {
-            for(int j = -1; j < 2; j++)
+            for (int j = -1; j < 2; j++)
             {
-                if(Physics.Raycast(transform.position, new Vector3(i,0,j), out RaycastHit hit, ledgeScanLength))
+                if (Physics.Raycast(transform.position, new Vector3(i, 0, j), out RaycastHit hit, ledgeScanLength))
                 {
-                    if(Physics.Raycast(hit.point, Vector3.down, out RaycastHit hitDown, ledgeScanDepth))
+                    if (Physics.Raycast(hit.point, Vector3.down, out RaycastHit hitDown, ledgeScanDepth))
                     {
                         return fallOffArea = new Vector3(i, 0, j);
                     }
@@ -418,11 +573,11 @@ public class PlayerMovement : MonoBehaviour
     }
 
     private Vector3 LedgeCheckWithoutAForLoop(Vector3 intendedDirection)
-    { 
+    {
         //If there is a place the player can fall, the check will return where that is
-        
+
         if (!Physics.Raycast(feetPos.position + Vector3.up * 1.9f + (intendedDirection * ledgeScanLength), Vector3.down, ledgeScanDepth) && IsGrounded()
-            && (_lassoTetherController.CurrentLassoState == LassoState.Snared || _lassoTetherController.CurrentLassoState == LassoState.Tethering || 
+            && (_lassoTetherController.CurrentLassoState == LassoState.Snared || _lassoTetherController.CurrentLassoState == LassoState.Tethering ||
             _lassoTetherController.CurrentLassoState == LassoState.SnaredTether))
         {
             intendedDirection = Vector3.zero;
@@ -431,5 +586,5 @@ public class PlayerMovement : MonoBehaviour
         Debug.DrawLine(feetPos.position + (intendedDirection * ledgeScanLength), feetPos.position + (intendedDirection * ledgeScanLength) + (Vector3.down * ledgeScanDepth), Color.red);
         return intendedDirection;
     }
-
+    #endregion
 }
