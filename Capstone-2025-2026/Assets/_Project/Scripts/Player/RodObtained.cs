@@ -34,7 +34,7 @@ public class RodObtained : MonoBehaviour
         //get depe
         lassoTetherControllerScript = GameObject.Find("ThirdPersonPlayer").GetComponent<LassoTetherController>();
         toolUI = GameObject.Find("RodUI");
-        rodModel = GameObject.Find("fishingRod1");
+        rodModel = GameObject.Find("NewTool");
 
         if (rodDisabledFromStart)
         {
