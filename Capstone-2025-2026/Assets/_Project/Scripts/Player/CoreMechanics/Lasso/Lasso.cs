@@ -1,3 +1,5 @@
+using FMODUnity;
+using NodeCanvas.Tasks.Actions;
 using System;
 using Unity.Cinemachine;
 using UnityEngine;
@@ -294,7 +296,8 @@ public class Lasso : MonoBehaviour
             }
 
             OnObjectHit?.Invoke();
-            AudioManager.Instance.PlaySFX(AudioManager.Instance.Thrown, 5, 1);
+            //AudioManager.Instance.PlaySFX(AudioManager.Instance.Thrown, 5, 1);
+            RuntimeManager.PlayOneShot("event:/LassoStart", transform.position);
         }
     }
 

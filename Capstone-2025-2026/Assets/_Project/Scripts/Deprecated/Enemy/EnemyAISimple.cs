@@ -180,8 +180,8 @@ public class EnemyAISimple : MonoBehaviour
             if(collider.transform == player.transform)
             {
                 collider.gameObject.GetComponent<Rigidbody>().AddForce(transform.up * meleeStrength + transform.forward * meleeStrength, ForceMode.Impulse);
-                aManage.PlaySFXVaried(aManage.EnemyAttack, 3, 0.25f, 1f);
-                aManage.PlaySFX(aManage.PlayerHurt, 6, 1f);
+                //aManage.PlaySFXVaried(aManage.EnemyAttack, 3, 0.25f, 1f);
+                //aManage.PlaySFX(aManage.PlayerHurt, 6, 1f);
                 StartCoroutine(ReEnable(collider.gameObject.GetComponent<PlayerActions>()));
             }
         }
@@ -231,7 +231,7 @@ public class EnemyAISimple : MonoBehaviour
             ParticleSystem partSys = GetComponent<ParticleSystem>();
             GetComponent<ParticleSystemRenderer>().material = deathMat;
             partSys.Play();
-            aManage.PlaySFXVaried(aManage.EnemyPerish, 3,  0.25f, 1f);
+           //aManage.PlaySFXVaried(aManage.EnemyPerish, 3,  0.25f, 1f);
             Invoke(nameof(DestroyEnemy), 3f);
         }
     }

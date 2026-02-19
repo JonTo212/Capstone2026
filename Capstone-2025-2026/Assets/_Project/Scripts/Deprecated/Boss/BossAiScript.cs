@@ -86,7 +86,7 @@ public class BossAiScript : MonoBehaviour
         {
             if (!musicStarted)
             {
-                aManage.FadeMusic(aManage.Track2);
+                //aManage.FadeMusic(aManage.Track2);
                 musicStarted = true;
             }
             attackTimer += Time.deltaTime;
@@ -147,7 +147,7 @@ public class BossAiScript : MonoBehaviour
     {
         //bossModel.transform.DOLocalRotate(new Vector3(bossModel.transform.rotation.x,bossModel.transform.rotation.y,bossModel.transform.rotation.z +360), timer);
         yield return new WaitForSeconds(timer);
-        aManage.PlaySFX(aManage.BossSpawn, 2, 1);
+        //aManage.PlaySFX(aManage.BossSpawn, 2, 1);
         GameObject spawnedProjectile = Instantiate(projectile, location.position, Quaternion.identity, thingThatmMakesTheProjectilesNotGiant.transform);
         spawnedProjectile.GetComponent<BossProjectile>().bossRef = gameObject;
 
@@ -161,7 +161,7 @@ public class BossAiScript : MonoBehaviour
     {
         //bossModel.transform.DOLocalRotate(new Vector3(bossModel.transform.rotation.x,bossModel.transform.rotation.y,bossModel.transform.rotation.z +360*13), 13f);
         chargeUpVFX.Play();
-        aManage.PlaySFX(aManage.BossLaserCharge, 2, 1);
+       //aManage.PlaySFX(aManage.BossLaserCharge, 2, 1);
         attackTimer = -timeToChargeLaser - timeToStartRotate - timeToFullyRotate - 3f;
         StartCoroutine(ChargeUpLaser());
         laserBall.gameObject.SetActive(true);
@@ -178,7 +178,7 @@ public class BossAiScript : MonoBehaviour
     IEnumerator HoldLaser()
     {
 
-        aManage.PlaySFX(aManage.BossLaserFire, 2, 1f);
+        //aManage.PlaySFX(aManage.BossLaserFire, 2, 1f);
         yield return new WaitForSeconds(timeToStartRotate);
         StartCoroutine(LaserSpin());
     }
@@ -214,7 +214,7 @@ public class BossAiScript : MonoBehaviour
             float speed = hitObject.GetComponent<Rigidbody>().angularVelocity.magnitude;
             if (speed > 5f)
             {
-                aManage.PlaySFX(aManage.BossHurt, 1, 1);
+                //aManage.PlaySFX(aManage.BossHurt, 1, 1);
                 health--;
                 Destroy(hitObject);
                 //Insantiate(ParticleEffect);
@@ -235,8 +235,8 @@ public class BossAiScript : MonoBehaviour
     {
         if (attackState != "dying")
         {
-            aManage.FadeMusic(aManage.Track1);
-            aManage.PlaySFX(aManage.BossPerish, 1, 1);
+            //aManage.FadeMusic(aManage.Track1);
+            //aManage.PlaySFX(aManage.BossPerish, 1, 1);
             GetComponent<MeshRenderer>().enabled = false;
             eyes.GetComponent<BoxCollider>().enabled = true;
             eyes.AddComponent<Rigidbody>();

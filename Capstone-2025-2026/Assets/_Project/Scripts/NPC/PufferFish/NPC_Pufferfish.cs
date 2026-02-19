@@ -294,7 +294,7 @@ public class NPC_Pufferfish : Prop, INPC
                 playerMovement.EnableGravity(true);
                 playerMovement.ApplySlowFall(playerSlowfallGravMultiplier);
             }
-            AudioManager.Instance.TempPlayOneShot(AudioManager.Instance.BM_Glide, 8, 1f);
+            //AudioManager.Instance.TempPlayOneShot(AudioManager.Instance.BM_Glide, 8, 1f);
         }
     }
 
@@ -306,7 +306,7 @@ public class NPC_Pufferfish : Prop, INPC
             playerMovement.ResetGravity();
         }
 
-        AudioManager.Instance.StopSFX(8);
+        //AudioManager.Instance.StopSFX(8);
     }
 
     #endregion

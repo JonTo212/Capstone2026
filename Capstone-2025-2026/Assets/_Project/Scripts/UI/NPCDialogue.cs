@@ -1,11 +1,14 @@
+using DG.Tweening;
+using FMODUnity;
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Globalization;
+using TMPro;
+using Unity.VisualScripting;
+using UnityEditor.PackageManager;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
-using System.Globalization;
-using System.Collections.Generic;
-using DG.Tweening;
 
 public enum SpeakerType
     {
@@ -33,14 +36,16 @@ public class NPCDialogue : MonoBehaviour
     public GameObject dialogueBox;
 
     [Header("Typewriter Settings")]
-    [SerializeField] private float charactersPerSecond = 5;
-    [SerializeField] private float interpunctuationDelay = 0.5f;
+    [SerializeField] public float charactersPerSecond = 5;
+    [SerializeField] public float interpunctuationDelay = 0.5f;
 
     [Header("Profile Settings")]
     public Image currentSpeaker;
     [SerializeField] private Sprite[] profiles;
+    [SerializeField] private string[] voiceProfiles;
 
     private Dictionary<SpeakerType, Sprite> speakerImageDictionary = new Dictionary<SpeakerType, Sprite>();
+    private Dictionary<SpeakerType, string> speakerDialogueDictionary = new Dictionary<SpeakerType, string>();
 
 
     //ANIMATE THIS WITH DOTWEEN
@@ -52,6 +57,9 @@ public class NPCDialogue : MonoBehaviour
         speakerImageDictionary[SpeakerType.Player] = profiles[0];
         speakerImageDictionary[SpeakerType.Momma] = profiles[1];
 
+        speakerDialogueDictionary[SpeakerType.Player] = voiceProfiles[0];
+        speakerDialogueDictionary[SpeakerType.Momma] = voiceProfiles[1];
+
         originalDialoguePosition = dialogueBox.GetComponent<RectTransform>().anchoredPosition;
         hiddenPosition = originalDialoguePosition + hiddenPositionOffset;
 
@@ -59,16 +67,18 @@ public class NPCDialogue : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
-        dialogueBox.GetComponent<RectTransform>().anchoredPosition = hiddenPosition;
+        //dialogueBox.GetComponent<RectTransform>().anchoredPosition = hiddenPosition;
         //SetText(testText, 0);
     }
 
     public void SetText(string text, SpeakerType speakerType)
     {
+        dialogueBox.GetComponent<RectTransform>().anchoredPosition = hiddenPosition;
         currentSpeaker.sprite = speakerImageDictionary[speakerType];
 
-        if(_typewriterCoroutine != null)
+        RuntimeManager.PlayOneShot("event:/" + speakerDialogueDictionary[speakerType], transform.position);
+
+        if (_typewriterCoroutine != null)
         {
             StopCoroutine(_typewriterCoroutine);
         }
@@ -112,5 +122,10 @@ public class NPCDialogue : MonoBehaviour
     public void TextOffScreen()
     {
         dialogueBox.GetComponent<RectTransform>().DOAnchorPos(hiddenPosition, 1); // DOMove(hiddenPosition, 2);
+    }
+
+    public void DestroyBox()
+    {
+        Destroy(dialogueBox);
     }
 }

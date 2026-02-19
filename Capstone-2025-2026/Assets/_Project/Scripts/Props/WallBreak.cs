@@ -1,3 +1,4 @@
+using FMODUnity;
 using UnityEngine;
 
 public class WallBreak : MonoBehaviour
@@ -36,7 +37,8 @@ public class WallBreak : MonoBehaviour
         Destroy(gameObject);
 
         //play particle effect
-        aManage.PlaySFX(aManage.WallBreak, 3, 1f);
+        //aManage.PlaySFX(aManage.WallBreak, 3, 1f);
+        RuntimeManager.PlayOneShot("event:/WallBreak", transform.position);
         Instantiate(explodeParticle, transform.position, Quaternion.identity);
     }
 

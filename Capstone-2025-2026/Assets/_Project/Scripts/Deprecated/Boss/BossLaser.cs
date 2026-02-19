@@ -37,7 +37,7 @@ public class BossLaser : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        aManage.PlaySFXVaried(aManage.PlayerBadlyHurt, 6, 0.25f, 1f);
+        //aManage.PlaySFXVaried(aManage.PlayerBadlyHurt, 6, 0.25f, 1f);
         other.attachedRigidbody.AddForce(transform.forward * 30f + new Vector3(0,20f,0), ForceMode.Impulse);
     }
 }

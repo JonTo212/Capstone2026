@@ -1,8 +1,9 @@
-using UnityEngine;
-using System.Collections;
-using UnityEngine.Rendering;
-using UnityEngine.EventSystems;
+using FMODUnity;
 using NodeCanvas.Tasks.Actions;
+using System.Collections;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.Rendering;
 
 public class BridgeBreakSetpiece : MonoBehaviour
 {
@@ -50,6 +51,9 @@ public class BridgeBreakSetpiece : MonoBehaviour
 
     IEnumerator BridgeBreak()
     {
+
+        RuntimeManager.PlayOneShot("event:/BridgeBreak", transform.position);
+        GetComponent<DialogueTrigger>().CreateNPCDialogue();
         yield return new WaitForSeconds(1f);
         Destroy(bridge);
 
