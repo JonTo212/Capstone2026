@@ -1,3 +1,4 @@
+using FMODUnity;
 using System.IO;
 using UnityEngine;
 
@@ -46,7 +47,9 @@ public class DebrisBlokedProp : EnvironmentalProp
     {
         foreach (Rigidbody debrisRb in kinematicBlokingDebris)
         {
-            if(debrisRb != null) debrisRb.isKinematic = false;
+
+            RuntimeManager.PlayOneShot("event:/TetherRockBreak", transform.position);
+            if (debrisRb != null) debrisRb.isKinematic = false;
         }
     }
 

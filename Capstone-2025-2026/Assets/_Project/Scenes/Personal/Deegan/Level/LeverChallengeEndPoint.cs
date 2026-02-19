@@ -1,3 +1,4 @@
+using FMODUnity;
 using System.Collections;
 using UnityEngine;
 
@@ -25,6 +26,8 @@ public class LeverChallengeEndPoint : MonoBehaviour
     {
         if(challengeWasCompleted)
         {
+
+            RuntimeManager.PlayOneShot("event:/PuzzleComplete", transform.position);
             timeElapsed = Mathf.Clamp01(timeElapsed + Time.deltaTime/timeToFallOver);
 
             float squaredTime = Mathf.Pow(timeElapsed, 2f);

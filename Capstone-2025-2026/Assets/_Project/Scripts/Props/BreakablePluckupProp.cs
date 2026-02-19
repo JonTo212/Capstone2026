@@ -1,3 +1,4 @@
+using FMODUnity;
 using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -26,7 +27,9 @@ public class BreakablePluckupProp : PluckOutProp
 
     protected override void OnPluck()
     {
+
         base.OnPluck();
+        RuntimeManager.PlayOneShot("event:/Pluck", transform.position);
 
         if (breakOnPluck) Break();
 
@@ -52,6 +55,7 @@ public class BreakablePluckupProp : PluckOutProp
 
     private void Break()
     {
+        RuntimeManager.PlayOneShot("event:/RockBreak", transform.position);
         if (propToSpawnAfterBreak != null)
         {
             for (int i = 0; i < numberOfObjectsToSpawn; i++)
