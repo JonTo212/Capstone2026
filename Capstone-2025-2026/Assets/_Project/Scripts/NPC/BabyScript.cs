@@ -1,3 +1,4 @@
+using FMODUnity;
 using System;
 using System.Collections;
 using UnityEngine;
@@ -164,7 +165,8 @@ public class BabyScript : MonoBehaviour
         tetherScript.enabled = false;
 
         //fanfare sound
-        AudioManager.Instance.PlaySFX(AudioManager.Instance.FanFare, 5, 5);
+        //AudioManager.Instance.PlaySFX(AudioManager.Instance.FanFare, 5, 5);
+        RuntimeManager.PlayOneShot("event:/Fanfare", transform.position);
 
         //change material to clean
         GetComponent<Renderer>().material = cleanMat;
@@ -199,7 +201,8 @@ public class BabyScript : MonoBehaviour
     public void EnterBag()
     {
         //collect sound
-        AudioManager.Instance.PlaySFX(AudioManager.Instance.Collection, 5, 5);
+        //AudioManager.Instance.PlaySFX(AudioManager.Instance.Collection, 5, 5);
+        RuntimeManager.PlayOneShot("event:/MenuSelect", transform.position);
         OnEnterBag.Invoke();
         Destroy(gameObject);
     }

@@ -1,3 +1,4 @@
+using FMODUnity;
 using System.Collections;
 using UnityEngine;
 
@@ -24,7 +25,9 @@ public class ClawSetpiece : MonoBehaviour
         {
             if (startBreak == false)
             {
-                AudioManager.Instance.PlaySFX(AudioManager.Instance.CrackingVessel, 1, 1.2f);
+
+                RuntimeManager.PlayOneShot("event:/MenuSelect", transform.position);
+                //AudioManager.Instance.PlaySFX(AudioManager.Instance.CrackingVessel, 1, 1.2f);
                 startBreak = true;
             }   
         }
@@ -33,7 +36,8 @@ public class ClawSetpiece : MonoBehaviour
     IEnumerator Break()
     {
         //play sound
-        AudioManager.Instance.PlaySFX(AudioManager.Instance.CrackingVessel, 1, 1.2f);
+        RuntimeManager.PlayOneShot("event:/MenuSelect", transform.position);
+        //AudioManager.Instance.PlaySFX(AudioManager.Instance.CrackingVessel, 1, 1.2f);
         yield return new WaitForSeconds(3f);
 
     }

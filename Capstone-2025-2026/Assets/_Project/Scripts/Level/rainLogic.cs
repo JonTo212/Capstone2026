@@ -35,7 +35,7 @@ public class rainLogic : MonoBehaviour
     {
         ApplyRainIntensity();
         RainCountdown(); // is the player in the rain?
-        RainAudio();
+        //RainAudio();
         RainDirection();
         CounterRotation(); // rotate in the opposite direction of the player so the direction of rain stays consistent
     }
@@ -50,15 +50,15 @@ public class rainLogic : MonoBehaviour
         //set audio level
         if (rainIntensity == RainIntensity.Low)
         {
-            AudioManager.Instance.AmbienceSource2.volume = 0.4f;
+            //AudioManager.Instance.AmbienceSource2.volume = 0.4f;
         }
         else if (rainIntensity == RainIntensity.Medium)
         {
-            AudioManager.Instance.AmbienceSource2.volume = 0.6f;
+            //AudioManager.Instance.AmbienceSource2.volume = 0.6f;
         }
         else if (rainIntensity == RainIntensity.High)
         {
-            AudioManager.Instance.AmbienceSource2.volume = 0.8f;
+            //AudioManager.Instance.AmbienceSource2.volume = 0.8f;
         }
     }
     private void OnParticleCollision(GameObject other)
@@ -82,7 +82,7 @@ public class rainLogic : MonoBehaviour
         }
     }
 
-    void RainAudio()
+    /*void RainAudio()
     {
         //play rainsound
         if (!AudioManager.Instance.AmbienceSource2.isPlaying)
@@ -107,7 +107,7 @@ public class rainLogic : MonoBehaviour
             }
         }
         
-    }
+    }*/
 
     void RainDirection()
     {

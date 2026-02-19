@@ -1,3 +1,4 @@
+using FMODUnity;
 using UnityEngine;
 
 public class BossProjectile : MonoBehaviour
@@ -48,7 +49,8 @@ public class BossProjectile : MonoBehaviour
     {
         if (collision.gameObject.layer == 6 && !grounded)
         {
-            aManage.PlaySFX(aManage.WallBreak, 3, 1f);
+            //aManage.PlaySFX(aManage.WallBreak, 3, 1f);
+            RuntimeManager.PlayOneShot("event:/WallBreak", transform.position);
             transform.parent = null;
             rb.isKinematic = true;
             grounded = true;
@@ -57,7 +59,9 @@ public class BossProjectile : MonoBehaviour
         {
             if (collision.gameObject.TryGetComponent(out PlayerController pc))
             {
-                aManage.PlaySFX(aManage.PlayerBadlyHurt, 6, 1f);
+
+                RuntimeManager.PlayOneShot("event:/MenuSelect", transform.position);
+               //aManage.PlaySFX(aManage.PlayerBadlyHurt, 6, 1f);
             }
             if(collision.gameObject.TryGetComponent(out Rigidbody rb))
             { 
@@ -69,7 +73,7 @@ public class BossProjectile : MonoBehaviour
 
     private void DestroyProjectileAfterAWhile()
     {
-        aManage.PlaySFX(aManage.WallBreak, 3, 1f);
+       // aManage.PlaySFX(aManage.WallBreak, 3, 1f);
         Destroy(gameObject);
     }
 }

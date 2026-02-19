@@ -1,4 +1,6 @@
 using DG.Tweening;
+using FMODUnity;
+using NUnit.Framework.Constraints;
 using System;
 using System.Collections.Generic;
 using TMPro;
@@ -203,7 +205,8 @@ public class JointTetherPlacer : MonoBehaviour
         }
         startLocalPosition = startTransform.InverseTransformPoint(startPosition);
 
-        AudioManager.Instance.PlaySFX(AudioManager.Instance.TetherStart, 4, 1f);
+        //AudioManager.Instance.PlaySFX(AudioManager.Instance.TetherStart, 4, 1f);
+        RuntimeManager.PlayOneShot("event:/TetherStart", transform.position);
     }
 
     private void SetTetherEndPoint(Transform endTransform, Vector3 endPosition)
@@ -222,8 +225,9 @@ public class JointTetherPlacer : MonoBehaviour
 
         endLocalPosition = endTransform.InverseTransformPoint(endPosition);
 
-        
-        AudioManager.Instance.PlaySFX(AudioManager.Instance.TetherEnd, 4, 1f);
+
+
+        RuntimeManager.PlayOneShot("event:/TetherEnd", transform.position);
     }
 
     //Creates and initializes tether parameters like hit transforms and positions
