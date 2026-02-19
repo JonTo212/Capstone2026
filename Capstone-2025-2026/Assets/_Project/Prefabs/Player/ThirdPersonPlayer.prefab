@@ -3512,6 +3512,7 @@ GameObject:
   - component: {fileID: 8924538367377645381}
   - component: {fileID: 7777431948427391573}
   - component: {fileID: 3642584705358189346}
+  - component: {fileID: 3634281063817170632}
   - component: {fileID: 793302071008850072}
   m_Layer: 7
   m_Name: ThirdPersonPlayer
@@ -3866,8 +3867,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aeb1a84f31e58f14287814353583f51b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RodAnimations
+  animator: {fileID: 0}
+  lassoTetherControllerScript: {fileID: 0}
   playerActions: {fileID: 4800881338183066832}
-  Handle: {fileID: 7095745263288833206}
+  handle: {fileID: 0}
   rotationAmount: 30
   audioSource: {fileID: 0}
   clips:
@@ -3876,6 +3879,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: cc5de396d951f444cb2a6bfb13e2dbbb, type: 3}
   - {fileID: 8300000, guid: b696894f7fd72af40829be63af079dd7, type: 3}
   - {fileID: 8300000, guid: bfbff589e890ac742b0207c7b8ebd569, type: 3}
+  facts: 1
 --- !u!114 &8924538367377645381
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3940,6 +3944,26 @@ MonoBehaviour:
   maxObjectFollowSpeed: 25
   climbDuration: 0.3
   forwardDuration: 0.15
+--- !u!114 &3634281063817170632
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2571145194382551425}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b9468c5f457ace64f8d4df6d642b107f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FMODUnity::FMODUnity.StudioBankLoader
+  LoadEvent: 1
+  UnloadEvent: 0
+  Banks:
+  - Menu
+  - Movement
+  - Tools
+  CollisionTag: 
+  PreloadSamples: 0
 --- !u!114 &793302071008850072
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13057,11 +13081,6 @@ PrefabInstance:
 --- !u!4 &4868409167537663312 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 91d6a9016b4901e4990a844e30f984a5, type: 3}
-  m_PrefabInstance: {fileID: 4907420722280467131}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &7095745263288833206 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 2766212503428324877, guid: 91d6a9016b4901e4990a844e30f984a5, type: 3}
   m_PrefabInstance: {fileID: 4907420722280467131}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &5780823165951098713

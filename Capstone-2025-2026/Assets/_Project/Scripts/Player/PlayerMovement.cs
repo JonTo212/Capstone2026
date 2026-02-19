@@ -117,7 +117,7 @@ public class PlayerMovement : MonoBehaviour
         //AudioManager.Instance.PlaySFX(AudioManager.Instance.Walk, 7, 1);
         //AudioManager.Instance.SFXSource7.loop = true;
 
-        RuntimeManager.PlayOneShot("event:/Run", transform.position);
+        //RuntimeManager.PlayOneShot("event:/Run", transform.position);
         Debug.Log("PlayerMovement.cs Start: Run, handle walking sfx");
     }
 
@@ -398,6 +398,7 @@ public class PlayerMovement : MonoBehaviour
         Rb.linearVelocity = redirectedVel + defaultJumpForce; // + addedJumpForce;
         CanDoubleJump = false;
         MovementLockTimer = doubleJumpDuration;
+        RuntimeManager.PlayOneShot("event:/DoubleJump",transform.position);
     }
     #endregion
 
