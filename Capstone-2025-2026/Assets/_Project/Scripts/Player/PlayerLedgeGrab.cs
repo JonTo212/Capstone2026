@@ -1,3 +1,4 @@
+using FMODUnity;
 using System;
 using System.Collections;
 using UnityEngine;
@@ -180,6 +181,8 @@ public class PlayerLedgeGrab : MonoBehaviour
 
         hangTimer = 0;
         IsHanging = true;
+        RuntimeManager.PlayOneShot("event:/Mantle", transform.position);
+
     }
 
     private void ReleaseLedge()
@@ -205,11 +208,13 @@ public class PlayerLedgeGrab : MonoBehaviour
         _playerController.Rb.isKinematic = false;
         ReleaseLedge();
         _playerController.Jump(ledgeJumpForceMultiplier, true);
+        RuntimeManager.PlayOneShot("event:/Jump", transform.position);
     }
 
     private void ClimbOnLedge(Vector3 ledgePos)
     {
         if (_mantleCoroutine != null) return;
+        RuntimeManager.PlayOneShot("event:/Mantle", transform.position);
         _mantleCoroutine = StartCoroutine(Mantle(ledgePos));
     }
 

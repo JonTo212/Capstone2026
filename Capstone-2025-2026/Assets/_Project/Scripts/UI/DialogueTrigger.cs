@@ -1,3 +1,4 @@
+using FMODUnity;
 using StarterAssets;
 using TMPro;
 using Unity.VisualScripting;
@@ -40,6 +41,7 @@ public class DialogueTrigger : MonoBehaviour
 
     public void CreateNPCDialogue()
     {
+
         NPCDialogue npcText;
         GameObject newBox = Instantiate(template, template.transform.position , Quaternion.identity, NewDialogueStorage.transform);
         Image[] images = newBox.GetComponentsInChildren<Image>();

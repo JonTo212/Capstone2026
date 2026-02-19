@@ -187,6 +187,7 @@ public class JointTetherActivator : MonoBehaviour
     {
         if (tether != null)
         {
+            RuntimeManager.PlayOneShot("event:/TetherRecall", transform.position);
             GameObject tetherRetrievalVisuals = Instantiate(tetherRetrieveVisialsPrefab, tether.transform.position, Quaternion.Euler(Vector3.zero));
             tetherRetrievalVisuals.GetComponent<TetherRetrievalEffect>().Init(tether.transform.position, transform);
             tether.DestroyTether();

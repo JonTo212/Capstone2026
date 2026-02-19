@@ -1,6 +1,7 @@
-using UnityEngine;
+using FMODUnity;
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody), typeof(Outline))]
 public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
@@ -329,6 +330,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     #region Utility
     private void OnCollisionEnter(Collision collision)
     {
+        RuntimeManager.PlayOneShot("event:/Collision", transform.position);
         IsTouchingSurface = true;
     }
 
@@ -341,6 +343,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     {
         IsTouchingSurface = false;
     }
+
 
     protected virtual void CoyoteFall()
     {

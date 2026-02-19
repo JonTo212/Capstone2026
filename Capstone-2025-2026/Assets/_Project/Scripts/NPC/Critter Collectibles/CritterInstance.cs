@@ -1,3 +1,4 @@
+using FMODUnity;
 using UnityEngine;
 
 //Monobehaviour storing each unique Critter Type
@@ -18,11 +19,6 @@ public class CritterInstance : MonoBehaviour
         
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 
     private void OnTriggerEnter(Collider collision)
     {
@@ -36,6 +32,7 @@ public class CritterInstance : MonoBehaviour
     private void BeRescued ()
     {
 
+        RuntimeManager.PlayOneShot("event:/NPCSave", transform.position);
         CollectibleManager.Instance.CritterCollected(instID);
 
         Destroy(this.gameObject);
