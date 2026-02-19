@@ -1,3 +1,4 @@
+using FMODUnity;
 using UnityEngine;
 
 public class PuffTutorial : PluckOutProp
@@ -19,6 +20,8 @@ public class PuffTutorial : PluckOutProp
 
         //savedText.gameObject.SetActive(true);
         //helpText.gameObject.SetActive(false);
+
+        RuntimeManager.PlayOneShot("event:/Pluck", transform.position);
         savedFishTransform.gameObject.SetActive(true);
         platform.gameObject.SetActive(true);
         GetComponent<DialogueTrigger>().CreateNPCDialogue();

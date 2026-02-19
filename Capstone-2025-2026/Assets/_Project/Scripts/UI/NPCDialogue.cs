@@ -1,13 +1,14 @@
+using DG.Tweening;
+using FMODUnity;
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Globalization;
+using TMPro;
+using Unity.VisualScripting;
+using UnityEditor.PackageManager;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
-using System.Globalization;
-using System.Collections.Generic;
-using DG.Tweening;
-using UnityEditor.PackageManager;
-using Unity.VisualScripting;
 
 public enum SpeakerType
     {
@@ -41,8 +42,10 @@ public class NPCDialogue : MonoBehaviour
     [Header("Profile Settings")]
     public Image currentSpeaker;
     [SerializeField] private Sprite[] profiles;
+    [SerializeField] private string[] voiceProfiles;
 
     private Dictionary<SpeakerType, Sprite> speakerImageDictionary = new Dictionary<SpeakerType, Sprite>();
+    private Dictionary<SpeakerType, string> speakerDialogueDictionary = new Dictionary<SpeakerType, string>();
 
 
     //ANIMATE THIS WITH DOTWEEN
@@ -53,6 +56,9 @@ public class NPCDialogue : MonoBehaviour
         _interpunctuationDelay = new WaitForSeconds(interpunctuationDelay);
         speakerImageDictionary[SpeakerType.Player] = profiles[0];
         speakerImageDictionary[SpeakerType.Momma] = profiles[1];
+
+        speakerDialogueDictionary[SpeakerType.Player] = voiceProfiles[0];
+        speakerDialogueDictionary[SpeakerType.Momma] = voiceProfiles[1];
 
         originalDialoguePosition = dialogueBox.GetComponent<RectTransform>().anchoredPosition;
         hiddenPosition = originalDialoguePosition + hiddenPositionOffset;
@@ -70,7 +76,9 @@ public class NPCDialogue : MonoBehaviour
         dialogueBox.GetComponent<RectTransform>().anchoredPosition = hiddenPosition;
         currentSpeaker.sprite = speakerImageDictionary[speakerType];
 
-        if(_typewriterCoroutine != null)
+        RuntimeManager.PlayOneShot("event:/" + speakerDialogueDictionary[speakerType], transform.position);
+
+        if (_typewriterCoroutine != null)
         {
             StopCoroutine(_typewriterCoroutine);
         }

@@ -28,6 +28,7 @@ public class RodAnimations : MonoBehaviour
     {
         animator = GetComponent<Animator>();
 
+        /*
         if (Instance == null)
         {
             Instance = this;
@@ -36,6 +37,7 @@ public class RodAnimations : MonoBehaviour
         {
             Destroy(gameObject);
         }
+        */
     }
 
     void Update()
