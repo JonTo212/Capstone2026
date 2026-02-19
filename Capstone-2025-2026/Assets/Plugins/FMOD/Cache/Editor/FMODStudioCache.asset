@@ -344,6 +344,33 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 0
+--- !u!114 &-6468946921286522518
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/braedenAmbient
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
+  Path: event:/braedenAmbient
+  Guid:
+    Data1: -839183438
+    Data2: 1341358902
+    Data3: 1730616244
+    Data4: 119831328
+  Banks:
+  - {fileID: 640658102343430618}
+  IsStream: 1
+  Is3D: 1
+  IsOneShot: 0
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 24640
 --- !u!114 &-6135976944121989332
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -541,10 +568,10 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Level1-1.bank
   Name: Level1-1
   StudioPath: bank:/Level1-1
-  lastModified: 639070439765146468
+  lastModified: 639071074999699788
   FileSizes:
   - Name: Desktop
-    Value: 1180800
+    Value: 1180704
   Exists: 1
 --- !u!114 &-4190002481158123474
 MonoBehaviour:
@@ -938,13 +965,14 @@ MonoBehaviour:
   - {fileID: -1811648192644638698}
   - {fileID: -8458254187417267990}
   - {fileID: -8624553702809768907}
+  - {fileID: -6468946921286522518}
   EditorParameters: []
   MasterBanks:
   - {fileID: 5625283133243658403}
   StringsBanks:
   - {fileID: 2420654917713974474}
   cacheVersion: 131858
-  cacheTime: 639070439766947025
+  cacheTime: 639071081195343765
   SerializableEventsDict:
   - key: event:/AmbienceLevel1-1
     index: 0
@@ -1050,6 +1078,8 @@ MonoBehaviour:
     index: 50
   - key: event:/TetherRecall
     index: 51
+  - key: event:/braedenAmbient
+    index: 52
 --- !u!114 &507998013939882563
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1119,10 +1149,10 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Ambience.bank
   Name: Ambience
   StudioPath: bank:/Ambience
-  lastModified: 639070439764392414
+  lastModified: 639071081195343765
   FileSizes:
   - Name: Desktop
-    Value: 591392
+    Value: 882560
   Exists: 1
 --- !u!114 &817308578483934137
 MonoBehaviour:
@@ -1233,10 +1263,10 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Master.strings.bank
   Name: Master.strings
   StudioPath: bank:/Master.strings
-  lastModified: 639070439765242197
+  lastModified: 639071078713961390
   FileSizes:
   - Name: Desktop
-    Value: 3352
+    Value: 3408
   Exists: 1
 --- !u!114 &3088350260886061435
 MonoBehaviour:
@@ -1415,7 +1445,7 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Master.bank
   Name: Master
   StudioPath: bank:/Master
-  lastModified: 639070439765217070
+  lastModified: 639071078713941279
   FileSizes:
   - Name: Desktop
     Value: 1074
@@ -1712,11 +1742,11 @@ MonoBehaviour:
   - {fileID: -4611129436036310029}
   IsStream: 0
   Is3D: 1
-  IsOneShot: 1
+  IsOneShot: 0
   Parameters: []
   MinDistance: 1
   MaxDistance: 20
-  Length: 0
+  Length: 2612
 --- !u!114 &8826929796617690607
 MonoBehaviour:
   m_ObjectHideFlags: 0
