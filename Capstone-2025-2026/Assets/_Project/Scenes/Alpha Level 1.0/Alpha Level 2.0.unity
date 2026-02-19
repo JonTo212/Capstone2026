@@ -164044,6 +164044,37 @@ MonoBehaviour:
   OverrideAttenuation: 0
   OverrideMinDistance: 1
   OverrideMaxDistance: 20
+--- !u!114 &1481262905
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1481262899}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FMODUnity::FMODUnity.StudioEventEmitter
+  CollisionTag: 
+  EventReference:
+    Guid:
+      Data1: -1986341047
+      Data2: 1252964093
+      Data3: 626736256
+      Data4: 1087164754
+    Path: event:/NPCSave
+  Event: 
+  EventPlayTrigger: 20
+  EventStopTrigger: 0
+  AllowFadeout: 1
+  TriggerOnce: 0
+  Preload: 0
+  NonRigidbodyVelocity: 0
+  Params: []
+  OverrideAttenuation: 0
+  OverrideMinDistance: 1
+  OverrideMaxDistance: 20
 --- !u!43 &1482451779
 Mesh:
   m_ObjectHideFlags: 0
@@ -240891,6 +240922,10 @@ PrefabInstance:
       propertyPath: m_SizeDelta.y
       value: 350
       objectReference: {fileID: 0}
+    - target: {fileID: 385498895558801820, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+      propertyPath: m_MinValue
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 412334985279009504, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       propertyPath: m_LocalPosition.x
       value: 204.24
@@ -241087,6 +241122,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 4475739844707050791, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+      propertyPath: m_MinValue
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5250001947366668266, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -241146,6 +241185,26 @@ PrefabInstance:
     - target: {fileID: 5809336444760160641, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       propertyPath: m_Value
       value: 0.9999999
+      objectReference: {fileID: 0}
+    - target: {fileID: 5895527577785643580, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+      propertyPath: m_MinValue
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5895527577785643580, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5895527577785643580, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5895527577785643580, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5895527577785643580, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
+      value: SettingsMenu, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 6330653777721993642, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       propertyPath: m_SizeDelta.x
@@ -241247,6 +241306,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 8946609356510639459, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+      propertyPath: m_MinValue
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 0}
     - {fileID: 6363763804076954650, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
@@ -241299,6 +241362,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 3890074976976475226, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1481262902}
+    - targetCorrespondingSourceObject: {fileID: 3890074976976475226, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1481262905}
     - targetCorrespondingSourceObject: {fileID: 7441143181091773460, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1017742126}
