@@ -7,7 +7,6 @@ public class RopeSwingCutscene : CutsceneBase
     [Header("Visuals")]
     [SerializeField] private LineRenderer ropeVisuals;
 
-
     [Header("Rope Path")]
     [Tooltip("Control points that define the rope arc the player swings along.")]
     [SerializeField] private List<Transform> ropePath;
@@ -67,6 +66,7 @@ public class RopeSwingCutscene : CutsceneBase
     private float _smoothedCurvature;
     private float _smoothedSpeed;
     private float _currentModelYaw;
+    private float _currentSwayAngle;
 
     private Vector3 _attachmentPos;
 
@@ -77,13 +77,21 @@ public class RopeSwingCutscene : CutsceneBase
 
     public Vector3 CurrentRopeAttachmentPosition => _attachmentPos;
 
+    /// <summary>Signed sway angle in degrees: positive = right, negative = left.</summary>
+    public float CurrentSwayAngle => _currentSwayAngle;
+
     public override bool IsValid() =>
         ropePath != null && ropePath.Count >= 2;
+
+    private void Awake()
+    {
+        DrawRopeVisuals();
+    }
 
     public override void OnCutscenePrepare()
     {
         _bakedPath = BakeCombinedPath();
-        _pathStartRotation = DeriveFlatRotation(0f);
+        _pathStartRotation = DeriveFlatRotation(0f) * Quaternion.Euler(0f, -90f, 0f);
         _pathEndRotation = DeriveFlatRotation(1f);
         _smoothedCurvature = 0f;
         _smoothedSpeed = 0f;
@@ -151,6 +159,7 @@ public class RopeSwingCutscene : CutsceneBase
         float swayAngle = Mathf.Clamp(_smoothedCurvature * maxSwayAngle, -maxSwayAngle, maxSwayAngle)
                           * (1f - uprightFade);
         float leanAngle = _smoothedSpeed * maxLeanAngle * (1f - uprightFade);
+        _currentSwayAngle = swayAngle;
         Vector3 dir = GetHorizontalDirection(t);
         Quaternion faceRot = dir.sqrMagnitude > 0.01f
             ? Quaternion.LookRotation(dir)

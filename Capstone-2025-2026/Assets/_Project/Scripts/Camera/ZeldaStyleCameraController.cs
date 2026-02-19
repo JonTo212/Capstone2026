@@ -25,6 +25,7 @@ public class ZeldaCameraController : MonoBehaviour
 
     [Header("Position Smoothing")]
     [SerializeField] private Vector3 positionDamping;
+    private Vector3 originalPositionDamping;
 
     [Header("Collision")]
     [SerializeField] private bool handleCollision = true;
@@ -83,6 +84,7 @@ public class ZeldaCameraController : MonoBehaviour
         collisionDistance = defaultDistance;
         previousTargetDistance = defaultDistance;
         collisionSmoothTime = collisionZoomInTime;
+        originalPositionDamping = positionDamping;
 
         Vector3 currentRotation = transform.eulerAngles;
         currentYaw = currentRotation.y;
@@ -329,5 +331,11 @@ public class ZeldaCameraController : MonoBehaviour
     public void SetPitchSmoothOverride(float? time)
     {
         pitchSmoothOverride = time;
+    }
+
+    public void SetPositionDamping(Vector3? newDamping)
+    {
+        if (newDamping.HasValue) positionDamping = newDamping.Value;
+        else positionDamping = originalPositionDamping;
     }
 }
