@@ -2470,8 +2470,16 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 5704081936607653163, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+      propertyPath: liftSpeed
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5704081936607653163, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       propertyPath: rotationMode
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5704081936607653163, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+      propertyPath: maxBelowGround
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 5704081936607653163, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       propertyPath: <PlayerCam>k__BackingField
@@ -48831,9 +48839,14 @@ MonoBehaviour:
   defaultAdjustSpeed: 2.5
   tetherSensMultiplier: 0.75
   lassoSensMultiplier: 0.9
-  playerDefaultYOffset: 0.35
-  zoomPadding: 0.85
+  playerDefaultYOffset: 0.25
+  zoomPadding: 0.5
   lassoZoomOutSmoothTime: 0.1
+  lassoMinPitch: -25
+  lassoMaxPitch: 20
+  lassoMaxZoomOffset: 1
+  lassoTargetOffsetY: 1.5
+  lassoScreenOffsetY: 0.1
 --- !u!114 &5644415219199617039
 MonoBehaviour:
   m_ObjectHideFlags: 0

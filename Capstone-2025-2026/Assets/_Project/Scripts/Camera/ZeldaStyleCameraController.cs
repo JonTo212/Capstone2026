@@ -21,6 +21,8 @@ public class ZeldaCameraController : MonoBehaviour
     [SerializeField] private float controllerYSensitivityMultiplier = 5f;
     [SerializeField] private float minVerticalAngle = -30f;
     [SerializeField] private float maxVerticalAngle = 70f;
+    private float? runtimeMinPitch = null;
+    private float? runtimeMaxPitch = null;
     [SerializeField] private float rotationSmoothTime = 0f; //ANY NON-ZERO VALUE BREAKS ROTATION IF YOU SWEEP WITH YOUR MOUSE VERY QUICKLY
 
     [Header("Position Smoothing")]
@@ -101,16 +103,12 @@ public class ZeldaCameraController : MonoBehaviour
         transform.rotation = ghostRotation;
     }
 
-    private void Update()
-    {
-        HandleInput();
-    }
-
     private void LateUpdate()
     {
         if (Time.timeScale == 0f || Time.deltaTime <= float.Epsilon || target == null)
             return;
 
+        HandleInput();
         UpdateGhostTransform();
         SmoothCameraToGhost();
     }
@@ -141,7 +139,9 @@ public class ZeldaCameraController : MonoBehaviour
         if (!yAxisLocked)
         {
             targetPitch -= mouseY;
-            targetPitch = Mathf.Clamp(targetPitch, minVerticalAngle, maxVerticalAngle);
+            float minPitch = runtimeMinPitch.HasValue ? runtimeMinPitch.Value : minVerticalAngle;
+            float maxPitch = runtimeMaxPitch.HasValue ? runtimeMaxPitch.Value : maxVerticalAngle;
+            targetPitch = Mathf.Clamp(targetPitch, minPitch, maxPitch);
         }
     }
 
@@ -279,6 +279,11 @@ public class ZeldaCameraController : MonoBehaviour
         targetPitch = Mathf.Clamp(pitch, minVerticalAngle, maxVerticalAngle);
     }
 
+    public void SetCurrentDistance(float distance)
+    {
+        currentDistance = Mathf.Max(minDistance, distance);
+    }
+
     public void SetDistance(float distance)
     {
         targetDistance = Mathf.Clamp(distance, minDistance, currentMaxDistance);
@@ -295,6 +300,21 @@ public class ZeldaCameraController : MonoBehaviour
         targetPitch += degrees;
         targetPitch = Mathf.Clamp(targetPitch, minVerticalAngle, maxVerticalAngle);
     }
+
+    public void SetVerticalClamp(float? min, float? max)
+    {
+        runtimeMinPitch = min;
+        runtimeMaxPitch = max;
+        // Re-clamp current target pitch if limits changed
+        float minP = min.HasValue ? min.Value : minVerticalAngle;
+        float maxP = max.HasValue ? max.Value : maxVerticalAngle;
+        targetPitch = Mathf.Clamp(targetPitch, minP, maxP);
+    }
+
+    public float GetRawLookInputY() => input.LookInput.y;
+    public float GetTargetPitch() => targetPitch;
+    public float GetMinVerticalAngle() => minVerticalAngle;
+    public float GetMaxVerticalAngle() => maxVerticalAngle;
 
     public Vector3 GetGhostPosition() => ghostPosition;
     public Quaternion GetGhostRotation() => ghostRotation;

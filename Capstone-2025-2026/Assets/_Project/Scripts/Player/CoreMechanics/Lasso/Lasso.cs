@@ -39,7 +39,7 @@ public class Lasso : MonoBehaviour
 
     [Header("Rotation")]
     [field: SerializeField] public CinemachineInputAxisController camInputController { get; private set; }
-        public enum RotationMode
+    public enum RotationMode
     {
         ScreenSpace,      //use cam up and right axes
         SmartGimbal,      //world up, camera sideways axis
@@ -58,6 +58,7 @@ public class Lasso : MonoBehaviour
     [SerializeField] private float liftSpeed = 1.5f;
     [field: SerializeField] public float maxLiftHeight { get; private set; }
     [field: SerializeField] public float minHeightAboveGround { get; private set; }
+    public float LiftSpeed => liftSpeed;
     [SerializeField] private float maxBelowGround = -3f;
     [SerializeField] private float groundCheckDistance = 100f;
     [SerializeField] private LayerMask groundLayers;
@@ -252,9 +253,9 @@ public class Lasso : MonoBehaviour
     public void SetupHeldProp(Prop newProp, RaycastHit? hit)
     {
         //clear old reference if it exists
-        if (SnaredObject != null) 
-        { 
-            SnaredObject.OnPropDestroyed -= HandleObjectReleased; 
+        if (SnaredObject != null)
+        {
+            SnaredObject.OnPropDestroyed -= HandleObjectReleased;
             SnaredObject.ActivateOutline(false);
         }
 
@@ -571,9 +572,33 @@ public class Lasso : MonoBehaviour
 
     public void MoveAnchorPointY(float lookInputY)
     {
+        if (SuppressLiftInput) return;
         if (Mathf.Approximately(lookInputY, 0f)) return;
 
         _currentLiftOffset += lookInputY * liftSpeed * Time.deltaTime;
+    }
+
+    /// <summary>Current lift offset of the held object above the camera crosshair target.</summary>
+    public float CurrentLiftOffset => _currentLiftOffset;
+
+    public float GetMinLiftOffset()
+    {
+        if (SnaredObject == null || _snaredObjTransform == null) return 0f;
+        Vector3 baseTargetPos = GetBaseTargetPos();
+        float absoluteMinY = GetMinimumLiftHeight();
+        return absoluteMinY - baseTargetPos.y;
+    }
+
+    /// <summary>
+    /// When true, MoveAnchorPointY is a no-op. Set by the camera system when it is
+    /// managing vertical object positioning via pitch + lift offset directly.
+    /// </summary>
+    public bool SuppressLiftInput { get; set; } = false;
+
+    /// <summary>Directly adds to the lift offset (used by camera system to lower object while camera stays clamped).</summary>
+    public void AddLiftOffset(float delta)
+    {
+        _currentLiftOffset += delta;
     }
 
     public void SetVerticalAnchor(bool setMinimum)
