@@ -112,7 +112,6 @@ public class CameraCutsceneHandler : MonoBehaviour
         yield return new WaitForSeconds(_cutscene.blendInTime);
         _isBlendingIn = false;
 
-        cameraController?.EnterCutsceneMode();
         _cutscene.OnCutsceneStart();
 
         _isPlaying = true;
@@ -243,6 +242,5 @@ public class CameraCutsceneHandler : MonoBehaviour
         if (input != null) input.EnableAllInput();
         if (playerController != null) playerController.enabled = true;
         if (playerRb != null) playerRb.isKinematic = false;
-        cameraController?.ExitCutsceneMode();
     }
 }

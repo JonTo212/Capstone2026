@@ -55,6 +55,10 @@ public class ZeldaCameraController : MonoBehaviour
     private float previousTargetDistance;
     private bool colliding;
 
+    public bool IsColliding() => colliding;
+    public float GetCollisionDistance() => collisionDistance;
+    public float GetCameraRange01() => Mathf.Clamp01(collisionDistance / defaultDistance);
+
     //smoothing
     private Vector3 positionVelocity;
     private Vector3 rotationVelocity;
@@ -67,15 +71,6 @@ public class ZeldaCameraController : MonoBehaviour
     private bool yAxisLocked = false;
     private bool xAxisLocked = false;
     private Camera cam;
-
-    // Cutscene mode
-    private bool cutsceneMode = false;
-    private Vector3 cutsceneTargetPosition;
-    private Quaternion cutsceneTargetRotation;
-    private bool lookAtTarget = true;
-    private bool hasTargetRotation = false;
-
-    public bool IsInCutscene => cutsceneMode;
 
     private void Start()
     {
@@ -334,50 +329,5 @@ public class ZeldaCameraController : MonoBehaviour
     public void SetPitchSmoothOverride(float? time)
     {
         pitchSmoothOverride = time;
-    }
-
-    // Calculate where the camera should be with all offsets applied
-    // Used for blending back from cutscenes
-    public Vector3 CalculateIdealPosition()
-    {
-        if (target == null) return transform.position;
-
-        Vector3 targetPosition = target.position + targetOffset;
-        Quaternion rotation = Quaternion.Euler(currentPitch, currentYaw, 0f);
-        Vector3 basePosition = targetPosition - (rotation * Vector3.forward * currentDistance);
-
-        return ApplyScreenSpaceOffset(basePosition);
-    }
-
-    public Quaternion CalculateIdealRotation()
-    {
-        return Quaternion.Euler(currentPitch, currentYaw, 0f);
-    }
-
-    // Cutscene control methods
-    public void EnterCutsceneMode()
-    {
-        cutsceneMode = true;
-    }
-
-    public void ExitCutsceneMode()
-    {
-        cutsceneMode = false;
-    }
-
-    public void SetCutscenePosition(Vector3 position)
-    {
-        cutsceneTargetPosition = position;
-    }
-
-    public void SetCutsceneLookAtTarget(bool lookAt)
-    {
-        lookAtTarget = lookAt;
-    }
-
-    public void SetCutsceneTargetRotation(Quaternion rotation)
-    {
-        cutsceneTargetRotation = rotation;
-        hasTargetRotation = true;
     }
 }
