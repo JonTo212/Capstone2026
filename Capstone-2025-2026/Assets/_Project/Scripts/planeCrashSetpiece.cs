@@ -2,21 +2,28 @@ using UnityEngine;
 
 public class planeCrashSetpiece : MonoBehaviour
 {
-    private InCameraDetector inCameraDetectorScript;
+    //private InCameraDetector inCameraDetectorScript;
     //public Animator planeCrashAnimator;
 
-    public bool hasEntererdView = false;
+    //public bool hasEntererdView = false;
+    public GameObject vesselDummy;
+    public GameObject vesselReal;
+
     public bool ReadyToLook = false;
     private MeshRenderer mr;
-    public Collider trigger;
+
+    public float fallSpeed = 60f;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        mr = GetComponent<MeshRenderer>();
-        inCameraDetectorScript = GetComponent<InCameraDetector>();
-
+        mr = vesselDummy.GetComponent<MeshRenderer>();
         mr.enabled = false;
+
+        //inCameraDetectorScript = GetComponent<InCameraDetector>();
+
+        vesselReal.SetActive(false);
+
     }
 
     public void OnTriggerEnter(Collider other)
@@ -26,6 +33,8 @@ public class planeCrashSetpiece : MonoBehaviour
             mr.enabled = true;
             ReadyToLook = true;
         }
+
+        
     }
 
     // Update is called once per frame
@@ -47,15 +56,21 @@ public class planeCrashSetpiece : MonoBehaviour
             */
         }
 
-        if (transform.position.y < -8)
+        if (vesselDummy.transform.position.y < 70)
         {
-            Destroy(gameObject);
+            Destroy(vesselDummy.gameObject);
+            vesselReal.SetActive(true);
+
+            print("VesselCrash");
+            //playsound here
         }
     }
 
 
     public void Crash()
     {
-        transform.position += new Vector3(0, -25, 100) * Time.deltaTime;
+        vesselDummy.transform.position += new Vector3(0, -fallSpeed, 0) * Time.deltaTime;
+
+        vesselDummy.transform.Rotate(fallSpeed*2*Time.deltaTime, fallSpeed * Time.deltaTime, fallSpeed * 2 * Time.deltaTime);
     }
 }
