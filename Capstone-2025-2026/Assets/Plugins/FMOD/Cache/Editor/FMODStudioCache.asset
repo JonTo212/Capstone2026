@@ -344,6 +344,33 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 0
+--- !u!114 &-6694606024813186326
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/MenuMusic
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
+  Path: event:/MenuMusic
+  Guid:
+    Data1: 1717627250
+    Data2: 1226904586
+    Data3: 1655476376
+    Data4: 1304680237
+  Banks:
+  - {fileID: -1960416237198407593}
+  IsStream: 1
+  Is3D: 0
+  IsOneShot: 0
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 112941
 --- !u!114 &-6468946921286522518
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -723,10 +750,10 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Music.bank
   Name: Music
   StudioPath: bank:/Music
-  lastModified: 639071144447090574
+  lastModified: 639071170621604794
   FileSizes:
   - Name: Desktop
-    Value: 3505184
+    Value: 4802528
   Exists: 1
 --- !u!114 &-1811648192644638698
 MonoBehaviour:
@@ -966,13 +993,14 @@ MonoBehaviour:
   - {fileID: -8458254187417267990}
   - {fileID: -8624553702809768907}
   - {fileID: -6468946921286522518}
+  - {fileID: -6694606024813186326}
   EditorParameters: []
   MasterBanks:
   - {fileID: 5625283133243658403}
   StringsBanks:
   - {fileID: 2420654917713974474}
   cacheVersion: 131858
-  cacheTime: 639071144448267171
+  cacheTime: 639071170621604794
   SerializableEventsDict:
   - key: event:/AmbienceLevel1-1
     index: 0
@@ -1080,6 +1108,8 @@ MonoBehaviour:
     index: 51
   - key: event:/braedenAmbient
     index: 52
+  - key: event:/MenuMusic
+    index: 53
 --- !u!114 &507998013939882563
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1263,10 +1293,10 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Master.strings.bank
   Name: Master.strings
   StudioPath: bank:/Master.strings
-  lastModified: 639071144446641788
+  lastModified: 639071170603302375
   FileSizes:
   - Name: Desktop
-    Value: 3578
+    Value: 3614
   Exists: 1
 --- !u!114 &3088350260886061435
 MonoBehaviour:
@@ -1445,7 +1475,7 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Master.bank
   Name: Master
   StudioPath: bank:/Master
-  lastModified: 639071144446621573
+  lastModified: 639071170603282289
   FileSizes:
   - Name: Desktop
     Value: 1670
