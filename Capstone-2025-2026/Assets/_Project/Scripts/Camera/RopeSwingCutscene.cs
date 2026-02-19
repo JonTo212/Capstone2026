@@ -68,11 +68,14 @@ public class RopeSwingCutscene : CutsceneBase
     private float _smoothedSpeed;
     private float _currentModelYaw;
 
+    private Vector3 _attachmentPos;
+
     public Quaternion PathStartRotation => _pathStartRotation;
     public Quaternion PathEndRotation => _pathEndRotation;
     public float UprightBlendFraction => uprightBlendFraction;
     public bool EnablePlayerSway => enablePlayerSway;
 
+    public Vector3 CurrentRopeAttachmentPosition => _attachmentPos;
 
     public override bool IsValid() =>
         ropePath != null && ropePath.Count >= 2;
@@ -85,6 +88,11 @@ public class RopeSwingCutscene : CutsceneBase
         _smoothedCurvature = 0f;
         _smoothedSpeed = 0f;
         _currentModelYaw = _pathStartRotation.eulerAngles.y;
+    }
+
+    public void UpdateRopeVisuals(Vector3 position, float currentT)
+    {
+        _attachmentPos = position - SampleOffsetAtT(currentT);
     }
 
     public override Vector3 GetPlayerPosition(float t)
@@ -188,6 +196,7 @@ public class RopeSwingCutscene : CutsceneBase
     {
         DrawRopeVisuals();
     }
+
     public Vector3 SampleOffsetAtT(float t)
     {
         if (!usePlayerOffset || playerOffsetPath == null || playerOffsetPath.Count == 0)

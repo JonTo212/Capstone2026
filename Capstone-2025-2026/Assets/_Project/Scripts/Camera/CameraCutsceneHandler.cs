@@ -31,21 +31,14 @@ public class CameraCutsceneHandler : MonoBehaviour
     public bool BlendDelayActive { get; private set; }
     public bool BlendingIn => _isBlendingIn;
     public CutsceneBase CurrentCutscene => _cutscene;
+    private RopeSwingCutscene RopeCutscene => _cutscene as RopeSwingCutscene;
 
     private Vector3 _previousPathPosition;
     private float _currentT = 0f;
 
     public Vector3 CurrentPathPosition { get; private set; }
 
-    public Vector3 CurrentRopeAttachmentPosition
-    {
-        get
-        {
-            if (_cutscene is RopeSwingCutscene rope)
-                return CurrentPathPosition - rope.SampleOffsetAtT(_currentT);
-            return CurrentPathPosition;
-        }
-    }
+
 
 
     private void Awake()
@@ -159,8 +152,8 @@ public class CameraCutsceneHandler : MonoBehaviour
                 {
                     playerRb.MovePosition(Vector3.Lerp(_blendPlayerFrom, _blendPlayerTo, t));
 
-                    if (_cutscene is RopeSwingCutscene rope)
-                        playerRb.MoveRotation(Quaternion.Slerp(playerRb.rotation, rope.PathStartRotation, t));
+                    if (RopeCutscene != null)
+                        playerRb.MoveRotation(Quaternion.Slerp(playerRb.rotation, RopeCutscene.PathStartRotation, t));
                 }
             }
             return;
@@ -181,12 +174,12 @@ public class CameraCutsceneHandler : MonoBehaviour
         {
             playerRb.MovePosition(pos);
 
-            if (_cutscene is RopeSwingCutscene rope)
-                playerRb.MoveRotation(rope.GetPlayerBodyRotation(_currentT));
+            if (RopeCutscene != null)
+                playerRb.MoveRotation(RopeCutscene.GetPlayerBodyRotation(_currentT));
         }
 
-        if (_cutscene is RopeSwingCutscene ropeAnim)
-            ropeAnim.TickAnimation(_currentT, speed, playerModelRotation);
+        if (RopeCutscene != null)
+            RopeCutscene.TickAnimation(_currentT, speed, playerModelRotation);
         else
             _cutscene.OnCutsceneTick(_currentT, pos, speed);
     }
@@ -195,8 +188,6 @@ public class CameraCutsceneHandler : MonoBehaviour
     private void LateUpdate()
     {
         if (!_isActive || _cutscene == null) return;
-
-        _cutscene.OnCutsceneLateUpdate();
 
         if (!_cutscene.autoRotateCamera || cameraController == null) return;
 
@@ -208,12 +199,18 @@ public class CameraCutsceneHandler : MonoBehaviour
         }
         else if (_isPlaying)
         {
-            if (_cutscene is RopeSwingCutscene rope)
-                direction = rope.GetPathDirection(_currentT);
+            if (RopeCutscene != null)
+            {
+                direction = RopeCutscene.GetPathDirection(_currentT);
+            }
         }
+
+        if (RopeCutscene != null) RopeCutscene.UpdateRopeVisuals(CurrentPathPosition, _currentT);
 
         if (direction.sqrMagnitude > 0.01f)
             RotateCameraToDirection(direction, _cutscene.cameraRotationSpeed, _cutscene.cameraPitch);
+
+        _cutscene.OnCutsceneLateUpdate();
     }
 
 

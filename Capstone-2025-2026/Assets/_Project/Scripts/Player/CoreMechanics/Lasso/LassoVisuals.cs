@@ -49,9 +49,10 @@ public class LassoVisuals : MonoBehaviour
         lastMousePosition = currentMousePosition;
 
         // During a rope-swing cutscene, draw the rope from the hand to the current spline position
-        if (cutsceneHandler != null && cutsceneHandler.IsActive() && !cutsceneHandler.BlendDelayActive)
+        if (cutsceneHandler != null && cutsceneHandler.CurrentCutscene is RopeSwingCutscene && cutsceneHandler.IsActive() && !cutsceneHandler.BlendDelayActive)
         {
-            DrawCutsceneRope(lassoScript.HoldPos.position, cutsceneHandler.CurrentRopeAttachmentPosition);
+            RopeSwingCutscene ropeSwingCutscene = cutsceneHandler.CurrentCutscene as RopeSwingCutscene;
+            DrawCutsceneRope(lassoScript.HoldPos.position, ropeSwingCutscene.CurrentRopeAttachmentPosition);
             return;
         }
 
