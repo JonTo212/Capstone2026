@@ -142715,6 +142715,11 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
+--- !u!4 &1280923935 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1636921924969586452, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+  m_PrefabInstance: {fileID: 2121288920}
+  m_PrefabAsset: {fileID: 0}
 --- !u!43 &1281805038
 Mesh:
   m_ObjectHideFlags: 0
@@ -198029,6 +198034,7 @@ GameObject:
   - component: {fileID: 1821952875}
   - component: {fileID: 1821952876}
   - component: {fileID: 1821952877}
+  - component: {fileID: 1821952878}
   m_Layer: 7
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -198195,23 +198201,21 @@ MonoBehaviour:
   cameraController: {fileID: 1821952875}
   lassoTetherController: {fileID: 2121288921}
   playerRef: {fileID: 2121288923}
+  cameraCutsceneHandler: {fileID: 1821952878}
   cameraStates:
   - cameraState: 0
     screenOffset: {x: 0.1, y: 0.05}
     targetOffset: {x: 0, y: 1.5, z: 0}
-    distanceOffset: 0
     lockYAxis: 0
     lockXAxis: 0
   - cameraState: 1
     screenOffset: {x: 0.1, y: 0.05}
     targetOffset: {x: 0, y: 1.5, z: 0}
-    distanceOffset: 0
     lockYAxis: 0
     lockXAxis: 0
   - cameraState: 3
     screenOffset: {x: 0, y: 0}
     targetOffset: {x: 0, y: 2.5, z: 0}
-    distanceOffset: 0
     lockYAxis: 0
     lockXAxis: 0
   tetherModeAdjustSpeed: 2.5
@@ -198222,6 +198226,11 @@ MonoBehaviour:
   playerDefaultYOffset: 0.35
   zoomPadding: 0.85
   lassoZoomOutSmoothTime: 0.1
+  lassoMinPitch: -30
+  lassoMaxPitch: 30
+  lassoMaxZoomOffset: 5
+  lassoTargetOffsetY: 1.5
+  lassoScreenOffsetY: 0.1
 --- !u!114 &1821952877
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -198236,6 +198245,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: FMODUnity::FMODUnity.StudioListener
   nonRigidbodyVelocity: 0
   attenuationObject: {fileID: 0}
+--- !u!114 &1821952878
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1821952869}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fdec1cdf5b7da2c4db4e1366adf90a21, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CameraCutsceneHandler
+  input: {fileID: 0}
+  playerRb: {fileID: 0}
+  playerController: {fileID: 0}
+  playerModelRotation: {fileID: 0}
+  cameraController: {fileID: 0}
+  cameraModeController: {fileID: 0}
 --- !u!43 &1824696673
 Mesh:
   m_ObjectHideFlags: 0
@@ -240839,13 +240866,25 @@ PrefabInstance:
       value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 5704081936607653163, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+      propertyPath: rotationMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5704081936607653163, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       propertyPath: maxLassoRange
       value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 5704081936607653163, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+      propertyPath: maxBelowGround
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 5704081936607653163, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       propertyPath: <PlayerCam>k__BackingField
       value: 
       objectReference: {fileID: 1821952874}
+    - target: {fileID: 5704081936607653163, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+      propertyPath: <usePhysicsLasso>k__BackingField
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5704081936607653163, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       propertyPath: <CinemachineBrain>k__BackingField
       value: 
@@ -240926,6 +240965,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 111
       objectReference: {fileID: 0}
+    - target: {fileID: 7136094397731902115, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+      propertyPath: _cameraController
+      value: 
+      objectReference: {fileID: 1821952878}
     - target: {fileID: 7534235592019297818, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       propertyPath: m_Enabled
       value: 0
@@ -240966,6 +241009,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 8911630846344404998, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 92a4634916e4d064092e53bf63f85405, type: 2}
     m_RemovedComponents:
     - {fileID: 0}
     - {fileID: 6363763804076954650, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
@@ -240988,6 +241035,15 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 2571145194382551425, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2121288960}
+    - targetCorrespondingSourceObject: {fileID: 2571145194382551425, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2121288962}
+    - targetCorrespondingSourceObject: {fileID: 2571145194382551425, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2121288961}
+    - targetCorrespondingSourceObject: {fileID: 2571145194382551425, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2121288978}
     - targetCorrespondingSourceObject: {fileID: 2013573229768598438, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       insertIndex: -1
       addedObject: {fileID: 448474019}
@@ -241063,6 +241119,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 057727ba87d071f41a7a5fa2ff6ee4f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+--- !u!23 &2121288925 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 2658583419880306134, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+  m_PrefabInstance: {fileID: 2121288920}
+  m_PrefabAsset: {fileID: 0}
+--- !u!137 &2121288926 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 8911630846344404998, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+  m_PrefabInstance: {fileID: 2121288920}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &2121288940
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -241126,6 +241192,55 @@ MonoBehaviour:
   - Tools
   CollisionTag: 
   PreloadSamples: 0
+--- !u!114 &2121288961
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 761371174}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 09f2298a053c5f9499bacec03b72d37e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerFadeData
+  Renderers:
+  - {fileID: 2121288926}
+  - {fileID: 2121288925}
+  Materials: []
+  InitialAlpha: 0
+--- !u!114 &2121288962
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 761371174}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7506fa9f0493264a9fee3fe88aa044e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerFade
+  cameraController: {fileID: 1821952875}
+  player: {fileID: 2121288961}
+  fadeStartDistance: 3
+  fadeEndDistance: 1
+  minAlpha: 0
+--- !u!114 &2121288978
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 761371174}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5088d4f38abb70a4299db5838c7a4104, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerNPCCapture
+  npcBackpackPos: {fileID: 1280923935}
+  handAttachThreshold: 0.2
+  objectYankDuration: 0.5
 --- !u!43 &2121523653
 Mesh:
   m_ObjectHideFlags: 0
