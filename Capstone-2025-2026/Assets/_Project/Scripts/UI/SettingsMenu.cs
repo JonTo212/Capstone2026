@@ -30,9 +30,22 @@ public class SettingsMenu : MonoBehaviour
     [SerializeField] private TextMeshProUGUI windowModeText;
     private WindowMode windowMode = WindowMode.fullScreen;
 
+    public FMOD.Studio.Bus Master;
+    public FMOD.Studio.Bus Music;
+    public FMOD.Studio.Bus SFX;
+    public FMOD.Studio.Bus Ambience;
+    public float MasterVolume = 0.5f;
+    public float SFXVolume = 0.5f;
+    public float MusicVolume = 0.5f;
+    public float AmbienceVolume = 0.5f;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        Master = FMODUnity.RuntimeManager.GetBus("bus:/Master");
+        Music = FMODUnity.RuntimeManager.GetBus("bus:/Master/Music");
+        SFX = FMODUnity.RuntimeManager.GetBus("bus:/Master/SFX");
+        Ambience = FMODUnity.RuntimeManager.GetBus("bus:/Master/Ambience");
         SetMasterVolume();
         SetSoundVolume();
         SetAmbienceVolume();
@@ -43,26 +56,26 @@ public class SettingsMenu : MonoBehaviour
 
     public void SetMasterVolume()
     {
-        float volume = masterSlider.value;
-        myMixer.SetFloat("Master", Mathf.Log10(volume)*20);
+        MasterVolume = masterSlider.value;
+        Master.setVolume(MasterVolume);
     }
 
     public void SetSoundVolume()
     {
-        float volume = soundSlider.value;
-        myMixer.SetFloat("Sound", Mathf.Log10(volume)*20);
+        SFXVolume = soundSlider.value;
+        SFX.setVolume(SFXVolume);
     }
 
     public void SetAmbienceVolume()
     {
-        float volume = ambienceSlider.value;
-        myMixer.SetFloat("Ambience", Mathf.Log10(volume)*20);
+        AmbienceVolume = ambienceSlider.value;
+        Ambience.setVolume(AmbienceVolume);
     }
 
     public void SetMusicVolume()
     {
-        float volume = musicSlider.value;
-        myMixer.SetFloat("Music", Mathf.Log10(volume)*20);
+        MusicVolume = musicSlider.value;
+        Music.setVolume(MusicVolume);
     }
 
     public void SetXSensitvity()

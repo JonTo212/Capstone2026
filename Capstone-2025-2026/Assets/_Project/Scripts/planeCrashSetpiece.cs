@@ -1,3 +1,4 @@
+using FMODUnity;
 using UnityEngine;
 
 public class planeCrashSetpiece : MonoBehaviour
@@ -9,10 +10,17 @@ public class planeCrashSetpiece : MonoBehaviour
     public GameObject vesselDummy;
     public GameObject vesselReal;
 
+    //sounds
+    public GameObject vesselCrashSound; //MUST START DISABLED
+    public GameObject vesselFallSound; //MUST START DISABLED
+
     public bool ReadyToLook = false;
     private MeshRenderer mr;
 
     public float fallSpeed = 60f;
+
+    [SerializeField] private ParticleSystem dustParticle;
+
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -23,6 +31,8 @@ public class planeCrashSetpiece : MonoBehaviour
         //inCameraDetectorScript = GetComponent<InCameraDetector>();
 
         vesselReal.SetActive(false);
+        vesselCrashSound.SetActive(false);
+        vesselFallSound.SetActive(false);
 
     }
 
@@ -42,7 +52,7 @@ public class planeCrashSetpiece : MonoBehaviour
     {
         if (ReadyToLook)
         {
-            Crash();
+            StartFall();
             /*
             if (inCameraDetectorScript.isInCameraView)
             {
@@ -56,19 +66,36 @@ public class planeCrashSetpiece : MonoBehaviour
             */
         }
 
-        if (vesselDummy.transform.position.y < 70)
+        //Crashed
+        if (vesselDummy!=null)
         {
-            Destroy(vesselDummy.gameObject);
-            vesselReal.SetActive(true);
+            if (vesselDummy.transform.position.y < 70)
+            {
 
-            print("VesselCrash");
-            //playsound here
+                Destroy(vesselDummy.gameObject);
+
+                //playsound here
+                vesselCrashSound.SetActive(true);
+                //RuntimeManager.PlayOneShot("event:/WallBreak", vesselReal.transform.position);
+
+                vesselReal.SetActive(true);
+
+                print("VesselCrash");
+
+                //Hit Ground
+                dustParticle.Play();
+
+            }
         }
+  
     }
 
 
-    public void Crash()
+    public void StartFall()
     {
+        //playsound here
+        vesselFallSound.SetActive(true);
+
         vesselDummy.transform.position += new Vector3(0, -fallSpeed, 0) * Time.deltaTime;
 
         vesselDummy.transform.Rotate(fallSpeed*2*Time.deltaTime, fallSpeed * Time.deltaTime, fallSpeed * 2 * Time.deltaTime);

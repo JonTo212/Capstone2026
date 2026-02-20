@@ -1,22 +1,29 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum CamState
+{
+    TetherEquipped,
+    LassoEquipped,
+    Tether,
+    Lasso,
+    RopeHangCutscene
+}
+
 [System.Serializable]
 public struct CameraStateSettings
 {
     public CamState cameraState;
     public Vector2 screenOffset; // -1 to 1
     public Vector3 targetOffset; // World-space
-    public float distanceOffset; // Zoom relative to default
     public bool lockYAxis;
     public bool lockXAxis;
 
-    public CameraStateSettings(CamState state, Vector2 screenPos, Vector3 targetOff, float distOff, bool lockY, bool lockX)
+    public CameraStateSettings(CamState state, Vector2 screenPos, Vector3 targetOff, bool lockY, bool lockX)
     {
         cameraState = state;
         screenOffset = screenPos;
         targetOffset = targetOff;
-        distanceOffset = distOff;
         lockYAxis = lockY;
         lockXAxis = lockX;
     }
@@ -28,6 +35,7 @@ public class CameraModeController : MonoBehaviour
     [SerializeField] private ZeldaCameraController cameraController;
     [SerializeField] private LassoTetherController lassoTetherController;
     [SerializeField] private Transform playerRef;
+    [SerializeField] private CameraCutsceneHandler cameraCutsceneHandler;
 
     [Header("Camera State Settings")]
     [SerializeField] private List<CameraStateSettings> cameraStates = new();
@@ -41,26 +49,23 @@ public class CameraModeController : MonoBehaviour
     [SerializeField] private float tetherSensMultiplier = 0.9f;
     [SerializeField] private float lassoSensMultiplier = 0.75f;
 
-    [Header("Lasso Mode Dynamic Zoom Settings")]
+    [Header("Lasso Mode Dynamic Zoom")]
     [SerializeField] private float playerDefaultYOffset = 0.25f;
     [SerializeField] private float zoomPadding = 1.15f;
     [SerializeField] private float lassoZoomOutSmoothTime = 0.1f;
 
-    // Cached values
     private Vector2 defaultScreenOffset;
     private Vector3 defaultTargetOffset;
     private float defaultDistance;
     private float characterHeight;
     private float baseSensitivityX;
     private float baseSensitivityY;
-    private bool hasSnappedToLasso;
-
 
     private Vector2 currentScreenOffset;
     private Vector3 currentTargetOffset;
-    private float currentDistanceOffset;
     private float currentTargetDistance;
     private Vector2 optimalFraming;
+    private bool hasSnappedToLasso;
 
     private void Awake()
     {
@@ -73,16 +78,12 @@ public class CameraModeController : MonoBehaviour
 
         currentScreenOffset = defaultScreenOffset;
         currentTargetOffset = defaultTargetOffset;
-        currentDistanceOffset = 0f;
         currentTargetDistance = defaultDistance;
 
         if (playerRef != null)
         {
-            CapsuleCollider collider = playerRef.GetComponent<CapsuleCollider>();
-            if (collider != null)
-            {
-                characterHeight = collider.height;
-            }
+            var col = playerRef.GetComponent<CapsuleCollider>();
+            if (col != null) characterHeight = col.height;
         }
 
         baseSensitivityX = cameraController.GetMouseXSensitivity();
@@ -91,6 +92,12 @@ public class CameraModeController : MonoBehaviour
 
     private void Update()
     {
+        if (cameraCutsceneHandler != null && cameraCutsceneHandler.IsActive())
+        {
+            RopeSwingCamera();
+            return;
+        }
+
         switch (lassoTetherController.CurrentLassoState)
         {
             case LassoState.Snared:
@@ -103,41 +110,39 @@ public class CameraModeController : MonoBehaviour
                 break;
 
             case LassoState.Tethering:
-                TetherModeCamera();
-                break;
-
             case LassoState.SnaredTether:
                 TetherModeCamera();
                 break;
         }
     }
 
+
+    private void RopeSwingCamera()
+    {
+        ApplyCameraStateSettings(CamState.RopeHangCutscene, defaultAdjustSpeed);
+        ApplySensitivity(1f, 1f);
+    }
+
     private void LassoModeCamera()
     {
         Prop snaredProp = lassoTetherController.Lasso.SnaredObject;
-        if (snaredProp != null)
+        if (snaredProp == null) { ApplySensitivity(lassoSensMultiplier, 0f); return; }
+
+        cameraController.SetDistanceLimit(25f);
+
+        float requiredDistanceOffset = CalculateRequiredDistanceOffset(
+            playerRef.position, snaredProp.transform.position, out optimalFraming);
+        currentTargetDistance = defaultDistance + requiredDistanceOffset;
+
+        bool rotateMode = lassoTetherController.CurrentLassoState == LassoState.FreeRotating;
+        ApplyCameraSettings(optimalFraming, currentTargetOffset, true, rotateMode, lassoModeAdjustSpeed);
+        cameraController.SetCollisionSmoothTimeOverride(lassoZoomOutSmoothTime);
+
+        if (!hasSnappedToLasso)
         {
-            //more zoom outwards in lasso mode
-            cameraController.SetDistanceLimit(25f);
-
-            Vector3 playerPos = playerRef.position;
-            Vector3 heldObjectPos = snaredProp.transform.position;
-
-            float requiredDistanceOffset = CalculateRequiredDistanceOffset(playerPos, heldObjectPos, out optimalFraming);
-            currentTargetDistance = defaultDistance + requiredDistanceOffset;
-
-            bool rotateMode = lassoTetherController.CurrentLassoState == LassoState.FreeRotating;
-            ApplyCameraSettings(optimalFraming, currentTargetOffset, currentTargetDistance, true, rotateMode, lassoModeAdjustSpeed);
-            cameraController.SetCollisionSmoothTimeOverride(lassoZoomOutSmoothTime);
-
-            if (!hasSnappedToLasso)
-            {
-                lassoTetherController.Lasso.SetVerticalAnchor(true);
-                cameraController.SetPitchSmoothOverride(lassoZoomOutSmoothTime);
-                cameraController.SetRotation(cameraController.GetCurrentYaw(), 0f);
-
-                hasSnappedToLasso = true;
-            }
+            cameraController.SetPitchSmoothOverride(lassoZoomOutSmoothTime);
+            cameraController.SetRotation(cameraController.GetCurrentYaw(), 0f);
+            hasSnappedToLasso = true;
         }
 
         ApplySensitivity(lassoSensMultiplier, 0f);
@@ -157,96 +162,73 @@ public class CameraModeController : MonoBehaviour
         cameraController.SetDistanceLimit(defaultDistance);
         hasSnappedToLasso = false;
 
-        if (lassoTetherController.rodEquipped)
-            ApplyCameraStateSettings(CamState.LassoEquipped, defaultAdjustSpeed);
-        else
-            ApplyCameraStateSettings(CamState.TetherEquipped, defaultAdjustSpeed);
+        ApplyCameraStateSettings(
+            lassoTetherController.rodEquipped ? CamState.LassoEquipped : CamState.TetherEquipped,
+            defaultAdjustSpeed);
 
         currentTargetDistance = defaultDistance;
         ApplySensitivity(1f, 1f);
     }
 
-    private void ApplyCameraStateSettings(CamState state, float smoothSpeed)
+
+    private void ApplyCameraStateSettings(CamState state, float speed)
     {
-        CameraStateSettings? settings = GetSettingsForState(state);
-
-        if (settings.HasValue)
-        {
-            CameraStateSettings camSettings = settings.Value;
-            float targetDistance = defaultDistance + camSettings.distanceOffset;
-
-            ApplyCameraSettings(camSettings.screenOffset, defaultTargetOffset + camSettings.targetOffset, targetDistance, camSettings.lockYAxis, camSettings.lockXAxis, smoothSpeed);
-        }
+        CameraStateSettings? s = GetSettingsForState(state);
+        if (s.HasValue)
+            ApplyCameraSettings(s.Value.screenOffset, defaultTargetOffset + s.Value.targetOffset,
+                                s.Value.lockYAxis, s.Value.lockXAxis, speed);
         else
-        {
-            ApplyCameraSettings(defaultScreenOffset, defaultTargetOffset, defaultDistance, false, false, smoothSpeed);
-        }
+            ApplyCameraSettings(defaultScreenOffset, defaultTargetOffset, false, false, speed);
     }
 
-    private void ApplyCameraSettings(Vector2 targetScreenOffset, Vector3 targetOffset, float targetDistance, bool lockY, bool lockX, float smoothSpeed)
+    private void ApplyCameraSettings(Vector2 targetScreen, Vector3 targetOffset,
+                                     bool lockY, bool lockX, float speed)
     {
-        currentScreenOffset = Vector2.Lerp(currentScreenOffset, targetScreenOffset, smoothSpeed * Time.deltaTime);
-        currentTargetOffset = Vector3.Lerp(currentTargetOffset, targetOffset, smoothSpeed * Time.deltaTime);
-        currentDistanceOffset = Mathf.Lerp(currentDistanceOffset, targetDistance - defaultDistance, smoothSpeed * Time.deltaTime);
+        currentScreenOffset = Vector2.Lerp(currentScreenOffset, targetScreen, speed * Time.deltaTime);
+        currentTargetOffset = Vector3.Lerp(currentTargetOffset, targetOffset, speed * Time.deltaTime);
 
         cameraController.SetScreenOffset(currentScreenOffset);
         cameraController.SetTargetOffset(currentTargetOffset);
-        cameraController.SetDistance(defaultDistance + currentDistanceOffset);
-
         cameraController.SetYAxisLocked(lockY);
         cameraController.SetXAxisLocked(lockX);
     }
 
-    private float CalculateRequiredDistanceOffset(Vector3 playerPos, Vector3 objectPos, out Vector2 optimalFraming)
+    private float CalculateRequiredDistanceOffset(Vector3 playerPos, Vector3 objectPos,
+                                                   out Vector2 framing)
     {
         Camera mainCam = Camera.main;
 
-        //player and object sizes
-        float playerBottom = playerPos.y - (characterHeight / 2f);
-        float playerTop = playerPos.y + (characterHeight / 2f);
-
+        float playerBottom = playerPos.y - characterHeight / 2f;
+        float playerTop = playerPos.y + characterHeight / 2f;
         float objectBottom = objectPos.y;
         float objectTop = objectPos.y;
 
-        Renderer objRenderer = lassoTetherController.Lasso.SnaredObject.GetComponent<Renderer>();
-        if (objRenderer != null)
-        {
-            objectBottom = objRenderer.bounds.min.y;
-            objectTop = objRenderer.bounds.max.y;
-        }
+        Renderer r = lassoTetherController.Lasso.SnaredObject.GetComponent<Renderer>();
+        if (r != null) { objectBottom = r.bounds.min.y; objectTop = r.bounds.max.y; }
 
         float lowestY = Mathf.Min(playerBottom, objectBottom);
         float highestY = Mathf.Max(playerTop, objectTop);
-        float verticalSpan = highestY - lowestY;
-
-        //add zoom padding
-        verticalSpan *= zoomPadding;
+        float verticalSpan = (highestY - lowestY) * zoomPadding;
 
         float fovRad = mainCam.fieldOfView * Mathf.Deg2Rad;
-        float requiredDistance = verticalSpan / (2f * Mathf.Tan(fovRad / 2f));
-        requiredDistance = Mathf.Max(requiredDistance, defaultDistance);
+        float requiredDistance = Mathf.Max(verticalSpan / (2f * Mathf.Tan(fovRad / 2f)), defaultDistance);
 
-        //midpoint between player and object
-        Vector3 worldMidpoint = new Vector3((playerPos.x + objectPos.x) / 2f, (lowestY + highestY) / 2f, (playerPos.z + objectPos.z) / 2f);
-        Vector3 midpointViewport = mainCam.WorldToViewportPoint(worldMidpoint);
+        Vector3 midpoint = new Vector3((playerPos.x + objectPos.x) / 2f,
+                                               (lowestY + highestY) / 2f,
+                                               (playerPos.z + objectPos.z) / 2f);
+        Vector3 midpointViewport = mainCam.WorldToViewportPoint(midpoint);
 
-        //player's default position, inc offset
-        float currentY = midpointViewport.y;
-        float targetY = playerDefaultYOffset;
-        float delta = currentY - targetY;
+        float delta = midpointViewport.y - playerDefaultYOffset;
         float normalized = Mathf.Clamp(delta * 2f, -1f, 1f);
 
-        optimalFraming = new Vector2(0f, normalized);
+        framing = new Vector2(0f, normalized);
         return requiredDistance - defaultDistance;
     }
 
-
     private CameraStateSettings? GetSettingsForState(CamState state)
     {
-        foreach (var settings in cameraStates)
-        {
-            if (settings.cameraState == state) return settings;
-        }
+        foreach (var s in cameraStates)
+            if (s.cameraState == state) return s;
         return null;
     }
 

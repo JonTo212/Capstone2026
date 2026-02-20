@@ -1,3 +1,4 @@
+using FMODUnity;
 using System.Collections;
 using UnityEngine;
 
@@ -13,6 +14,10 @@ public class LeverChallengeEndPoint : MonoBehaviour
     [SerializeField] private ParticleSystem explodeParticle;
     [SerializeField] private ParticleSystem dustParticle;
 
+    [SerializeField] private bool JustCompleted = false;
+
+
+
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -25,6 +30,8 @@ public class LeverChallengeEndPoint : MonoBehaviour
     {
         if(challengeWasCompleted)
         {
+
+           
             timeElapsed = Mathf.Clamp01(timeElapsed + Time.deltaTime/timeToFallOver);
 
             float squaredTime = Mathf.Pow(timeElapsed, 2f);
@@ -35,25 +42,12 @@ public class LeverChallengeEndPoint : MonoBehaviour
 
             collider.enabled = true;
 
-            //play complete particle effect
-            bool isplaying = explodeParticle.isPlaying;
 
-            if (!isplaying)
+            if (!JustCompleted)
             {
-                explodeParticle.Play();
-                isplaying = true;
+                StartCoroutine(CompletedEffects());
+                JustCompleted = true;
             }
-
-            //play dust landing particle
-            bool isplaying2 = dustParticle.isPlaying;
-
-            if (timeElapsed >= 1f && !isplaying2)
-            {
-                dustParticle.Play();
-                isplaying2 = true; // Prevents re-triggering every frame
-            }
-
-
         }
     }
 
@@ -65,5 +59,19 @@ public class LeverChallengeEndPoint : MonoBehaviour
             fakeLever.gameObject.SetActive(true);
             challengeWasCompleted = true;
         }
+    }
+
+    IEnumerator CompletedEffects()
+    {
+        //Completed Puzzle
+        RuntimeManager.PlayOneShot("event:/Fanfare", transform.position);
+        //RuntimeManager.PlayOneShot("event:/PuzzleComplete", transform.position);
+        explodeParticle.Play();
+
+        yield return new WaitForSeconds(timeToFallOver);
+
+        //Hit Ground
+        dustParticle.Play();
+        RuntimeManager.PlayOneShot("event:/WallBreak", transform.position);
     }
 }

@@ -2,16 +2,6 @@ using System.Collections.Generic;
 using Unity.Cinemachine;
 using UnityEngine;
 
-public enum CamState
-{
-    LassoEquipped,
-    TetherEquipped,
-    Lasso,
-    Tether,
-    LedgeGrab,
-    HighSpeed
-}
-
 [System.Serializable]
 public struct CameraDirectionModifier
 {
