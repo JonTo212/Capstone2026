@@ -7,9 +7,12 @@ public class PickupNPCProp : Prop
     private Vector3 defaultLocalScale;
     private Coroutine animCoroutine;
     [SerializeField] private float deflatedScale = 0.2f;
+    [SerializeField] private CritterInstance critterInstanceScript;
 
     private void Awake()
     {
+        critterInstanceScript = GetComponent<CritterInstance>();
+
         base.Init();
         defaultLocalScale = transform.localScale;
     }
@@ -22,6 +25,9 @@ public class PickupNPCProp : Prop
         DestroyAllAttachedTethers();
 
         RuntimeManager.PlayOneShot("event:/NPCSave", transform.position);
+
+        //tell UI that you got a puff
+        critterInstanceScript.BeRescued();
     }
 
     public void OnCaptureInterrupted(float captureDuration)
