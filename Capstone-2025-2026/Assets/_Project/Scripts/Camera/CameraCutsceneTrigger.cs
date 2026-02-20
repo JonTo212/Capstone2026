@@ -1,3 +1,4 @@
+using FMODUnity;
 using UnityEngine;
 
 public class CameraCutsceneTrigger : MonoBehaviour
@@ -23,5 +24,8 @@ public class CameraCutsceneTrigger : MonoBehaviour
 
         CameraCutsceneHandler.Instance.StartCutscene(_cutscene);
         _hasTriggered = true;
+
+
+        RuntimeManager.PlayOneShot("event:/ZipLineGood", transform.position);
     }
 }

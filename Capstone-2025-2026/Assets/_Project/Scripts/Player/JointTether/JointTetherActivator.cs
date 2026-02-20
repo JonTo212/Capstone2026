@@ -149,7 +149,7 @@ public class JointTetherActivator : MonoBehaviour
     {
         foreach (JointTether tether in placedTethers)
         {
-            RuntimeManager.PlayOneShot("event:/TetherActivate", transform.position);
+            //RuntimeManager.PlayOneShot("event:/TetherActivate", transform.position);  FOR SOME REASON THIS CAUSES SOUND TO PLAY WHEN YOU DESTROY, NOT ACTIVATE
             tether.ActivateTether();
 
             OnTetherActivated?.Invoke();

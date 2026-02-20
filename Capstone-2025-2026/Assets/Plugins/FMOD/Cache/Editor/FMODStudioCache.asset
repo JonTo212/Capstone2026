@@ -146,9 +146,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Zipline
+  m_Name: event:/ZipLine
   m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/Zipline
+  Path: event:/ZipLine
   Guid:
     Data1: 1508906734
     Data2: 1188784221
@@ -550,10 +550,10 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Master.bank
   Name: Master
   StudioPath: bank:/Master
-  lastModified: 639071294844836505
+  lastModified: 639071346997000923
   FileSizes:
   - Name: Desktop
-    Value: 1074
+    Value: 1670
   Exists: 1
 --- !u!114 &-6949510110421619303
 MonoBehaviour:
@@ -867,7 +867,7 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Menu.bank
   Name: Menu
   StudioPath: bank:/Player/Menu
-  lastModified: 639071294845867971
+  lastModified: 639071326087053156
   FileSizes:
   - Name: Desktop
     Value: 45024
@@ -1649,11 +1649,38 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Movement.bank
   Name: Movement
   StudioPath: bank:/Player/Movement
-  lastModified: 639071294846272148
+  lastModified: 639071326087472434
   FileSizes:
   - Name: Desktop
     Value: 240128
   Exists: 1
+--- !u!114 &-756875264621781899
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/ZipLineGood
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
+  Path: event:/ZipLineGood
+  Guid:
+    Data1: 550850992
+    Data2: 1191899380
+    Data3: -388799081
+    Data4: -2128036724
+  Banks:
+  - {fileID: 3166276782859278967}
+  IsStream: 0
+  Is3D: 0
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 6000
 --- !u!114 &-642995794689077147
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1723,7 +1750,7 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Ambience.bank
   Name: Ambience
   StudioPath: bank:/Ambience
-  lastModified: 639071294843732686
+  lastModified: 639071326084551485
   FileSizes:
   - Name: Desktop
     Value: 2543328
@@ -1863,13 +1890,15 @@ MonoBehaviour:
   - {fileID: 2820567891626269739}
   - {fileID: -3126501111191565318}
   - {fileID: 3632431589916455687}
+  - {fileID: 2559267528835050932}
+  - {fileID: -756875264621781899}
   EditorParameters: []
   MasterBanks:
   - {fileID: -7088738203370822702}
   StringsBanks:
   - {fileID: 5156841979197466890}
   cacheVersion: 131858
-  cacheTime: 639071294846693935
+  cacheTime: 639071347960553710
   SerializableEventsDict:
   - key: event:/WaterSplash
     index: 0
@@ -1927,7 +1956,7 @@ MonoBehaviour:
     index: 26
   - key: event:/DialogueNPC
     index: 27
-  - key: event:/Zipline
+  - key: event:/ZipLine
     index: 28
   - key: event:/PlatformSlide
     index: 29
@@ -1987,6 +2016,10 @@ MonoBehaviour:
     index: 56
   - key: event:/WindAmbient-3D
     index: 57
+  - key: event:/EOTS Music Draft
+    index: 58
+  - key: event:/ZipLineGood
+    index: 59
 --- !u!114 &69565535895606078
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2035,7 +2068,7 @@ MonoBehaviour:
   Banks:
   - {fileID: 3166276782859278967}
   IsStream: 0
-  Is3D: 0
+  Is3D: 1
   IsOneShot: 1
   Parameters: []
   MinDistance: 1
@@ -2283,6 +2316,33 @@ MonoBehaviour:
   - Name: Desktop
     Value: 3408
   Exists: 1
+--- !u!114 &2559267528835050932
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/EOTS Music Draft
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
+  Path: event:/EOTS Music Draft
+  Guid:
+    Data1: -1036337156
+    Data2: 1074807586
+    Data3: 298910087
+    Data4: -615069179
+  Banks:
+  - {fileID: 8317983486017913702}
+  IsStream: 1
+  Is3D: 0
+  IsOneShot: 0
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 112941
 --- !u!114 &2560715539542290669
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2433,10 +2493,10 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Level1-1.bank
   Name: Level1-1
   StudioPath: bank:/Level1-1
-  lastModified: 639071294844673020
+  lastModified: 639071347960553710
   FileSizes:
   - Name: Desktop
-    Value: 1212384
+    Value: 1213888
   Exists: 1
 --- !u!114 &3279131179263147659
 MonoBehaviour:
@@ -2723,10 +2783,10 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Master.strings.bank
   Name: Master.strings
   StudioPath: bank:/Master.strings
-  lastModified: 639071294844871602
+  lastModified: 639071346997031683
   FileSizes:
   - Name: Desktop
-    Value: 3628
+    Value: 3892
   Exists: 1
 --- !u!114 &5317925292912473316
 MonoBehaviour:
@@ -3033,10 +3093,10 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Tools.bank
   Name: Tools
   StudioPath: bank:/Player/Tools
-  lastModified: 639071294846693935
+  lastModified: 639071326087890200
   FileSizes:
   - Name: Desktop
-    Value: 214368
+    Value: 214560
   Exists: 1
 --- !u!114 &6894448767470642371
 MonoBehaviour:
@@ -3296,10 +3356,10 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Music.bank
   Name: Music
   StudioPath: bank:/Music
-  lastModified: 639071294845384832
+  lastModified: 639071327887987429
   FileSizes:
   - Name: Desktop
-    Value: 3505184
+    Value: 4802528
   Exists: 1
 --- !u!114 &8552135470107135323
 MonoBehaviour:
@@ -3505,7 +3565,7 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Collectible.bank
   Name: Collectible
   StudioPath: bank:/Player/Collectible
-  lastModified: 639071127195924513
+  lastModified: 639071326086674597
   FileSizes:
   - Name: Desktop
     Value: 36992
