@@ -40,6 +40,7 @@ public class UIImageMovement : MonoBehaviour
 
     void Update()
     {
+        /*
         //disable tether icon untill its picked up
         if (!lassoTetherControllerScript.tetherPickedUp)
         {
@@ -54,6 +55,8 @@ public class UIImageMovement : MonoBehaviour
             TetherIcon.texture = TetherSprite;
         }
 
+        */
+
         if (playerActionsScript.toolSwitchDown)
         {
             //playsound
@@ -64,6 +67,7 @@ public class UIImageMovement : MonoBehaviour
 
         }
 
+        /*
         if (lassoTetherControllerScript.rodEquipped == true)
         {
             RodEquip();
@@ -72,6 +76,7 @@ public class UIImageMovement : MonoBehaviour
         {
             TetherEquip();
         }
+        */
     }
 
 

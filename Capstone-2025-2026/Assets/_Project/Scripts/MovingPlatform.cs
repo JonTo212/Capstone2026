@@ -1,3 +1,4 @@
+using FMODUnity;
 using UnityEngine;
 
 public class MovingPlatform : MonoBehaviour
@@ -20,6 +21,7 @@ public class MovingPlatform : MonoBehaviour
         {
             if(CheckCrash())
             {
+
                 DisconnectPlayer(true);
                 return;
             }
@@ -52,6 +54,7 @@ public class MovingPlatform : MonoBehaviour
 
     private void DisconnectPlayer(bool jump)
     {
+        RuntimeManager.PlayOneShot("event:/MomentumCollisionSound", transform.position);
         playerRef.InheritPlatformMomentum(Vector3.zero);
         if (jump) playerRef.Jump(jumpOnCrashMultiplier, true);
         playerRef = null;

@@ -25,6 +25,7 @@ public class ZeldaCameraController : MonoBehaviour
 
     [Header("Position Smoothing")]
     [SerializeField] private Vector3 positionDamping;
+    private Vector3 originalPositionDamping;
 
     [Header("Collision")]
     [SerializeField] private bool handleCollision = true;
@@ -55,6 +56,10 @@ public class ZeldaCameraController : MonoBehaviour
     private float previousTargetDistance;
     private bool colliding;
 
+    public bool IsColliding() => colliding;
+    public float GetCollisionDistance() => collisionDistance;
+    public float GetCameraRange01() => Mathf.Clamp01(collisionDistance / defaultDistance);
+
     //smoothing
     private Vector3 positionVelocity;
     private Vector3 rotationVelocity;
@@ -79,6 +84,7 @@ public class ZeldaCameraController : MonoBehaviour
         collisionDistance = defaultDistance;
         previousTargetDistance = defaultDistance;
         collisionSmoothTime = collisionZoomInTime;
+        originalPositionDamping = positionDamping;
 
         Vector3 currentRotation = transform.eulerAngles;
         currentYaw = currentRotation.y;
@@ -121,7 +127,7 @@ public class ZeldaCameraController : MonoBehaviour
             mouseX *= mouseXSensitivity;
             mouseY *= mouseYSensitivity;
         }
-        else if(input.CurrentDevice.Equals(PlayerActions.InputType.Controller))
+        else if (input.CurrentDevice.Equals(PlayerActions.InputType.Controller))
         {
             mouseX *= mouseXSensitivity * controllerXSensitivityMultiplier;
             mouseY *= mouseYSensitivity * controllerYSensitivityMultiplier;
@@ -143,6 +149,7 @@ public class ZeldaCameraController : MonoBehaviour
 
     private void UpdateGhostTransform()
     {
+
         //rotation
         if (rotationSmoothTime > 0.001f)
         {
@@ -216,13 +223,13 @@ public class ZeldaCameraController : MonoBehaviour
 
             if (overrideSmoothTime.HasValue)
                 collisionSmoothTime = overrideSmoothTime.Value;
-            else if (zoomingIn) 
-                collisionSmoothTime = collisionZoomInTime; 
+            else if (zoomingIn)
+                collisionSmoothTime = collisionZoomInTime;
             else if (zoomingOut)
                 collisionSmoothTime = collisionZoomOutTime;
 
             //only move camera on input or if colliding
-            if (colliding || hasInput || overrideSmoothTime.HasValue) 
+            if (colliding || hasInput || overrideSmoothTime.HasValue)
                 collisionDistance = Mathf.SmoothDamp(collisionDistance, targetCollisionDistance, ref collisionVelocity, collisionSmoothTime);
             else
                 collisionVelocity = 0f;
@@ -270,7 +277,7 @@ public class ZeldaCameraController : MonoBehaviour
 
     public void SetRotation(float yaw, float pitch)
     {
-        targetYaw = yaw; 
+        targetYaw = yaw;
         targetPitch = Mathf.Clamp(pitch, minVerticalAngle, maxVerticalAngle);
     }
 
@@ -326,4 +333,9 @@ public class ZeldaCameraController : MonoBehaviour
         pitchSmoothOverride = time;
     }
 
+    public void SetPositionDamping(Vector3? newDamping)
+    {
+        if (newDamping.HasValue) positionDamping = newDamping.Value;
+        else positionDamping = originalPositionDamping;
+    }
 }

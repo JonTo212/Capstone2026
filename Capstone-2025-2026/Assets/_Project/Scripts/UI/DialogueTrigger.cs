@@ -1,3 +1,4 @@
+using FMODUnity;
 using StarterAssets;
 using TMPro;
 using Unity.VisualScripting;
@@ -18,10 +19,10 @@ public class DialogueTrigger : MonoBehaviour
     [SerializeField] private float delay = 0;
 
     private GameObject template;
-    private GameObject uICanvas;
+    private GameObject NewDialogueStorage;
     private void Start()
     {
-        uICanvas = GameObject.Find("PlayerUICanvas");
+        NewDialogueStorage = GameObject.Find("NewDialogueStorage");
         template = GameObject.Find("NPCDialogue 1");
     }
    
@@ -40,8 +41,9 @@ public class DialogueTrigger : MonoBehaviour
 
     public void CreateNPCDialogue()
     {
+
         NPCDialogue npcText;
-        GameObject newBox = Instantiate(template, template.transform.position , Quaternion.identity, uICanvas.transform);
+        GameObject newBox = Instantiate(template, template.transform.position , Quaternion.identity, NewDialogueStorage.transform);
         Image[] images = newBox.GetComponentsInChildren<Image>();
         foreach (Image image in images) { image.enabled = true; }
         TMP_Text text = newBox.GetComponentInChildren<TMP_Text>();

@@ -1,5 +1,4 @@
-using NUnit.Framework;
-using System.Net;
+using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(LineRenderer))]
@@ -12,7 +11,7 @@ public class LassoVisuals : MonoBehaviour
     [SerializeField] private Transform lassoPointVisuals;
 
     [Header("Spring Wave Values")]
-    [SerializeField] private int ropeSegmentCount = 50; // reduced for performance
+    [SerializeField] private int ropeSegmentCount = 50;
     [SerializeField] private float damper = 15f;
     [SerializeField] private float strength = 800f;
     [SerializeField] private float velocity = 15f;
@@ -33,6 +32,9 @@ public class LassoVisuals : MonoBehaviour
     private bool isSpringSettled;
     private bool hasMouseMoved = false;
 
+    // Set externally by CameraCutsceneHandler during rope swing cutscenes
+    private bool _inCutscene = false;
+
     private void Awake()
     {
         lineRenderer = GetComponent<LineRenderer>();
@@ -44,6 +46,10 @@ public class LassoVisuals : MonoBehaviour
 
     private void LateUpdate()
     {
+        // Cutscene drawing is driven externally by CameraCutsceneHandler.LateUpdate()
+        // to stay in sync with the physics-moved player position. Nothing to do here.
+        if (_inCutscene) return;
+
         Vector3 currentMousePosition = playerActions.LookInput;
         hasMouseMoved = (currentMousePosition - lastMousePosition).sqrMagnitude > 1f;
         lastMousePosition = currentMousePosition;
@@ -77,9 +83,7 @@ public class LassoVisuals : MonoBehaviour
                 DrawSnapLasso();
 
                 if (Mathf.Abs(spring.Velocity) < 0.0125f)
-                {
                     isSpringSettled = true;
-                }
             }
         }
         else
@@ -87,6 +91,28 @@ public class LassoVisuals : MonoBehaviour
             DrawSnapLasso();
         }
     }
+
+    /// <summary>
+    /// Called by CameraCutsceneHandler.LateUpdate() to draw the rope during a rope swing cutscene.
+    /// Driving this externally ensures it runs after MovePosition() and in the same frame as
+    /// UpdateRopeVisuals(), eliminating the one-frame stutter.
+    /// </summary>
+    public void DrawCutsceneRopeExternal(Vector3 handPos, Vector3 attachmentPos)
+    {
+        _inCutscene = true;
+        DrawCutsceneRope(handPos, attachmentPos);
+    }
+
+    /// <summary>
+    /// Called by CameraCutsceneHandler when the cutscene ends so normal lasso drawing resumes.
+    /// </summary>
+    public void ExitCutsceneMode()
+    {
+        _inCutscene = false;
+        ResetRope();
+    }
+
+    public Vector3 GetHoldPos() => lassoScript.HoldPos.position;
 
     private bool DisableVisuals()
     {
@@ -97,7 +123,6 @@ public class LassoVisuals : MonoBehaviour
 
     private void DrawSnapLasso()
     {
-
         if (lineRenderer.positionCount == 0)
         {
             spring.SetVelocity(velocity);
@@ -123,7 +148,6 @@ public class LassoVisuals : MonoBehaviour
             float delta = i / (float)ropeSegmentCount;
             Vector3 offset = up * waveHeight * Mathf.Sin(delta * waveCount * Mathf.PI) * spring.Value * affectCurve.Evaluate(delta);
             Vector3 ropePos = Vector3.Lerp(startPoint, currentPullPos, delta) + offset;
-
             lineRenderer.SetPosition(i, ropePos);
         }
     }
@@ -136,38 +160,31 @@ public class LassoVisuals : MonoBehaviour
         Vector3 endPoint = lassoScript.HitPos;
         Camera cam = lassoScript.PlayerCam;
 
-        //recalculate object depth relative to camera -> this is for tethered objects that move
-        //using GetCenterOfScreen() doesn't work because that uses a stale _anchorDist value
         Vector3 cameraToObject = endPoint - cam.transform.position;
         float objectDepth = Vector3.Dot(cameraToObject, cam.transform.forward);
         Vector3 dynamicCenterPoint = cam.transform.position + cam.transform.forward * objectDepth;
         float totalDistance = Vector3.Distance(dynamicCenterPoint, endPoint);
 
-        //get middle of screen + object hit point and convert to screen space
-        //then, find the opposite vector of the direction vector between the two
         Vector3 screenStart = Camera.main.WorldToScreenPoint(dynamicCenterPoint);
         Vector3 screenEnd = Camera.main.WorldToScreenPoint(endPoint);
         Vector3 screenDirection = (screenEnd - screenStart).normalized;
         Vector3 screenPerpendicular = new Vector3(-screenDirection.x, -screenDirection.y, 0f);
 
-        //convert the opposite vector back to world space
         Vector3 worldPerpendicular = Camera.main.transform.TransformDirection(screenPerpendicular);
         Vector3 combinedBendAxis = worldPerpendicular.normalized;
 
         //one point at midpoint, one at 3/4
-        Vector3 controlPoint1 = Vector3.Lerp(startPoint, endPoint, 0.175f);
-        Vector3 controlPoint2 = Vector3.Lerp(startPoint, endPoint, 0.35f);
-        Vector3 controlPoint3 = Vector3.Lerp(startPoint, endPoint, 0.525f);
-        Vector3 controlPoint4 = Vector3.Lerp(startPoint, endPoint, 0.7f);
-        Vector3 controlPoint5 = Vector3.Lerp(startPoint, endPoint, 0.875f);
+        Vector3 controlPoint1 = Vector3.Lerp(startPoint, endPoint, 0.4f);
+        Vector3 controlPoint2 = Vector3.Lerp(startPoint, endPoint, 0.8f);
 
         //determine how much the object can bend
         float currentBendOffset = Mathf.Clamp(totalDistance * bendScale, minBend, maxBend);
         controlPoint1 += combinedBendAxis * currentBendOffset;
-        controlPoint2 += combinedBendAxis * currentBendOffset; 
+        controlPoint2 += combinedBendAxis * currentBendOffset;
 
-        Vector3[] linePositions = new Vector3[7]
-        {  startPoint, controlPoint1, controlPoint2, controlPoint3, controlPoint4, controlPoint5, endPoint };
+        Vector3[] linePositions = new Vector3[4]
+        {  startPoint, controlPoint1, controlPoint2, endPoint };
+
 
         Vector3[] smoothedPoints = LineSmoother.SmoothLine(linePositions, 0.1f);
 
@@ -180,6 +197,20 @@ public class LassoVisuals : MonoBehaviour
         currentPullPos = lassoScript.HitPos;
         lassoPointVisuals.transform.position = currentPullPos;
         lassoPointVisuals.transform.rotation = Quaternion.Euler(Vector3.zero);
+    }
+
+    private void DrawCutsceneRope(Vector3 handPos, Vector3 currentPos)
+    {
+        lineRenderer.positionCount = 2;
+        lineRenderer.SetPosition(0, handPos);
+        lineRenderer.SetPosition(1, currentPos);
+
+        lassoPointVisuals.gameObject.SetActive(true);
+        lassoPointVisuals.transform.position = currentPos;
+        lassoPointVisuals.transform.rotation = Quaternion.identity;
+
+        spring.Reset();
+        isSpringSettled = false;
     }
 
     private void ResetRope()
