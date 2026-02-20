@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using FMODUnity;
 
 public class PickupNPCProp : Prop
 {
@@ -19,6 +20,8 @@ public class PickupNPCProp : Prop
         animCoroutine = StartCoroutine(Deflate(captureDuration, deflatedScale));
 
         DestroyAllAttachedTethers();
+
+        RuntimeManager.PlayOneShot("event:/NPCSave", transform.position);
     }
 
     public void OnCaptureInterrupted(float captureDuration)
