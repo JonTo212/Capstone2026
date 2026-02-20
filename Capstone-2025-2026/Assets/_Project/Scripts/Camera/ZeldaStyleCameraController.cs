@@ -59,6 +59,8 @@ public class ZeldaCameraController : MonoBehaviour
     public bool IsColliding() => colliding;
     public float GetCollisionDistance() => collisionDistance;
     public float GetCameraRange01() => Mathf.Clamp01(collisionDistance / defaultDistance);
+    public Vector3 TargetOffset => targetOffset;
+    public Vector3 TargetPos => target.position;
 
     //smoothing
     private Vector3 positionVelocity;

@@ -67,7 +67,7 @@ public class CameraModeController : MonoBehaviour
     private Vector2 optimalFraming;
     private bool hasSnappedToLasso;
 
-    private void Awake()
+    private void Start()
     {
         if (cameraController == null)
             cameraController = GetComponent<ZeldaCameraController>();

@@ -280,11 +280,11 @@ public class LassoTetherController : MonoBehaviour
                 playerLasso.HitPos = playerLasso.SnaredObject.transform.position;
                 wasUsingPhysicsLasso = playerLasso.usePhysicsLasso;
                 playerLasso.usePhysicsLasso = false;
-                playerLasso.camInputController.enabled = false;
+                //playerLasso.camInputController.enabled = false;
             }
             else
             {
-                playerLasso.camInputController.enabled = false;
+                //playerLasso.camInputController.enabled = false;
             }
             playerLasso.SnaredObject.DisableJointTemp();
             playerLasso.SetRotating(true);
@@ -381,7 +381,7 @@ public class LassoTetherController : MonoBehaviour
             }
 
             playerLasso.SnaredObject.EnableJoint();
-            playerLasso.camInputController.enabled = true;
+            //playerLasso.camInputController.enabled = true;
             playerLasso.SetRotating(false);
             SwitchLassoState(LassoState.Snared);
         }
@@ -399,7 +399,7 @@ public class LassoTetherController : MonoBehaviour
             }
 
             playerLasso.SnaredObject.EnableJoint();
-            playerLasso.camInputController.enabled = true;
+            //playerLasso.camInputController.enabled = true;
             playerLasso.SetRotating(false);
             playerLasso.HandleObjectReleased();
         }

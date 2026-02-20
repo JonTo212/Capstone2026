@@ -3415,23 +3415,13 @@ GameObject:
   - component: {fileID: 1328274438649917707}
   - component: {fileID: 7136094397731902115}
   - component: {fileID: 7887010670107607874}
-  - component: {fileID: 8924538367377645381}
   - component: {fileID: 7777431948427391573}
   - component: {fileID: 3642584705358189346}
   - component: {fileID: 3634281063817170632}
   - component: {fileID: 793302071008850072}
-  - component: {fileID: 1747977646083282892}
-  - component: {fileID: 8710545689375291620}
-  - component: {fileID: 7480378087884029822}
   - component: {fileID: 1252616750680107932}
   - component: {fileID: 6127508049477355339}
   - component: {fileID: 2851187279782796764}
-  - component: {fileID: 3030007626368240833}
-  - component: {fileID: 6121116752679779208}
-  - component: {fileID: 2853015915421807532}
-  - component: {fileID: 3596228060345160720}
-  - component: {fileID: 2068136723121595021}
-  - component: {fileID: 2014194725152589524}
   m_Layer: 7
   m_Name: ThirdPersonPlayer
   m_TagString: Player
@@ -3774,25 +3764,6 @@ MonoBehaviour:
   minRopeLength: 5
   maxRopeLength: 7.5
   airAccel: 12.5
---- !u!114 &8924538367377645381
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2571145194382551425}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b262bcae59306164bb5a1266ecfeec93, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerInventory
-  <npcRemovePos>k__BackingField: {fileID: 0}
-  <npcBackpackPos>k__BackingField: {fileID: 0}
-  <npcAbilityPos>k__BackingField: {fileID: 5441280346354860789}
-  abilityLineRenderer: {fileID: 6971207998255640078}
-  camTransform: {fileID: 0}
-  handAttachThreshold: 0.5
-  objectYankDuration: 0.5
 --- !u!114 &7777431948427391573
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3889,69 +3860,6 @@ MonoBehaviour:
   OverrideAttenuation: 0
   OverrideMinDistance: -1
   OverrideMaxDistance: -1
---- !u!114 &1747977646083282892
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2571145194382551425}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a7ef1c7cc82f5514fa65dcd8adfbadff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::StuckOnABranch
---- !u!114 &8710545689375291620
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2571145194382551425}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: FMODUnity::FMODUnity.StudioEventEmitter
-  CollisionTag: 
-  EventReference:
-    Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
-  Event: 
-  EventPlayTrigger: 0
-  EventStopTrigger: 0
-  AllowFadeout: 1
-  TriggerOnce: 0
-  Preload: 0
-  NonRigidbodyVelocity: 0
-  Params: []
-  OverrideAttenuation: 0
-  OverrideMinDistance: -1
-  OverrideMaxDistance: -1
---- !u!114 &7480378087884029822
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2571145194382551425}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b9468c5f457ace64f8d4df6d642b107f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: FMODUnity::FMODUnity.StudioBankLoader
-  LoadEvent: 0
-  UnloadEvent: 0
-  Banks:
-  - Menu
-  - Movement
-  - Tools
-  CollisionTag: 
-  PreloadSamples: 0
 --- !u!114 &1252616750680107932
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3964,7 +3872,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5088d4f38abb70a4299db5838c7a4104, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerNPCCapture
-  npcBackpackPos: {fileID: 0}
+  npcBackpackPos: {fileID: 2136325372021395796}
   handAttachThreshold: 0.2
   objectYankDuration: 0.5
 --- !u!114 &6127508049477355339
@@ -3985,117 +3893,6 @@ MonoBehaviour:
   fadeEndDistance: 1
   minAlpha: 0
 --- !u!114 &2851187279782796764
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2571145194382551425}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 09f2298a053c5f9499bacec03b72d37e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerFadeData
-  Renderers:
-  - {fileID: 0}
-  Materials: []
-  InitialAlpha: 0
---- !u!114 &3030007626368240833
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2571145194382551425}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a7ef1c7cc82f5514fa65dcd8adfbadff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::StuckOnABranch
---- !u!114 &6121116752679779208
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2571145194382551425}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: FMODUnity::FMODUnity.StudioEventEmitter
-  CollisionTag: 
-  EventReference:
-    Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
-  Event: 
-  EventPlayTrigger: 0
-  EventStopTrigger: 0
-  AllowFadeout: 1
-  TriggerOnce: 0
-  Preload: 0
-  NonRigidbodyVelocity: 0
-  Params: []
-  OverrideAttenuation: 0
-  OverrideMinDistance: -1
-  OverrideMaxDistance: -1
---- !u!114 &2853015915421807532
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2571145194382551425}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b9468c5f457ace64f8d4df6d642b107f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: FMODUnity::FMODUnity.StudioBankLoader
-  LoadEvent: 0
-  UnloadEvent: 0
-  Banks:
-  - Menu
-  - Movement
-  - Tools
-  CollisionTag: 
-  PreloadSamples: 0
---- !u!114 &3596228060345160720
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2571145194382551425}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5088d4f38abb70a4299db5838c7a4104, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerNPCCapture
-  npcBackpackPos: {fileID: 0}
-  handAttachThreshold: 0.2
-  objectYankDuration: 0.5
---- !u!114 &2068136723121595021
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2571145194382551425}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f7506fa9f0493264a9fee3fe88aa044e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerFade
-  cameraController: {fileID: 0}
-  player: {fileID: 2014194725152589524}
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
---- !u!114 &2014194725152589524
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8887,9 +8684,9 @@ RectTransform:
   m_Father: {fileID: 4716422162673525759}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: -17, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &7230563106864404904
 MonoBehaviour:
@@ -8975,7 +8772,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.00018310547}
+  m_AnchoredPosition: {x: 0, y: 640.8999}
   m_SizeDelta: {x: 0, y: 874}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!1 &5892058441005799527
@@ -9098,8 +8895,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 4091486024729698376}
   m_HandleRect: {fileID: 1493070891470726906}
   m_Direction: 2
-  m_Value: 0.9999997
-  m_Size: 0.2667048
+  m_Value: 0.000000047616755
+  m_Size: 0
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -9340,8 +9137,8 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 6012309590122798249}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 0.000000047616755}
+  m_AnchorMax: {x: 1, y: 0.000000047616755}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -12327,7 +12124,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &4990267598749261002
 RectTransform:
   m_ObjectHideFlags: 0
