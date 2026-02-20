@@ -12,6 +12,11 @@ public class CameraCutsceneHandler : MonoBehaviour
     [SerializeField] private PlayerModelRotationHandler playerModelRotation;
     [SerializeField] private ZeldaCameraController cameraController;
     [SerializeField] private CameraModeController cameraModeController;
+    [SerializeField] private LassoVisuals lassoVisuals;
+
+    [Header("Rope Swing Sway Offset")]
+    [Tooltip("How far (in world units) the player is nudged sideways per degree of camera sway tilt.")]
+    [SerializeField] private float swayPositionStrength = 0.02f;
 
 
     private bool _isActive = false;
@@ -28,25 +33,16 @@ public class CameraCutsceneHandler : MonoBehaviour
     private float _blendStartTime;
     private Vector3 _blendPlayerFrom;
     private Vector3 _blendPlayerTo;
+    private bool _hasSnappedBlendRotation = false;
     public bool BlendDelayActive { get; private set; }
     public bool BlendingIn => _isBlendingIn;
     public CutsceneBase CurrentCutscene => _cutscene;
+    private RopeSwingCutscene RopeCutscene => _cutscene as RopeSwingCutscene;
 
     private Vector3 _previousPathPosition;
     private float _currentT = 0f;
 
     public Vector3 CurrentPathPosition { get; private set; }
-
-    public Vector3 CurrentRopeAttachmentPosition
-    {
-        get
-        {
-            if (_cutscene is RopeSwingCutscene rope)
-                return CurrentPathPosition - rope.SampleOffsetAtT(_currentT);
-            return CurrentPathPosition;
-        }
-    }
-
 
     private void Awake()
     {
@@ -104,6 +100,8 @@ public class CameraCutsceneHandler : MonoBehaviour
         _previousPathPosition = _blendPlayerTo;
         CurrentPathPosition = _blendPlayerTo;
 
+        if (RopeCutscene != null) cameraController.SetPositionDamping(Vector3.zero);
+
         yield return new WaitForSeconds(_cutscene.blendInDelay);
         BlendDelayActive = false;
 
@@ -119,6 +117,7 @@ public class CameraCutsceneHandler : MonoBehaviour
 
         yield return new WaitForSeconds(_duration);
 
+        if (RopeCutscene != null) cameraController.SetPositionDamping(null);
         _isPlaying = false;
 
         _cutscene.OnCutsceneEnd();
@@ -139,6 +138,11 @@ public class CameraCutsceneHandler : MonoBehaviour
         if (_cutscene.disablePlayerControl)
             EnablePlayerControl();
 
+        // Tell lasso visuals to resume normal drawing
+        if (lassoVisuals != null)
+            lassoVisuals.ExitCutsceneMode();
+
+        _hasSnappedBlendRotation = false;
         _cutscene = null;
         _isActive = false;
     }
@@ -159,8 +163,16 @@ public class CameraCutsceneHandler : MonoBehaviour
                 {
                     playerRb.MovePosition(Vector3.Lerp(_blendPlayerFrom, _blendPlayerTo, t));
 
-                    if (_cutscene is RopeSwingCutscene rope)
-                        playerRb.MoveRotation(Quaternion.Slerp(playerRb.rotation, rope.PathStartRotation, t));
+                    if (RopeCutscene != null)
+                    {
+                        // Snap the player to face the path start on the very first frame after
+                        // the blend delay clears, then hold that rotation for the rest of blend-in.
+                        if (!_hasSnappedBlendRotation)
+                        {
+                            playerRb.MoveRotation(RopeCutscene.PathStartRotation);
+                            _hasSnappedBlendRotation = true;
+                        }
+                    }
                 }
             }
             return;
@@ -179,14 +191,24 @@ public class CameraCutsceneHandler : MonoBehaviour
 
         if (_cutscene.disablePlayerControl && playerRb != null)
         {
-            playerRb.MovePosition(pos);
+            // Nudge the player sideways to match the camera's sway tilt.
+            // TickAnimation hasn't run yet this frame, so we use last frame's sway angle.
+            Vector3 swayPos = pos;
+            if (RopeCutscene != null && swayPositionStrength > 0f)
+            {
+                Vector3 travelDir = RopeCutscene.GetPathDirection(_currentT);
+                Vector3 right = Vector3.Cross(Vector3.up, travelDir).normalized;
+                swayPos -= right * (RopeCutscene.CurrentSwayAngle * swayPositionStrength);
+            }
 
-            if (_cutscene is RopeSwingCutscene rope)
-                playerRb.MoveRotation(rope.GetPlayerBodyRotation(_currentT));
+            playerRb.MovePosition(swayPos);
+
+            if (RopeCutscene != null)
+                playerRb.MoveRotation(RopeCutscene.GetPlayerBodyRotation(_currentT));
         }
 
-        if (_cutscene is RopeSwingCutscene ropeAnim)
-            ropeAnim.TickAnimation(_currentT, speed, playerModelRotation);
+        if (RopeCutscene != null)
+            RopeCutscene.TickAnimation(_currentT, speed, playerModelRotation);
         else
             _cutscene.OnCutsceneTick(_currentT, pos, speed);
     }
@@ -196,26 +218,44 @@ public class CameraCutsceneHandler : MonoBehaviour
     {
         if (!_isActive || _cutscene == null) return;
 
-        _cutscene.OnCutsceneLateUpdate();
+        // Update rope attachment position and drive lasso visuals from here,
+        // after FixedUpdate has already moved the rigidbody via MovePosition().
+        // This eliminates the one-frame stutter from LassoVisuals polling independently.
+        if (RopeCutscene != null && !BlendDelayActive)
+        {
+            Vector3 renderPos = GetRenderPathPosition();
+            RopeCutscene.UpdateRopeVisuals(renderPos, _currentT);
+
+            if (lassoVisuals != null)
+                lassoVisuals.DrawCutsceneRopeExternal(
+                    lassoVisuals.GetHoldPos(),
+                    RopeCutscene.CurrentRopeAttachmentPosition);
+        }
 
         if (!_cutscene.autoRotateCamera || cameraController == null) return;
 
-        Vector3 direction = Vector3.zero;
+        // Do not rotate the camera during blend-in - the player may be approaching
+        // from any angle, so rotating here would snap the camera sideways.
+        // Only begin auto-rotation once the cutscene is actively playing.
+        if (!_isPlaying) return;
 
-        if (_isBlendingIn)
-        {
-            direction = (_blendPlayerTo - _blendPlayerFrom).normalized;
-        }
-        else if (_isPlaying)
-        {
-            if (_cutscene is RopeSwingCutscene rope)
-                direction = rope.GetPathDirection(_currentT);
-        }
+        Vector3 direction = RopeCutscene != null
+            ? RopeCutscene.GetPathDirection(_currentT)
+            : Vector3.zero;
 
         if (direction.sqrMagnitude > 0.01f)
             RotateCameraToDirection(direction, _cutscene.cameraRotationSpeed, _cutscene.cameraPitch);
+
+        _cutscene.OnCutsceneLateUpdate();
     }
 
+    public Vector3 GetRenderPathPosition()
+    {
+        if (RopeCutscene == null || !_isPlaying) return CurrentPathPosition;
+        float elapsed = Time.time - _startTime;
+        float t = Mathf.Clamp01(elapsed / _duration);
+        return _cutscene.GetPlayerPosition(t);
+    }
 
     private void RotateCameraToDirection(Vector3 direction, float speed, float pitch)
     {
@@ -241,6 +281,10 @@ public class CameraCutsceneHandler : MonoBehaviour
     {
         if (input != null) input.EnableAllInput();
         if (playerController != null) playerController.enabled = true;
-        if (playerRb != null) playerRb.isKinematic = false;
+        if (playerRb != null)
+        {
+            playerRb.isKinematic = false;
+            playerRb.linearVelocity = Vector3.zero;
+        }
     }
 }

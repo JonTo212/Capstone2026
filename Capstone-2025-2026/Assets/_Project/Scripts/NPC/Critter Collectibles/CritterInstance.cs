@@ -25,17 +25,18 @@ public class CritterInstance : MonoBehaviour
         if (collision.transform.CompareTag("Player"))
         {
             BeRescued();
+            Destroy(this.gameObject);//on collision becuase it can only destroy the physics based guys, destruction is handled by the player for the instant rod capture ones
             //Debug.Log("hit: " + instID);
         }
     }
 
-    private void BeRescued ()
+    public void BeRescued ()
     {
 
         RuntimeManager.PlayOneShot("event:/NPCSave", transform.position);
         CollectibleManager.Instance.CritterCollected(instID);
 
-        Destroy(this.gameObject);
+        //Destroy(this.gameObject);
 
     }
 

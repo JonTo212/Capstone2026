@@ -253,12 +253,14 @@ public class LassoTetherController : MonoBehaviour
             {
                 playerTether.EnterTetherMode(playerLasso.SnaredObject);
                 playerLasso.SnaredObject.SetRigidbodyConstraints(RigidbodyConstraints.FreezePosition);
+                playerLasso.SnaredObject.Rb.angularVelocity = Vector3.zero;
                 SwitchLassoState(LassoState.TetherMode);
             }
             else
             {
                 playerTether.StartTetherPlacement(playerLasso.SnaredObject.transform, playerLasso.HitPos);
                 playerLasso.SnaredObject.SetRigidbodyConstraints(RigidbodyConstraints.FreezePosition);
+                playerLasso.SnaredObject.Rb.angularVelocity = Vector3.zero;
                 SwitchLassoState(LassoState.SnaredTether);
             }
         }
@@ -280,11 +282,11 @@ public class LassoTetherController : MonoBehaviour
                 playerLasso.HitPos = playerLasso.SnaredObject.transform.position;
                 wasUsingPhysicsLasso = playerLasso.usePhysicsLasso;
                 playerLasso.usePhysicsLasso = false;
-                playerLasso.camInputController.enabled = false;
+                //playerLasso.camInputController.enabled = false;
             }
             else
             {
-                playerLasso.camInputController.enabled = false;
+                //playerLasso.camInputController.enabled = false;
             }
             playerLasso.SnaredObject.DisableJointTemp();
             playerLasso.SetRotating(true);
@@ -381,7 +383,7 @@ public class LassoTetherController : MonoBehaviour
             }
 
             playerLasso.SnaredObject.EnableJoint();
-            playerLasso.camInputController.enabled = true;
+            //playerLasso.camInputController.enabled = true;
             playerLasso.SetRotating(false);
             SwitchLassoState(LassoState.Snared);
         }
@@ -399,7 +401,7 @@ public class LassoTetherController : MonoBehaviour
             }
 
             playerLasso.SnaredObject.EnableJoint();
-            playerLasso.camInputController.enabled = true;
+            //playerLasso.camInputController.enabled = true;
             playerLasso.SetRotating(false);
             playerLasso.HandleObjectReleased();
         }

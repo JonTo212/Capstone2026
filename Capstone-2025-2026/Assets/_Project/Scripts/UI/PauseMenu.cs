@@ -9,6 +9,8 @@ public class PauseMenu : MonoBehaviour
     public GameObject pauseMenuScreen;
     public GameObject pauseMenuUI;
     public GameObject settingsUI;
+    public GameObject critterUI;
+    public GameObject missionImageUI;
 
     public GameObject settingsFirst;
     public GameObject menuFirst;
@@ -29,6 +31,14 @@ public class PauseMenu : MonoBehaviour
                 Pause();
             }
         }
+
+        /*
+        if(!gameIsPaused)
+        {
+            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Locked;
+        }
+        */
     }
     #region PauseDefaults
     public void Resume()
@@ -36,6 +46,8 @@ public class PauseMenu : MonoBehaviour
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
         pauseMenuScreen.SetActive(false);
+        //critterUI.SetActive(true);
+        //missionImageUI.SetActive(true);
         Time.timeScale = 1f;
         gameIsPaused = false;
         playerActions.EnableAllInput();
@@ -48,6 +60,8 @@ public class PauseMenu : MonoBehaviour
         pauseMenuScreen.SetActive(true);
         Time.timeScale = 0f;
         gameIsPaused = true;
+        //critterUI.SetActive(false);
+        //missionImageUI.SetActive(false);
         playerActions.DisableAllInput();
         EventSystem.current.SetSelectedGameObject(menuFirst);
     }

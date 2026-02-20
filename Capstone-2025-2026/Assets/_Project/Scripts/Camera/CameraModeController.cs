@@ -77,7 +77,7 @@ public class CameraModeController : MonoBehaviour
     private bool _lassoBelowClamp;
     private float _currentDistanceVelocity;
 
-    private void Awake()
+    private void Start()
     {
         if (cameraController == null)
             cameraController = GetComponent<ZeldaCameraController>();
@@ -97,7 +97,10 @@ public class CameraModeController : MonoBehaviour
     private void Update()
     {
         if (cameraCutsceneHandler != null && cameraCutsceneHandler.IsActive())
+        {
+            RopeSwingCamera();
             return;
+        }
 
         switch (lassoTetherController.CurrentLassoState)
         {
@@ -117,6 +120,12 @@ public class CameraModeController : MonoBehaviour
         }
     }
 
+
+    private void RopeSwingCamera()
+    {
+        ApplyCameraStateSettings(CamState.RopeHangCutscene, defaultAdjustSpeed);
+        ApplySensitivity(1f, 1f);
+    }
 
     private void LassoModeCamera()
     {

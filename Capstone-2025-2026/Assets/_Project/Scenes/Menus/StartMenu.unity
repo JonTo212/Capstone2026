@@ -374,6 +374,38 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -6076895131007957374, guid: d80f552c2e620974cb667c23b52f8a45, type: 3}
+      propertyPath: EventPlayTrigger
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -6076895131007957374, guid: d80f552c2e620974cb667c23b52f8a45, type: 3}
+      propertyPath: EventReference.Path
+      value: event:/EOTS Music Draft
+      objectReference: {fileID: 0}
+    - target: {fileID: -6076895131007957374, guid: d80f552c2e620974cb667c23b52f8a45, type: 3}
+      propertyPath: OverrideMaxDistance
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: -6076895131007957374, guid: d80f552c2e620974cb667c23b52f8a45, type: 3}
+      propertyPath: OverrideMinDistance
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -6076895131007957374, guid: d80f552c2e620974cb667c23b52f8a45, type: 3}
+      propertyPath: EventReference.Guid.Data1
+      value: -1036337156
+      objectReference: {fileID: 0}
+    - target: {fileID: -6076895131007957374, guid: d80f552c2e620974cb667c23b52f8a45, type: 3}
+      propertyPath: EventReference.Guid.Data2
+      value: 1074807586
+      objectReference: {fileID: 0}
+    - target: {fileID: -6076895131007957374, guid: d80f552c2e620974cb667c23b52f8a45, type: 3}
+      propertyPath: EventReference.Guid.Data3
+      value: 298910087
+      objectReference: {fileID: 0}
+    - target: {fileID: -6076895131007957374, guid: d80f552c2e620974cb667c23b52f8a45, type: 3}
+      propertyPath: EventReference.Guid.Data4
+      value: -615069179
+      objectReference: {fileID: 0}
     - target: {fileID: 46650012720826449, guid: d80f552c2e620974cb667c23b52f8a45, type: 3}
       propertyPath: m_Name
       value: AudioManager
@@ -3103,6 +3135,7 @@ GameObject:
   - component: {fileID: 1871264666}
   - component: {fileID: 1871264665}
   - component: {fileID: 1871264664}
+  - component: {fileID: 1871264667}
   m_Layer: 5
   m_Name: B_Credits
   m_TagString: Untagged
@@ -3260,6 +3293,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1871264662}
   m_CullTransparentMesh: 1
+--- !u!114 &1871264667
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1871264662}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FMODUnity::FMODUnity.StudioEventEmitter
+  CollisionTag: 
+  EventReference:
+    Guid:
+      Data1: 879937949
+      Data2: 1315602724
+      Data3: -1305707092
+      Data4: -122532818
+    Path: event:/MenuScroll
+  Event: 
+  EventPlayTrigger: 17
+  EventStopTrigger: 0
+  AllowFadeout: 1
+  TriggerOnce: 0
+  Preload: 0
+  NonRigidbodyVelocity: 0
+  Params: []
+  OverrideAttenuation: 0
+  OverrideMinDistance: 1
+  OverrideMaxDistance: 20
 --- !u!1 &1877857609
 GameObject:
   m_ObjectHideFlags: 0
@@ -3272,6 +3336,7 @@ GameObject:
   - component: {fileID: 1877857613}
   - component: {fileID: 1877857612}
   - component: {fileID: 1877857611}
+  - component: {fileID: 1877857614}
   m_Layer: 5
   m_Name: B_ExitDesktop
   m_TagString: Untagged
@@ -3405,6 +3470,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1877857609}
   m_CullTransparentMesh: 1
+--- !u!114 &1877857614
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1877857609}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FMODUnity::FMODUnity.StudioEventEmitter
+  CollisionTag: 
+  EventReference:
+    Guid:
+      Data1: 879937949
+      Data2: 1315602724
+      Data3: -1305707092
+      Data4: -122532818
+    Path: event:/MenuScroll
+  Event: 
+  EventPlayTrigger: 17
+  EventStopTrigger: 0
+  AllowFadeout: 1
+  TriggerOnce: 0
+  Preload: 0
+  NonRigidbodyVelocity: 0
+  Params: []
+  OverrideAttenuation: 0
+  OverrideMinDistance: 1
+  OverrideMaxDistance: 20
 --- !u!1 &1927261333
 GameObject:
   m_ObjectHideFlags: 0
@@ -3417,6 +3513,7 @@ GameObject:
   - component: {fileID: 1927261337}
   - component: {fileID: 1927261336}
   - component: {fileID: 1927261335}
+  - component: {fileID: 1927261338}
   m_Layer: 5
   m_Name: B_NewGame
   m_TagString: Untagged
@@ -3574,6 +3671,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1927261333}
   m_CullTransparentMesh: 1
+--- !u!114 &1927261338
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1927261333}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FMODUnity::FMODUnity.StudioEventEmitter
+  CollisionTag: 
+  EventReference:
+    Guid:
+      Data1: 879937949
+      Data2: 1315602724
+      Data3: -1305707092
+      Data4: -122532818
+    Path: event:/MenuScroll
+  Event: 
+  EventPlayTrigger: 17
+  EventStopTrigger: 0
+  AllowFadeout: 1
+  TriggerOnce: 0
+  Preload: 0
+  NonRigidbodyVelocity: 0
+  Params: []
+  OverrideAttenuation: 0
+  OverrideMinDistance: 1
+  OverrideMaxDistance: 20
 --- !u!1 &1965317485
 GameObject:
   m_ObjectHideFlags: 0

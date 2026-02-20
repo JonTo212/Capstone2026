@@ -266,7 +266,7 @@ public class Lasso : MonoBehaviour
         _snaredObjTransform.gameObject.tag = gameObject.tag;
         if (usePickupOutline) SnaredObject.ActivateOutline(true);
 
-        GetHoldPoint(newProp, hit, false);
+        GetHoldPoint(newProp, hit, true);
         GetStartGrabRotation();
 
         SnaredObject.OnPropDestroyed += HandleObjectReleased;

@@ -4929,9 +4929,6 @@ PrefabInstance:
       addedObject: {fileID: 8226550078447366339}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 20b894423635c4f499aabb2c71c507a4, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 9063236760867590151}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 20b894423635c4f499aabb2c71c507a4, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 4059941539677841328}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 20b894423635c4f499aabb2c71c507a4, type: 3}
       insertIndex: -1
@@ -4939,6 +4936,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 20b894423635c4f499aabb2c71c507a4, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1023467456409912427}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 20b894423635c4f499aabb2c71c507a4, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3173959416486793469}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 20b894423635c4f499aabb2c71c507a4, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6801020781410082392}
   m_SourcePrefab: {fileID: 100100000, guid: 20b894423635c4f499aabb2c71c507a4, type: 3}
 --- !u!1 &130944491752883907 stripped
 GameObject:
@@ -4991,28 +4994,6 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
---- !u!114 &9063236760867590151
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 130944491752883907}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8da93e4e5dee9534a953a3c66c18ff57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::EnvironmentalProp
-  debugThisProp: 0
-  coyoteFallDelay: 0.3
-  slowFall: 1
-  attachedTethers: []
-  connectedObject: []
-  connectedAnchors: []
-  <CanHoldWhileStandingOn>k__BackingField: 0
-  <GrabPoints>k__BackingField: []
-  <FaceRows>k__BackingField: 0
-  <FaceColumns>k__BackingField: 0
 --- !u!114 &4059941539677841328
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5032,7 +5013,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 130944491752883907}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7978def5e1c91df429391dcd65fc1554, type: 3}
   m_Name: 
@@ -5070,6 +5051,43 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 1.6
   m_Center: {x: 0, y: -0.26, z: 0.25}
+--- !u!114 &3173959416486793469
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 130944491752883907}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5f7122e69c6a2744b1b4d4da1ff7531, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PickupNPCProp
+  debugThisProp: 0
+  coyoteFallDelay: 0.3
+  slowFall: 1
+  attachedTethers: []
+  connectedObject: []
+  connectedAnchors: []
+  <CanHoldWhileStandingOn>k__BackingField: 0
+  <GrabPoints>k__BackingField: []
+  <FaceRows>k__BackingField: 0
+  <FaceColumns>k__BackingField: 0
+  deflatedScale: 0.2
+--- !u!114 &6801020781410082392
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 130944491752883907}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d78e8318e4d3d845b4a759aadf038fc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CritterInstance
+  CritterCollectibleData: {fileID: 11400000, guid: 9260d1cf34428784781ee02afa918f53, type: 2}
+  instID: 0
 --- !u!4 &764175969476533369 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 20b894423635c4f499aabb2c71c507a4, type: 3}
