@@ -11,7 +11,7 @@ public class CameraPanCutscene : MonoBehaviour
     [SerializeField] private GameObject[] objectsToDisable;
     [SerializeField] private ZoomToPlayerCutscene nextCutscene;
 
-    private void Awake()
+    private void Start()
     {
         if (_camera == null) _camera = Camera.main;
         foreach (var script in sciptsToDisable)
@@ -23,10 +23,6 @@ public class CameraPanCutscene : MonoBehaviour
             obj.SetActive(false);
         }
         nextCutscene.enabled = false;
-    }
-
-    private void Start()
-    {
         StartCoroutine(PanCutscene());
     }
 
