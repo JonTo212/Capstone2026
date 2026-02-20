@@ -8,6 +8,7 @@ public class CameraPanCutscene : MonoBehaviour
     [SerializeField] private GameObject playerObj;
     [SerializeField] private GameObject panTarget;
     [SerializeField] private MonoBehaviour[] sciptsToDisable;
+    [SerializeField] private GameObject[] objectsToDisable;
     [SerializeField] private ZoomToPlayerCutscene nextCutscene;
 
     private void Awake()
@@ -17,8 +18,11 @@ public class CameraPanCutscene : MonoBehaviour
         {
             script.enabled = false;
         }
+        foreach (var obj in objectsToDisable)
+        {
+            obj.SetActive(false);
+        }
         nextCutscene.enabled = false;
-        playerObj.SetActive(false);
     }
 
     private void Start()

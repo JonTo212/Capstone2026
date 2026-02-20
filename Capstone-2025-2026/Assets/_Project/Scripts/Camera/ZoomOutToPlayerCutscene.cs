@@ -11,6 +11,7 @@ public class ZoomToPlayerCutscene : MonoBehaviour
     [SerializeField] private Transform startPos;
     [SerializeField] private Transform endPos;
     [SerializeField] private MonoBehaviour[] sciptsToEnable;
+    [SerializeField] private GameObject[] objectsToEnable;
 
     private void Awake()
     {
@@ -29,6 +30,10 @@ public class ZoomToPlayerCutscene : MonoBehaviour
         foreach (var script in sciptsToEnable)
         {
             script.enabled = true;
+        }
+        foreach (var obj in objectsToEnable)
+        {
+            obj.SetActive(true);
         }
     }
 
