@@ -1,3 +1,4 @@
+using FMODUnity;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -121,6 +122,7 @@ public class RopeSwingCutscene : CutsceneBase
     {
         _smoothedCurvature = 0f;
         _smoothedSpeed = 0f;
+
     }
 
     public void TickAnimation(float t, float frameSpeed,
