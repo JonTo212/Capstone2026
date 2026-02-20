@@ -58125,6 +58125,11 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
+--- !u!1 &468974574 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3891422506877770638, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+  m_PrefabInstance: {fileID: 2121288920}
+  m_PrefabAsset: {fileID: 0}
 --- !u!43 &470734555
 Mesh:
   m_ObjectHideFlags: 0
@@ -212102,6 +212107,7 @@ MonoBehaviour:
   endPos: {fileID: 2054628177}
   sciptsToEnable:
   - {fileID: 1821952875}
+  - {fileID: 2121288982}
   objectsToEnable:
   - {fileID: 630331227}
   - {fileID: 1441040860}
@@ -212124,6 +212130,7 @@ MonoBehaviour:
   panTarget: {fileID: 898601212}
   sciptsToDisable:
   - {fileID: 1821952875}
+  - {fileID: 2121288982}
   objectsToDisable:
   - {fileID: 1441040860}
   - {fileID: 630331227}
@@ -255891,6 +255898,14 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: d7bee5bcdadba1d4389f5172cd1a557a, type: 2}
+    - target: {fileID: 7777431948427391573, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+      propertyPath: critterUI
+      value: 
+      objectReference: {fileID: 630331227}
+    - target: {fileID: 7777431948427391573, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+      propertyPath: missionImageUI
+      value: 
+      objectReference: {fileID: 468974574}
     - target: {fileID: 7887010670107607874, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       propertyPath: playerCam
       value: 
@@ -256162,9 +256177,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerFade
   cameraController: {fileID: 1821952875}
   player: {fileID: 2121288978}
-  fadeStartDistance: 3
+  fadeStartDistance: 4
   fadeEndDistance: 1
   minAlpha: 0
+--- !u!114 &2121288982 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7777431948427391573, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+  m_PrefabInstance: {fileID: 2121288920}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 761371174}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b0b2411c3128b64d91cee78473aaba3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PauseMenu
 --- !u!43 &2121523653
 Mesh:
   m_ObjectHideFlags: 0
