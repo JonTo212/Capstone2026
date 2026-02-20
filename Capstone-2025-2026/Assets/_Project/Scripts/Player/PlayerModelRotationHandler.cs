@@ -79,8 +79,23 @@ public class PlayerModelRotationHandler : MonoBehaviour
 
     public void SetNewRotationDir(Quaternion? desiredRotation, bool hanging)
     {
-        if(desiredRotation != null) playerObj.transform.rotation = desiredRotation.Value;
-        if(hanging) _currentRotationState = RotationState.Hanging;
+        if (desiredRotation != null) playerObj.transform.rotation = desiredRotation.Value;
+        if (hanging) _currentRotationState = RotationState.Hanging;
         else _currentRotationState = RotationState.Default;
+    }
+
+    // Applies a Z-roll sway onto an explicitly provided world-space yaw.
+    // Caller must supply the yaw so we never read back world eulerAngles (which can flip).
+    // Must be called BEFORE SetLeanAngle each frame so the lean stacks on top.
+    public void SetSwayAngle(float worldYaw, float swayAngle)
+    {
+        playerObj.transform.rotation = Quaternion.Euler(0f, worldYaw, -swayAngle);
+    }
+
+    // Applies a forward X-pitch on top of the current rotation (including any sway).
+    // Call AFTER SetSwayAngle each frame so the lean stacks on top of the roll.
+    public void SetLeanAngle(float angle)
+    {
+        playerObj.transform.rotation *= Quaternion.Euler(angle, 0f, 0f);
     }
 }

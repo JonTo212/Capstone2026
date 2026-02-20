@@ -2,15 +2,9 @@ using DG.Tweening;
 using FMODUnity;
 using NUnit.Framework.Constraints;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using TMPro;
-using Unity.Cinemachine;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.ProBuilder.MeshOperations;
-using static CharacterSkinController;
 
 public class JointTetherPlacer : MonoBehaviour
 {
@@ -470,7 +464,6 @@ public class JointTetherPlacer : MonoBehaviour
         Vector3 projectedCameraToPlayer = Vector3.Project(cameraToPlayer, cameraToHit);
 
         cameraMaxDistance = projectedCameraToPlayer.magnitude + projectedPlayerToCameraHit.magnitude;
-       
 
         hit = new RaycastHit();
 
