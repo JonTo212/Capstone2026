@@ -113,13 +113,13 @@ MonoBehaviour:
     m_Value: 1
   intensity:
     m_OverrideState: 1
-    m_Value: 0.01
+    m_Value: 1
   scatter:
     m_OverrideState: 1
-    m_Value: 0.138
+    m_Value: 0.5
   clamp:
     m_OverrideState: 1
-    m_Value: 65472
+    m_Value: 5.07
   tint:
     m_OverrideState: 1
     m_Value: {r: 1, g: 1, b: 1, a: 1}
@@ -239,7 +239,7 @@ MonoBehaviour:
         - serializedVersion: 3
           time: 0
           value: 0
-          inSlope: 1
+          inSlope: 0
           outSlope: 1
           tangentMode: 0
           weightedMode: 0
@@ -249,7 +249,7 @@ MonoBehaviour:
           time: 1
           value: 1
           inSlope: 1
-          outSlope: 1
+          outSlope: 0
           tangentMode: 0
           weightedMode: 0
           inWeight: 0
@@ -433,25 +433,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 558a8e2b6826cf840aae193990ba9f2e, type: 3}
   m_Name: ShadowsMidtonesHighlights
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.ShadowsMidtonesHighlights
-  active: 0
+  active: 1
   shadows:
     m_OverrideState: 1
-    m_Value: {x: 0.8630787, y: 0.83038545, z: 1, w: 0}
+    m_Value: {x: 1, y: 1, z: 1, w: 0.038910516}
   midtones:
     m_OverrideState: 1
-    m_Value: {x: 0.87797445, y: 0.9675708, z: 1, w: 0}
+    m_Value: {x: 1, y: 1, z: 1, w: 0.040919594}
   highlights:
-    m_OverrideState: 0
-    m_Value: {x: 1, y: 0.89135617, z: 0.70156646, w: 0}
+    m_OverrideState: 1
+    m_Value: {x: 1, y: 1, z: 1, w: 0}
   shadowsStart:
     m_OverrideState: 1
     m_Value: 0
   shadowsEnd:
     m_OverrideState: 1
-    m_Value: 0.48
+    m_Value: 0.3
   highlightsStart:
     m_OverrideState: 1
-    m_Value: 0.52
+    m_Value: 0.55
   highlightsEnd:
     m_OverrideState: 1
     m_Value: 1
@@ -470,16 +470,16 @@ MonoBehaviour:
   active: 1
   color:
     m_OverrideState: 1
-    m_Value: {r: 0, g: 0.41393614, b: 1, a: 1}
+    m_Value: {r: 0, g: 0, b: 0, a: 1}
   center:
     m_OverrideState: 1
     m_Value: {x: 0.5, y: 0.5}
   intensity:
     m_OverrideState: 1
-    m_Value: 0.226
+    m_Value: 0
   smoothness:
     m_OverrideState: 1
-    m_Value: 0.01
+    m_Value: 0.2
   rounded:
     m_OverrideState: 1
     m_Value: 0
@@ -498,7 +498,7 @@ MonoBehaviour:
   active: 1
   temperature:
     m_OverrideState: 1
-    m_Value: 20
+    m_Value: 0
   tint:
     m_OverrideState: 1
     m_Value: 0
@@ -517,7 +517,7 @@ MonoBehaviour:
   active: 1
   intensity:
     m_OverrideState: 1
-    m_Value: 0.01
+    m_Value: 0
 --- !u!114 &-298398081523722275
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -608,7 +608,7 @@ MonoBehaviour:
     m_Value: 0
   contrast:
     m_OverrideState: 1
-    m_Value: 20.8
+    m_Value: 0
   colorFilter:
     m_OverrideState: 1
     m_Value: {r: 1, g: 1, b: 1, a: 1}
@@ -617,7 +617,7 @@ MonoBehaviour:
     m_Value: 0
   saturation:
     m_OverrideState: 1
-    m_Value: 16.6
+    m_Value: 0
 --- !u!114 &849379129802519247
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -633,7 +633,7 @@ MonoBehaviour:
   active: 1
   mode:
     m_OverrideState: 1
-    m_Value: 0
+    m_Value: 2
   neutralHDRRangeReductionMode:
     m_OverrideState: 1
     m_Value: 2
@@ -761,13 +761,13 @@ MonoBehaviour:
   active: 1
   lift:
     m_OverrideState: 1
-    m_Value: {x: 1, y: 0.99894273, z: 0.9683746, w: 0}
+    m_Value: {x: 1, y: 1, z: 1, w: 0}
   gamma:
     m_OverrideState: 1
-    m_Value: {x: 1, y: 0.9758258, z: 0.989399, w: 0}
+    m_Value: {x: 1, y: 1, z: 1, w: 0.027793126}
   gain:
     m_OverrideState: 1
-    m_Value: {x: 1, y: 0.9926564, z: 0.989399, w: 0}
+    m_Value: {x: 1, y: 1, z: 1, w: 0.016675927}
 --- !u!114 &7391319092446245454
 MonoBehaviour:
   m_ObjectHideFlags: 3
