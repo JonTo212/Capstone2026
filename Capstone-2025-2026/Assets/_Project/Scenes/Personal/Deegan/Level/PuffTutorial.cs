@@ -9,6 +9,8 @@ public class PuffTutorial : PluckOutProp
     [SerializeField] Transform platform;
     [SerializeField] Transform[] debrisToDestroy;
 
+    public CritterInstance CritterInstanceScript;
+
     private void Awake()
     {
         Init();
@@ -20,6 +22,8 @@ public class PuffTutorial : PluckOutProp
 
         //savedText.gameObject.SetActive(true);
         //helpText.gameObject.SetActive(false);
+
+        CritterInstanceScript.BeRescued(); // this tells eloras UI to add guy as saved
 
         RuntimeManager.PlayOneShot("event:/Pluck", transform.position);
         savedFishTransform.gameObject.SetActive(true);
