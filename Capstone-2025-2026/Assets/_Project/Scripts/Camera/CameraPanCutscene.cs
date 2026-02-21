@@ -6,15 +6,12 @@ using static UnityEngine.Rendering.DebugUI;
 public class CameraPanCutscene : MonoBehaviour
 {
     [SerializeField] private Camera _camera;
-    [SerializeField] private GameObject playerObj;
     [SerializeField] private GameObject panTarget;
     [SerializeField] private MonoBehaviour[] sciptsToDisable;
     [SerializeField] private GameObject[] objectsToDisable;
     [SerializeField] private ZoomToPlayerCutscene nextCutscene;
 
-
-
-    private void Awake()
+    private void Start()
     {
         if (_camera == null) _camera = Camera.main;
         foreach (var script in sciptsToDisable)
@@ -26,10 +23,7 @@ public class CameraPanCutscene : MonoBehaviour
             obj.SetActive(false);
         }
         nextCutscene.enabled = false;
-    }
-
-    private void Start()
-    {
+        playerActions.ChangeSpecificInput("Move", false);
         StartCoroutine(PanCutscene());
     }
 

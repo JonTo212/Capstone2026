@@ -36,6 +36,7 @@ public class ZoomToPlayerCutscene : MonoBehaviour
         {
             obj.SetActive(true);
         }
+        playerActions.ChangeSpecificInput("Move", true);
     }
 
     [SerializeField] private float duration = 5f;

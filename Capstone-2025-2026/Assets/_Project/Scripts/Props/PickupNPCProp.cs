@@ -10,7 +10,7 @@ public class PickupNPCProp : Prop
     [SerializeField] private float deflatedScale = 0.2f;
     [SerializeField] private CritterInstance critterInstanceScript;
 
-
+    [SerializeField] private GameObject grabIndicator;
 
 
     private void Awake()
@@ -32,6 +32,12 @@ public class PickupNPCProp : Prop
 
         //tell UI that you got a puff
         critterInstanceScript.BeRescued();
+    }
+
+    public override void ActivateOutline(bool activate)
+    {
+        base.ActivateOutline(activate);
+        grabIndicator.SetActive(activate);
     }
 
     public void OnCaptureInterrupted(float captureDuration)

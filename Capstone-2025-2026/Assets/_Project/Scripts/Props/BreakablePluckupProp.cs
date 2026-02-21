@@ -14,16 +14,6 @@ public class BreakablePluckupProp : PluckOutProp
 
     private float breakableDelay = 0.3f;
     private bool isBreakable = false;
-    
-    private Rigidbody rb;
-
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    protected override void Start()
-    {
-        base.Start();
-        rb = GetComponent<Rigidbody>();
-    }
 
     protected override void OnPluck()
     {
@@ -39,7 +29,7 @@ public class BreakablePluckupProp : PluckOutProp
 
     private void OnCollisionEnter(Collision collision)
     {
-        if(isBreakable && rb.linearVelocity.magnitude > minimumSpeedToBreak)
+        if(isBreakable && Rb.linearVelocity.magnitude > minimumSpeedToBreak)
         {
             Break();
 

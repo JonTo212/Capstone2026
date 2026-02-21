@@ -16,12 +16,7 @@ public class PluckOutProp : Prop
     private void Awake()
     {
         Init();
-    }
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    protected virtual void Start()
-    {
-        if(!hasBeenPlucked)
+        if (!hasBeenPlucked)
         {
             Rb.isKinematic = true;
         }

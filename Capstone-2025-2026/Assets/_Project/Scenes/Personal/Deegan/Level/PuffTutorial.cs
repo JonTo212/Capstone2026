@@ -10,10 +10,17 @@ public class PuffTutorial : PluckOutProp
     [SerializeField] Transform[] debrisToDestroy;
 
     public CritterInstance CritterInstanceScript;
+    [SerializeField] private GameObject grabIndicator;
 
     private void Awake()
     {
         Init();
+    }
+
+    public override void ActivateOutline(bool activate)
+    {
+        base.ActivateOutline(activate);
+        grabIndicator.SetActive(activate);
     }
 
     protected override void OnPluck()

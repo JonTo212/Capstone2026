@@ -139,7 +139,7 @@ public class Lasso : MonoBehaviour
     public void SetLayer(Prop obj, bool original)
     {
         if (original) obj.gameObject.tag = obj.OriginalTag;
-        else obj.gameObject.tag = gameObject.tag;
+        else obj.gameObject.tag = "Untagged";
     }
 
     private Vector3 GetCameraWorldOffset()
@@ -262,7 +262,6 @@ public class Lasso : MonoBehaviour
 
         SnaredObject = newProp;
         _snaredObjTransform = newProp.transform;
-        _snaredObjTransform.gameObject.tag = gameObject.tag;
         if (usePickupOutline) SnaredObject.ActivateOutline(true);
 
         GetHoldPoint(newProp, hit, false);
