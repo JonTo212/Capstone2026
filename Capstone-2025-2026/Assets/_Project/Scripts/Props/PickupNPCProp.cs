@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using FMODUnity;
+using UnityEngine.UI;
 
 public class PickupNPCProp : Prop
 {
@@ -8,6 +9,9 @@ public class PickupNPCProp : Prop
     private Coroutine animCoroutine;
     [SerializeField] private float deflatedScale = 0.2f;
     [SerializeField] private CritterInstance critterInstanceScript;
+
+
+
 
     private void Awake()
     {
