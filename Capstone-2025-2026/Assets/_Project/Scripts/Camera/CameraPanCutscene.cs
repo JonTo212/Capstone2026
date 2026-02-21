@@ -1,4 +1,5 @@
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 using static UnityEngine.Rendering.DebugUI;
 
@@ -10,6 +11,8 @@ public class CameraPanCutscene : MonoBehaviour
     [SerializeField] private MonoBehaviour[] sciptsToDisable;
     [SerializeField] private GameObject[] objectsToDisable;
     [SerializeField] private ZoomToPlayerCutscene nextCutscene;
+
+
 
     private void Awake()
     {
@@ -38,6 +41,17 @@ public class CameraPanCutscene : MonoBehaviour
 
     [SerializeField] private Transform[] splinePoints;
     [SerializeField] private float duration = 5f;
+    [SerializeField] private bool skippedScene = false;
+    [SerializeField] private PlayerActions playerActions;
+
+    //press B to skip
+    private void Update()
+    {
+        //skip scene 
+        if (playerActions.DeactivateTetherDown) skippedScene = true;
+
+        if (skippedScene) duration = 0;
+    }
 
     private IEnumerator PanCutscene()
     {

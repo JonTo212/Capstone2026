@@ -13,6 +13,7 @@ public class ZoomToPlayerCutscene : MonoBehaviour
     [SerializeField] private MonoBehaviour[] sciptsToEnable;
     [SerializeField] private GameObject[] objectsToEnable;
 
+
     private void Awake()
     {
         if (_camera == null) _camera = Camera.main;
@@ -38,6 +39,17 @@ public class ZoomToPlayerCutscene : MonoBehaviour
     }
 
     [SerializeField] private float duration = 5f;
+    [SerializeField] private bool skippedScene = false;
+    [SerializeField] private PlayerActions playerActions;
+
+    //press B to skip
+    private void Update()
+    {
+        //skip scene 
+        if (playerActions.DeactivateTetherDown) skippedScene = true;
+
+        if (skippedScene) duration = 0;
+    }
 
     private IEnumerator ZoomOutToPlayerCutscene()
     {
