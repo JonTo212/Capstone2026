@@ -28,6 +28,10 @@ public class RopeSwingCutscene : CutsceneBase
     [Range(5, 50)]
     [SerializeField] private int splineSubdivisions = 20;
 
+    public int fixedSegmentCount = 500;
+
+    [Range(0.1f, 0.5f)]
+    public float segmentSize;
 
     [Header("Player Animation")]
     [Tooltip("Apply side-sway tilt to the player model during the swing.")]
@@ -345,19 +349,59 @@ public class RopeSwingCutscene : CutsceneBase
 
     private void DrawRopeVisuals()
     {
-        if (ropeVisuals == null || ropePath == null || ropePath.Count < 2) return;
+        if (ropeVisuals == null && ropePath == null && ropePath.Count < 2) return;
 
         var positions = new List<Vector3>(ropePath.Count);
         foreach (var t in ropePath)
             if (t != null) positions.Add(t.position);
 
-        Vector3[] smoothed = LineSmoother.SmoothLine(positions.ToArray(), 0.1f);
-        ropeVisuals.positionCount = smoothed.Length;
-        ropeVisuals.SetPositions(smoothed);
+        Vector3[] smoothed = LineSmoother.SmoothLine(positions.ToArray(), segmentSize);
+        Vector3[] resampled = ResampleLine(smoothed, fixedSegmentCount);
+
+        ropeVisuals.positionCount = resampled.Length;
+        ropeVisuals.SetPositions(resampled);
         ropeVisuals.startWidth = 0.1f;
         ropeVisuals.endWidth = 0.1f;
     }
 
+    private Vector3[] ResampleLine(Vector3[] points, int segmentCount)
+    {
+        int pointCount = segmentCount;
+        Vector3[] result = new Vector3[pointCount];
+
+        //get distance from one point to the next
+        float[] cumulativeDistance = new float[points.Length];
+        cumulativeDistance[0] = 0f;
+        for (int i = 1; i < points.Length; i++)
+        {
+            cumulativeDistance[i] = cumulativeDistance[i - 1] + Vector3.Distance(points[i - 1], points[i]);
+        }
+
+        //max distance along the line (total length)
+        float totalLength = cumulativeDistance[cumulativeDistance.Length - 1];
+
+        //loop through specified number of segments
+        for (int i = 0; i < pointCount; i++)
+        {
+            //get each point's new distance along the line
+            float targetDist = (i / (float)segmentCount) * totalLength;
+
+            for (int j = 1; j < cumulativeDistance.Length; j++)
+            {
+                //get the next point on the line that falls outside the distance of the current point and the newly calculated desired target point
+                if (cumulativeDistance[j] >= targetDist || j == cumulativeDistance.Length - 1)
+                {
+                    //get the percentage between point 1 and 2 that this new point is by using inverselerp (2 being further than the desired position)
+                    //then lerp uses that to get the actual position
+                    float t = Mathf.InverseLerp(cumulativeDistance[j - 1], cumulativeDistance[j], targetDist);
+                    result[i] = Vector3.Lerp(points[j - 1], points[j], t);
+                    break;
+                }
+            }
+        }
+
+        return result;
+    }
 
     private static Vector3 CatmullRom(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t)
     {
