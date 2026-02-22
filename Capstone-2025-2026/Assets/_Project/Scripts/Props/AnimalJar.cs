@@ -7,10 +7,8 @@ public class AnimalJar : MonoBehaviour
 {
     //bubble animation
     public GameObject bubble;
+    public GameObject stuntDouble;
 
-    //sound 
-    private AudioSource audioSource;
-    public AudioClip popSound;
 
     //Components
     private Rigidbody rb;
@@ -20,10 +18,10 @@ public class AnimalJar : MonoBehaviour
     //particles
     public GameObject explodeParticle;
 
-    private ParticleSystem tinyTornado;
+    //private ParticleSystem tinyTornado;
 
     //Break Free
-    private GameObject trappedAnimal;
+    [SerializeField] private GameObject trappedAnimal;
     public bool isBroken = false;
 
     //respawning
@@ -52,6 +50,8 @@ public class AnimalJar : MonoBehaviour
         if (transform.childCount > 0)
         {
             trappedAnimal = transform.GetChild(0).gameObject;
+            trappedAnimal.SetActive(false);
+
         }
 
         //set spawn position
@@ -60,8 +60,7 @@ public class AnimalJar : MonoBehaviour
         //get Components
         rb = GetComponent<Rigidbody>();
         col = GetComponent<SphereCollider>();
-        tinyTornado = GetComponentInChildren<ParticleSystem>();
-        audioSource = GetComponent<AudioSource>();
+        //tinyTornado = GetComponentInChildren<ParticleSystem>();
         tetherScript = GetComponent<Prop>();
 
         camera = Camera.main;
@@ -69,12 +68,15 @@ public class AnimalJar : MonoBehaviour
 
     public void Update()
     {
+
+        /*
         //raycast from center of camera to get respawn position
         var x = Screen.width / 2;
         var y = Screen.height / 2;
 
         cameraCenterRay = camera.ScreenPointToRay(new Vector3(x, y, 0));
         Debug.DrawRay(cameraCenterRay.origin, cameraCenterRay.direction * 100, Color.yellow);
+        */
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -90,7 +92,7 @@ public class AnimalJar : MonoBehaviour
         //spike collision
         if (collision.gameObject.tag == "Spike")
         {
-            Break();
+            BreakV2();// new version of the function 
         }
     }
 
@@ -104,7 +106,7 @@ public class AnimalJar : MonoBehaviour
     }
 
 
-    private void Break()
+    private void Break() // old version of bubble logic
     {
         //add to count
         animalCounter.savedAnimals++;
@@ -123,6 +125,26 @@ public class AnimalJar : MonoBehaviour
         Destroy(gameObject);
     }
 
+    private void BreakV2() // old version of bubble logic
+    {
+
+        //play particle effect
+        Instantiate(explodeParticle, transform.position, Quaternion.identity);
+
+        isBroken = true;
+
+        //separate animal from jar
+        if (trappedAnimal != null)
+        {
+            Destroy(stuntDouble.gameObject);
+            trappedAnimal.SetActive(true);
+            trappedAnimal.transform.rotation = Quaternion.Euler(0, 0, 0);
+            trappedAnimal.transform.SetParent(null);
+        }
+
+        Destroy(gameObject);
+    }
+
     IEnumerator Respawn()
     {
         //Setup 
@@ -133,7 +155,7 @@ public class AnimalJar : MonoBehaviour
         //returnSpeedCurrent = 0;
 
         //play particle effect
-        tinyTornado.Play();
+        //tinyTornado.Play();
 
         //MOVE TOWARDS ANCHOR POINT//   (this means i am moving the animal past the camera before it can go to its spawn)
 
@@ -192,7 +214,7 @@ public class AnimalJar : MonoBehaviour
         tetherScript.enabled = true;
 
         //end particle effect
-        tinyTornado.Stop();
+        //tinyTornado.Stop();
 
     }
 
