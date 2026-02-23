@@ -85,9 +85,6 @@ public class CameraModeController : MonoBehaviour
             var col = playerRef.GetComponent<CapsuleCollider>();
             if (col != null) characterHeight = col.height;
         }
-
-        baseSensitivityX = cameraController.GetMouseXSensitivity();
-        baseSensitivityY = cameraController.GetMouseYSensitivity();
     }
 
     private void Update()
@@ -145,7 +142,7 @@ public class CameraModeController : MonoBehaviour
             hasSnappedToLasso = true;
         }
 
-        ApplySensitivity(lassoSensMultiplier, 0f);
+        ApplySensitivity(lassoSensMultiplier, lassoSensMultiplier);
     }
 
     private void TetherModeCamera()
@@ -234,6 +231,7 @@ public class CameraModeController : MonoBehaviour
 
     private void ApplySensitivity(float xMult, float yMult)
     {
-        cameraController.SetMouseSensitivity(baseSensitivityX * xMult, baseSensitivityY * yMult);
+        cameraController.SetXSensitivity(cameraController.GetDeviceAdjustedBaseX() * xMult);
+        cameraController.SetYSensitivity(cameraController.GetDeviceAdjustedBaseY() * yMult);
     }
 }

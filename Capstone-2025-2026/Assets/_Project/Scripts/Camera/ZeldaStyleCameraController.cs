@@ -15,6 +15,8 @@ public class ZeldaCameraController : MonoBehaviour
     private float currentMaxDistance;
 
     [Header("Rotation Settings")]
+    public float xSens { get; private set; }
+    public float ySens { get; private set; }
     [SerializeField] private float mouseXSensitivity = 1f;
     [SerializeField] private float mouseYSensitivity = 1f;
     [SerializeField] private float controllerXSensitivityMultiplier = 5f;
@@ -103,6 +105,8 @@ public class ZeldaCameraController : MonoBehaviour
         UpdateGhostTransform();
         transform.position = ghostPosition;
         transform.rotation = ghostRotation;
+
+        RecomputeSensitivity();
     }
 
     private void Update()
@@ -121,19 +125,8 @@ public class ZeldaCameraController : MonoBehaviour
 
     private void HandleInput()
     {
-        float mouseX = input.LookInput.x;
-        float mouseY = input.LookInput.y;
-
-        if (input.CurrentDevice.Equals(PlayerActions.InputType.MouseKeyboard))
-        {
-            mouseX *= mouseXSensitivity;
-            mouseY *= mouseYSensitivity;
-        }
-        else if (input.CurrentDevice.Equals(PlayerActions.InputType.Controller))
-        {
-            mouseX *= mouseXSensitivity * controllerXSensitivityMultiplier;
-            mouseY *= mouseYSensitivity * controllerYSensitivityMultiplier;
-        }
+        float mouseX = input.LookInput.x * xSens;
+        float mouseY = input.LookInput.y * ySens;
 
         hasInput = Mathf.Abs(mouseX) > 0.001f || Mathf.Abs(mouseY) > 0.001f || Mathf.Abs(input.MoveInput.sqrMagnitude) > 0.001f;
 
@@ -309,15 +302,30 @@ public class ZeldaCameraController : MonoBehaviour
     public Vector2 GetScreenOffset() => screenOffset;
     public Vector3 GetTargetOffset() => targetOffset;
     public float GetDefaultDistance() => defaultDistance;
-    public float GetMouseXSensitivity() => mouseXSensitivity;
-    public float GetMouseYSensitivity() => mouseYSensitivity;
+    public float GetDeviceAdjustedBaseX() => input.CurrentDevice == PlayerActions.InputType.Controller ? mouseXSensitivity * controllerXSensitivityMultiplier : mouseXSensitivity;
+    public float GetDeviceAdjustedBaseY() => input.CurrentDevice == PlayerActions.InputType.Controller ? mouseYSensitivity * controllerYSensitivityMultiplier : mouseYSensitivity;
     public void SetScreenOffset(Vector2 offset) => screenOffset = offset;
     public void SetTargetOffset(Vector3 offset) => targetOffset = offset;
-    public void SetMouseSensitivity(float xSens, float ySens)
+    public void SetXSensitivity(float newXSens) => xSens = newXSens;
+    public void SetYSensitivity(float newYSens) => ySens = newYSens;
+    public void SetBaseXSensitivity(float value)
     {
-        mouseXSensitivity = xSens;
-        mouseYSensitivity = ySens;
+        mouseXSensitivity = value;
+        RecomputeSensitivity();
     }
+
+    public void SetBaseYSensitivity(float value)
+    {
+        mouseYSensitivity = value;
+        RecomputeSensitivity();
+    }
+    private void RecomputeSensitivity()
+    {
+        bool isController = input.CurrentDevice == PlayerActions.InputType.Controller;
+        xSens = isController ? mouseXSensitivity * controllerXSensitivityMultiplier : mouseXSensitivity;
+        ySens = isController ? mouseYSensitivity * controllerYSensitivityMultiplier : mouseYSensitivity;
+    }
+
     public void SetYAxisLocked(bool locked) => yAxisLocked = locked;
     public void SetXAxisLocked(bool locked) => xAxisLocked = locked;
     public void SetDistanceLimit(float max)

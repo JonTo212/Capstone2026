@@ -4,6 +4,7 @@ using UnityEngine.Audio;
 using UnityEngine.UI;
 using TMPro;
 using Unity.Cinemachine;
+using System.Collections;
 
 public enum WindowMode
 {
@@ -22,10 +23,12 @@ public class SettingsMenu : MonoBehaviour
     
     [SerializeField] private Slider musicSlider;
 
-    [SerializeField] private CinemachineInputAxisController inputAxisController;
+    //[SerializeField] private CinemachineInputAxisController inputAxisController;
     [SerializeField] private Slider xSensitivitySlider;
     [SerializeField] private Slider ySensitivitySlider;
-    [SerializeField] private SpecialCameraController specialCameraController;
+    //[SerializeField] private SpecialCameraController specialCameraController;
+    [SerializeField] private ZeldaCameraController cameraController;
+    [SerializeField] private PlayerActions input;
 
     [SerializeField] private TextMeshProUGUI windowModeText;
     private WindowMode windowMode = WindowMode.fullScreen;
@@ -46,12 +49,18 @@ public class SettingsMenu : MonoBehaviour
         Music = FMODUnity.RuntimeManager.GetBus("bus:/Master/Music");
         SFX = FMODUnity.RuntimeManager.GetBus("bus:/Master/SFX");
         Ambience = FMODUnity.RuntimeManager.GetBus("bus:/Master/Ambience");
+        StartCoroutine(InitializeSettings());
+    }
+
+    private IEnumerator InitializeSettings()
+    {
+        yield return null;
+        SetXSensitivity();
+        SetYSensitivity();
         SetMasterVolume();
         SetSoundVolume();
         SetAmbienceVolume();
         SetMusicVolume();
-        SetXSensitvity();
-        SetYSensitivity();
     }
 
     public void SetMasterVolume()
@@ -78,14 +87,14 @@ public class SettingsMenu : MonoBehaviour
         Music.setVolume(MusicVolume);
     }
 
-    public void SetXSensitvity()
+    public void SetXSensitivity()
     {
-        specialCameraController.playerXSens = xSensitivitySlider.value * 2;
+        cameraController.SetBaseXSensitivity(xSensitivitySlider.value);
     }
 
     public void SetYSensitivity()
     {
-        specialCameraController.playerYSens = ySensitivitySlider.value * -1;
+        cameraController.SetBaseYSensitivity(ySensitivitySlider.value);
     }
 
     public void WindowModeButton()
