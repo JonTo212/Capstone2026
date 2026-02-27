@@ -1,63 +1,39 @@
-using System.Collections;
 using UnityEngine;
 
-public class ZoomToPlayerCutscene : MonoBehaviour
+public class ZoomToPlayerCutscene : CameraCutsceneBase
 {
-    [SerializeField] private Camera _camera;
-    [SerializeField] private Transform lookAtTarget;
-    [SerializeField] private GameObject playerObj;
     [SerializeField] private float startFOV;
     [SerializeField] private float endFOV;
-    [SerializeField] private Transform startPos;
-    [SerializeField] private Transform endPos;
-    [SerializeField] private MonoBehaviour[] sciptsToEnable;
-    [SerializeField] private GameObject[] objectsToEnable;
 
-    private void Awake()
+    public override void OnCutsceneStart()
     {
-        if (_camera == null) _camera = Camera.main;
-        if(playerObj == null) playerObj = GameObject.FindWithTag("Player");
+        base.OnCutsceneStart();
+        cam.fieldOfView = startFOV;
+        cam.transform.position = startPos.position;
     }
 
-    private void Start()
+    public override void OnCutsceneTick()
     {
-        playerObj.SetActive(true);
-        StartCoroutine(ZoomOutToPlayerCutscene());
+        base.OnCutsceneTick();
+        cam.fieldOfView = Mathf.Lerp(startFOV, endFOV, T);
+        cam.transform.position = Vector3.Lerp(startPos.position, endPos.position, T);
+        cam.transform.LookAt(lookAtTarget.position);
     }
 
-    private void OnCutsceneEnd()
+    public override void OnCutsceneEnd()
     {
-        foreach (var script in sciptsToEnable)
+        base.OnCutsceneEnd();
+        cam.fieldOfView = endFOV;
+        cam.transform.position = endPos.position;
+
+        HandleScripts(true);
+
+        ZeldaCameraController zeldaCam = cam.GetComponent<ZeldaCameraController>();
+        if (zeldaCam != null)
         {
-            script.enabled = true;
+            Vector3 euler = cam.transform.eulerAngles;
+            float pitch = euler.x > 180f ? euler.x - 360f : euler.x;
+            zeldaCam.SetRotation(euler.y, pitch);
         }
-        foreach (var obj in objectsToEnable)
-        {
-            obj.SetActive(true);
-        }
-    }
-
-    [SerializeField] private float duration = 5f;
-
-    private IEnumerator ZoomOutToPlayerCutscene()
-    {
-        float elapsed = 0;
-        _camera.fieldOfView = startFOV;
-        _camera.transform.position = startPos.position;
-
-        while (elapsed < duration)
-        {
-            float t = Mathf.Clamp01(elapsed / duration);
-            _camera.fieldOfView = Mathf.Lerp(startFOV, endFOV, t);
-            _camera.transform.position = Vector3.Lerp(startPos.position, endPos.position, t);
-            _camera.transform.LookAt(lookAtTarget.position);
-            elapsed += Time.deltaTime;
-
-            yield return null;
-        }
-
-        OnCutsceneEnd();
-        _camera.fieldOfView = endFOV;
-        _camera.transform.position = endPos.position;
-    }
+    }    
 }

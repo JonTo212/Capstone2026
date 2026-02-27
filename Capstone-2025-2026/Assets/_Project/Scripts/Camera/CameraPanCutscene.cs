@@ -1,76 +1,62 @@
-using System.Collections;
 using UnityEngine;
-using static UnityEngine.Rendering.DebugUI;
 
-public class CameraPanCutscene : MonoBehaviour
+public class CameraPanCutscene : CameraCutsceneBase
 {
-    [SerializeField] private Camera _camera;
-    [SerializeField] private GameObject playerObj;
     [SerializeField] private GameObject panTarget;
-    [SerializeField] private MonoBehaviour[] sciptsToDisable;
-    [SerializeField] private GameObject[] objectsToDisable;
-    [SerializeField] private ZoomToPlayerCutscene nextCutscene;
+    [SerializeField] private Transform[] midPoints;
+    [SerializeField] private CutsceneBase nextCutscene;
 
-    private void Start()
+    private Transform[] _allPoints;
+
+    public override void OnCutscenePrepare()
     {
-        if (_camera == null) _camera = Camera.main;
-        foreach (var script in sciptsToDisable)
-        {
-            script.enabled = false;
-        }
-        foreach (var obj in objectsToDisable)
-        {
-            obj.SetActive(false);
-        }
-        nextCutscene.enabled = false;
-        StartCoroutine(PanCutscene());
+        base.OnCutscenePrepare();
+        BuildPointArray();
     }
 
-    private void OnCutsceneEnd()
+    public override void OnCutsceneStart()
     {
-        nextCutscene.enabled = true;
-        this.enabled = false;
+        base.OnCutsceneStart();
+        HandleScripts(false);
     }
 
-    [SerializeField] private Transform[] splinePoints;
-    [SerializeField] private float duration = 5f;
-
-    private IEnumerator PanCutscene()
+    public override void OnCutsceneTick()
     {
-        if (panTarget == null || splinePoints.Length < 2) yield break;
-
-        float elapsed = 0f;
-
-        while (elapsed < duration)
-        {
-            elapsed += Time.deltaTime;
-            float t = elapsed / duration; // 0 to 1 along the whole spline
-
-            _camera.transform.position = GetCatmullRomPosition(t, splinePoints);
-            _camera.transform.LookAt(panTarget.transform.position);
-
-            yield return null;
-        }
-
-        // Snap to final point
-        _camera.transform.position = splinePoints[splinePoints.Length - 1].position;
-        _camera.transform.LookAt(panTarget.transform.position);
-
-        OnCutsceneEnd();
+        base.OnCutsceneTick();
+        cam.transform.position = GetCatmullRomPosition(T);
+        cam.transform.LookAt(panTarget.transform.position);
     }
 
-    private Vector3 GetCatmullRomPosition(float t, Transform[] points)
+    public override void OnCutsceneEnd()
     {
-        // Figure out which segment we're in
-        int numSections = points.Length - 1;
+        base.OnCutsceneEnd();
+        cam.transform.position = endPos.position;
+        cam.transform.LookAt(panTarget.transform.position);
+
+        if (nextCutscene != null)
+            CameraCutsceneHandler.Instance.StartCutscene(nextCutscene);
+    }
+
+    private void BuildPointArray()
+    {
+        int midCount = midPoints != null ? midPoints.Length : 0;
+        _allPoints = new Transform[midCount + 2];
+        _allPoints[0] = startPos;
+        for (int i = 0; i < midCount; i++)
+            _allPoints[i + 1] = midPoints[i];
+        _allPoints[_allPoints.Length - 1] = endPos;
+    }
+
+    private Vector3 GetCatmullRomPosition(float t)
+    {
+        int numSections = _allPoints.Length - 1;
         int currentSegment = Mathf.Min(Mathf.FloorToInt(t * numSections), numSections - 1);
         float localT = (t * numSections) - currentSegment;
 
-        // Clamp control points so ends don't need extras
-        Vector3 p0 = points[Mathf.Max(currentSegment - 1, 0)].position;
-        Vector3 p1 = points[currentSegment].position;
-        Vector3 p2 = points[Mathf.Min(currentSegment + 1, points.Length - 1)].position;
-        Vector3 p3 = points[Mathf.Min(currentSegment + 2, points.Length - 1)].position;
+        Vector3 p0 = _allPoints[Mathf.Max(currentSegment - 1, 0)].position;
+        Vector3 p1 = _allPoints[currentSegment].position;
+        Vector3 p2 = _allPoints[Mathf.Min(currentSegment + 1, _allPoints.Length - 1)].position;
+        Vector3 p3 = _allPoints[Mathf.Min(currentSegment + 2, _allPoints.Length - 1)].position;
 
         return 0.5f * (
             2f * p1 +
@@ -82,7 +68,11 @@ public class CameraPanCutscene : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        if (splinePoints == null || splinePoints.Length < 2) return;
+        if (startPos == null || endPos == null) return;
+
+        BuildPointArray();
+
+        if (_allPoints.Length < 2) return;
 
         Gizmos.color = Color.cyan;
         int resolution = 50;
@@ -90,17 +80,20 @@ public class CameraPanCutscene : MonoBehaviour
         {
             float t1 = (float)i / resolution;
             float t2 = (float)(i + 1) / resolution;
-            Vector3 a = GetCatmullRomPosition(t1, splinePoints);
-            Vector3 b = GetCatmullRomPosition(t2, splinePoints);
+            Vector3 a = GetCatmullRomPosition(t1);
+            Vector3 b = GetCatmullRomPosition(t2);
             Gizmos.DrawLine(a, b);
         }
 
-        // Draw spheres at each control point
+        Gizmos.color = Color.green;
+        Gizmos.DrawSphere(startPos.position, 0.2f);
+        Gizmos.color = Color.red;
+        Gizmos.DrawSphere(endPos.position, 0.2f);
+
         Gizmos.color = Color.yellow;
-        foreach (var point in splinePoints)
-        {
-            if (point != null)
-                Gizmos.DrawSphere(point.position, 0.2f);
-        }
+        if (midPoints != null)
+            foreach (var midPoint in midPoints)
+                if (midPoint != null)
+                    Gizmos.DrawSphere(midPoint.position, 0.2f);
     }
 }

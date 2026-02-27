@@ -7,7 +7,6 @@ public enum CamState
     LassoEquipped,
     Tether,
     Lasso,
-    RopeHangCutscene
 }
 
 [System.Serializable]
@@ -35,7 +34,6 @@ public class CameraModeController : MonoBehaviour
     [SerializeField] private ZeldaCameraController cameraController;
     [SerializeField] private LassoTetherController lassoTetherController;
     [SerializeField] private Transform playerRef;
-    [SerializeField] private CameraCutsceneHandler cameraCutsceneHandler;
 
     [Header("Camera State Settings")]
     [SerializeField] private List<CameraStateSettings> cameraStates = new();
@@ -72,6 +70,8 @@ public class CameraModeController : MonoBehaviour
     private Vector2 currentScreenOffset;
     private Vector3 currentTargetOffset;
     private float currentTargetDistance;
+    private bool _wasInCutscene;
+
     private bool hasSnappedToLasso;
     private bool _lassoAboveClamp;
     private bool _lassoBelowClamp;
@@ -96,10 +96,14 @@ public class CameraModeController : MonoBehaviour
 
     private void Update()
     {
-        if (cameraCutsceneHandler != null && cameraCutsceneHandler.IsActive())
+        if (CameraCutsceneHandler.Instance != null && CameraCutsceneHandler.Instance.IsActive())
         {
-            RopeSwingCamera();
-            return;
+            CutsceneBase current = CameraCutsceneHandler.Instance.CurrentCutscene;
+            if (current != null && current is RopeSwingCutscene)
+            {
+                _wasInCutscene = true;
+                return;
+            }
         }
 
         switch (lassoTetherController.CurrentLassoState)
@@ -118,13 +122,6 @@ public class CameraModeController : MonoBehaviour
                 TetherModeCamera();
                 break;
         }
-    }
-
-
-    private void RopeSwingCamera()
-    {
-        ApplyCameraStateSettings(CamState.RopeHangCutscene, defaultAdjustSpeed);
-        ApplySensitivity(1f, 1f);
     }
 
     private void LassoModeCamera()
@@ -289,6 +286,13 @@ public class CameraModeController : MonoBehaviour
 
     private void ResetCamera()
     {
+        if (_wasInCutscene)
+        {
+            currentScreenOffset = cameraController.GetScreenOffset();
+            currentTargetOffset = cameraController.GetTargetOffset();
+            _wasInCutscene = false;
+        }
+
         cameraController.SetCollisionSmoothTimeOverride(null);
         cameraController.SetPitchSmoothOverride(null);
         cameraController.SetDistanceLimit(defaultDistance);

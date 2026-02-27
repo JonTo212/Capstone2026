@@ -107,6 +107,15 @@ public class ZeldaCameraController : MonoBehaviour
         transform.rotation = ghostRotation;
     }
 
+    private void OnEnable()
+    {
+        if (target != null)
+        {
+            smoothedTargetPosition = target.position + targetOffset;
+            positionVelocity = Vector3.zero;
+        }
+    }
+
     private void LateUpdate()
     {
         if (Time.timeScale == 0f || Time.deltaTime <= float.Epsilon || target == null)
