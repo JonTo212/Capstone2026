@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Splines;
 
 public class PlayerSwing : MonoBehaviour
 {
@@ -21,7 +22,8 @@ public class PlayerSwing : MonoBehaviour
     public void StartSwing(Vector3 anchorPoint, Vector3 startingVel, float startingLength)
     {
         swingPoint = anchorPoint;
-        ropeLength = Mathf.Clamp(startingLength, minRopeLength, maxRopeLength);
+        //ropeLength = Mathf.Clamp(startingLength, minRopeLength, maxRopeLength);
+        ropeLength = minRopeLength + maxRopeLength / 2f;
 
         Vector3 ropeDir = (swingPoint - transform.position).normalized;
         Vector3 tangentialVel = Vector3.ProjectOnPlane(startingVel, ropeDir);
@@ -34,8 +36,15 @@ public class PlayerSwing : MonoBehaviour
         Vector3 directionToGrapple = swingPoint - transform.position;
         Vector3 ropeDir = directionToGrapple.normalized;
 
+        Vector3 displacement = relVel * Time.fixedDeltaTime;
+
         Vector3 tangentialMoveDir = Vector3.ProjectOnPlane(moveDir, ropeDir);
         relVel += tangentialMoveDir * airAccel * Time.fixedDeltaTime;
+
+        if (playerMovement.Rb.SweepTest(displacement.normalized, out RaycastHit hit, displacement.magnitude * 2f, QueryTriggerInteraction.Ignore))
+        {
+            relVel = Vector3.ProjectOnPlane(relVel, hit.normal);
+        }
     }
 
     public void ConstrainToRope(ref Vector3 relVel)
@@ -58,11 +67,6 @@ public class PlayerSwing : MonoBehaviour
 
             relVel += correctiveForce * Time.fixedDeltaTime;
         }
-    }
-
-    public void SetRopeLength(float newRopeLength)
-    {
-        ropeLength = Mathf.Clamp(newRopeLength, minRopeLength, maxRopeLength);
     }
 
     public void AdjustRopeLength(float scrollInput)
