@@ -2525,6 +2525,10 @@ PrefabInstance:
       propertyPath: playerCam
       value: 
       objectReference: {fileID: 4270019201415842798}
+    - target: {fileID: 7887010670107607874, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+      propertyPath: minRopeLength
+      value: 2.5
+      objectReference: {fileID: 0}
     - target: {fileID: 8248109913353527201, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
@@ -3710,11 +3714,6 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
---- !u!4 &172138763 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 1636921924969586452, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
-  m_PrefabInstance: {fileID: 90426996}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &180826972
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7784,11 +7783,6 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
---- !u!23 &415473689 stripped
-MeshRenderer:
-  m_CorrespondingSourceObject: {fileID: 3227987576983889165, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
-  m_PrefabInstance: {fileID: 90426996}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &431238535
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -10633,11 +10627,6 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
---- !u!137 &606025911 stripped
-SkinnedMeshRenderer:
-  m_CorrespondingSourceObject: {fileID: 8911630846344404998, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
-  m_PrefabInstance: {fileID: 90426996}
-  m_PrefabAsset: {fileID: 0}
 --- !u!43 &626713965
 Mesh:
   m_ObjectHideFlags: 0
@@ -13547,6 +13536,7 @@ MonoBehaviour:
   <FaceRows>k__BackingField: 0
   <FaceColumns>k__BackingField: 0
   deflatedScale: 0.2
+  critterInstanceScript: {fileID: 0}
 --- !u!1001 &740173448
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -22166,6 +22156,7 @@ MonoBehaviour:
   <FaceRows>k__BackingField: 0
   <FaceColumns>k__BackingField: 0
   deflatedScale: 0.2
+  critterInstanceScript: {fileID: 0}
 --- !u!1 &1130704512
 GameObject:
   m_ObjectHideFlags: 0
@@ -32392,6 +32383,7 @@ MonoBehaviour:
   <FaceRows>k__BackingField: 0
   <FaceColumns>k__BackingField: 0
   deflatedScale: 0.2
+  critterInstanceScript: {fileID: 0}
 --- !u!43 &1619769701
 Mesh:
   m_ObjectHideFlags: 0
@@ -33756,6 +33748,7 @@ MonoBehaviour:
   <FaceRows>k__BackingField: 0
   <FaceColumns>k__BackingField: 0
   deflatedScale: 0.2
+  critterInstanceScript: {fileID: 0}
 --- !u!4 &1739864921 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 770677586523418901, guid: 9c649bf40900adb4ca72e5d72143857a, type: 3}
@@ -38817,11 +38810,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!23 &1872525894 stripped
-MeshRenderer:
-  m_CorrespondingSourceObject: {fileID: 2658583419880306134, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
-  m_PrefabInstance: {fileID: 90426996}
-  m_PrefabAsset: {fileID: 0}
 --- !u!43 &1880698581
 Mesh:
   m_ObjectHideFlags: 0
@@ -47980,7 +47968,6 @@ MonoBehaviour:
   cameraController: {fileID: 5644415219199617037}
   lassoTetherController: {fileID: 187563628638676127}
   playerRef: {fileID: 412334986653674616}
-  cameraCutsceneHandler: {fileID: 5644415219199617039}
   cameraStates:
   - cameraState: 0
     screenOffset: {x: 0.1, y: 0.05}
@@ -48027,12 +48014,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fdec1cdf5b7da2c4db4e1366adf90a21, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraCutsceneHandler
-  input: {fileID: 4800881338981055048}
-  playerRb: {fileID: 7792931582718469690}
-  playerController: {fileID: 7792931582718469679}
-  playerModelRotation: {fileID: 7792931582718469697}
   cameraController: {fileID: 5644415219199617037}
   cameraModeController: {fileID: 5644415219199617038}
+  openingCutscene: {fileID: 0}
 --- !u!222 &5671001672856158553
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -48115,7 +48099,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1493070892826556514}
   m_Direction: 2
   m_Value: -0.000000047616755
-  m_Size: 0.2667048
+  m_Size: 0
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -48851,33 +48835,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d774eb208531774288bd82ac6de1218, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::JointTetherPlacer
---- !u!114 &7792931582718469679 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8608974983609837561, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
-  m_PrefabInstance: {fileID: 90426996}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2571145195721570073}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 38d54c8bc5b20034e94fc875eec19b75, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
---- !u!54 &7792931582718469690 stripped
-Rigidbody:
-  m_CorrespondingSourceObject: {fileID: 7293367271740199632, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
-  m_PrefabInstance: {fileID: 90426996}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &7792931582718469697 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1328274438649917707, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
-  m_PrefabInstance: {fileID: 90426996}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2571145195721570073}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 97f8f17bceeb8ad4ea8ac94d023bbf3e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerModelRotationHandler
 --- !u!114 &7792931582718469708
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -48890,7 +48847,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5088d4f38abb70a4299db5838c7a4104, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerNPCCapture
-  npcBackpackPos: {fileID: 172138763}
+  npcBackpackPos: {fileID: 0}
   handAttachThreshold: 0.2
   objectYankDuration: 0.5
 --- !u!114 &7792931582718469719
@@ -48923,9 +48880,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerFadeData
   Renderers:
-  - {fileID: 606025911}
-  - {fileID: 415473689}
-  - {fileID: 1872525894}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   Materials: []
   InitialAlpha: 0
 --- !u!1001 &7832571922477194709

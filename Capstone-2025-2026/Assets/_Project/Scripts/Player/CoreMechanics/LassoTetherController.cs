@@ -28,6 +28,7 @@ public class LassoTetherController : MonoBehaviour
     private PlayerActions playerActions;
     private JointTetherPlacer playerTether;
     private JointTetherActivator playerTetherActivator;
+    private PlayerSwing playerSwing;
 
     [Header("Object Manipulation Mode")]
     [SerializeField] private bool useObjectManipulationMode;
@@ -53,6 +54,7 @@ public class LassoTetherController : MonoBehaviour
         playerNPCCapture = GetComponent<PlayerNPCCapture>();
         playerTether = GetComponent<JointTetherPlacer>();
         playerTetherActivator = GetComponent<JointTetherActivator>();
+        playerSwing = GetComponent<PlayerSwing>();
 
         playerLasso.OnLassoReleased += OnLassoReleased;
         playerLasso.OnObjectHit += OnLassoHit;
@@ -178,11 +180,6 @@ public class LassoTetherController : MonoBehaviour
     {
         playerLasso.HandleHold();
         SwitchLassoState(LassoState.Empty);
-    }
-
-    public void EnableTools(bool enable)
-    {
-
     }
 
     #endregion
@@ -340,6 +337,9 @@ public class LassoTetherController : MonoBehaviour
 
     private void HandleSwingingControls()
     {
+        playerLasso.MoveAnchorPointZ(playerActions.GetDPadScrollValue());
+        playerSwing.SetRopeLength(playerLasso.AnchorDist);
+
         if (playerActions.LassoUp)
         {
             playerLasso.SwingJumpBoost();

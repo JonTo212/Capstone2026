@@ -60,14 +60,8 @@ public class PlayerSwing : MonoBehaviour
 
     public void SetRopeLength(float newRopeLength)
     {
-        ropeLength = newRopeLength;
+        ropeLength = Mathf.Clamp(newRopeLength, minRopeLength, maxRopeLength);
     }
-
-    public void UpdateAnchorPoint(Vector3 anchorPoint)
-    {
-        swingPoint = anchorPoint;
-    }
-
 
     /* //this is the positional version, as posted in the spiderman 2 swinging
     public void Swing(Vector3 moveDir, float gravity, float friction)

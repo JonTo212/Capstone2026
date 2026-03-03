@@ -186,7 +186,6 @@ public class PlayerMovement : MonoBehaviour
                 _currentMultipliers = _airMultipliers;
                 if (!_hasJumped && useDoubleJump)
                 {
-                    Debug.Log("ENABLING DOUBLE JUMP");
                     CanDoubleJump = true;
                 }
                 break;
