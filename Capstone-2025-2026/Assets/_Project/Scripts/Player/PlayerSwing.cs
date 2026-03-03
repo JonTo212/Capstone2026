@@ -11,6 +11,8 @@ public class PlayerSwing : MonoBehaviour
     [SerializeField] private float maxRopeLength;
     [SerializeField] private float airAccel;
 
+    public float AttachLength { get; private set; }
+
     private void Awake()
     {
         playerMovement = GetComponent<PlayerMovement>();
@@ -61,6 +63,14 @@ public class PlayerSwing : MonoBehaviour
     public void SetRopeLength(float newRopeLength)
     {
         ropeLength = Mathf.Clamp(newRopeLength, minRopeLength, maxRopeLength);
+    }
+
+    public void AdjustRopeLength(float scrollInput)
+    {
+        if (Mathf.Approximately(scrollInput, 0f)) return;
+
+        ropeLength += scrollInput;
+        ropeLength = Mathf.Clamp(ropeLength, minRopeLength, maxRopeLength);
     }
 
     /* //this is the positional version, as posted in the spiderman 2 swinging

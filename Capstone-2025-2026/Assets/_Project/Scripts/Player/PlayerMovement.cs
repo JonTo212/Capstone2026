@@ -79,7 +79,7 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 _lastExternalForce;
     private float _lastJumpFrame;
 
-    public bool CanDoubleJump { get; set; }
+    public bool CanDoubleJump { get; private set; }
     public float MovementLockTimer { get; private set; }
     public Vector3 ExternalForce { get; private set; }
     public Vector3 PlayerVelocity { get; private set; }
@@ -110,15 +110,6 @@ public class PlayerMovement : MonoBehaviour
         _useFriction = true;
 
         ExternalForce = Vector3.zero;
-    }
-
-    private void Start()
-    {
-        //AudioManager.Instance.PlaySFX(AudioManager.Instance.Walk, 7, 1);
-        //AudioManager.Instance.SFXSource7.loop = true;
-
-        //RuntimeManager.PlayOneShot("event:/Run", transform.position);
-        Debug.Log("PlayerMovement.cs Start: Run, handle walking sfx");
     }
 
     private void Update()

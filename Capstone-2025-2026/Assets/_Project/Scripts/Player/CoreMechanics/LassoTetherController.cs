@@ -338,7 +338,7 @@ public class LassoTetherController : MonoBehaviour
     private void HandleSwingingControls()
     {
         playerLasso.MoveAnchorPointZ(playerActions.GetDPadScrollValue());
-        playerSwing.SetRopeLength(playerLasso.AnchorDist);
+        playerSwing.AdjustRopeLength(playerActions.GetDPadScrollValue());
 
         if (playerActions.LassoUp)
         {
