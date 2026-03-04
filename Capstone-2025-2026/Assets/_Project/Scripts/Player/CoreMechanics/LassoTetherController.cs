@@ -195,7 +195,7 @@ public class LassoTetherController : MonoBehaviour
         {
             playerLasso.HandleLassoStart();
         }
-        if (playerActions.LassoDown && !rodEquipped && tetherPickedUp) // temporarily making it check for lasso input so they can use the same button
+        if (playerActions.PlaceTetherDown && !rodEquipped && tetherPickedUp) // temporarily making it check for lasso input so they can use the same button
         {
             playerTether.StartTetherPlacement();
         }
@@ -205,7 +205,7 @@ public class LassoTetherController : MonoBehaviour
     #region Tether Controls
     private void HandleTetherPlacementControls()
     {
-        if (playerActions.LassoUp)
+        if (playerActions.PlaceTetherUp)
         {
             playerTether.EndTetherPlacement(false);
             SwitchLassoState(LassoState.Empty);
