@@ -15,15 +15,13 @@ public class ZeldaCameraController : MonoBehaviour
     private float currentMaxDistance;
 
     [Header("Rotation Settings")]
-    public float xSens { get; private set; }
-    public float ySens { get; private set; }
     [SerializeField] private float mouseXSensitivity = 1f;
     [SerializeField] private float mouseYSensitivity = 1f;
     [SerializeField] private float controllerXSensitivityMultiplier = 5f;
     [SerializeField] private float controllerYSensitivityMultiplier = 5f;
     [SerializeField] private float minVerticalAngle = -30f;
     [SerializeField] private float maxVerticalAngle = 70f;
-    [SerializeField] private float rotationSmoothTime = 0f; //ANY NON-ZERO VALUE BREAKS ROTATION IF YOU SWEEP WITH YOUR MOUSE VERY QUICKLY
+    [SerializeField] private float rotationSmoothTime = 0f;
 
     [Header("Position Smoothing")]
     [SerializeField] private Vector3 positionDamping;
@@ -105,13 +103,15 @@ public class ZeldaCameraController : MonoBehaviour
         UpdateGhostTransform();
         transform.position = ghostPosition;
         transform.rotation = ghostRotation;
-
-        RecomputeSensitivity();
     }
 
-    private void Update()
+    private void OnEnable()
     {
-        HandleInput();
+        if (target != null)
+        {
+            smoothedTargetPosition = target.position + targetOffset;
+            positionVelocity = Vector3.zero;
+        }
     }
 
     private void LateUpdate()
@@ -119,14 +119,26 @@ public class ZeldaCameraController : MonoBehaviour
         if (Time.timeScale == 0f || Time.deltaTime <= float.Epsilon || target == null)
             return;
 
+        HandleInput();
         UpdateGhostTransform();
         SmoothCameraToGhost();
     }
 
     private void HandleInput()
     {
-        float mouseX = input.LookInput.x * xSens;
-        float mouseY = input.LookInput.y * ySens;
+        float mouseX = input.LookInput.x;
+        float mouseY = input.LookInput.y;
+
+        if (input.CurrentDevice.Equals(PlayerActions.InputType.MouseKeyboard))
+        {
+            mouseX *= mouseXSensitivity;
+            mouseY *= mouseYSensitivity;
+        }
+        else if (input.CurrentDevice.Equals(PlayerActions.InputType.Controller))
+        {
+            mouseX *= mouseXSensitivity * controllerXSensitivityMultiplier;
+            mouseY *= mouseYSensitivity * controllerYSensitivityMultiplier;
+        }
 
         hasInput = Mathf.Abs(mouseX) > 0.001f || Mathf.Abs(mouseY) > 0.001f || Mathf.Abs(input.MoveInput.sqrMagnitude) > 0.001f;
 
@@ -282,17 +294,6 @@ public class ZeldaCameraController : MonoBehaviour
         currentDistance = targetDistance;
     }
 
-    public void AddYaw(float degrees)
-    {
-        targetYaw += degrees;
-    }
-
-    public void AddPitch(float degrees)
-    {
-        targetPitch += degrees;
-        targetPitch = Mathf.Clamp(targetPitch, minVerticalAngle, maxVerticalAngle);
-    }
-
     public Vector3 GetGhostPosition() => ghostPosition;
     public Quaternion GetGhostRotation() => ghostRotation;
     public float GetCurrentDistance() => currentDistance;
@@ -302,30 +303,25 @@ public class ZeldaCameraController : MonoBehaviour
     public Vector2 GetScreenOffset() => screenOffset;
     public Vector3 GetTargetOffset() => targetOffset;
     public float GetDefaultDistance() => defaultDistance;
-    public float GetDeviceAdjustedBaseX() => input.CurrentDevice == PlayerActions.InputType.Controller ? mouseXSensitivity * controllerXSensitivityMultiplier : mouseXSensitivity;
-    public float GetDeviceAdjustedBaseY() => input.CurrentDevice == PlayerActions.InputType.Controller ? mouseYSensitivity * controllerYSensitivityMultiplier : mouseYSensitivity;
+    public float GetMouseXSensitivity() => mouseXSensitivity;
+    public float GetMouseYSensitivity() => mouseYSensitivity;
     public void SetScreenOffset(Vector2 offset) => screenOffset = offset;
     public void SetTargetOffset(Vector3 offset) => targetOffset = offset;
-    public void SetXSensitivity(float newXSens) => xSens = newXSens;
-    public void SetYSensitivity(float newYSens) => ySens = newYSens;
+    public void SetMouseSensitivity(float xSens, float ySens)
+    {
+        mouseXSensitivity = xSens;
+        mouseYSensitivity = ySens;
+    }
+
     public void SetBaseXSensitivity(float value)
     {
         mouseXSensitivity = value;
-        RecomputeSensitivity();
     }
 
     public void SetBaseYSensitivity(float value)
     {
         mouseYSensitivity = value;
-        RecomputeSensitivity();
     }
-    private void RecomputeSensitivity()
-    {
-        bool isController = input.CurrentDevice == PlayerActions.InputType.Controller;
-        xSens = isController ? mouseXSensitivity * controllerXSensitivityMultiplier : mouseXSensitivity;
-        ySens = isController ? mouseYSensitivity * controllerYSensitivityMultiplier : mouseYSensitivity;
-    }
-
     public void SetYAxisLocked(bool locked) => yAxisLocked = locked;
     public void SetXAxisLocked(bool locked) => xAxisLocked = locked;
     public void SetDistanceLimit(float max)

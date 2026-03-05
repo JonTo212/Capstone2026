@@ -9,6 +9,8 @@ public class PlayerActions : MonoBehaviour
         Controller
     }
 
+    public static PlayerActions Instance { get; private set; }
+
     public InputAction MoveAction { get; set; }
     private InputAction lookAction;
     private InputAction jumpAction;
@@ -121,6 +123,14 @@ public class PlayerActions : MonoBehaviour
 
     private void Awake()
     {
+
+        if (Instance != null && Instance != this) 
+        {
+            Destroy(gameObject); 
+            return; 
+        }
+
+        Instance = this;
         map = InputSystem.actions;
         MoveAction = map.FindAction("Move");
         lookAction = map.FindAction("Look");
