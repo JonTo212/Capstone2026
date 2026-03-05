@@ -9,7 +9,6 @@ public class Lasso : MonoBehaviour
     [Header("External Components")]
     [field: SerializeField] public Transform HoldPos { get; private set; }
     [field: SerializeField] public Transform PlayerCamLookPos { get; private set; }
-    [field: SerializeField] public Transform CinemachineBrain { get; private set; }
     [field: SerializeField] public Camera PlayerCam { get; private set; }
 
     [SerializeField] private GameObject lassoGrabVisualIndicator;
@@ -39,9 +38,7 @@ public class Lasso : MonoBehaviour
     [SerializeField] private float swingJumpForce = 5f;
     [SerializeField] private Transform forwardRef;
 
-    [Header("Rotation")]
-    [field: SerializeField] public CinemachineInputAxisController camInputController { get; private set; }
-        public enum RotationMode
+    public enum RotationMode
     {
         ScreenSpace,      //use cam up and right axes
         SmartGimbal,      //world up, camera sideways axis
@@ -54,7 +51,6 @@ public class Lasso : MonoBehaviour
     [SerializeField] private float degreesPerSecond = 180f;
     [SerializeField] private float mkSensMultiplier = 0.05f;
     private Quaternion rotationOffset;
-    private bool rotating;
 
     [Header("Lifting")]
     [SerializeField] private float liftSpeed = 1.5f;
@@ -142,23 +138,11 @@ public class Lasso : MonoBehaviour
         else obj.gameObject.tag = "Untagged";
     }
 
-    private Vector3 GetCameraWorldOffset()
-    {
-        CinemachineCameraOffset cameraOffset = CinemachineBrain.GetComponent<CinemachineCameraOffset>();
-        if (cameraOffset != null)
-        {
-            Vector3 localOffset = cameraOffset.Offset;
-            return PlayerCam.transform.TransformDirection(localOffset);
-        }
-        return Vector3.zero;
-    }
-
     private Vector3 GetBaseTargetPos()
     {
         Ray ray = PlayerCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
 
-        Vector3 camOffset = GetCameraWorldOffset();
-        return PlayerCamLookPos.position + camOffset + (ray.direction * AnchorDist);
+        return PlayerCamLookPos.position + (ray.direction * AnchorDist);
     }
 
     public Vector3 GetAnchoredCenterOfScreen()
@@ -554,7 +538,6 @@ public class Lasso : MonoBehaviour
 
     public void SetRotating(bool rotate)
     {
-        rotating = rotate;
         GetStartGrabRotation();
     }
 

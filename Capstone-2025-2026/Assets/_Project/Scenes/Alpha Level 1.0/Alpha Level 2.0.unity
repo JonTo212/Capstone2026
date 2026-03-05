@@ -103250,7 +103250,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5034725151940635292, guid: 4e3c004c32a0ef04a80baaba46ee4b24, type: 3}
       propertyPath: m_Name
-      value: CinemachineCamera (2)
+      value: CameraSystem
       objectReference: {fileID: 0}
     - target: {fileID: 7736215995061540497, guid: 4e3c004c32a0ef04a80baaba46ee4b24, type: 3}
       propertyPath: m_LocalPosition.x
@@ -103341,21 +103341,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 761371174}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 8329544141948331695, guid: 4e3c004c32a0ef04a80baaba46ee4b24, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4e3c004c32a0ef04a80baaba46ee4b24, type: 3}
---- !u!114 &791825332 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3617475115574334221, guid: 4e3c004c32a0ef04a80baaba46ee4b24, type: 3}
-  m_PrefabInstance: {fileID: 791825331}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 89875cdc57c54474a8a74efd9b2a3b5d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineInputAxisController
 --- !u!20 &791825333 stripped
 Camera:
   m_CorrespondingSourceObject: {fileID: 2058678862583890569, guid: 4e3c004c32a0ef04a80baaba46ee4b24, type: 3}
@@ -103372,11 +103362,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fdec1cdf5b7da2c4db4e1366adf90a21, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraCutsceneHandler
---- !u!4 &791825335 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 5344777325478106372, guid: 4e3c004c32a0ef04a80baaba46ee4b24, type: 3}
-  m_PrefabInstance: {fileID: 791825331}
-  m_PrefabAsset: {fileID: 0}
 --- !u!224 &792685699 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 3977657154552489267, guid: ac6f3bb8b67eea94ba5246e0bdbd56b2, type: 3}
@@ -268522,11 +268507,11 @@ PrefabInstance:
     - target: {fileID: 5704081936607653163, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       propertyPath: <CinemachineBrain>k__BackingField
       value: 
-      objectReference: {fileID: 791825335}
+      objectReference: {fileID: 0}
     - target: {fileID: 5704081936607653163, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       propertyPath: <camInputController>k__BackingField
       value: 
-      objectReference: {fileID: 791825332}
+      objectReference: {fileID: 0}
     - target: {fileID: 5704081936607653163, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       propertyPath: <minHeightAboveGround>k__BackingField
       value: 0.05
