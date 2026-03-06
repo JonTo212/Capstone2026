@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PluckOutProp : Prop
 {
@@ -39,6 +40,8 @@ public class PluckOutProp : Prop
         Vector3 localForceVector = transform.InverseTransformVector(totalForceApplied);
 
         float totalForceMagnitude = 0;
+        bool stepCheck = false; 
+        bool reelCheck = false;
         /*
         //pluck horizontally considers both horizontal and vertical force as valid. Each direction's multiplier is applied
         if (pluckHorizontally)
@@ -57,8 +60,11 @@ public class PluckOutProp : Prop
         */
 
         //plucks after a delay, force needs to be above the minimum for as long as the delay
-        bool stepCheck = Vector3.Distance(transform.position, lassoRef.transform.position) > playerStartDist + walkBackDist;
-        bool reelCheck = lassoRef.AnchorDist < startDist;
+        if (lassoRef != null)
+        {
+            stepCheck = Vector3.Distance(transform.position, lassoRef.transform.position) > playerStartDist + walkBackDist;
+            reelCheck = lassoRef.AnchorDist < startDist;
+        }
 
         if (stepCheck || reelCheck) //Condition for code
         {
@@ -79,19 +85,18 @@ public class PluckOutProp : Prop
     {
         Rb.isKinematic = false;
         hasBeenPlucked = true;
+        lassoRef.HandleObjectReleased();
     }
 
     IEnumerator PluckAfterDelay(float delay)
     {
+        //PlayerActions.Instance.DisableAllInput();
+        PlayerActions.Instance.ChangeSpecificInput("Lasso", true);
         yield return new WaitForSeconds(delay);
 
         OnPluck();
+        PlayerActions.Instance.EnableAllInput();
         pluckCoroutine = null;
-    }
-
-    IEnumerator PluckSequence()
-    {
-        yield return null;
     }
 
     public void SaveDist(float anchorStartDist, float playerStartDist, Lasso LassoFake)
@@ -99,5 +104,12 @@ public class PluckOutProp : Prop
         lassoRef = LassoFake;
         startDist = anchorStartDist;
         playerStartDist = this.playerStartDist;
+    }
+
+    public void Reset()
+    {
+        lassoRef = null;
+        startDist = 0;
+        playerStartDist = 0;
     }
 }

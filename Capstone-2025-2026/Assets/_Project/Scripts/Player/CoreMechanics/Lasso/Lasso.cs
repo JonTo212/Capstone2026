@@ -297,7 +297,6 @@ public class Lasso : MonoBehaviour
             if(prop.TryGetComponent(out PluckOutProp po))
             {
                 po.SaveDist(AnchorDist, Vector3.Distance(transform.position, po.transform.position), this);
-
             }
 
             OnObjectHit?.Invoke();
@@ -718,12 +717,15 @@ public class Lasso : MonoBehaviour
         SnaredObject.ActivateOutline(false);
         SnaredObject.OnRelease();
         _snaredObjTransform.gameObject.tag = SnaredObject.OriginalTag;
+        if (SnaredObject.TryGetComponent(out PluckOutProp po)) po.Reset();
         _snaredObjTransform = null;
         SnaredObject = null;
         _localFaceNormal = Vector3.zero;
 
         lassoGrabVisualIndicator.SetActive(false);
         OnLassoReleased?.Invoke();
+
+        
     }
 
     public void HandleHold()
@@ -736,6 +738,8 @@ public class Lasso : MonoBehaviour
         _localFaceNormal = Vector3.zero;
         lassoGrabVisualIndicator.SetActive(false);
     }
+
+
 
     #endregion
 
