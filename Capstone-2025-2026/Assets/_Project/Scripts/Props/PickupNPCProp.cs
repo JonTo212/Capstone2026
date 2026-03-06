@@ -12,6 +12,17 @@ public class PickupNPCProp : Prop
 
     [SerializeField] private GameObject grabIndicator;
 
+    //boolean if you want an NPC to summon or destroy objects after its saved
+    [SerializeField] private bool keyNPC = false;
+    [SerializeField] Transform[] objectsToEnable; 
+    [SerializeField] Transform[] objectsToDestroy;
+
+    //particles
+    [SerializeField] private ParticleSystem dustParticle;
+
+
+
+
 
     private void Awake()
     {
@@ -19,6 +30,15 @@ public class PickupNPCProp : Prop
 
         base.Init();
         defaultLocalScale = transform.localScale;
+
+        //disable objects if its a key npc
+        if (keyNPC)
+        {
+            foreach (Transform t in objectsToEnable)
+            {
+                t.gameObject.SetActive(false);
+            }
+        }
     }
 
     public void OnCaptureStart(float captureDuration)
@@ -32,6 +52,38 @@ public class PickupNPCProp : Prop
 
         //tell UI that you got a puff
         critterInstanceScript.BeRescued();
+
+        if (keyNPC) KeyNPCAction();// make npc summon object or destory object
+    }
+
+    private void KeyNPCAction()
+    {
+        //Voice Line
+        GetComponent<DialogueTrigger>().CreateNPCDialogue();
+
+
+        //enable objects
+        foreach (Transform t in objectsToEnable)
+        {
+            t.gameObject.SetActive(true);
+
+            //FX
+            RuntimeManager.PlayOneShot("event:/Fanfare", t.position);
+            // Spawn particle
+            Instantiate(dustParticle, t.position, Quaternion.identity);
+
+        }
+
+        //destroy objects
+        foreach (Transform t in objectsToDestroy)
+        {
+            Destroy(t.gameObject);
+
+            //FX
+            RuntimeManager.PlayOneShot("event:/WallBreak", transform.position);
+            // Spawn particle
+            Instantiate(dustParticle, t.position, Quaternion.identity);
+        }
     }
 
     public override void ActivateOutline(bool activate)
