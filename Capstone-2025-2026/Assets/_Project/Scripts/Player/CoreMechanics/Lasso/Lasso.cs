@@ -294,6 +294,12 @@ public class Lasso : MonoBehaviour
                 OnNPCHit?.Invoke();
             }
 
+            if(prop.TryGetComponent(out PluckOutProp po))
+            {
+                po.SaveDist(AnchorDist, Vector3.Distance(transform.position, po.transform.position), this);
+
+            }
+
             OnObjectHit?.Invoke();
             //AudioManager.Instance.PlaySFX(AudioManager.Instance.Thrown, 5, 1);
             RuntimeManager.PlayOneShot("event:/LassoStart", transform.position);
