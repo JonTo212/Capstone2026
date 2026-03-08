@@ -5376,6 +5376,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 20b894423635c4f499aabb2c71c507a4, type: 3}
       insertIndex: -1
       addedObject: {fileID: 6801020781410082392}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 20b894423635c4f499aabb2c71c507a4, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -1208678772303228168}
   m_SourcePrefab: {fileID: 100100000, guid: 20b894423635c4f499aabb2c71c507a4, type: 3}
 --- !u!1 &130944491752883907 stripped
 GameObject:
@@ -5510,6 +5513,10 @@ MonoBehaviour:
   deflatedScale: 0.2
   critterInstanceScript: {fileID: 6801020781410082392}
   grabIndicator: {fileID: 5486340290467100150}
+  keyNPC: 0
+  objectsToEnable: []
+  objectsToDestroy: []
+  dustParticle: {fileID: 2420149264377020551, guid: 3133dae3f8e0b754a8c1c8c60c250db4, type: 3}
 --- !u!114 &6801020781410082392
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5524,6 +5531,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CritterInstance
   CritterCollectibleData: {fileID: 11400000, guid: 9260d1cf34428784781ee02afa918f53, type: 2}
   instID: 0
+--- !u!114 &-1208678772303228168
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 130944491752883907}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b36eb71a4b14a6e40a0cbc6cf05fe804, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueTrigger
+  repeatable: 0
+  desiredText: '[PLACEHOLDER TEXT]'
+  speakerOptionsDropdown: 1
+  characterSpeed: 5
+  punctuationSpeed: 0.5
+  delay: 0
 --- !u!4 &764175969476533369 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 20b894423635c4f499aabb2c71c507a4, type: 3}
