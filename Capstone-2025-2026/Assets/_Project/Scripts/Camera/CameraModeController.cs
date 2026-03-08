@@ -212,10 +212,8 @@ public class CameraModeController : MonoBehaviour
     private float CalculateRequiredDistanceOffset(Vector3 playerPos, Vector3 objectPos, out Vector2 optimalFraming)
     {
         Camera mainCam = Camera.main;
-
         float playerBottom = playerPos.y - (characterHeight / 2f);
         float playerTop = playerPos.y + (characterHeight / 2f);
-
         float objectBottom = objectPos.y;
         float objectTop = objectPos.y;
 
@@ -229,19 +227,15 @@ public class CameraModeController : MonoBehaviour
         float lowestY = Mathf.Min(playerBottom, objectBottom);
         float highestY = Mathf.Max(playerTop, objectTop);
         float verticalSpan = (highestY - lowestY) * zoomPadding;
-
         float fovRad = mainCam.fieldOfView * Mathf.Deg2Rad;
         float requiredDistance = Mathf.Max(verticalSpan / (2f * Mathf.Tan(fovRad / 2f)), defaultDistance);
 
-        Vector3 worldMidpoint = new Vector3((playerPos.x + objectPos.x) / 2f,
-                                            (lowestY + highestY) / 2f,
-                                            (playerPos.z + objectPos.z) / 2f);
-        Vector3 midpointViewport = mainCam.WorldToViewportPoint(worldMidpoint);
+        Vector3 playerViewport = mainCam.WorldToViewportPoint(playerPos);
+        float delta = playerViewport.y - playerDefaultYOffset;
 
-        float delta = midpointViewport.y - playerDefaultYOffset;
         float normalized = Mathf.Clamp(delta * 2f, -1f, 1f);
-
         optimalFraming = new Vector2(0f, normalized);
+
         return requiredDistance - defaultDistance;
     }
 
