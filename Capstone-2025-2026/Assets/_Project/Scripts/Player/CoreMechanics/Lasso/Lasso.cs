@@ -9,7 +9,6 @@ public class Lasso : MonoBehaviour
     [Header("External Components")]
     [field: SerializeField] public Transform HoldPos { get; private set; }
     [field: SerializeField] public Transform PlayerCamLookPos { get; private set; }
-    [field: SerializeField] public Transform CinemachineBrain { get; private set; }
     [field: SerializeField] public Camera PlayerCam { get; private set; }
 
     [SerializeField] private GameObject lassoGrabVisualIndicator;
@@ -39,9 +38,7 @@ public class Lasso : MonoBehaviour
     [SerializeField] private float swingJumpForce = 5f;
     [SerializeField] private Transform forwardRef;
 
-    [Header("Rotation")]
-    [field: SerializeField] public CinemachineInputAxisController camInputController { get; private set; }
-        public enum RotationMode
+    public enum RotationMode
     {
         ScreenSpace,      //use cam up and right axes
         SmartGimbal,      //world up, camera sideways axis
@@ -54,7 +51,6 @@ public class Lasso : MonoBehaviour
     [SerializeField] private float degreesPerSecond = 180f;
     [SerializeField] private float mkSensMultiplier = 0.05f;
     private Quaternion rotationOffset;
-    private bool rotating;
 
     [Header("Lifting")]
     [SerializeField] private float liftSpeed = 1.5f;
@@ -90,6 +86,14 @@ public class Lasso : MonoBehaviour
     }
     public float AnchorDist { get; private set; }
     public float MaxLassoRange => maxLassoRange;
+    public bool SuppressLiftInput { get; set; }
+    public float CurrentLiftOffset => _currentLiftOffset;
+    public float LiftSpeed => liftSpeed;
+
+    public void AddLiftOffset(float delta)
+    {
+        _currentLiftOffset += delta;
+    }
 
     public event Action OnObjectHit;
     public event Action OnNPCHit;
@@ -142,23 +146,11 @@ public class Lasso : MonoBehaviour
         else obj.gameObject.tag = "Untagged";
     }
 
-    private Vector3 GetCameraWorldOffset()
-    {
-        CinemachineCameraOffset cameraOffset = CinemachineBrain.GetComponent<CinemachineCameraOffset>();
-        if (cameraOffset != null)
-        {
-            Vector3 localOffset = cameraOffset.Offset;
-            return PlayerCam.transform.TransformDirection(localOffset);
-        }
-        return Vector3.zero;
-    }
-
     private Vector3 GetBaseTargetPos()
     {
         Ray ray = PlayerCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
-
-        Vector3 camOffset = GetCameraWorldOffset();
-        return PlayerCamLookPos.position + camOffset + (ray.direction * AnchorDist);
+        float camToPlayerDist = Vector3.Distance(ray.origin, PlayerCamLookPos.position);
+        return ray.origin + ray.direction * (AnchorDist + camToPlayerDist);
     }
 
     public Vector3 GetAnchoredCenterOfScreen()
@@ -254,9 +246,9 @@ public class Lasso : MonoBehaviour
     public void SetupHeldProp(Prop newProp, RaycastHit? hit)
     {
         //clear old reference if it exists
-        if (SnaredObject != null) 
-        { 
-            SnaredObject.OnPropDestroyed -= HandleObjectReleased; 
+        if (SnaredObject != null)
+        {
+            SnaredObject.OnPropDestroyed -= HandleObjectReleased;
             SnaredObject.ActivateOutline(false);
         }
 
@@ -294,7 +286,7 @@ public class Lasso : MonoBehaviour
                 OnNPCHit?.Invoke();
             }
 
-            if(prop.TryGetComponent(out PluckOutProp po))
+            if (prop.TryGetComponent(out PluckOutProp po))
             {
                 po.SaveDist(AnchorDist, Vector3.Distance(transform.position, po.transform.position), this);
             }
@@ -329,9 +321,6 @@ public class Lasso : MonoBehaviour
             {
                 AnchorDist = Mathf.Clamp(Vector3.Distance(prop.transform.position, PlayerCamLookPos.position), minLassoRange, maxLassoRange);
                 _attachPointLocal = prop.transform.InverseTransformPoint(hit.Value.point);
-
-                //AnchorDist = Mathf.Clamp(Vector3.Distance(hit.transform.position, PlayerCamLookPos.position), minLassoRange, maxLassoRange);
-                //_attachPointLocal = prop.transform.InverseTransformPoint(hit.transform.position);
             }
         }
         else
@@ -395,8 +384,6 @@ public class Lasso : MonoBehaviour
             Vector3 direction = desiredPos - HitPos;
             SnaredObject.Rb.linearVelocity = direction.normalized * currentSpeed;
         }
-
-        //if (!rotating && !SnaredObject.IsTetherPulled) LookAtPlayer(); //this causes issues
     }
     private Quaternion bufferedTargetRotation;
     public void LookAtPlayer()
@@ -407,7 +394,6 @@ public class Lasso : MonoBehaviour
         float radians = Mathf.Atan2(targetDir.x, targetDir.z);
         float degrees = radians * Mathf.Rad2Deg;
 
-        //get direction to rotate (toAngleAxis), get amount to rotate (angleDegrees)
         Quaternion current = SnaredObject.transform.rotation;
         Quaternion target = Quaternion.Euler(0f, degrees, 0f) * rotationOffset;
 
@@ -430,10 +416,9 @@ public class Lasso : MonoBehaviour
 
     private Vector3 CalculateLinearForce(Vector3 displacement, Vector3 pointVelocity)
     {
-        //linear force
         float springStrength = centerStrength;
-        Vector3 springForce = springStrength * displacement; //F = -springRate * displacement
-        float damping = 2f * Mathf.Sqrt(springStrength * SnaredObject.Rb.mass); //critical damping = 2 * sqrt(springRate * mass)
+        Vector3 springForce = springStrength * displacement;
+        float damping = 2f * Mathf.Sqrt(springStrength * SnaredObject.Rb.mass);
         Vector3 dampingForce = -pointVelocity * damping;
         Vector3 totalForce = springForce + dampingForce;
 
@@ -498,7 +483,7 @@ public class Lasso : MonoBehaviour
         rotationStep = GetConstrainedRotation(rotationStep, SnaredObject.Rb.constraints);
 
         rotationStep.ToAngleAxis(out float angle, out Vector3 axis);
-        if (angle > 180f) angle -= 360f; // normalize
+        if (angle > 180f) angle -= 360f;
 
         Vector3 targetAngularVelocity = axis * Mathf.Deg2Rad * angle / Time.fixedDeltaTime;
         Vector3 angularVelocityError = targetAngularVelocity - SnaredObject.Rb.angularVelocity;
@@ -545,21 +530,17 @@ public class Lasso : MonoBehaviour
         if (Mathf.Abs(angle) < Mathf.Epsilon || axis == Vector3.zero)
             return Quaternion.identity;
 
-        //use constraints to remove axis rotation components
         if ((constraints & RigidbodyConstraints.FreezeRotationX) != 0) axis.x = 0;
         if ((constraints & RigidbodyConstraints.FreezeRotationY) != 0) axis.y = 0;
         if ((constraints & RigidbodyConstraints.FreezeRotationZ) != 0) axis.z = 0;
 
-        //if everything is zero'd out, no rotation
         if (axis == Vector3.zero) return Quaternion.identity;
 
-        //otherwise, recreate the quaternion
         return Quaternion.AngleAxis(angle, axis.normalized);
     }
 
     public void SetRotating(bool rotate)
     {
-        rotating = rotate;
         GetStartGrabRotation();
     }
 
@@ -578,6 +559,7 @@ public class Lasso : MonoBehaviour
 
     public void MoveAnchorPointY(float lookInputY)
     {
+        if (SuppressLiftInput) return;
         if (Mathf.Approximately(lookInputY, 0f)) return;
 
         _currentLiftOffset += lookInputY * liftSpeed * Time.deltaTime;
@@ -585,15 +567,12 @@ public class Lasso : MonoBehaviour
 
     public void SetVerticalAnchor(bool setMinimum)
     {
-        //get base position
         Vector3 baseTargetPos = GetBaseTargetPos();
 
-        //get world space limits
         float characterFeetY = transform.position.y - 1f;
         float absoluteMaxY = characterFeetY + maxLiftHeight;
         float absoluteMinY = GetMinimumLiftHeight();
 
-        //convert those limits relative to the base position
         float maxAllowedOffset = absoluteMaxY - baseTargetPos.y;
         float minAllowedOffset = absoluteMinY - baseTargetPos.y;
 
@@ -622,13 +601,11 @@ public class Lasso : MonoBehaviour
 
         float objectHalfHeight = bounds.extents.y;
 
-        //ground found under object -> minHeightAboveGround + hit
         if (!float.IsNegativeInfinity(groundYBelowObject))
         {
             return groundYBelowObject + objectHalfHeight + minHeightAboveGround;
         }
 
-        //fallback -> object is floating above the void
         float playerFeetY = transform.position.y - 1f;
         return playerFeetY - maxBelowGround;
     }
@@ -660,8 +637,6 @@ public class Lasso : MonoBehaviour
         return false;
     }
 
-
-
     #endregion
 
     #region Swinging
@@ -675,7 +650,7 @@ public class Lasso : MonoBehaviour
     public void SwingJumpBoost()
     {
         HandleObjectReleased();
-        PlayerController.Rb.AddForce((Vector3.up + PlayerCam.transform.forward).normalized * swingJumpForce, ForceMode.Impulse);
+        PlayerController.Rb.AddForce(Vector3.up * swingJumpForce, ForceMode.Impulse);
     }
 
     private Transform GetNearestSwingPoint()
@@ -724,8 +699,6 @@ public class Lasso : MonoBehaviour
 
         lassoGrabVisualIndicator.SetActive(false);
         OnLassoReleased?.Invoke();
-
-        
     }
 
     public void HandleHold()
@@ -738,8 +711,6 @@ public class Lasso : MonoBehaviour
         _localFaceNormal = Vector3.zero;
         lassoGrabVisualIndicator.SetActive(false);
     }
-
-
 
     #endregion
 

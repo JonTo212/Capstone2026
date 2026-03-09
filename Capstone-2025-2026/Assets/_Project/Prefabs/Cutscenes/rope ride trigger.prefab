@@ -231,7 +231,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 03052a76aa0d2b143b7fb811dbc858c2, type: 2}
+  - {fileID: 2100000, guid: 608fd02ec49a90d44b569ddab757d363, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -300,16 +300,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c6651b6fd08d8eb43b79ec7ebd3747e8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RopeSwingCutscene
-  duration: 1.5
-  blendInDelay: 0.3
-  blendInTime: 0.3
-  blendOutTime: 0.3
-  lockCameraInput: 1
-  autoRotateCamera: 1
-  cameraRotationSpeed: 10
-  cameraPitch: 5
-  useCustomCameraState: 1
-  disablePlayerControl: 1
+  <Duration>k__BackingField: 0
+  <BlendInDelay>k__BackingField: 0
+  <BlendInTime>k__BackingField: 0
+  <BlendOutTime>k__BackingField: 0
+  <Skippable>k__BackingField: 1
+  player: {fileID: 0}
+  cameraScreenOffset: {x: 0, y: 0}
+  cameraTargetOffset: {x: 0, y: 0, z: 0}
+  cameraOffsetBlendSpeed: 6
   ropeVisuals: {fileID: 4786607128579308298}
   ropePath:
   - {fileID: 8821420526724943209}
@@ -327,18 +326,19 @@ MonoBehaviour:
   - {fileID: 6164957728086258367}
   - {fileID: 8919318179190487533}
   - {fileID: 5819016146802679294}
-  usePlayerOffset: 1
   useSpline: 1
   splineSubdivisions: 20
-  enablePlayerSway: 1
+  swayPositionStrength: 0.02
   maxSwayAngle: 15
-  durationUntilMaxSwayAngle: 0.9
+  durationUntilMaxSway: 2
+  lookAheadBuffer: 0.05
   maxLeanAngle: 45
   durationUntilMaxLean: 0.1
-  uprightBlendFraction: 0.2
-  showPaths: 1
+  cameraRotationSpeed: 10
+  cameraPitch: 5
   ropePathColor: {r: 0.2, g: 0.6, b: 1, a: 1}
-  combinedPathColor: {r: 0.2, g: 1, b: 0.3, a: 1}
+  playerPathColor: {r: 0.2, g: 1, b: 0.3, a: 1}
+  lassoVisuals: {fileID: 0}
 --- !u!1 &2198370603542699046
 GameObject:
   m_ObjectHideFlags: 0

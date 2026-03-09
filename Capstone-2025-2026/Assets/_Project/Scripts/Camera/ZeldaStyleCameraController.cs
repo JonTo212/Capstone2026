@@ -75,7 +75,11 @@ public class ZeldaCameraController : MonoBehaviour
     private bool xAxisLocked = false;
     private Camera cam;
 
-    private void Start()
+    //up-down pitching
+    private float originalMinVerticalAngle;
+    private float originalMaxVerticalAngle;
+
+    private void Awake()
     {
         cam = GetComponent<Camera>();
         if (cam == null)
@@ -103,6 +107,9 @@ public class ZeldaCameraController : MonoBehaviour
         UpdateGhostTransform();
         transform.position = ghostPosition;
         transform.rotation = ghostRotation;
+
+        originalMinVerticalAngle = minVerticalAngle;
+        originalMaxVerticalAngle = maxVerticalAngle;
     }
 
     private void OnEnable()
@@ -299,7 +306,13 @@ public class ZeldaCameraController : MonoBehaviour
     public float GetCurrentDistance() => currentDistance;
     public float GetCurrentYaw() => currentYaw;
     public float GetCurrentPitch() => currentPitch;
-
+    public float GetRawLookInputY() => input.LookInput.y;
+    public float GetTargetPitch() => targetPitch;
+    public void SetVerticalClamp(float? min, float? max)
+    {
+        minVerticalAngle = min ?? originalMinVerticalAngle;
+        maxVerticalAngle = max ?? originalMaxVerticalAngle;
+    }
     public Vector2 GetScreenOffset() => screenOffset;
     public Vector3 GetTargetOffset() => targetOffset;
     public float GetDefaultDistance() => defaultDistance;
