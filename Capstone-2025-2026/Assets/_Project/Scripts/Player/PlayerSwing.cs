@@ -8,8 +8,10 @@ public class PlayerSwing : MonoBehaviour
 
     private float ropeLength;
     [SerializeField] private Camera playerCam;
+    [SerializeField] private float startRopeLength;
     [SerializeField] private float minRopeLength;
     [SerializeField] private float maxRopeLength;
+
     [SerializeField] private float airAccel;
 
     public float AttachLength { get; private set; }
@@ -23,7 +25,7 @@ public class PlayerSwing : MonoBehaviour
     {
         swingPoint = anchorPoint;
         //ropeLength = Mathf.Clamp(startingLength, minRopeLength, maxRopeLength);
-        ropeLength = minRopeLength + maxRopeLength / 2f;
+        ropeLength = Mathf.Clamp(startRopeLength, minRopeLength, maxRopeLength);
 
         Vector3 ropeDir = (swingPoint - transform.position).normalized;
         Vector3 tangentialVel = Vector3.ProjectOnPlane(startingVel, ropeDir);
