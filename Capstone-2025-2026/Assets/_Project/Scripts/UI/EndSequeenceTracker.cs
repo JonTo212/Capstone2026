@@ -13,14 +13,7 @@ public class EndSequeenceTracker : MonoBehaviour
         Destroy(Supports[targettedSupport]);
         Supports[targettedSupport] = null;
 
-        bool ready = true;
-
-        foreach(GameObject i in Supports)
-        {
-            ready = false;
-        }
-
-        if (ready)
+        if (Supports[0] == null && Supports[1] == null && Supports[2] == null )
         {
             EndSequence();
         }
