@@ -37,14 +37,13 @@ public class ThirdPersonAnimatorController : MonoBehaviour
     {
         animator.SetBool("MoveInput", _playerController.WishDir != Vector3.zero);
         animator.SetBool("Jump", _playerInput.JumpDown);
-        animator.SetBool("Swinging", _lassoTetherController.CurrentLassoState == LassoState.Swinging);
+        animator.SetBool("Swinging", (_lassoTetherController.CurrentLassoState == LassoState.Swinging) || (_cameraController.IsActive() && _cameraController.CurrentCutscene is RopeSwingCutscene));
         animator.SetBool("IsGrounded", _playerController.IsGrounded());
         animator.SetBool("LassoSnared", _lassoTetherController.CurrentLassoState == LassoState.Snared);
         animator.SetBool("TetherStartPointHit", _jointTetherPlacer.didStartPointHit);
         animator.SetBool("TetherEndPointHit", _jointTetherPlacer.didEndPointHit);
         animator.SetBool("IsHanging", _playerLedgeGrab.IsHanging);
         animator.SetBool("Mantling", _playerLedgeGrab._mantleCoroutine != null);
-        animator.SetBool("Swinging", _cameraController.IsActive() && _cameraController.CurrentCutscene is RopeSwingCutscene);
         animator.SetBool("AttachingToRail", _cameraController.BlendingIn && _cameraController.CurrentCutscene is RopeSwingCutscene);
     }
 
