@@ -48,6 +48,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8622911763999319768}
+  - component: {fileID: 8921930558299869531}
   m_Layer: 0
   m_Name: Crashed Ship
   m_TagString: Untagged
@@ -72,6 +73,28 @@ Transform:
   - {fileID: 2108727833683578608}
   m_Father: {fileID: 1102114033663862973}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!95 &8921930558299869531
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1290800353524286385}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: c14b23c74763ae3468274e23ffa71b08, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &1410147525889890680
 GameObject:
   m_ObjectHideFlags: 0
@@ -7797,6 +7820,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ffea03688471444597fad2ac4a0e446, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EndGameTrigger
+  cutscene: {fileID: 0}
 --- !u!65 &583156161226008596
 BoxCollider:
   m_ObjectHideFlags: 0

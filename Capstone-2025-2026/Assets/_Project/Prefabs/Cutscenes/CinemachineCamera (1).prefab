@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: 522415237089018374}
   - component: {fileID: 1229299451564321437}
   - component: {fileID: 8447290795709846506}
+  - component: {fileID: 7360455401066649952}
   m_Layer: 7
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -183,26 +184,29 @@ MonoBehaviour:
   cameraController: {fileID: 4419986128599733150}
   lassoTetherController: {fileID: 0}
   playerRef: {fileID: 0}
-  cameraCutsceneHandler: {fileID: 522415237089018374}
   cameraStates:
   - cameraState: 0
     screenOffset: {x: 0.1, y: 0.05}
     targetOffset: {x: 0, y: 1.5, z: 0}
+    distanceOffset: 0
     lockYAxis: 0
     lockXAxis: 0
   - cameraState: 1
     screenOffset: {x: 0.1, y: 0.05}
     targetOffset: {x: 0, y: 1.5, z: 0}
+    distanceOffset: 0
     lockYAxis: 0
     lockXAxis: 0
   - cameraState: 2
     screenOffset: {x: 0, y: 0}
     targetOffset: {x: 0, y: 2.5, z: 0}
+    distanceOffset: 0
     lockYAxis: 0
     lockXAxis: 0
   - cameraState: 4
     screenOffset: {x: 0.2, y: 0.1}
     targetOffset: {x: 0, y: 0, z: 1}
+    distanceOffset: 0
     lockYAxis: 0
     lockXAxis: 0
   tetherModeAdjustSpeed: 2.5
@@ -213,6 +217,8 @@ MonoBehaviour:
   playerDefaultYOffset: 0.25
   zoomPadding: 0.75
   lassoZoomOutSmoothTime: 0.1
+  lassoMinPitch: -30
+  lassoMaxPitch: 30
 --- !u!114 &8840996119367643210
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -239,14 +245,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fdec1cdf5b7da2c4db4e1366adf90a21, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraCutsceneHandler
-  input: {fileID: 0}
-  playerRb: {fileID: 0}
-  playerController: {fileID: 0}
-  playerModelRotation: {fileID: 0}
   cameraController: {fileID: 4419986128599733150}
   cameraModeController: {fileID: 1879080133409769875}
-  lassoVisuals: {fileID: 0}
-  swayPositionStrength: 0.2
+  openingCutscene: {fileID: 0}
 --- !u!114 &1229299451564321437
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -259,24 +260,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 407124f1acf188d49b81d050822375ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraPanCutscene
-  _camera: {fileID: 2058678862583890569}
-  playerObj: {fileID: 0}
+  <Duration>k__BackingField: 0
+  <BlendInDelay>k__BackingField: 0
+  <BlendInTime>k__BackingField: 0
+  <BlendOutTime>k__BackingField: 0
+  <Skippable>k__BackingField: 1
+  startPos: {fileID: 0}
+  endPos: {fileID: 0}
+  lookAtTarget: {fileID: 0}
+  scriptsToModify: []
+  objectsToModify: []
+  objectsToEnableOnStart: []
   panTarget: {fileID: 2320349878386708946}
-  sciptsToDisable:
-  - {fileID: 4419986128599733150}
-  - {fileID: 0}
-  objectsToDisable:
-  - {fileID: 0}
-  - {fileID: 0}
+  midPoints: []
   nextCutscene: {fileID: 8447290795709846506}
-  splinePoints:
-  - {fileID: 8559221249729181534}
-  - {fileID: 6727917516794901251}
-  - {fileID: 1889454209210498460}
-  - {fileID: 1550910859610952736}
-  duration: 4
-  skippedScene: 0
-  playerActions: {fileID: 0}
 --- !u!114 &8447290795709846506
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -289,23 +286,46 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 92f53bcccdcdec74fa30d316d85568a3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ZoomToPlayerCutscene
-  _camera: {fileID: 2058678862583890569}
-  lookAtTarget: {fileID: 5018817863018730790}
-  playerObj: {fileID: 0}
-  startFOV: 30
-  endFOV: 70
+  <Duration>k__BackingField: 0
+  <BlendInDelay>k__BackingField: 0
+  <BlendInTime>k__BackingField: 0
+  <BlendOutTime>k__BackingField: 0
+  <Skippable>k__BackingField: 1
   startPos: {fileID: 29341059007446484}
   endPos: {fileID: 6574319139901563366}
-  sciptsToEnable:
+  lookAtTarget: {fileID: 5018817863018730790}
+  scriptsToModify: []
+  objectsToModify: []
+  objectsToEnableOnStart: []
+  startFOV: 30
+  endFOV: 70
+--- !u!114 &7360455401066649952
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2433073019588045867}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 407124f1acf188d49b81d050822375ee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CameraPanCutscene
+  <Duration>k__BackingField: 4
+  <BlendInDelay>k__BackingField: 0
+  <BlendInTime>k__BackingField: 0
+  <BlendOutTime>k__BackingField: 0
+  <Skippable>k__BackingField: 1
+  startPos: {fileID: 0}
+  endPos: {fileID: 0}
+  lookAtTarget: {fileID: 0}
+  scriptsToModify:
   - {fileID: 4419986128599733150}
-  - {fileID: 0}
-  objectsToEnable:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  duration: 8
-  skippedScene: 0
-  playerActions: {fileID: 0}
+  objectsToModify: []
+  objectsToEnableOnStart: []
+  panTarget: {fileID: 0}
+  midPoints: []
+  nextCutscene: {fileID: 0}
 --- !u!1 &5034725151940635292
 GameObject:
   m_ObjectHideFlags: 0
@@ -767,16 +787,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 7194151455887871429, guid: 788b70e811eb2fb4690ad16d33feb461, type: 3}
   m_PrefabInstance: {fileID: 7187462618229420049}
   m_PrefabAsset: {fileID: 0}
---- !u!4 &1550910859610952736 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 8519418642425619505, guid: 788b70e811eb2fb4690ad16d33feb461, type: 3}
-  m_PrefabInstance: {fileID: 7187462618229420049}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &1889454209210498460 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 8756774194553621901, guid: 788b70e811eb2fb4690ad16d33feb461, type: 3}
-  m_PrefabInstance: {fileID: 7187462618229420049}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2320349878386708946 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4867677339467309507, guid: 788b70e811eb2fb4690ad16d33feb461, type: 3}
@@ -795,15 +805,5 @@ Transform:
 --- !u!4 &6574319139901563366 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4071908578814120439, guid: 788b70e811eb2fb4690ad16d33feb461, type: 3}
-  m_PrefabInstance: {fileID: 7187462618229420049}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &6727917516794901251 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 4530799888279438098, guid: 788b70e811eb2fb4690ad16d33feb461, type: 3}
-  m_PrefabInstance: {fileID: 7187462618229420049}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &8559221249729181534 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 1546574478939752271, guid: 788b70e811eb2fb4690ad16d33feb461, type: 3}
   m_PrefabInstance: {fileID: 7187462618229420049}
   m_PrefabAsset: {fileID: 0}
