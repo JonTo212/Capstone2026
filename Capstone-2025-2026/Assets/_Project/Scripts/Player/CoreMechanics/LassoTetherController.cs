@@ -28,6 +28,7 @@ public class LassoTetherController : MonoBehaviour
     private PlayerActions playerActions;
     private JointTetherPlacer playerTether;
     private JointTetherActivator playerTetherActivator;
+    private PlayerSwing playerSwing;
 
     [Header("Object Manipulation Mode")]
     [SerializeField] private bool useObjectManipulationMode;
@@ -53,6 +54,7 @@ public class LassoTetherController : MonoBehaviour
         playerNPCCapture = GetComponent<PlayerNPCCapture>();
         playerTether = GetComponent<JointTetherPlacer>();
         playerTetherActivator = GetComponent<JointTetherActivator>();
+        playerSwing = GetComponent<PlayerSwing>();
 
         playerLasso.OnLassoReleased += OnLassoReleased;
         playerLasso.OnObjectHit += OnLassoHit;
@@ -78,7 +80,7 @@ public class LassoTetherController : MonoBehaviour
         if (rodPickedUp)
         {
             float currentRange = rodEquipped ? playerLasso.MaxLassoRange : playerTether.MaxTetherStartRange;
-            playerLasso.CheckNearbyTargets(!rodEquipped, currentRange);
+            playerLasso.CheckNearbyTargets(true, currentRange);
 
             /*if (playerActions.RecallNPCDown)
             {
@@ -134,7 +136,7 @@ public class LassoTetherController : MonoBehaviour
         {
             playerLasso.MoveObjectToPos(playerLasso.GetAnchoredCenterOfScreen());
         }
-        else if(CurrentLassoState == LassoState.FreeRotating)
+        else if (CurrentLassoState == LassoState.FreeRotating)
         {
             playerLasso.RotateWithInput(playerActions.LookInput, useObjectManipulationMode);
             playerLasso.MoveObjectToPos(playerLasso.GetAnchoredCenterOfScreen());
@@ -158,7 +160,7 @@ public class LassoTetherController : MonoBehaviour
 
     private void OnLassoHit()
     {
-        if(playerLasso.SnaredObject.TryGetComponent(out SwingPoint swingPoint))
+        if (playerLasso.SnaredObject.TryGetComponent(out SwingPoint swingPoint))
         {
             playerLasso.HandleSwingSetup();
             SwitchLassoState(LassoState.Swinging);
@@ -178,11 +180,6 @@ public class LassoTetherController : MonoBehaviour
     {
         playerLasso.HandleHold();
         SwitchLassoState(LassoState.Empty);
-    }
-
-    public void EnableTools(bool enable)
-    {
-
     }
 
     #endregion
@@ -253,12 +250,14 @@ public class LassoTetherController : MonoBehaviour
             {
                 playerTether.EnterTetherMode(playerLasso.SnaredObject);
                 playerLasso.SnaredObject.SetRigidbodyConstraints(RigidbodyConstraints.FreezePosition);
+                playerLasso.SnaredObject.Rb.angularVelocity = Vector3.zero;
                 SwitchLassoState(LassoState.TetherMode);
             }
             else
             {
                 playerTether.StartTetherPlacement(playerLasso.SnaredObject.transform, playerLasso.HitPos);
                 playerLasso.SnaredObject.SetRigidbodyConstraints(RigidbodyConstraints.FreezePosition);
+                playerLasso.SnaredObject.Rb.angularVelocity = Vector3.zero;
                 SwitchLassoState(LassoState.SnaredTether);
             }
         }
@@ -272,7 +271,7 @@ public class LassoTetherController : MonoBehaviour
             playerLasso.HandleObjectReleased();
         }
 
-        if(playerActions.FreeRotateToggleDown)
+        if (playerActions.FreeRotateToggleDown)
         {
             if (useObjectManipulationMode)
             {
@@ -338,9 +337,12 @@ public class LassoTetherController : MonoBehaviour
 
     private void HandleSwingingControls()
     {
+        playerLasso.MoveAnchorPointZ(playerActions.GetDPadScrollValue());
+        playerSwing.AdjustRopeLength(playerActions.GetDPadScrollValue());
+
         if (playerActions.LassoUp)
         {
-            playerLasso.SwingJumpBoost();
+            playerLasso.HandleObjectReleased();
         }
 
         if (playerActions.JumpDown)
