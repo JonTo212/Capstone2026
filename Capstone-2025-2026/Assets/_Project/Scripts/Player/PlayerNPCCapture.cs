@@ -68,6 +68,7 @@ public class PlayerNPCCapture : MonoBehaviour
     {
         Prop prop = yankObj.GetComponent<Prop>();
         if (prop == null) yield break;
+        yankObj.GetComponent<Rigidbody>().isKinematic = false;
 
         float attachThreshold = handAttachThreshold;
         prop.GetComponent<Collider>().enabled = false;
