@@ -9,6 +9,7 @@ public class EndSequeenceTracker : MonoBehaviour
     public GameObject[] EnabledArray;
     public GameObject[] DisabledArray;
     public Rigidbody bigPlat;
+    public Rigidbody SpaceShip;
 
     // Update is called once per frame
     public void UpdateSupports(int targettedSupport)
@@ -28,6 +29,8 @@ public class EndSequeenceTracker : MonoBehaviour
         EnabledThings();
         DisabledThings();
         bigPlat.isKinematic = false;
+        SpaceShip.useGravity = true;
+
         Debug.Log("THE END SCENE HAPPENED");
     }
 
