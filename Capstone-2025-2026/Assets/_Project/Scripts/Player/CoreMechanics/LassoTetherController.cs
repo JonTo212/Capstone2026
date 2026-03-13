@@ -43,7 +43,6 @@ public class LassoTetherController : MonoBehaviour
 
     public bool rodEquipped = true;
     public bool CanUseTools { get; private set; }
-    //public bool tetherEquipped = true;
 
     #region Unity Functions
     private void Awake()
@@ -58,14 +57,10 @@ public class LassoTetherController : MonoBehaviour
 
         playerLasso.OnLassoReleased += OnLassoReleased;
         playerLasso.OnObjectHit += OnLassoHit;
-        //playerLasso.OnSnapFinished += HandleSnapFinish;
         playerTether.OnTetherStartHit += OnTetherStartHit;
-        //playerInventory.OnObjectYankCompleted += OnObjectYankCompleted;
         playerNPCCapture.OnObjectYankCompleted += OnObjectYankCompleted;
 
         wasUsingPhysicsLasso = playerLasso.usePhysicsLasso;
-
-        TempSetText(LassoState.Empty);
     }
 
     private void OnDisable()
@@ -81,15 +76,6 @@ public class LassoTetherController : MonoBehaviour
         {
             float currentRange = rodEquipped ? playerLasso.MaxLassoRange : playerTether.MaxTetherStartRange;
             playerLasso.CheckNearbyTargets(true, currentRange);
-
-            /*if (playerActions.RecallNPCDown)
-            {
-                if (playerInventory.CurrentNPC == null) return;
-
-                playerInventory.HandleObjectYank();
-                SwitchLassoState(LassoState.ObjectYanking);
-                return;
-            }*/
 
             switch (CurrentLassoState)
             {
@@ -149,8 +135,6 @@ public class LassoTetherController : MonoBehaviour
     private void SwitchLassoState(LassoState newState)
     {
         CurrentLassoState = newState;
-
-        TempSetText(newState);
     }
 
     private void OnLassoReleased()
@@ -256,7 +240,7 @@ public class LassoTetherController : MonoBehaviour
             else
             {
                 playerTether.StartTetherPlacement(playerLasso.SnaredObject.transform, playerLasso.HitPos);
-                playerLasso.SnaredObject.SetRigidbodyConstraints(RigidbodyConstraints.FreezePosition);
+                //playerLasso.SnaredObject.SetRigidbodyConstraints(RigidbodyConstraints.FreezePosition);
                 playerLasso.SnaredObject.Rb.angularVelocity = Vector3.zero;
                 SwitchLassoState(LassoState.SnaredTether);
             }
@@ -279,11 +263,6 @@ public class LassoTetherController : MonoBehaviour
                 playerLasso.HitPos = playerLasso.SnaredObject.transform.position;
                 wasUsingPhysicsLasso = playerLasso.usePhysicsLasso;
                 playerLasso.usePhysicsLasso = false;
-                //playerLasso.camInputController.enabled = false;
-            }
-            else
-            {
-                //playerLasso.camInputController.enabled = false;
             }
             playerLasso.SnaredObject.DisableJointTemp();
             playerLasso.SetRotating(true);
@@ -310,12 +289,10 @@ public class LassoTetherController : MonoBehaviour
         playerTether.HandleTetherMode();
         if (playerActions.PlaceTetherDown)
         {
-            Debug.Log("Alt down");
             playerTether.TetherModeStartTetherPlacement();
         }
         if (playerActions.PlaceTetherUp)
         {
-            Debug.Log("Alt Up");
             playerTether.TetherModeEndTetherPlacement();
         }
         if (playerActions.LassoUp)
@@ -427,27 +404,4 @@ public class LassoTetherController : MonoBehaviour
     }
 
     #endregion
-
-    private void TempSetText(LassoState state)
-    {
-        if (state == LassoState.Empty)
-        {
-            controlsText.text = "[LMB]: Start Lasso\nHold [RMB]: Start Tether";
-        }
-
-        if (state == LassoState.Tethering)
-        {
-            controlsText.text = "Release [RMB]: Set Tether End";
-        }
-
-        if (state == LassoState.Snared)
-        {
-            controlsText.text = "Hold [LMB]: Move Object\nRelease [LMB]: Drop Object\n[RMB]: Pull Object\nHold [RMB]: Start Tether";
-        }
-
-        if (state == LassoState.SnaredTether)
-        {
-            controlsText.text = "Release [RMB]: Set Tether End";
-        }
-    }
 }

@@ -15,12 +15,16 @@ public class PauseMenu : MonoBehaviour
     public GameObject settingsFirst;
     public GameObject menuFirst;
 
-    public PlayerActions playerActions;
+    private void Start()
+    {
+        pauseMenuScreen.SetActive(false);
+        settingsUI.SetActive(false);
 
-    // Update is called once per frame
+    }
+
     void Update()
     {
-        if (playerActions.MenuDown)
+        if (PlayerActions.Instance.MenuDown)
         {
             if (gameIsPaused)
             {
@@ -31,14 +35,6 @@ public class PauseMenu : MonoBehaviour
                 Pause();
             }
         }
-
-        /*
-        if(!gameIsPaused)
-        {
-            Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Locked;
-        }
-        */
     }
     #region PauseDefaults
     public void Resume()
@@ -50,7 +46,7 @@ public class PauseMenu : MonoBehaviour
         //missionImageUI.SetActive(true);
         Time.timeScale = 1f;
         gameIsPaused = false;
-        playerActions.EnableAllInput();
+        PlayerActions.Instance.EnableAllInput();
     }
 
     public void Pause()
@@ -62,7 +58,7 @@ public class PauseMenu : MonoBehaviour
         gameIsPaused = true;
         //critterUI.SetActive(false);
         //missionImageUI.SetActive(false);
-        playerActions.DisableAllInput();
+        PlayerActions.Instance.DisableAllInput();
         EventSystem.current.SetSelectedGameObject(menuFirst);
     }
 

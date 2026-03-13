@@ -48,18 +48,16 @@ public class ContextPrompts : MonoBehaviour
             DontDestroyOnLoad(gameObject);
         }
 
-        lassoTetherController = player.GetComponent<LassoTetherController>();
-        jointTetherActivator = player.GetComponent<JointTetherActivator>();
         player = GameObject.FindWithTag("Player");
 
-        //npcPufferfish = BigMama.GetComponent<NPC_Pufferfish>();
+        lassoTetherController = player.GetComponent<LassoTetherController>();
+        jointTetherActivator = player.GetComponent<JointTetherActivator>();
     }
 
     void Update()
     {
         UpdateLassoStateUI();
         UpdateTetherLookUI();
-        //UpdateNPCUI();
     }
 
     private void UpdateLassoStateUI()
@@ -110,18 +108,4 @@ public class ContextPrompts : MonoBehaviour
         }
 
     }
-
-    #region Big Mama Prompts
-    
-    private void UpdateNPCUI()
-    {
-        bool inBag = npcPufferfish.CurrentNPCState == NPCState.InBag;
-
-        MamaInBagPrompts.SetActive(inBag);
-        MamaInFieldPrompts.SetActive(!inBag);
-    }
-    
-    #endregion
-
-
 }

@@ -512,18 +512,11 @@ public class JointTetherPlacer : MonoBehaviour
         tetherAmountText.text = "Tethers: " + (maxNumOfTethers - numOfTethersPlaced).ToString() + "/" + maxNumOfTethers.ToString();
         if (numOfTethersPlaced == 0)
         {
-            tetherControlsText.SetText("");
             TextOffScreen();
         }
-        else if (numOfTethersPlaced == 1)
+        else
         {
-            tetherControlsText.SetText("[E]: Activate Selected Tether\n[C]: Deactivate Selected Tether");
             TextOnScreen();
-        }
-        else if (numOfTethersPlaced > 1)
-        {
-
-            tetherControlsText.SetText("[E]: Activate Selected Tether\nHold [E]: Activate All Tethers\n[C]: Deactivate Selected Tether\nHold [C]: Deactivate all Tethers");
         }
     }
 

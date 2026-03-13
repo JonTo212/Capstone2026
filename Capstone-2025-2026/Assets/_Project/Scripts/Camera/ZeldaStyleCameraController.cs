@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class ZeldaCameraController : MonoBehaviour
 {
-    [SerializeField] private PlayerActions input;
+    public static ZeldaCameraController Instance { get; private set; }
 
     [Header("Target Settings")]
     [SerializeField] private Transform target;
@@ -81,6 +81,14 @@ public class ZeldaCameraController : MonoBehaviour
 
     private void Awake()
     {
+        if(Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+
         cam = GetComponent<Camera>();
         if (cam == null)
             cam = Camera.main;
@@ -133,21 +141,21 @@ public class ZeldaCameraController : MonoBehaviour
 
     private void HandleInput()
     {
-        float mouseX = input.LookInput.x;
-        float mouseY = input.LookInput.y;
+        float mouseX = PlayerActions.Instance.LookInput.x;
+        float mouseY = PlayerActions.Instance.LookInput.y;
 
-        if (input.CurrentDevice.Equals(PlayerActions.InputType.MouseKeyboard))
+        if (PlayerActions.Instance.CurrentDevice.Equals(PlayerActions.InputType.MouseKeyboard))
         {
             mouseX *= mouseXSensitivity;
             mouseY *= mouseYSensitivity;
         }
-        else if (input.CurrentDevice.Equals(PlayerActions.InputType.Controller))
+        else if (PlayerActions.Instance.CurrentDevice.Equals(PlayerActions.InputType.Controller))
         {
             mouseX *= mouseXSensitivity * controllerXSensitivityMultiplier;
             mouseY *= mouseYSensitivity * controllerYSensitivityMultiplier;
         }
 
-        hasInput = Mathf.Abs(mouseX) > 0.001f || Mathf.Abs(mouseY) > 0.001f || Mathf.Abs(input.MoveInput.sqrMagnitude) > 0.001f;
+        hasInput = Mathf.Abs(mouseX) > 0.001f || Mathf.Abs(mouseY) > 0.001f || Mathf.Abs(PlayerActions.Instance.MoveInput.sqrMagnitude) > 0.001f;
 
         if (!xAxisLocked)
         {
@@ -306,7 +314,7 @@ public class ZeldaCameraController : MonoBehaviour
     public float GetCurrentDistance() => currentDistance;
     public float GetCurrentYaw() => currentYaw;
     public float GetCurrentPitch() => currentPitch;
-    public float GetRawLookInputY() => input.LookInput.y;
+    public float GetRawLookInputY() => PlayerActions.Instance.LookInput.y;
     public float GetTargetPitch() => targetPitch;
     public void SetVerticalClamp(float? min, float? max)
     {

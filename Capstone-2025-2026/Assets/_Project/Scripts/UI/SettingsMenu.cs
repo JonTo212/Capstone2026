@@ -14,22 +14,18 @@ public enum WindowMode
 
 public class SettingsMenu : MonoBehaviour
 {
+    [Header("Audio")]
     [SerializeField] private AudioMixer myMixer;
     [SerializeField] private Slider masterSlider;
-
     [SerializeField] private Slider soundSlider;
-
     [SerializeField] private Slider ambienceSlider;
-    
     [SerializeField] private Slider musicSlider;
 
-    //[SerializeField] private CinemachineInputAxisController inputAxisController;
+    [Header("Sensitivity")]
     [SerializeField] private Slider xSensitivitySlider;
     [SerializeField] private Slider ySensitivitySlider;
-    //[SerializeField] private SpecialCameraController specialCameraController;
-    [SerializeField] private ZeldaCameraController cameraController;
-    [SerializeField] private PlayerActions input;
 
+    [Header("Screen Scale")]
     [SerializeField] private TextMeshProUGUI windowModeText;
     private WindowMode windowMode = WindowMode.fullScreen;
 
@@ -89,12 +85,12 @@ public class SettingsMenu : MonoBehaviour
 
     public void SetXSensitivity()
     {
-        cameraController.SetBaseXSensitivity(xSensitivitySlider.value);
+        ZeldaCameraController.Instance.SetBaseXSensitivity(xSensitivitySlider.value);
     }
 
     public void SetYSensitivity()
     {
-        cameraController.SetBaseYSensitivity(ySensitivitySlider.value);
+        ZeldaCameraController.Instance.SetBaseYSensitivity(ySensitivitySlider.value);
     }
 
     public void WindowModeButton()

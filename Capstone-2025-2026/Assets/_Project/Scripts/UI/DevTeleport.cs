@@ -16,8 +16,7 @@ public class DevTeleport : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        _actions = _player.GetComponent<PlayerActions>();
-
+        _player = GameObject.FindWithTag("Player").transform;
         teleportDropDown.ClearOptions();
 
         List<string> teleportOptions = new List<string>();
@@ -53,6 +52,7 @@ public class DevTeleport : MonoBehaviour
     public void TeleportToLocation()
     {
         _player.transform.position = teleportLocations[currentTeleportOption].position;
+        _player.transform.GetComponent<Rigidbody>().position = teleportLocations[currentTeleportOption].position;
         _player.transform.rotation = teleportLocations[currentTeleportOption].rotation;
     }
 }
