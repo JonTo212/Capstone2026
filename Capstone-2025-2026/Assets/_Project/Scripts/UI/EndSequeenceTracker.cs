@@ -22,9 +22,12 @@ public class EndSequeenceTracker : MonoBehaviour
 
     private Spring spring;
     private Vector3 currentPullPos;
-    private LineRenderer[] forceConnections;
+    public LineRenderer[] forceConnections;
 
-    // Update is called once per frame
+    public void Start()
+    {
+        DrawAnchors();
+    }
 
     #region AnchorVisuals
 
@@ -33,7 +36,8 @@ public class EndSequeenceTracker : MonoBehaviour
         for(int i = 0; i<3; i++)
         {
             Vector3 targetPoint = Anchor[i].transform.position;
-            forceConnections[i].SetPosition(0, targetPoint);
+            forceConnections[i].SetPosition(0, transform.position);
+            forceConnections[i].SetPosition(1, targetPoint);
         }
     }
     /*
@@ -77,6 +81,7 @@ public class EndSequeenceTracker : MonoBehaviour
     public void UpdateSupports(int targettedSupport)
     {
         Destroy(Anchor[targettedSupport]);
+        forceConnections[targettedSupport].gameObject.SetActive(false);
         Anchor[targettedSupport] = null;
 
         if (Anchor[0] == null && Anchor[1] == null && Anchor[2] == null )
