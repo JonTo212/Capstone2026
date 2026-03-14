@@ -226,7 +226,7 @@ public class CameraModeController : MonoBehaviour
 
         cameraController.SetScreenOffset(currentScreenOffset);
         cameraController.SetTargetOffset(currentTargetOffset);
-        cameraController.SetDistance(defaultDistance + currentDistanceOffset);
+        cameraController.SetZOffset(currentDistanceOffset);
 
         cameraController.SetYAxisLocked(lockY);
         cameraController.SetXAxisLocked(lockX);

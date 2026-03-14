@@ -24,6 +24,7 @@ public class SettingsMenu : MonoBehaviour
     [Header("Sensitivity")]
     [SerializeField] private Slider xSensitivitySlider;
     [SerializeField] private Slider ySensitivitySlider;
+    [SerializeField] private CameraModeController camController;
 
     [Header("Screen Scale")]
     [SerializeField] private TextMeshProUGUI windowModeText;
@@ -45,6 +46,7 @@ public class SettingsMenu : MonoBehaviour
         Music = FMODUnity.RuntimeManager.GetBus("bus:/Master/Music");
         SFX = FMODUnity.RuntimeManager.GetBus("bus:/Master/SFX");
         Ambience = FMODUnity.RuntimeManager.GetBus("bus:/Master/Ambience");
+
         StartCoroutine(InitializeSettings());
     }
 
@@ -85,12 +87,12 @@ public class SettingsMenu : MonoBehaviour
 
     public void SetXSensitivity()
     {
-        ZeldaCameraController.Instance.SetBaseXSensitivity(xSensitivitySlider.value);
+        camController.SetBaseXSensitivity(xSensitivitySlider.value);
     }
 
     public void SetYSensitivity()
     {
-        ZeldaCameraController.Instance.SetBaseYSensitivity(ySensitivitySlider.value);
+        camController.SetBaseYSensitivity(ySensitivitySlider.value);
     }
 
     public void WindowModeButton()

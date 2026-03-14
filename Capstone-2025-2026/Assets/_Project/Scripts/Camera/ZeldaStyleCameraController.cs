@@ -62,6 +62,9 @@ public class ZeldaCameraController : MonoBehaviour
     public Vector3 TargetOffset => targetOffset;
     public Vector3 TargetPos => target.position;
 
+    //z offset (framing push along camera forward axis)
+    private float zOffset = 0f;
+
     //smoothing
     private Vector3 positionVelocity;
     private Vector3 rotationVelocity;
@@ -221,13 +224,18 @@ public class ZeldaCameraController : MonoBehaviour
 
         if (handleCollision)
         {
+            //base direction used for zoom detection and smoothing — no zOffset so it stays stable
             Vector3 direction = desiredPosition - smoothedTargetPosition;
             float distance = direction.magnitude;
 
-            //detect collision distance, but keep the camera at collisionBuffer at minimum
-            //no collision = max distance
+            //extended position including zOffset — this is where the camera actually ends up
+            Vector3 extendedDesiredPosition = desiredPosition - ghostRotation * Vector3.forward * zOffset;
+            Vector3 extendedDirection = extendedDesiredPosition - smoothedTargetPosition;
+            float extendedDistance = extendedDirection.magnitude;
+
+            //cast over the full extended distance so geometry is never missed
             float targetCollisionDistance;
-            if (Physics.SphereCast(smoothedTargetPosition, cameraRadius, direction.normalized, out RaycastHit hit, distance, collisionLayers))
+            if (Physics.SphereCast(smoothedTargetPosition, cameraRadius, extendedDirection.normalized, out RaycastHit hit, extendedDistance, collisionLayers))
             {
                 float hitDistance = hit.distance - collisionBuffer;
                 targetCollisionDistance = Mathf.Max(hitDistance, collisionBuffer);
@@ -235,13 +243,14 @@ public class ZeldaCameraController : MonoBehaviour
             }
             else
             {
-                targetCollisionDistance = distance;
+                targetCollisionDistance = extendedDistance;
                 colliding = false;
             }
 
-            //change smooth time based on zooming in vs out
-            bool zoomingIn = targetCollisionDistance < previousTargetDistance - 0.01f;
-            bool zoomingOut = targetCollisionDistance > previousTargetDistance + 0.01f;
+            //zoom detection uses base distance so zOffset lerping doesn't trigger stutter
+            float baseTargetCollisionDistance = Mathf.Min(targetCollisionDistance, distance);
+            bool zoomingIn = baseTargetCollisionDistance < previousTargetDistance - 0.01f;
+            bool zoomingOut = baseTargetCollisionDistance > previousTargetDistance + 0.01f;
 
             if (overrideSmoothTime.HasValue)
                 collisionSmoothTime = overrideSmoothTime.Value;
@@ -250,20 +259,20 @@ public class ZeldaCameraController : MonoBehaviour
             else if (zoomingOut)
                 collisionSmoothTime = collisionZoomOutTime;
 
-            //only move camera on input or if colliding
+            /*//only move camera on input or if colliding
             if (colliding || hasInput || overrideSmoothTime.HasValue)
                 collisionDistance = Mathf.SmoothDamp(collisionDistance, targetCollisionDistance, ref collisionVelocity, collisionSmoothTime);
             else
-                collisionVelocity = 0f;
+                collisionVelocity = 0f;*/
 
-            previousTargetDistance = targetCollisionDistance;
+            collisionDistance = Mathf.SmoothDamp(collisionDistance, targetCollisionDistance, ref collisionVelocity, collisionSmoothTime);
 
-            //set ghost position for smoothing
-            ghostPosition = smoothedTargetPosition + direction.normalized * collisionDistance;
+            previousTargetDistance = baseTargetCollisionDistance;
+            ghostPosition = smoothedTargetPosition + extendedDirection.normalized * collisionDistance;
         }
         else
         {
-            ghostPosition = desiredPosition;
+            ghostPosition = desiredPosition - ghostRotation * Vector3.forward * zOffset;
             collisionDistance = desiredPosition.magnitude;
         }
     }
@@ -343,6 +352,7 @@ public class ZeldaCameraController : MonoBehaviour
     {
         mouseYSensitivity = value;
     }
+    public void SetZOffset(float offset) => zOffset = offset;
     public void SetYAxisLocked(bool locked) => yAxisLocked = locked;
     public void SetXAxisLocked(bool locked) => xAxisLocked = locked;
     public void SetDistanceLimit(float max)
