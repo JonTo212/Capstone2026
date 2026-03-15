@@ -37,6 +37,8 @@ Transform:
   - {fileID: 835310077066440316}
   - {fileID: 3305568089883188707}
   - {fileID: 869214880604299331}
+  - {fileID: 2206153323799227154}
+  - {fileID: 67145259998454226}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1290800353524286385
@@ -7420,6 +7422,68 @@ Transform:
   - {fileID: 7974372643010217839}
   m_Father: {fileID: 8622911763999319768}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &8284196392535557706
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2206153323799227154}
+  m_Layer: 0
+  m_Name: CutSceneStartPos
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2206153323799227154
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8284196392535557706}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.22055224, y: -0.47181305, z: 0.1166768, w: 0.845657}
+  m_LocalPosition: {x: 127.03762, y: 101.032486, z: -28.68686}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8290928447425342623}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &8717585815705765912
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 67145259998454226}
+  m_Layer: 0
+  m_Name: CutSceneEndPos
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &67145259998454226
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8717585815705765912}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.20123197, y: -0.4553728, z: 0.10008803, w: 0.861466}
+  m_LocalPosition: {x: 114.25877, y: 129.76941, z: -20.17389}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8290928447425342623}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8810426611449155566
 GameObject:
   m_ObjectHideFlags: 0
@@ -7821,6 +7885,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EndGameTrigger
   cutscene: {fileID: 0}
+  shipAnim: {fileID: 8921930558299869531}
 --- !u!65 &583156161226008596
 BoxCollider:
   m_ObjectHideFlags: 0

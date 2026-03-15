@@ -6,6 +6,7 @@ public class EndGameTrigger : MonoBehaviour
 {
 
     [SerializeField] CutsceneBase cutscene;
+    [SerializeField] Animator shipAnim;
 
     public void OnTriggerEnter(Collider other)
     {
@@ -18,6 +19,7 @@ public class EndGameTrigger : MonoBehaviour
 
     public IEnumerator CutsceneSequence()
     {
+        shipAnim.Play("SpaceshipFlyAway");
         CameraCutsceneHandler.Instance.StartCutscene(cutscene);
         yield return new WaitForSeconds(cutscene.Duration);
         EndScene();
