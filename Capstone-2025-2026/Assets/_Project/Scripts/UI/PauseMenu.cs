@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
@@ -19,7 +18,6 @@ public class PauseMenu : MonoBehaviour
     {
         pauseMenuScreen.SetActive(false);
         settingsUI.SetActive(false);
-
     }
 
     void Update()
@@ -27,16 +25,14 @@ public class PauseMenu : MonoBehaviour
         if (PlayerActions.Instance.MenuDown)
         {
             if (gameIsPaused)
-            {
                 Resume();
-            }
             else
-            {
                 Pause();
-            }
         }
     }
+
     #region PauseDefaults
+
     public void Resume()
     {
         Cursor.visible = false;
@@ -47,6 +43,7 @@ public class PauseMenu : MonoBehaviour
         Time.timeScale = 1f;
         gameIsPaused = false;
         PlayerActions.Instance.EnableAllInput();
+        EventSystem.current.SetSelectedGameObject(null);
     }
 
     public void Pause()
@@ -61,7 +58,6 @@ public class PauseMenu : MonoBehaviour
         PlayerActions.Instance.DisableAllInput();
         EventSystem.current.SetSelectedGameObject(menuFirst);
     }
-
 
     public void ReturnToTitle()
     {
@@ -89,10 +85,10 @@ public class PauseMenu : MonoBehaviour
 
     public void allBack()
     {
-        settingsUI.SetActive(false) ;
-        pauseMenuUI.SetActive(true) ;
-
+        settingsUI.SetActive(false);
+        pauseMenuUI.SetActive(true);
         EventSystem.current.SetSelectedGameObject(null);
     }
+
     #endregion
 }

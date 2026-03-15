@@ -18,12 +18,8 @@ public enum LassoState
 
 public class LassoTetherController : MonoBehaviour
 {
-    [Header("TEMPORARY - Control UI")]
-    [SerializeField] private TMP_Text controlsText;
-
     [Header("Components")]
     private Lasso playerLasso;
-    //private PlayerNPCHolder playerInventory;
     private PlayerNPCCapture playerNPCCapture;
     private PlayerActions playerActions;
     private JointTetherPlacer playerTether;
