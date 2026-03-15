@@ -24,7 +24,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 239860887565011165}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -51.47573, y: 19.785385, z: 379.2363}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -37,6 +37,8 @@ Transform:
   - {fileID: 835310077066440316}
   - {fileID: 3305568089883188707}
   - {fileID: 869214880604299331}
+  - {fileID: 2206153323799227154}
+  - {fileID: 67145259998454226}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1290800353524286385
@@ -48,6 +50,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8622911763999319768}
+  - component: {fileID: 8921930558299869531}
   m_Layer: 0
   m_Name: Crashed Ship
   m_TagString: Untagged
@@ -72,6 +75,28 @@ Transform:
   - {fileID: 2108727833683578608}
   m_Father: {fileID: 1102114033663862973}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!95 &8921930558299869531
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1290800353524286385}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: c14b23c74763ae3468274e23ffa71b08, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &1410147525889890680
 GameObject:
   m_ObjectHideFlags: 0
@@ -320,7 +345,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 2224
+  m_VersionIndex: 2263
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -2487,7 +2512,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 2071
+  m_VersionIndex: 2110
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -2625,7 +2650,7 @@ Transform:
   m_GameObject: {fileID: 1922099483090716643}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0.00000023841858, z: -0, w: 1}
-  m_LocalPosition: {x: -10.277351, y: -10.630947, z: 385.6}
+  m_LocalPosition: {x: -10.3, y: -10.630947, z: 257.1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2669,7 +2694,7 @@ MonoBehaviour:
   isFalling: 0
   returnSpeed: 0
   returnBuffer: 0.1
-  respawnHeight: 5
+  respawnHeight: 2
   bridge: {fileID: 8810426611449155566}
   fadeToBlackScript: {fileID: 0}
 --- !u!114 &814701730911847669
@@ -2685,7 +2710,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DialogueTrigger
   repeatable: 0
-  desiredText: Those dirty bastards sabotaged the bridge!
+  desiredText: Those dirty kidnappers sabotaged the bridge!
   speakerOptionsDropdown: 0
   characterSpeed: 5
   punctuationSpeed: 0.5
@@ -3033,7 +3058,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 2224
+  m_VersionIndex: 2263
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -3195,8 +3220,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4791961835749549898}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.37459072, y: -0.61784977, z: 0.42348605, w: 0.5464458}
-  m_LocalPosition: {x: 189.91942, y: -94.660645, z: 191.99432}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -92.24045, y: -105.788376, z: 121.309235}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3554,7 +3579,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 2224
+  m_VersionIndex: 2263
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -3909,7 +3934,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 2224
+  m_VersionIndex: 2263
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -4339,7 +4364,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 1927
+  m_VersionIndex: 1966
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -4728,7 +4753,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 1927
+  m_VersionIndex: 1966
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -5083,7 +5108,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 1927
+  m_VersionIndex: 1966
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -7250,7 +7275,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 2092
+  m_VersionIndex: 2131
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -7397,6 +7422,68 @@ Transform:
   - {fileID: 7974372643010217839}
   m_Father: {fileID: 8622911763999319768}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &8284196392535557706
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2206153323799227154}
+  m_Layer: 0
+  m_Name: CutSceneStartPos
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2206153323799227154
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8284196392535557706}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.22055224, y: -0.47181305, z: 0.1166768, w: 0.845657}
+  m_LocalPosition: {x: 127.03762, y: 101.032486, z: -28.68686}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8290928447425342623}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &8717585815705765912
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 67145259998454226}
+  m_Layer: 0
+  m_Name: CutSceneEndPos
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &67145259998454226
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8717585815705765912}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.20123197, y: -0.4553728, z: 0.10008803, w: 0.861466}
+  m_LocalPosition: {x: 114.25877, y: 129.76941, z: -20.17389}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8290928447425342623}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8810426611449155566
 GameObject:
   m_ObjectHideFlags: 0
@@ -7427,8 +7514,8 @@ Transform:
   m_GameObject: {fileID: 8810426611449155566}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0.00000023841858, z: -0, w: 1}
-  m_LocalPosition: {x: -10.277351, y: -10.630947, z: 451.441}
-  m_LocalScale: {x: 0.32126644, y: 0.44795144, z: 13.818399}
+  m_LocalPosition: {x: -10.277161, y: -10.630947, z: 385.53632}
+  m_LocalScale: {x: 0.32126644, y: 0.44795144, z: 20.419449}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 223035826931609598}
@@ -7645,7 +7732,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 1927
+  m_VersionIndex: 1966
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -7797,6 +7884,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ffea03688471444597fad2ac4a0e446, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EndGameTrigger
+  cutscene: {fileID: 0}
+  shipAnim: {fileID: 8921930558299869531}
 --- !u!65 &583156161226008596
 BoxCollider:
   m_ObjectHideFlags: 0

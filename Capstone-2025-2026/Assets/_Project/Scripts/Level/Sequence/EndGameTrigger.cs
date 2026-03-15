@@ -1,12 +1,33 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class EndGameTrigger : MonoBehaviour
 {
+
+    [SerializeField] CutsceneBase cutscene;
+    [SerializeField] Animator shipAnim;
+
     public void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.tag==("Player"))
         {
+            StartCoroutine(CutsceneSequence());
+        }
+
+    }
+
+    public IEnumerator CutsceneSequence()
+    {
+        shipAnim.Play("SpaceshipFlyAway");
+        CameraCutsceneHandler.Instance.StartCutscene(cutscene);
+        yield return new WaitForSeconds(cutscene.Duration);
+        EndScene();
+
+    }
+
+    public void EndScene()
+    {
             //enable cursor
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
@@ -23,7 +44,5 @@ public class EndGameTrigger : MonoBehaviour
             {
                 Debug.Log("No more scenes in build order!");
             }
-        }
-
     }
 }
