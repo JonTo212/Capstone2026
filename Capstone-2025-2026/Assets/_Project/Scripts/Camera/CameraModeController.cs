@@ -107,13 +107,9 @@ public class CameraModeController : MonoBehaviour
     private void Update()
     {
         if (CameraCutsceneHandler.Instance != null && CameraCutsceneHandler.Instance.IsActive())
-        {
-            CutsceneBase current = CameraCutsceneHandler.Instance.CurrentCutscene;
-            if (current != null && current is RopeSwingCutscene)
-            {
-                _wasInCutscene = true;
-                return;
-            }
+        {                
+            _wasInCutscene = true;
+            return;
         }
 
         switch (lassoTetherController.CurrentLassoState)
@@ -132,6 +128,24 @@ public class CameraModeController : MonoBehaviour
                 TetherModeCamera();
                 break;
         }
+    }
+
+    public void ForceSnapToCurrentState()
+    {
+        CamState correctState = lassoTetherController.rodEquipped ? CamState.LassoEquipped : CamState.TetherEquipped;
+
+        CameraStateSettings? settings = GetSettingsForState(correctState);
+
+        currentScreenOffset = settings.HasValue ? settings.Value.screenOffset : defaultScreenOffset;
+        currentTargetOffset = settings.HasValue ? defaultTargetOffset + settings.Value.targetOffset : defaultTargetOffset;
+        currentDistanceOffset = settings.HasValue ? settings.Value.distanceOffset : 0f;
+
+        cameraController.SetScreenOffset(currentScreenOffset);
+        cameraController.SetTargetOffset(currentTargetOffset);
+        cameraController.SetZOffset(currentDistanceOffset);
+
+        float targetDistance = defaultDistance + (settings.HasValue ? settings.Value.distanceOffset : 0f);
+        cameraController.SnapDistance(targetDistance);
     }
 
     private void LassoModeCamera()
@@ -178,13 +192,6 @@ public class CameraModeController : MonoBehaviour
 
     private void ResetCamera()
     {
-        if (_wasInCutscene)
-        {
-            currentScreenOffset = cameraController.GetScreenOffset();
-            currentTargetOffset = cameraController.GetTargetOffset();
-            _wasInCutscene = false;
-        }
-
         cameraController.SetCollisionSmoothTimeOverride(null);
         cameraController.SetPitchSmoothOverride(null);
         cameraController.SetDistanceLimit(defaultDistance);

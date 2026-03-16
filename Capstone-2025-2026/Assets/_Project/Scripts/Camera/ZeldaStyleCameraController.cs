@@ -56,6 +56,8 @@ public class ZeldaCameraController : MonoBehaviour
     private float previousTargetDistance;
     private bool colliding;
 
+    private bool isFrozen;
+
     public bool IsColliding() => colliding;
     public float GetCollisionDistance() => collisionDistance;
     public float GetCameraRange01() => Mathf.Clamp01(collisionDistance / defaultDistance);
@@ -137,9 +139,13 @@ public class ZeldaCameraController : MonoBehaviour
         if (Time.timeScale == 0f || Time.deltaTime <= float.Epsilon || target == null)
             return;
 
-        HandleInput();
+        if (!isFrozen)
+            HandleInput();
+
         UpdateGhostTransform();
-        SmoothCameraToGhost();
+
+        if (!isFrozen)
+            SmoothCameraToGhost();
     }
 
     private void HandleInput()
@@ -318,6 +324,15 @@ public class ZeldaCameraController : MonoBehaviour
         currentDistance = targetDistance;
     }
 
+    public void SnapDistance(float distance)
+    {
+        currentDistance = distance;
+        targetDistance = distance;
+        collisionDistance = distance;
+        collisionVelocity = 0f;
+        previousTargetDistance = distance;
+    }
+
     public Vector3 GetGhostPosition() => ghostPosition;
     public Quaternion GetGhostRotation() => ghostRotation;
     public float GetCurrentDistance() => currentDistance;
@@ -375,4 +390,12 @@ public class ZeldaCameraController : MonoBehaviour
         if (newDamping.HasValue) positionDamping = newDamping.Value;
         else positionDamping = originalPositionDamping;
     }
+
+    public void SetFrozen(bool frozen) => isFrozen = frozen;
+    public void SnapSmoothedPosition()
+    {
+        smoothedTargetPosition = target.position + targetOffset;
+        positionVelocity = Vector3.zero;
+    }
+    public void UpdateGhostTransformPublic() => UpdateGhostTransform();
 }
