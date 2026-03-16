@@ -236,7 +236,7 @@ public class LassoTetherController : MonoBehaviour
             else
             {
                 playerTether.StartTetherPlacement(playerLasso.SnaredObject.transform, playerLasso.HitPos);
-                //playerLasso.SnaredObject.SetRigidbodyConstraints(RigidbodyConstraints.FreezePosition);
+                playerLasso.SnaredObject.SetRigidbodyConstraints(RigidbodyConstraints.FreezeAll);
                 playerLasso.SnaredObject.Rb.angularVelocity = Vector3.zero;
                 SwitchLassoState(LassoState.SnaredTether);
             }
