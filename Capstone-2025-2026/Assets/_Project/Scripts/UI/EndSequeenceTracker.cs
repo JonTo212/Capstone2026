@@ -10,6 +10,7 @@ public class EndSequeenceTracker : MonoBehaviour
     public GameObject[] EnabledArray;
     public GameObject[] DisabledArray;
     public Animator SpaceShip;
+    public Animator Pillar;
 
     [SerializeField] private int ropeSegmentCount = 50; // reduced for performance
     [SerializeField] private float damper = 15f;
