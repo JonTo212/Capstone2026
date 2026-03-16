@@ -7353,12 +7353,6 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: b6d74185dd0d363449ed9fa4162a4248, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 7325381515997024746}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: b6d74185dd0d363449ed9fa4162a4248, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 378003431607523744}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: b6d74185dd0d363449ed9fa4162a4248, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 7642527775880794735}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: b6d74185dd0d363449ed9fa4162a4248, type: 3}
       insertIndex: -1
@@ -7374,53 +7368,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: b6d74185dd0d363449ed9fa4162a4248, type: 3}
   m_PrefabInstance: {fileID: 421035305789485361}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &7325381515997024746
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 654913865564802144}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 694dd3ceb2536ee4698d4f0445ba3c0a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::EndSequeenceTracker
-  Anchor:
-  - {fileID: 6590316636591601216}
-  EnabledArray:
-  - {fileID: 654913865564802144}
-  DisabledArray:
-  - {fileID: 1136509897799469088}
-  SpaceShip: {fileID: 6534331343322135815}
-  Pillar: {fileID: 726535930472321747}
-  ropeSegmentCount: 50
-  damper: 15
-  strength: 800
-  velocity: 15
-  waveCount: 3
-  waveHeight: 2
-  affectCurve:
-    serializedVersion: 2
-    m_Curve: []
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  forceConnections: {fileID: 4729599968082243281}
---- !u!114 &378003431607523744
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 654913865564802144}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ef972df3a020c6643b8526974815cdcd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Nail
-  nailNumber: 0
-  tracker: {fileID: 7325381515997024746}
 --- !u!114 &7642527775880794735
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9064,6 +9011,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6103059628076599461, guid: 6b32aba86af3aa84d8b237c347bdf5cb, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7807800676521699925}
+    - targetCorrespondingSourceObject: {fileID: 6103059628076599461, guid: 6b32aba86af3aa84d8b237c347bdf5cb, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7403524582769614600}
   m_SourcePrefab: {fileID: 100100000, guid: 6b32aba86af3aa84d8b237c347bdf5cb, type: 3}
 --- !u!1 &1659836809074714701 stripped
 GameObject:
@@ -9171,7 +9121,7 @@ MonoBehaviour:
   DisabledArray:
   - {fileID: 1136509897799469088}
   SpaceShip: {fileID: 6534331343322135815}
-  Pillar: {fileID: 0}
+  Pillar: {fileID: 726535930472321747}
   ropeSegmentCount: 50
   damper: 15
   strength: 800
@@ -9185,6 +9135,28 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   forceConnections: {fileID: 4729599968082243281}
+--- !u!95 &7403524582769614600
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1659836809074714701}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: b44ead8ecde702947959e8d6b2823285, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!4 &2036537856774927095 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6915766278241702431, guid: 6b32aba86af3aa84d8b237c347bdf5cb, type: 3}

@@ -26,12 +26,12 @@ public class EndSequeenceTracker : MonoBehaviour
 
     public void Start()
     {
-        DrawAnchors();
+        //DrawAnchors();
     }
 
     #region AnchorVisuals
 
-    public void DrawAnchors()
+    /*public void DrawAnchors()
     {
         for(int i = 0; i<1; i++)
         {
@@ -40,7 +40,7 @@ public class EndSequeenceTracker : MonoBehaviour
             forceConnections.SetPosition(1, targetPoint);
         }
     }
-    /*
+    
     private void DetachRope(int i)
     {
         if (forceConnections[i].positionCount == 0)
@@ -94,8 +94,6 @@ public class EndSequeenceTracker : MonoBehaviour
     public void EndSequence()
     {
         //Play Scene
-        EnabledThings();
-        SpaceShip.enabled = true;
         DisabledThings();
 
         Debug.Log("THE END SCENE HAPPENED");
@@ -114,6 +112,18 @@ public class EndSequeenceTracker : MonoBehaviour
             _object.SetActive(false);
         }
     }
+
+    public void StartPillar()
+    {
+        Pillar.enabled = true;
+    }
+
+    public void StartFlyAway()
+    {
+        SpaceShip.enabled = true;
+        DisabledThings();
+    }
+
 
     #endregion
 }
