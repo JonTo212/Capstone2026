@@ -119,7 +119,7 @@ public class PlayerNPCCapture : MonoBehaviour
         _playerInput.EnableAllInput();
 
         PlayerActions.Instance.RumbleFor(0.2f, 0.4f, 0.1f);
-        Destroy(prop.gameObject);
+        prop.gameObject.SetActive(false);
     }
 
     #endregion

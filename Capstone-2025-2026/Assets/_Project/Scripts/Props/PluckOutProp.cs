@@ -86,7 +86,7 @@ public class PluckOutProp : Prop
     {
         Rb.isKinematic = false;
         hasBeenPlucked = true;
-        groundedVisuals.SetActive(false);
+        //groundedVisuals.SetActive(false);
         lassoRef.HandleObjectReleased();
     }
 

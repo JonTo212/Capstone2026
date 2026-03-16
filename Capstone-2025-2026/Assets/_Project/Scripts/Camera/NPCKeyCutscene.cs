@@ -36,12 +36,13 @@ public class NPCKeyCutscene : CameraCutsceneBase
 
         ZeldaCameraController zeldaCam = cam.GetComponent<ZeldaCameraController>();
         if (zeldaCam != null) zeldaCam.SetFrozen(true);
+        HandleScripts(false);
     }
 
     public override void OnBlendTick(float t)
     {
         cam.transform.position = Vector3.Lerp(_blendFromPos, startPos.position, t);
-        cam.transform.rotation = Quaternion.Slerp(_blendFromRot, lookAtTarget.rotation, t);
+        cam.transform.rotation = Quaternion.Slerp(_blendFromRot, Quaternion.LookRotation(lookAtTarget.position - startPos.position), t);
     }
 
     public override void OnCutsceneStart()
@@ -62,8 +63,7 @@ public class NPCKeyCutscene : CameraCutsceneBase
 
         //no snap here - blend already moved us to startPos
         cam.fieldOfView = _targetFOV;
-
-        HandleScripts(false);
+        cam.transform.LookAt(lookAtTarget.position);
     }
 
     public override void OnCutsceneTick()
@@ -74,7 +74,7 @@ public class NPCKeyCutscene : CameraCutsceneBase
         if (T < _holdFraction)
         {
             cam.transform.position = startPos.position;
-            cam.transform.rotation = lookAtTarget.rotation;
+            cam.transform.LookAt(lookAtTarget.position);
             cam.fieldOfView = _targetFOV;
         }
 
@@ -85,7 +85,7 @@ public class NPCKeyCutscene : CameraCutsceneBase
             float smooth = Mathf.SmoothStep(0f, 1f, returnT);
 
             cam.transform.position = Vector3.Lerp(startPos.position, _returnTargetPos, smooth);
-            cam.transform.rotation = Quaternion.Slerp(lookAtTarget.rotation, _returnTargetRot, smooth);
+            cam.transform.rotation = Quaternion.Slerp(Quaternion.LookRotation(lookAtTarget.position - startPos.position), _returnTargetRot, smooth);
             cam.fieldOfView = Mathf.Lerp(_targetFOV, _savedFOV, smooth);
         }
     }

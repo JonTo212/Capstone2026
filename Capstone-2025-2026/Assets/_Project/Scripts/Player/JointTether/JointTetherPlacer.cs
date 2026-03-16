@@ -52,7 +52,6 @@ public class JointTetherPlacer : MonoBehaviour
     [SerializeField] private Vector3 startLocalPosition;
     [SerializeField] private Vector3 endLocalPosition;
     [SerializeField] private TMP_Text tetherAmountText;
-    [SerializeField] private TMP_Text tetherControlsText;
     public float originalAmountTextPosition;
     public event Action<bool> OnPlacementValidityUpdate;
     public event Action OnTetherStartHit;
