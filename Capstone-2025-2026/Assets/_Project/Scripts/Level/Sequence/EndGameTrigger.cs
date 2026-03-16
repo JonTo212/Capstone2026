@@ -19,7 +19,7 @@ public class EndGameTrigger : MonoBehaviour
 
     public IEnumerator CutsceneSequence()
     {
-        shipAnim.Play("SpaceshipFlyAway");
+        shipAnim.enabled = true;
         CameraCutsceneHandler.Instance.StartCutscene(cutscene);
         yield return new WaitForSeconds(cutscene.Duration);
         EndScene();
