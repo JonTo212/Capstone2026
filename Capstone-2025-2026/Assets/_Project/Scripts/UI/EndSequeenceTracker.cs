@@ -77,6 +77,7 @@ public class EndSequeenceTracker : MonoBehaviour
     }*/
 
     #endregion 
+
     #region Functional Code
     public void UpdateSupports(int targettedSupport)
     {
@@ -84,7 +85,7 @@ public class EndSequeenceTracker : MonoBehaviour
         forceConnections[targettedSupport].gameObject.SetActive(false);
         Anchor[targettedSupport] = null;
 
-        if (Anchor[0] == null && Anchor[1] == null && Anchor[2] == null )
+        if (Anchor[0] == null)
         {
             EndSequence();
         }

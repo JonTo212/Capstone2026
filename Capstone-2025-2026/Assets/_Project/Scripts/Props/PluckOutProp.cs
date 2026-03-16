@@ -13,6 +13,7 @@ public class PluckOutProp : Prop
     [SerializeField] private bool hasBeenPlucked = false;
     [SerializeField] private float startDist = 0f;
     [SerializeField] private Lasso lassoRef;
+    [SerializeField] private GameObject groundedVisuals;
     private float walkBackDist = 10f;
     private float playerStartDist = 0f;
 
@@ -85,6 +86,7 @@ public class PluckOutProp : Prop
     {
         Rb.isKinematic = false;
         hasBeenPlucked = true;
+        groundedVisuals.SetActive(false);
         lassoRef.HandleObjectReleased();
     }
 
