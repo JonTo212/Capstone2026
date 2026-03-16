@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -67,7 +68,7 @@ public class PlayerActions : MonoBehaviour
     public bool DPadForwardDown => dPadForwardAction.WasPressedThisFrame();
     public bool DPadForwardHeld => dPadForwardAction.IsPressed();
     public bool DPadForwardUp => dPadForwardAction.WasReleasedThisFrame();
-    
+
     public bool DPadBackwardDown => dPadBackwardAction.WasPressedThisFrame();
     public bool DPadBackwardHeld => dPadBackwardAction.IsPressed();
     public bool DPadBackwardUp => dPadBackwardAction.WasReleasedThisFrame();
@@ -118,16 +119,14 @@ public class PlayerActions : MonoBehaviour
     public bool grabHeld => grabAction.IsPressed();
     public bool grabUp => grabAction.WasReleasedThisFrame();
 
-
     #endregion
 
     private void Awake()
     {
-
-        if (Instance != null && Instance != this) 
+        if (Instance != null && Instance != this)
         {
-            Destroy(gameObject); 
-            return; 
+            Destroy(gameObject);
+            return;
         }
 
         Instance = this;
@@ -176,7 +175,16 @@ public class PlayerActions : MonoBehaviour
     private void OnDisable()
     {
         DisableAllInput();
+        StopRumble(); // clean up haptics when disabled
     }
+
+    private void OnApplicationPause(bool paused)
+    {
+        if (paused) Gamepad.current?.PauseHaptics();
+        else Gamepad.current?.ResumeHaptics();
+    }
+
+    #region Input Handling
 
     public void EnableAllInput()
     {
@@ -225,6 +233,8 @@ public class PlayerActions : MonoBehaviour
             CurrentDevice = InputType.MouseKeyboard;
         }
     }
+
+    #endregion
 
     //made these numbers up ngl
     float dpadTimer = 0f;
@@ -280,4 +290,85 @@ public class PlayerActions : MonoBehaviour
 
         return 0f;
     }
+
+    #region Haptics
+
+    private Coroutine _hapticCoroutine;
+
+    public void RumbleFor(float lowFreq, float highFreq, float duration)
+    {
+        if (CurrentDevice != InputType.Controller) return;
+        var gamepad = Gamepad.current;
+        if (gamepad == null) return;
+
+        if (_hapticCoroutine != null) StopCoroutine(_hapticCoroutine);
+        _hapticCoroutine = StartCoroutine(HapticRoutine(gamepad, lowFreq, highFreq, duration));
+    }
+
+    public void RumbleFade(float lowFreq, float highFreq, float duration)
+    {
+        if (CurrentDevice != InputType.Controller) return;
+        var gamepad = Gamepad.current;
+        if (gamepad == null) return;
+
+        if (_hapticCoroutine != null) StopCoroutine(_hapticCoroutine);
+        _hapticCoroutine = StartCoroutine(HapticFadeRoutine(gamepad, lowFreq, highFreq, duration));
+    }
+
+    public void RumblePulse(float lowFreq, float highFreq, float duration, int pulseCount = 3)
+    {
+        if (CurrentDevice != InputType.Controller) return;
+        var gamepad = Gamepad.current;
+        if (gamepad == null) return;
+
+        if (_hapticCoroutine != null) StopCoroutine(_hapticCoroutine);
+        _hapticCoroutine = StartCoroutine(HapticPulseRoutine(gamepad, lowFreq, highFreq, duration, pulseCount));
+    }
+
+    public void StopRumble()
+    {
+        if (_hapticCoroutine != null)
+        {
+            StopCoroutine(_hapticCoroutine);
+            _hapticCoroutine = null;
+        }
+        Gamepad.current?.ResetHaptics();
+    }
+
+    private IEnumerator HapticRoutine(Gamepad gamepad, float low, float high, float duration)
+    {
+        gamepad.SetMotorSpeeds(low, high);
+        yield return new WaitForSeconds(duration);
+        gamepad.ResetHaptics();
+        _hapticCoroutine = null;
+    }
+
+    private IEnumerator HapticFadeRoutine(Gamepad gamepad, float low, float high, float duration)
+    {
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            float t = 1f - (elapsed / duration);
+            gamepad.SetMotorSpeeds(low * t, high * t);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+        gamepad.ResetHaptics();
+        _hapticCoroutine = null;
+    }
+
+    private IEnumerator HapticPulseRoutine(Gamepad gamepad, float low, float high, float duration, int pulseCount)
+    {
+        float halfInterval = (duration / pulseCount) * 0.5f;
+        for (int i = 0; i < pulseCount; i++)
+        {
+            gamepad.SetMotorSpeeds(low, high);
+            yield return new WaitForSeconds(halfInterval);
+            gamepad.ResetHaptics();
+            yield return new WaitForSeconds(halfInterval);
+        }
+        _hapticCoroutine = null;
+    }
+
+    #endregion
 }

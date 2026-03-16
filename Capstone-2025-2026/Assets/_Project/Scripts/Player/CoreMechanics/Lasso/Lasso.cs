@@ -294,6 +294,7 @@ public class Lasso : MonoBehaviour
             OnObjectHit?.Invoke();
             //AudioManager.Instance.PlaySFX(AudioManager.Instance.Thrown, 5, 1);
             RuntimeManager.PlayOneShot("event:/LassoStart", transform.position);
+            PlayerActions.Instance.RumbleFor(0.2f, 0.4f, 0.1f);
         }
     }
 
