@@ -17,7 +17,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     [SerializeField] protected List<Transform> connectedObject = new List<Transform>();
     [SerializeField] protected List<Transform> connectedAnchors = new List<Transform>();
     protected Lasso lassoRef;
-
+    private static float _rumbleCooldown;
 
     //getters/setters - default value is false (protected set means only derived classes can change IsHeld)
     public virtual bool IsHeld { get; protected set; } = false;
@@ -331,9 +331,23 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     #endregion
 
     #region Utility
+
+    private void TriggerHoverRumble()
+    {
+        if (Time.unscaledTime > _rumbleCooldown)
+        {
+            PlayerActions.Instance.RumbleFor(0.1f, 0.2f, 0.1f);
+            _rumbleCooldown = Time.unscaledTime + 0.15f;
+        }
+    }
+
     private void OnCollisionEnter(Collision collision)
     {
-        RuntimeManager.PlayOneShot("event:/Collision", transform.position);
+        if (IsSnared)
+        {
+            TriggerHoverRumble();
+            RuntimeManager.PlayOneShot("event:/Collision", transform.position);
+        }
         IsTouchingSurface = true;
     }
 

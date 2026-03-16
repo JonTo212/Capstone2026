@@ -207,6 +207,7 @@ public class JointTetherPlacer : MonoBehaviour
 
         //AudioManager.Instance.PlaySFX(AudioManager.Instance.TetherStart, 4, 1f);
         RuntimeManager.PlayOneShot("event:/TetherStart", transform.position);
+        PlayerActions.Instance.RumbleFor(0.2f, 0.4f, 0.1f);
     }
 
     private void SetTetherEndPoint(Transform endTransform, Vector3 endPosition)
@@ -215,7 +216,7 @@ public class JointTetherPlacer : MonoBehaviour
 
         this.endTransform = endTransform;
 
-        if (endTransform.gameObject.TryGetComponent<Prop>(out Prop propComponent))
+        if (endTransform.gameObject.TryGetComponent(out Prop propComponent))
         {
             if (propComponent.CheckNearestGrabPoint(endPosition) != null)
             {
@@ -228,6 +229,8 @@ public class JointTetherPlacer : MonoBehaviour
 
 
         RuntimeManager.PlayOneShot("event:/TetherEnd", transform.position);
+        PlayerActions.Instance.RumbleFor(2f, 3f, 0.1f);
+
     }
 
     //Creates and initializes tether parameters like hit transforms and positions

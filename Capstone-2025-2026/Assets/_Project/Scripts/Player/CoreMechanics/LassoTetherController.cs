@@ -224,7 +224,7 @@ public class LassoTetherController : MonoBehaviour
         playerLasso.MoveAnchorPointZ(playerActions.GetDPadScrollValue());
         playerLasso.MoveAnchorPointY(playerActions.LookInput.y);
 
-        if (playerActions.PlaceTetherHeld)
+        if (playerActions.toolSwitchDown)
         {
             if (TetherMode)
             {
@@ -271,7 +271,7 @@ public class LassoTetherController : MonoBehaviour
     #region Snared Tether Controls
     private void HandleSnaredTetherControls()
     {
-        if (playerActions.PlaceTetherUp)
+        if (playerActions.LassoUp)
         {
             playerLasso.SnaredObject.SetRigidbodyConstraints(null);
             playerTether.EndTetherPlacement(false);

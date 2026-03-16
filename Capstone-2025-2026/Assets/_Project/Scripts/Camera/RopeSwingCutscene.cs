@@ -78,6 +78,8 @@ public class RopeSwingCutscene : PlayerCutsceneBase
 
         if (playerModelRotation != null)
             playerModelRotation.SetNewRotationDir(null, true);
+
+        PlayerActions.Instance.RumbleFor(0.015f, 0.03f, Duration);
     }
 
     public override void OnCutsceneTick()

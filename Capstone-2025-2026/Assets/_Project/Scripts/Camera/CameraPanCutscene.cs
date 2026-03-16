@@ -17,8 +17,10 @@ public class CameraPanCutscene : CameraCutsceneBase
     {
         base.OnCutsceneStart();
 
-        ZeldaCameraController zeldaCam = cam.GetComponent<ZeldaCameraController>();
-        if (zeldaCam != null) zeldaCam.SetFrozen(true);
+        HandleScripts(false);
+
+        /*ZeldaCameraController zeldaCam = cam.GetComponent<ZeldaCameraController>();
+        if (zeldaCam != null) zeldaCam.SetFrozen(true);*/
     }
 
     public override void OnCutsceneTick()

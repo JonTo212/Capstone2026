@@ -97,7 +97,7 @@ public class SettingsMenu : MonoBehaviour
 
     public void WindowModeButton()
     {
-        if(windowMode == WindowMode.fullScreen)
+        if (windowMode == WindowMode.fullScreen)
         {
             windowMode = WindowMode.windowed;
             windowModeText.SetText("Windowed");

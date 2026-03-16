@@ -19,7 +19,8 @@ public class UISelectable : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     {
         //if mouse moves while hovering, snap selection back to this element
         if (_hoveredElement == this && Mouse.current != null && Mouse.current.delta.ReadValue() != Vector2.zero)
-            EventSystem.current.SetSelectedGameObject(gameObject);
+            if (EventSystem.current.currentSelectedGameObject != gameObject)
+                EventSystem.current.SetSelectedGameObject(gameObject);
 
         //if nothing is selected and no element is hovered, restore from last hovered and clear
         if (_hoveredElement == null && _lastHovered == this)
@@ -29,7 +30,8 @@ public class UISelectable : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 
             if (controllerInput || keyboardInput)
             {
-                EventSystem.current.SetSelectedGameObject(gameObject);
+                if (EventSystem.current.currentSelectedGameObject != gameObject)
+                    EventSystem.current.SetSelectedGameObject(gameObject);
                 _lastHovered = null;
             }
         }
@@ -41,6 +43,7 @@ public class UISelectable : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
         _hoveredElement = this;
         _lastHovered = this;
         EventSystem.current.SetSelectedGameObject(gameObject);
+        PlayerActions.Instance.RumbleFor(0.1f, 0.2f, 0.1f);
     }
 
     //on mouse exit, deselect
@@ -53,6 +56,8 @@ public class UISelectable : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 
     public void OnSelect(BaseEventData eventData)
     {
+        PlayerActions.Instance.RumbleFor(0.1f, 0.2f, 0.1f);
+    
         if (_hoveredElement != this)
             PlayHoverSound();
     }

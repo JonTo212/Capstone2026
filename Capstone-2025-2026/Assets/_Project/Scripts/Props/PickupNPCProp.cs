@@ -20,15 +20,22 @@ public class PickupNPCProp : Prop
     //particles
     [SerializeField] private ParticleSystem dustParticle;
 
+    private NPCKeyCutscene spawnCutscene;
 
-
+    [SerializeField] private Transform cutsceneStartPos;
+    [SerializeField] private Transform lookAtTarget;
+    [SerializeField] private float cutsceneDuration;
+    [SerializeField] private float cutsceneHoldFraction;
+    [SerializeField] private float cutsceneBlendInDelay;
+    [SerializeField] private float cutsceneBlendInTime;
 
 
     private void Awake()
     {
-        critterInstanceScript = GetComponent<CritterInstance>();
-
         base.Init();
+
+        critterInstanceScript = GetComponent<CritterInstance>();
+        spawnCutscene = Camera.main.GetComponent<NPCKeyCutscene>();
         defaultLocalScale = transform.localScale;
 
         //disable objects if its a key npc
@@ -84,6 +91,9 @@ public class PickupNPCProp : Prop
             // Spawn particle
             Instantiate(dustParticle, t.position, Quaternion.identity);
         }
+
+        spawnCutscene.Configure(cutsceneStartPos, lookAtTarget, cutsceneDuration, cutsceneHoldFraction, cutsceneBlendInDelay, cutsceneBlendInTime);
+        CameraCutsceneHandler.Instance.StartCutscene(spawnCutscene);
     }
 
     public override void ActivateOutline(bool activate)

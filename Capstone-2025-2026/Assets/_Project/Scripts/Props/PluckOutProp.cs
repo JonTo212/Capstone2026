@@ -12,7 +12,6 @@ public class PluckOutProp : Prop
     [SerializeField] private float horizontalForceMultiplier = 1f;
     [SerializeField] private bool hasBeenPlucked = false;
     [SerializeField] private float startDist = 0f;
-    [SerializeField] private Lasso lassoRef;
     private float walkBackDist = 10f;
     private float playerStartDist = 0f;
 
@@ -39,10 +38,11 @@ public class PluckOutProp : Prop
         
         Vector3 localForceVector = transform.InverseTransformVector(totalForceApplied);
 
-        float totalForceMagnitude = 0;
         bool stepCheck = false; 
         bool reelCheck = false;
         /*
+        float totalForceMagnitude = 0;
+
         //pluck horizontally considers both horizontal and vertical force as valid. Each direction's multiplier is applied
         if (pluckHorizontally)
         {

@@ -338,7 +338,7 @@ public class PlayerActions : MonoBehaviour
     private IEnumerator HapticRoutine(Gamepad gamepad, float low, float high, float duration)
     {
         gamepad.SetMotorSpeeds(low, high);
-        yield return new WaitForSeconds(duration);
+        yield return new WaitForSecondsRealtime(duration);
         gamepad.ResetHaptics();
         _hapticCoroutine = null;
     }
@@ -350,7 +350,7 @@ public class PlayerActions : MonoBehaviour
         {
             float t = 1f - (elapsed / duration);
             gamepad.SetMotorSpeeds(low * t, high * t);
-            elapsed += Time.deltaTime;
+            elapsed += Time.unscaledDeltaTime;
             yield return null;
         }
         gamepad.ResetHaptics();
@@ -363,9 +363,9 @@ public class PlayerActions : MonoBehaviour
         for (int i = 0; i < pulseCount; i++)
         {
             gamepad.SetMotorSpeeds(low, high);
-            yield return new WaitForSeconds(halfInterval);
+            yield return new WaitForSecondsRealtime(halfInterval);
             gamepad.ResetHaptics();
-            yield return new WaitForSeconds(halfInterval);
+            yield return new WaitForSecondsRealtime(halfInterval);
         }
         _hapticCoroutine = null;
     }
