@@ -7,6 +7,7 @@ public class Nail : MonoBehaviour
 
     void OnDestroy()
     {
+        //GetComponent<LineRenderer>().enabled = false;
         tracker.UpdateSupports(nailNumber);
     }
 }
