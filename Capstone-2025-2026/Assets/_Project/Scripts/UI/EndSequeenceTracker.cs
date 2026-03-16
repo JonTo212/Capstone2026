@@ -11,6 +11,7 @@ public class EndSequeenceTracker : MonoBehaviour
     public GameObject[] DisabledArray;
     public Animator SpaceShip;
     public Animator Pillar;
+    BreakablePluckupProp itself;
 
     [SerializeField] private int ropeSegmentCount = 50; // reduced for performance
     [SerializeField] private float damper = 15f;
@@ -28,6 +29,8 @@ public class EndSequeenceTracker : MonoBehaviour
     {
         //DrawAnchors();
     }
+
+    
 
     #region AnchorVisuals
 
@@ -81,20 +84,17 @@ public class EndSequeenceTracker : MonoBehaviour
     #region Functional Code
     public void UpdateSupports(int targettedSupport)
     {
-        Destroy(Anchor[targettedSupport]);
-        forceConnections.gameObject.SetActive(false);
-        Anchor[targettedSupport] = null;
-
-        if (Anchor[0] == null)
-        {
-            EndSequence();
-        }
+        Anchor[0].GetComponent<MeshRenderer>().enabled = false;
+        Anchor[0].GetComponent<Outline>().enabled = false;
+        EndSequence();
     } 
+    
 
     public void EndSequence()
     {
         //Play Scene
         DisabledThings();
+        GetComponent<Animator>().enabled = true;
 
         Debug.Log("THE END SCENE HAPPENED");
     }
