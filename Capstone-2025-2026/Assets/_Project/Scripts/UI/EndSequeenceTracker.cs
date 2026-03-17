@@ -115,6 +115,7 @@ public class EndSequeenceTracker : MonoBehaviour
 
     public void StartPillar()
     {
+        Pillar.gameObject.SetActive(true);
         Pillar.enabled = true;
     }
 
