@@ -123,6 +123,7 @@ public class EndSequeenceTracker : MonoBehaviour
     {
         SpaceShip.enabled = true;
         DisabledThings();
+        EnabledThings();
     }
 
 
