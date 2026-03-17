@@ -28,6 +28,7 @@ public class PickupNPCProp : Prop
     [SerializeField] private float cutsceneHoldFraction;
     [SerializeField] private float cutsceneBlendInDelay;
     [SerializeField] private float cutsceneBlendInTime;
+    [SerializeField] private EndSequeenceTracker endTrack;
 
 
     private void Awake()
@@ -37,6 +38,7 @@ public class PickupNPCProp : Prop
         critterInstanceScript = GetComponent<CritterInstance>();
         spawnCutscene = Camera.main.GetComponent<NPCKeyCutscene>();
         defaultLocalScale = transform.localScale;
+
 
         //disable objects if its a key npc
         if (keyNPC)
@@ -55,7 +57,9 @@ public class PickupNPCProp : Prop
 
         DestroyAllAttachedTethers();
 
+
         RuntimeManager.PlayOneShot("event:/NPCSave", transform.position);
+        if(endTrack) endTrack.EndSequence();
 
         //tell UI that you got a puff
         critterInstanceScript.BeRescued();
