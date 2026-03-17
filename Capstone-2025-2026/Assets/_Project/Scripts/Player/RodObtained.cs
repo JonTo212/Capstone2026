@@ -119,7 +119,14 @@ public class RodObtained : MonoBehaviour
         if (other.CompareTag("Player"))
         {
            if (selectedTool == ToolEnum.Rod) ActivateRod();
-           if (selectedTool == ToolEnum.Tether) ActivateTether();
+
+            if (selectedTool == ToolEnum.Tether)
+            {
+                ActivateTether();
+
+                GetComponent<DialogueTrigger>().CreateNPCDialogue();
+            }
+
         }
 
     }
