@@ -7,7 +7,7 @@ public class tetherSnareTutorial : MonoBehaviour
 
     private void Start()
     {
-        tetherControllerScript = GameObject.FindWithTag("Player").GetComponent<LassoTetherController>();
+        //tetherControllerScript = GameObject.FindWithTag("Player").GetComponent<LassoTetherController>();
 
         tetherTutorialCanvas.SetActive(false); // start hidden
     }
@@ -16,10 +16,9 @@ public class tetherSnareTutorial : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            if (tetherControllerScript.rodEquipped)
-            {
+ 
                 tetherTutorialCanvas.SetActive(true);
-            }
+
         }
     }
 
