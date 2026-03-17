@@ -29,6 +29,12 @@ public class PauseMenu : MonoBehaviour
             else
                 Pause();
         }
+
+        if(!gameIsPaused)
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
     }
 
     #region PauseDefaults

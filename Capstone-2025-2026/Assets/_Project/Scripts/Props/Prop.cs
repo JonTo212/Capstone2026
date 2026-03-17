@@ -148,7 +148,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         if (slowFall) Rb.useGravity = false;
         Rb.interpolation = RigidbodyInterpolation.None;
         Rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
-        Rb.isKinematic = WasKinematicToStart;
+        //Rb.isKinematic = WasKinematicToStart;
         AttachedTransform = null;
         lassoRef = null;
 
