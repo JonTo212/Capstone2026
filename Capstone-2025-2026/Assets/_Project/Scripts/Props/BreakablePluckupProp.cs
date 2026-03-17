@@ -12,6 +12,11 @@ public class BreakablePluckupProp : PluckOutProp
     [SerializeField] private Vector2 spawnImpulseAmount = new Vector2(2f,1f);
     [SerializeField] private bool breakOnPluck = false;
 
+    public EndSequeenceTracker endSequeenceTracker;
+
+
+    public Event OnPlucked;
+
     private float breakableDelay = 0.3f;
     private bool isBreakable = false;
 
@@ -24,8 +29,13 @@ public class BreakablePluckupProp : PluckOutProp
         if (breakOnPluck) Break();
 
         StartCoroutine(BecomeBreakableDelay());
-
+        if(endSequeenceTracker != null)
+        {
+            endSequeenceTracker.UpdateSupports(0);
+        }
     }
+
+    public void OnPluckPublic() => OnPluck();
 
     private void OnCollisionEnter(Collision collision)
     {

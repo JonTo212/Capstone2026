@@ -9,8 +9,9 @@ public class EndSequeenceTracker : MonoBehaviour
     public GameObject[] Anchor;
     public GameObject[] EnabledArray;
     public GameObject[] DisabledArray;
-    public Rigidbody bigPlat;
-    public Rigidbody SpaceShip;
+    public Animator SpaceShip;
+    public Animator Pillar;
+    BreakablePluckupProp itself;
 
     [SerializeField] private int ropeSegmentCount = 50; // reduced for performance
     [SerializeField] private float damper = 15f;
@@ -22,25 +23,27 @@ public class EndSequeenceTracker : MonoBehaviour
 
     private Spring spring;
     private Vector3 currentPullPos;
-    public LineRenderer[] forceConnections;
+    public LineRenderer forceConnections;
 
     public void Start()
     {
-        DrawAnchors();
+        //DrawAnchors();
     }
+
+    
 
     #region AnchorVisuals
 
-    public void DrawAnchors()
+    /*public void DrawAnchors()
     {
-        for(int i = 0; i<3; i++)
+        for(int i = 0; i<1; i++)
         {
             Vector3 targetPoint = Anchor[i].transform.position;
-            forceConnections[i].SetPosition(0, transform.position);
-            forceConnections[i].SetPosition(1, targetPoint);
+            forceConnections.SetPosition(0, transform.position);
+            forceConnections.SetPosition(1, targetPoint);
         }
     }
-    /*
+    
     private void DetachRope(int i)
     {
         if (forceConnections[i].positionCount == 0)
@@ -77,26 +80,20 @@ public class EndSequeenceTracker : MonoBehaviour
     }*/
 
     #endregion 
+
     #region Functional Code
     public void UpdateSupports(int targettedSupport)
     {
-        Destroy(Anchor[targettedSupport]);
-        forceConnections[targettedSupport].gameObject.SetActive(false);
-        Anchor[targettedSupport] = null;
-
-        if (Anchor[0] == null && Anchor[1] == null && Anchor[2] == null )
-        {
-            EndSequence();
-        }
+        Anchor[0].GetComponent<MeshRenderer>().enabled = false;
+        Anchor[0].GetComponent<Outline>().enabled = false;
+        EndSequence();
     } 
+    
 
     public void EndSequence()
     {
         //Play Scene
-        EnabledThings();
-        DisabledThings();
-        bigPlat.isKinematic = false;
-        SpaceShip.useGravity = true;
+        GetComponent<Animator>().enabled = true;
 
         Debug.Log("THE END SCENE HAPPENED");
     }
@@ -114,6 +111,20 @@ public class EndSequeenceTracker : MonoBehaviour
             _object.SetActive(false);
         }
     }
+
+    public void StartPillar()
+    {
+        Pillar.gameObject.SetActive(true);
+        Pillar.enabled = true;
+    }
+
+    public void StartFlyAway()
+    {
+        SpaceShip.enabled = true;
+        DisabledThings();
+        EnabledThings();
+    }
+
 
     #endregion
 }
