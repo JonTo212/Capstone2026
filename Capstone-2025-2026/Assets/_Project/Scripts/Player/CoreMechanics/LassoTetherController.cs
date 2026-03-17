@@ -18,6 +18,8 @@ public enum LassoState
 
 public class LassoTetherController : MonoBehaviour
 {
+    public static LassoTetherController Instance { get; private set; }
+
     [Header("Components")]
     private Lasso playerLasso;
     private PlayerNPCCapture playerNPCCapture;
@@ -47,6 +49,13 @@ public class LassoTetherController : MonoBehaviour
     #region Unity Functions
     private void Awake()
     {
+        if (Instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+
         playerLasso = GetComponent<Lasso>();
         playerActions = GetComponent<PlayerActions>();
         //playerInventory = GetComponent<PlayerNPCHolder>();
@@ -185,6 +194,15 @@ public class LassoTetherController : MonoBehaviour
     {
         playerLasso.HandleHold();
         SwitchLassoState(LassoState.Empty);
+    }
+
+    public void ClearHold()
+    {
+        playerLasso.SnaredObject.SetRigidbodyConstraints(null);
+        playerTether.EndTetherPlacement(false, true);
+        playerLasso.HandleObjectReleased();
+        SwitchLassoState(LassoState.Empty);
+
     }
 
     #endregion

@@ -78,7 +78,7 @@ public class PlayerRespawn : MonoBehaviour
     IEnumerator Respawn()
     {
         //fade to black
-        
+        LassoTetherController.Instance.ClearHold();
         fadeToBlackScript.gameObject.SetActive(true);
         fadeToBlackScript.FadeIn();
 
