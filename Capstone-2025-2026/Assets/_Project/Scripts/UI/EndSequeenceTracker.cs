@@ -93,7 +93,6 @@ public class EndSequeenceTracker : MonoBehaviour
     public void EndSequence()
     {
         //Play Scene
-        DisabledThings();
         GetComponent<Animator>().enabled = true;
 
         Debug.Log("THE END SCENE HAPPENED");
