@@ -11,6 +11,7 @@ public class PlayerRespawn : MonoBehaviour
     //Components
     private Rigidbody rb;
     [SerializeField] private ParticleSystem tinyTornado;
+    private Coroutine respawnCoroutine;
 
     //respawning
     private Vector3 spawnPosition;
@@ -23,6 +24,7 @@ public class PlayerRespawn : MonoBehaviour
 
     //UI Components
     public ImageFader fadeToBlackScript;
+
 
     void Awake()
     {
@@ -44,7 +46,8 @@ public class PlayerRespawn : MonoBehaviour
     {
         if (other.gameObject.tag == "Void")
         {
-            StartCoroutine(Respawn());
+            if (respawnCoroutine != null) StopCoroutine(respawnCoroutine);
+            respawnCoroutine = StartCoroutine(Respawn());
             print("FELL INTO VOID");
         }
 
@@ -66,16 +69,18 @@ public class PlayerRespawn : MonoBehaviour
         }
     }
 
+    public void StartRespawn()
+    {
+        if(respawnCoroutine != null) StopCoroutine(respawnCoroutine);
+        StartCoroutine (Respawn());
+    }
+
     IEnumerator Respawn()
     {
         //fade to black
         
         fadeToBlackScript.gameObject.SetActive(true);
         fadeToBlackScript.FadeIn();
-
-        //Setup 
-        rb.isKinematic = true;
-        isFalling = true;
 
         //play particle effect
         tinyTornado.Play();
@@ -84,28 +89,20 @@ public class PlayerRespawn : MonoBehaviour
 
         yield return new WaitUntil(() => fadeToBlackScript.FadeComplete);
 
-
         // MOVE TOWARDS SPAWN POSITION //
+
+        //Setup 
+        rb.isKinematic = true;
+        isFalling = true;
 
         //check if it is close enough to spawn position
         var spawnDestination = new Vector3(spawnPosition.x, spawnPosition.y + respawnHeight, spawnPosition.z);
-
-        while (Vector3.Distance(transform.position, spawnDestination) > returnBuffer)
-        {
-
-            //move towards spawn position
-            transform.position = spawnDestination;
-
-            // return when the result is null
-            yield return null;
-        }
-
-        // DELAY TIMER//
-        yield return new WaitForSeconds(.5f);
+        rb.position = spawnDestination;
+        transform.position = spawnDestination;
 
         //disable black screen
         fadeToBlackScript.FadeOut();
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(0.5f);
 
         //RESET//
         //Enable Components
@@ -114,6 +111,7 @@ public class PlayerRespawn : MonoBehaviour
 
         //end particle effect
         tinyTornado.Stop();
+        respawnCoroutine = null;
 
     }
 }
