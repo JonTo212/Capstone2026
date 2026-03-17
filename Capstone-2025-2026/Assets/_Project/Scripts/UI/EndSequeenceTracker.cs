@@ -11,6 +11,7 @@ public class EndSequeenceTracker : MonoBehaviour
     public GameObject[] DisabledArray;
     public Animator SpaceShip;
     public Animator Pillar;
+    BreakablePluckupProp itself;
 
     [SerializeField] private int ropeSegmentCount = 50; // reduced for performance
     [SerializeField] private float damper = 15f;
@@ -26,12 +27,14 @@ public class EndSequeenceTracker : MonoBehaviour
 
     public void Start()
     {
-        DrawAnchors();
+        //DrawAnchors();
     }
+
+    
 
     #region AnchorVisuals
 
-    public void DrawAnchors()
+    /*public void DrawAnchors()
     {
         for(int i = 0; i<1; i++)
         {
@@ -40,7 +43,7 @@ public class EndSequeenceTracker : MonoBehaviour
             forceConnections.SetPosition(1, targetPoint);
         }
     }
-    /*
+    
     private void DetachRope(int i)
     {
         if (forceConnections[i].positionCount == 0)
@@ -81,22 +84,17 @@ public class EndSequeenceTracker : MonoBehaviour
     #region Functional Code
     public void UpdateSupports(int targettedSupport)
     {
-        Destroy(Anchor[targettedSupport]);
-        forceConnections.gameObject.SetActive(false);
-        Anchor[targettedSupport] = null;
-
-        if (Anchor[0] == null)
-        {
-            EndSequence();
-        }
+        Anchor[0].GetComponent<MeshRenderer>().enabled = false;
+        Anchor[0].GetComponent<Outline>().enabled = false;
+        EndSequence();
     } 
+    
 
     public void EndSequence()
     {
         //Play Scene
-        EnabledThings();
-        SpaceShip.enabled = true;
         DisabledThings();
+        GetComponent<Animator>().enabled = true;
 
         Debug.Log("THE END SCENE HAPPENED");
     }
@@ -114,6 +112,18 @@ public class EndSequeenceTracker : MonoBehaviour
             _object.SetActive(false);
         }
     }
+
+    public void StartPillar()
+    {
+        Pillar.enabled = true;
+    }
+
+    public void StartFlyAway()
+    {
+        SpaceShip.enabled = true;
+        DisabledThings();
+    }
+
 
     #endregion
 }
