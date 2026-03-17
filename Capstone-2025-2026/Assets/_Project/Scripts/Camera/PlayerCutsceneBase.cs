@@ -46,6 +46,10 @@ public abstract class PlayerCutsceneBase : CutsceneBase
     public override void OnCutsceneUpdate()
     {
         base.OnCutsceneUpdate();
+
+        float blendOutStart = Duration > 0f ? 1f - (BlendOutTime / Duration) : 1f;
+        if (T >= blendOutStart) return;
+
         CameraCutsceneHandler.Instance?.SetCameraScreenOffset(cameraScreenOffset, cameraOffsetBlendSpeed);
         CameraCutsceneHandler.Instance?.SetCameraTargetOffset(cameraTargetOffset, cameraOffsetBlendSpeed);
     }

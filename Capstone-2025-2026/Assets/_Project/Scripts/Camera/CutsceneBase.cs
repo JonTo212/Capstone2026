@@ -27,7 +27,9 @@ public abstract class CutsceneBase : MonoBehaviour
         Elapsed += Time.fixedDeltaTime;
         T = Mathf.Clamp01(Elapsed / Duration);
     }
+
     public virtual void OnBlendTick(float t) { }
+    public virtual void OnBlendOutTick(float t) { }
     public virtual void OnCutsceneSkip() { }
     public virtual void OnCutsceneEnd()
     {

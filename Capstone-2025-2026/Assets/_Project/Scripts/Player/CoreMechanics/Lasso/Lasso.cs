@@ -226,7 +226,7 @@ public class Lasso : MonoBehaviour
 
         if (nearest != null)
         {
-            AnchorDist = Mathf.Clamp(Vector3.Distance(nearest.position, PlayerCamLookPos.position), minLassoRange, maxLassoRange);
+            AnchorDist = Mathf.Clamp(Vector3.Distance(nearest.position, transform.position), minLassoRange, maxLassoRange);
             _attachPointLocal = SnaredObject.transform.InverseTransformPoint(nearest.position);
             _localFaceNormal = SnaredObject.transform.InverseTransformDirection(nearest.forward);
         }
@@ -264,7 +264,7 @@ public class Lasso : MonoBehaviour
 
     public void HandleLassoStart()
     {
-        RaycastHit? hit = _aimAssist.GetAssistHitPoint(PlayerCam, PlayerCamLookPos.position, maxLassoRange, aimAssistType, aimAssistBufferRadius);
+        RaycastHit? hit = _aimAssist.GetAssistHitPoint(PlayerCam, transform.position, maxLassoRange, aimAssistType, aimAssistBufferRadius);
         if (hit.HasValue)
         {
             RaycastHit actualHit = hit.Value;
@@ -303,7 +303,7 @@ public class Lasso : MonoBehaviour
         if (hit == null)
         {
             _attachPointLocal = prop.transform.InverseTransformPoint(prop.transform.position);
-            AnchorDist = Mathf.Clamp(Vector3.Distance(prop.transform.position, PlayerCamLookPos.position), minLassoRange, maxLassoRange);
+            AnchorDist = Mathf.Clamp(Vector3.Distance(prop.transform.position, transform.position), minLassoRange, maxLassoRange);
             return;
         }
 
@@ -313,20 +313,20 @@ public class Lasso : MonoBehaviour
         {
             if (_nearestGrabPoint != null)
             {
-                AnchorDist = Mathf.Clamp(Vector3.Distance(_nearestGrabPoint.position, PlayerCamLookPos.position), minLassoRange, maxLassoRange);
+                AnchorDist = Mathf.Clamp(Vector3.Distance(_nearestGrabPoint.position, transform.position), minLassoRange, maxLassoRange);
                 _attachPointLocal = prop.transform.InverseTransformPoint(_nearestGrabPoint.position);
                 _localFaceNormal = prop.transform.InverseTransformDirection(_nearestGrabPoint.forward);
             }
 
             else
             {
-                AnchorDist = Mathf.Clamp(Vector3.Distance(prop.transform.position, PlayerCamLookPos.position), minLassoRange, maxLassoRange);
+                AnchorDist = Mathf.Clamp(Vector3.Distance(prop.transform.position, transform.position), minLassoRange, maxLassoRange);
                 _attachPointLocal = prop.transform.InverseTransformPoint(hit.Value.point);
             }
         }
         else
         {
-            AnchorDist = Mathf.Clamp(Vector3.Distance(hit.Value.transform.position, PlayerCamLookPos.position), minLassoRange, maxLassoRange);
+            AnchorDist = Mathf.Clamp(Vector3.Distance(hit.Value.transform.position, transform.position), minLassoRange, maxLassoRange);
             _attachPointLocal = prop.transform.InverseTransformPoint(hit.Value.transform.position);
         }
     }

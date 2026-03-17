@@ -80,8 +80,13 @@ public class CameraModeController : MonoBehaviour
     private float currentTargetDistance;
     private Vector2 optimalFraming;
 
+    public static CameraModeController Instance { get; private set; }
+
     private void Awake()
     {
+        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+        Instance = this;
+
         if (cameraController == null)
             cameraController = GetComponent<ZeldaCameraController>();
 
@@ -102,6 +107,16 @@ public class CameraModeController : MonoBehaviour
 
         baseSensitivityX = cameraController.GetMouseXSensitivity();
         baseSensitivityY = cameraController.GetMouseYSensitivity();
+    }
+
+    public (Vector2 screenOffset, Vector3 targetOffset, float distanceOffset) GetCurrentStateOffsets()
+    {
+        CamState state = lassoTetherController.rodEquipped ? CamState.LassoEquipped : CamState.TetherEquipped;
+        CameraStateSettings? settings = GetSettingsForState(state);
+        Vector2 screen = settings.HasValue ? settings.Value.screenOffset : defaultScreenOffset;
+        Vector3 target = settings.HasValue ? defaultTargetOffset + settings.Value.targetOffset : defaultTargetOffset;
+        float distance = settings.HasValue ? settings.Value.distanceOffset : 0f;
+        return (screen, target, distance);
     }
 
     private void Update()

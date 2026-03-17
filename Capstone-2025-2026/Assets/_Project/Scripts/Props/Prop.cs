@@ -27,6 +27,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     public virtual IEnvironmentalElement EnvironmentalForce { get; protected set; }
 
     private bool didFixedUpdateRun = true;
+    public bool WasKinematicToStart { get; protected set; }
 
     private float originalMass;
 
@@ -66,6 +67,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         ObjectOutline.enabled = false;
         originalMass = Rb.mass;
         OriginalTag = gameObject.tag;
+        WasKinematicToStart = Rb.isKinematic;
 
         var generator = GetComponent<IGrabPointGenerator>();
         if(generator != null)
@@ -146,6 +148,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         if (slowFall) Rb.useGravity = false;
         Rb.interpolation = RigidbodyInterpolation.None;
         Rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
+        Rb.isKinematic = WasKinematicToStart;
         AttachedTransform = null;
         lassoRef = null;
 
