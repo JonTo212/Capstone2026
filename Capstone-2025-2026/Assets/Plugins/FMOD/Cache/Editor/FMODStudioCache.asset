@@ -1151,7 +1151,7 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Movement.bank
   Name: Movement
   StudioPath: bank:/Player/Movement
-  lastModified: 639093510661488669
+  lastModified: 639071326087472434
   FileSizes:
   - Name: Desktop
     Value: 240128
@@ -2548,7 +2548,7 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Collectible.bank
   Name: Collectible
   StudioPath: bank:/Player/Collectible
-  lastModified: 639093510657082500
+  lastModified: 639071326086674597
   FileSizes:
   - Name: Desktop
     Value: 36992
@@ -2993,10 +2993,10 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Master.strings.bank
   Name: Master.strings
   StudioPath: bank:/Master.strings
-  lastModified: 639093510628563881
+  lastModified: 639071346997031683
   FileSizes:
   - Name: Desktop
-    Value: 3928
+    Value: 3892
   Exists: 1
 --- !u!114 &-1427549211803510698
 MonoBehaviour:
@@ -3496,7 +3496,6 @@ MonoBehaviour:
   - {fileID: 4421649722552374409}
   - {fileID: -4636110349779487702}
   - {fileID: -5070503077068182053}
-  - {fileID: 8270230044397409174}
   - {fileID: -3036847302928878919}
   - {fileID: 5999463651900895164}
   - {fileID: -1794716977854620647}
@@ -3519,7 +3518,7 @@ MonoBehaviour:
   StringsBanks:
   - {fileID: -1465714216367696045}
   cacheVersion: 131858
-  cacheTime: 639093510663091066
+  cacheTime: 639071347960553710
   SerializableEventsDict:
   - key: event:/WaterSplash
     index: 0
@@ -3533,7 +3532,7 @@ MonoBehaviour:
     index: 4
   - key: event:/Pluck
     index: 5
-  - key: event:/SpaceshipAmbience
+  - key: event:/SpaceShipAmbience
     index: 6
   - key: event:/ClawClamp
     index: 7
@@ -3577,7 +3576,7 @@ MonoBehaviour:
     index: 26
   - key: event:/DialogueNPC
     index: 27
-  - key: event:/Zipline
+  - key: event:/ZipLine
     index: 28
   - key: event:/PlatformSlide
     index: 29
@@ -3609,26 +3608,38 @@ MonoBehaviour:
     index: 42
   - key: event:/Song 1
     index: 43
-  - key: event:/MenuMusic
-    index: 44
   - key: event:/Song 2
-    index: 45
+    index: 44
   - key: event:/LassoStart
-    index: 46
+    index: 45
   - key: event:/TetherRecall
-    index: 47
+    index: 46
   - key: event:/TetherStart
-    index: 48
+    index: 47
   - key: event:/LassoEnd
-    index: 49
+    index: 48
   - key: event:/TetherEnd
-    index: 50
+    index: 49
   - key: event:/TetherDeciding
-    index: 51
+    index: 50
   - key: event:/LassoActive
-    index: 52
+    index: 51
   - key: event:/TetherActivate
+    index: 52
+  - key: event:/WindAmbient-3D
     index: 53
+  - key: event:/SpaceShipAmbience-3d
+    index: 54
+  - key: event:/WaterAmbience-3D
+    index: 55
+  - key: event:/Waterfall
+    index: 56
+  - key: event:/VesselFall-3D
+    index: 57
+  - key: event:/ZipLineGood
+    index: 58
+  - key: event:/EOTS Music Draft
+    index: 59
 --- !u!114 &69565535895606078
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4062,7 +4073,7 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Master.bank
   Name: Master
   StudioPath: bank:/Master
-  lastModified: 639093510628548796
+  lastModified: 639071346997000923
   FileSizes:
   - Name: Desktop
     Value: 1670
@@ -4527,7 +4538,7 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Tools.bank
   Name: Tools
   StudioPath: bank:/Player/Tools
-  lastModified: 639093510663091066
+  lastModified: 639071326087890200
   FileSizes:
   - Name: Desktop
     Value: 214560
@@ -4574,7 +4585,7 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Level1-1.bank
   Name: Level1-1
   StudioPath: bank:/Level1-1
-  lastModified: 639093510628448415
+  lastModified: 639071347960553710
   FileSizes:
   - Name: Desktop
     Value: 1213888
@@ -4985,7 +4996,7 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Ambience.bank
   Name: Ambience
   StudioPath: bank:/Ambience
-  lastModified: 639093510625188154
+  lastModified: 639071326084551485
   FileSizes:
   - Name: Desktop
     Value: 2543328
@@ -6406,33 +6417,6 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 0
---- !u!114 &8270230044397409174
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/MenuMusic
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/MenuMusic
-  Guid:
-    Data1: 1717627250
-    Data2: 1226904586
-    Data3: 1655476376
-    Data4: 1304680237
-  Banks:
-  - {fileID: 8587686786728051173}
-  IsStream: 1
-  Is3D: 0
-  IsOneShot: 0
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 112941
 --- !u!114 &8317983486017913702
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6549,10 +6533,10 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Music.bank
   Name: Music
   StudioPath: bank:/Music
-  lastModified: 639093510656126010
+  lastModified: 639071327887987429
   FileSizes:
   - Name: Desktop
-    Value: 4803360
+    Value: 4802528
   Exists: 1
 --- !u!114 &8647840734449712066
 MonoBehaviour:
@@ -6893,7 +6877,7 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Menu.bank
   Name: Menu
   StudioPath: bank:/Player/Menu
-  lastModified: 639093510657919312
+  lastModified: 639071326087053156
   FileSizes:
   - Name: Desktop
     Value: 45024
