@@ -160,9 +160,9 @@ public class JointTetherPlacer : MonoBehaviour
         //OnTetherStartHit?.Invoke();
     }
 
-    public void EndTetherPlacement(bool autoActivate)
+    public void EndTetherPlacement(bool autoActivate, bool cancelTetherPlacement)
     {
-        if (didStartPointHit)
+        if (didStartPointHit && !cancelTetherPlacement)
         {
             if (GetObjectInPlayerFront(out RaycastHit hit) && hit.transform != startTransform && Vector3.Distance(startWorldLocation, hit.point) < maxTetherLength)
             {
@@ -185,6 +185,7 @@ public class JointTetherPlacer : MonoBehaviour
                 }
             }
         }
+
         DeletePreviewTetherLine();
         ResetVariables();
         tetherRangeSphere.gameObject.SetActive(false);

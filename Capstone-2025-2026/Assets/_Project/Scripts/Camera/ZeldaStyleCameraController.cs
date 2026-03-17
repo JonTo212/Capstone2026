@@ -75,7 +75,6 @@ public class ZeldaCameraController : MonoBehaviour
     private float? pitchSmoothOverride = null;
 
     //input
-    private bool hasInput = false;
     private bool yAxisLocked = false;
     private bool xAxisLocked = false;
     private Camera cam;
@@ -123,15 +122,8 @@ public class ZeldaCameraController : MonoBehaviour
 
         originalMinVerticalAngle = minVerticalAngle;
         originalMaxVerticalAngle = maxVerticalAngle;
-    }
 
-    private void OnEnable()
-    {
-        if (target != null)
-        {
-            smoothedTargetPosition = target.position + targetOffset;
-            positionVelocity = Vector3.zero;
-        }
+        isFrozen = false;
     }
 
     private void LateUpdate()
@@ -163,8 +155,6 @@ public class ZeldaCameraController : MonoBehaviour
             mouseX *= mouseXSensitivity * controllerXSensitivityMultiplier;
             mouseY *= mouseYSensitivity * controllerYSensitivityMultiplier;
         }
-
-        hasInput = Mathf.Abs(mouseX) > 0.001f || Mathf.Abs(mouseY) > 0.001f || Mathf.Abs(PlayerActions.Instance.MoveInput.sqrMagnitude) > 0.001f;
 
         if (!xAxisLocked)
         {

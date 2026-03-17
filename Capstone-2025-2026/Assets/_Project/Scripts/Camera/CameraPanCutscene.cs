@@ -18,6 +18,8 @@ public class CameraPanCutscene : CameraCutsceneBase
         base.OnCutsceneStart();
 
         HandleScripts(false);
+        PlayerActions.Instance.ChangeSpecificInput("Move", false);
+        PlayerActions.Instance.ChangeSpecificInput("Look", false);
 
         /*ZeldaCameraController zeldaCam = cam.GetComponent<ZeldaCameraController>();
         if (zeldaCam != null) zeldaCam.SetFrozen(true);*/

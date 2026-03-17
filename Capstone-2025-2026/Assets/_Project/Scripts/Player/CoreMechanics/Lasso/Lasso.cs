@@ -25,6 +25,7 @@ public class Lasso : MonoBehaviour
     [SerializeField] private float maxLassoTorque;
     [SerializeField] private bool useSizeScale;
     [SerializeField, Range(0, 1)] private float angularVelMultiplier = 1f;
+    private LassoTetherController lassoTetherController;
 
     [Header("Aim Assist Properties")]
     [SerializeField] private AimAssistType aimAssistType;
@@ -89,6 +90,7 @@ public class Lasso : MonoBehaviour
     public bool SuppressLiftInput { get; set; }
     public float CurrentLiftOffset => _currentLiftOffset;
     public float LiftSpeed => liftSpeed;
+    public bool LookingAtAutoEquipTarget { get; private set; }
 
     public void AddLiftOffset(float delta)
     {
@@ -104,6 +106,7 @@ public class Lasso : MonoBehaviour
     private void Awake()
     {
         PlayerController = GetComponent<PlayerMovement>();
+        lassoTetherController = GetComponent<LassoTetherController>();
         _swingController = GetComponent<PlayerSwing>();
         _aimAssist = new AimAssist();
     }
@@ -161,7 +164,6 @@ public class Lasso : MonoBehaviour
         return maxDistancePos;
     }
 
-
     public void CheckNearbyTargets(bool showGrabPoints, float range)
     {
         Prop targetProp = null;
@@ -197,7 +199,10 @@ public class Lasso : MonoBehaviour
         bool targetPropExists = targetProp != null;
         bool showIndicator = showGrabPoints || (targetPropExists ? targetProp.IsTetherPulled : false);
         lassoGrabVisualIndicator.SetActive(targetPropExists && SnaredObject == null && showIndicator);
+
         _aimAssist.HighlightSelectedProp(targetProp, false);
+
+        LookingAtAutoEquipTarget = targetPropExists && (targetProp.GetComponentInChildren<SwingPoint>() != null ||targetProp.TryGetComponent(out PickupNPCProp pu));
 
         //MVG BRAEDEN INPUT STUFF
         ContextPrompts.Instance.LookingAtObject(targetPropExists);

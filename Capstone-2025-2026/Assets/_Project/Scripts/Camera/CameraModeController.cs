@@ -123,8 +123,12 @@ public class CameraModeController : MonoBehaviour
     {
         if (CameraCutsceneHandler.Instance != null && CameraCutsceneHandler.Instance.IsActive())
         {                
-            _wasInCutscene = true;
-            return;
+            CutsceneBase current = CameraCutsceneHandler.Instance.CurrentCutscene;
+            if (current != null && current is PlayerCutsceneBase)
+            {
+                _wasInCutscene = true;
+                return;
+            }
         }
 
         switch (lassoTetherController.CurrentLassoState)
@@ -200,7 +204,17 @@ public class CameraModeController : MonoBehaviour
 
     private void TetherModeCamera()
     {
-        cameraController.SetDistanceLimit(10f);
+        cameraController.SetCollisionSmoothTimeOverride(null);
+        cameraController.SetPitchSmoothOverride(null);
+        cameraController.SetDistanceLimit(defaultDistance);
+        hasSnappedToLasso = false;
+
+        cameraController.SetVerticalClamp(null, null);
+        _lassoAboveClamp = false;
+        _lassoBelowClamp = false;
+        if (lassoTetherController.Lasso != null)
+            lassoTetherController.Lasso.SuppressLiftInput = false;
+
         ApplyCameraStateSettings(CamState.Tether, tetherModeAdjustSpeed);
         ApplySensitivity(tetherSensMultiplier, tetherSensMultiplier);
     }
@@ -212,9 +226,7 @@ public class CameraModeController : MonoBehaviour
         cameraController.SetDistanceLimit(defaultDistance);
         hasSnappedToLasso = false;
 
-        ApplyCameraStateSettings(
-            lassoTetherController.rodEquipped ? CamState.LassoEquipped : CamState.TetherEquipped,
-            defaultAdjustSpeed);
+        ApplyCameraStateSettings(lassoTetherController.rodEquipped ? CamState.LassoEquipped : CamState.TetherEquipped, defaultAdjustSpeed);
 
         currentTargetDistance = defaultDistance;
         ApplySensitivity(1f, 1f);

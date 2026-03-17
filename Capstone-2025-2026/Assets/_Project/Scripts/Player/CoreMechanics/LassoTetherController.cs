@@ -40,6 +40,10 @@ public class LassoTetherController : MonoBehaviour
     public bool rodEquipped = true;
     public bool CanUseTools { get; private set; }
 
+    [Header("Auto-Equip")]
+    private bool autoEquippedRod = false;
+    private bool previousRodEquipped;
+
     #region Unity Functions
     private void Awake()
     {
@@ -70,6 +74,8 @@ public class LassoTetherController : MonoBehaviour
     {
         if (rodPickedUp)
         {
+            HandleAutoEquip();
+
             float currentRange = rodEquipped ? playerLasso.MaxLassoRange : playerTether.MaxTetherStartRange;
             playerLasso.CheckNearbyTargets(true, currentRange);
 
@@ -128,6 +134,25 @@ public class LassoTetherController : MonoBehaviour
     #endregion
 
     #region Helper Functions
+    private void HandleAutoEquip()
+    {
+        if (CurrentLassoState != LassoState.Empty) return;
+
+        bool lookingAtAutoTarget = playerLasso.LookingAtAutoEquipTarget;
+
+        if (lookingAtAutoTarget && !autoEquippedRod)
+        {
+            previousRodEquipped = rodEquipped;
+            rodEquipped = true;
+            autoEquippedRod = true;
+        }
+        else if (!lookingAtAutoTarget && autoEquippedRod)
+        {
+            rodEquipped = previousRodEquipped;
+            autoEquippedRod = false;
+        }
+    }
+
     private void SwitchLassoState(LassoState newState)
     {
         CurrentLassoState = newState;
@@ -168,7 +193,11 @@ public class LassoTetherController : MonoBehaviour
     private void HandleEmptyControls()
     {
         //tool switching
-        if ((playerActions.toolSwitchDown) && tetherPickedUp) rodEquipped = !rodEquipped; // toggle state of rodEquipped bool 
+        if ((playerActions.toolSwitchDown) && tetherPickedUp)
+        {
+            rodEquipped = !rodEquipped;
+            autoEquippedRod = false; // player took manual control, cancel auto-restore
+        }
         //playerLasso.CheckNearbyTargets(!rodEquipped);
 
         if (playerActions.LassoDown && rodEquipped)
@@ -187,7 +216,7 @@ public class LassoTetherController : MonoBehaviour
     {
         if (playerActions.LassoUp)
         {
-            playerTether.EndTetherPlacement(false);
+            playerTether.EndTetherPlacement(false, false);
             SwitchLassoState(LassoState.Empty);
         }
     }
@@ -274,9 +303,16 @@ public class LassoTetherController : MonoBehaviour
         if (playerActions.LassoUp)
         {
             playerLasso.SnaredObject.SetRigidbodyConstraints(null);
-            playerTether.EndTetherPlacement(false);
+            playerTether.EndTetherPlacement(false, false);
             playerLasso.HandleObjectReleased();
             SwitchLassoState(LassoState.Empty);
+        }
+
+        if (playerActions.toolSwitchDown)
+        {
+            playerLasso.SnaredObject.SetRigidbodyConstraints(null);
+            playerTether.EndTetherPlacement(false, true);
+            SwitchLassoState(LassoState.Snared);
         }
     }
 
