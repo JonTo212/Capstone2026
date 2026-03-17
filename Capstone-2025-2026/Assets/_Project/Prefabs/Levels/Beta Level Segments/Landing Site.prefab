@@ -8152,7 +8152,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7781376378119593510, guid: e921f0ff453eb134aa0eee01f62922ef, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7875523159986554529, guid: e921f0ff453eb134aa0eee01f62922ef, type: 3}
       propertyPath: m_LocalPosition.x
@@ -8194,7 +8194,9 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 4836035804338899862, guid: e921f0ff453eb134aa0eee01f62922ef, type: 3}
+    - {fileID: 8554899571419788029, guid: e921f0ff453eb134aa0eee01f62922ef, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
@@ -9185,7 +9187,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 5742810895795825008, guid: 6b32aba86af3aa84d8b237c347bdf5cb, type: 3}
       propertyPath: m_Enabled
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6103059628076599461, guid: 6b32aba86af3aa84d8b237c347bdf5cb, type: 3}
       propertyPath: m_Name
@@ -9252,19 +9254,10 @@ PrefabInstance:
       addedObject: {fileID: 2112258567031639254}
     - targetCorrespondingSourceObject: {fileID: 6103059628076599461, guid: 6b32aba86af3aa84d8b237c347bdf5cb, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1897176588663538757}
-    - targetCorrespondingSourceObject: {fileID: 6103059628076599461, guid: 6b32aba86af3aa84d8b237c347bdf5cb, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 6902070050723084279}
-    - targetCorrespondingSourceObject: {fileID: 6103059628076599461, guid: 6b32aba86af3aa84d8b237c347bdf5cb, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 7807800676521699925}
     - targetCorrespondingSourceObject: {fileID: 6103059628076599461, guid: 6b32aba86af3aa84d8b237c347bdf5cb, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7403524582769614600}
-    - targetCorrespondingSourceObject: {fileID: 6103059628076599461, guid: 6b32aba86af3aa84d8b237c347bdf5cb, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1166839499646137802}
   m_SourcePrefab: {fileID: 100100000, guid: 6b32aba86af3aa84d8b237c347bdf5cb, type: 3}
 --- !u!1 &1659836809074714701 stripped
 GameObject:
@@ -9298,62 +9291,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &1897176588663538757
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1659836809074714701}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Outline
-  outlineState: 0
-  outlineMode: 0
-  outlineColor: {r: 1, g: 1, b: 1, a: 1}
-  outlineWidth: 2
-  precomputeOutline: 0
-  bakeKeys: []
-  bakeValues: []
---- !u!114 &6902070050723084279
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1659836809074714701}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0230c2eb0d3749c4aa55d9ebbea89bf2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BreakablePluckupProp
-  debugThisProp: 0
-  coyoteFallDelay: 0.3
-  slowFall: 1
-  attachedTethers: []
-  connectedObject: []
-  connectedAnchors: []
-  <CanHoldWhileStandingOn>k__BackingField: 0
-  <GrabPoints>k__BackingField: []
-  <FaceRows>k__BackingField: 0
-  <FaceColumns>k__BackingField: 0
-  pluckHorizontally: 0
-  pluckForceMin: 50
-  pluckDelay: 0.5
-  verticalForceMultiplier: 1
-  horizontalForceMultiplier: 1
-  hasBeenPlucked: 0
-  startDist: 0
-  lassoRef: {fileID: 0}
-  groundedVisuals: {fileID: 973981409431608982}
-  propToSpawnAfterBreak: {fileID: 0}
-  numberOfObjectsToSpawn: 1
-  minimumSpeedToBreak: 5
-  spawnImpulseAmount: {x: 0, y: 0}
-  breakOnPluck: 0
-  endSequeenceTracker: {fileID: 7807800676521699925}
 --- !u!114 &7807800676521699925
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9409,20 +9346,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &1166839499646137802
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1659836809074714701}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ef972df3a020c6643b8526974815cdcd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Nail
-  nailNumber: 0
-  tracker: {fileID: 7807800676521699925}
 --- !u!4 &2036537856774927095 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6915766278241702431, guid: 6b32aba86af3aa84d8b237c347bdf5cb, type: 3}
