@@ -20,6 +20,8 @@ public class PickupNPCProp : Prop
     //particles
     [SerializeField] private ParticleSystem dustParticle;
 
+    public EndSequeenceTracker endTrack;
+
 
 
 
@@ -52,6 +54,8 @@ public class PickupNPCProp : Prop
 
         //tell UI that you got a puff
         critterInstanceScript.BeRescued();
+
+        if(endTrack) endTrack.EndSequence();
 
         if (keyNPC) KeyNPCAction();// make npc summon object or destory object
     }
