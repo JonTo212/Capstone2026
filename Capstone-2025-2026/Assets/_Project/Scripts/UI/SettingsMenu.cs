@@ -14,22 +14,19 @@ public enum WindowMode
 
 public class SettingsMenu : MonoBehaviour
 {
+    [Header("Audio")]
     [SerializeField] private AudioMixer myMixer;
     [SerializeField] private Slider masterSlider;
-
     [SerializeField] private Slider soundSlider;
-
     [SerializeField] private Slider ambienceSlider;
-    
     [SerializeField] private Slider musicSlider;
 
-    //[SerializeField] private CinemachineInputAxisController inputAxisController;
+    [Header("Sensitivity")]
     [SerializeField] private Slider xSensitivitySlider;
     [SerializeField] private Slider ySensitivitySlider;
-    //[SerializeField] private SpecialCameraController specialCameraController;
-    [SerializeField] private ZeldaCameraController cameraController;
-    [SerializeField] private PlayerActions input;
+    [SerializeField] private CameraModeController camController;
 
+    [Header("Screen Scale")]
     [SerializeField] private TextMeshProUGUI windowModeText;
     private WindowMode windowMode = WindowMode.fullScreen;
 
@@ -49,6 +46,7 @@ public class SettingsMenu : MonoBehaviour
         Music = FMODUnity.RuntimeManager.GetBus("bus:/Master/Music");
         SFX = FMODUnity.RuntimeManager.GetBus("bus:/Master/SFX");
         Ambience = FMODUnity.RuntimeManager.GetBus("bus:/Master/Ambience");
+
         StartCoroutine(InitializeSettings());
     }
 
@@ -89,17 +87,17 @@ public class SettingsMenu : MonoBehaviour
 
     public void SetXSensitivity()
     {
-        cameraController.SetBaseXSensitivity(xSensitivitySlider.value);
+        camController.SetBaseXSensitivity(xSensitivitySlider.value);
     }
 
     public void SetYSensitivity()
     {
-        cameraController.SetBaseYSensitivity(ySensitivitySlider.value);
+        camController.SetBaseYSensitivity(ySensitivitySlider.value);
     }
 
     public void WindowModeButton()
     {
-        if(windowMode == WindowMode.fullScreen)
+        if (windowMode == WindowMode.fullScreen)
         {
             windowMode = WindowMode.windowed;
             windowModeText.SetText("Windowed");

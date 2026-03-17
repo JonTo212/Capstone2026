@@ -22,6 +22,11 @@ public class CameraCutsceneHandler : MonoBehaviour
     private bool _isBlendingIn = false;
     private float _blendStartTime;
     public bool BlendingIn => _isBlendingIn;
+
+    private bool _isBlendingOut = false;
+    private float _blendOutStartTime;
+    public bool BlendingOut => _isBlendingOut;
+
     public CutsceneBase CurrentCutscene => _cutscene;
 
     private void Awake()
@@ -68,7 +73,6 @@ public class CameraCutsceneHandler : MonoBehaviour
         _cutscene.SetBlendDelayActive(false);
 
         _blendStartTime = Time.time;
-
         if (_cutscene.BlendInTime > 0f) yield return new WaitForSeconds(_cutscene.BlendInTime);
         _isBlendingIn = false;
 
@@ -104,7 +108,6 @@ public class CameraCutsceneHandler : MonoBehaviour
         }
 
         if (!_cutscene.IsPlaying) return;
-
         _cutscene.OnCutsceneTick();
     }
 
@@ -132,6 +135,7 @@ public class CameraCutsceneHandler : MonoBehaviour
         StopAllCoroutines();
 
         _isBlendingIn = false;
+        _isBlendingOut = false;
 
         if (cameraController != null)
         {
@@ -173,5 +177,20 @@ public class CameraCutsceneHandler : MonoBehaviour
         if (cameraController == null) return;
         Vector3 current = cameraController.GetTargetOffset();
         cameraController.SetTargetOffset(Vector3.Lerp(current, target, speed * Time.deltaTime));
+    }
+
+    public void SetCameraScreenOffsetDirect(Vector2 offset)
+    {
+        cameraController?.SetScreenOffset(offset);
+    }
+
+    public void SetCameraTargetOffsetDirect(Vector3 offset)
+    {
+        cameraController?.SetTargetOffset(offset);
+    }
+
+    public void SetCameraZOffsetDirect(float offset)
+    {
+        cameraController?.SetZOffset(offset);
     }
 }

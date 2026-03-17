@@ -20,16 +20,25 @@ public class PickupNPCProp : Prop
     //particles
     [SerializeField] private ParticleSystem dustParticle;
 
+    private NPCKeyCutscene spawnCutscene;
 
-
+    [SerializeField] private Transform cutsceneStartPos;
+    [SerializeField] private Transform lookAtTarget;
+    [SerializeField] private float cutsceneDuration;
+    [SerializeField] private float cutsceneHoldFraction;
+    [SerializeField] private float cutsceneBlendInDelay;
+    [SerializeField] private float cutsceneBlendInTime;
+    [SerializeField] private EndSequeenceTracker endTrack;
 
 
     private void Awake()
     {
-        critterInstanceScript = GetComponent<CritterInstance>();
-
         base.Init();
+
+        critterInstanceScript = GetComponent<CritterInstance>();
+        spawnCutscene = Camera.main.GetComponent<NPCKeyCutscene>();
         defaultLocalScale = transform.localScale;
+
 
         //disable objects if its a key npc
         if (keyNPC)
@@ -48,7 +57,9 @@ public class PickupNPCProp : Prop
 
         DestroyAllAttachedTethers();
 
+
         RuntimeManager.PlayOneShot("event:/NPCSave", transform.position);
+        if(endTrack) endTrack.EndSequence();
 
         //tell UI that you got a puff
         critterInstanceScript.BeRescued();
@@ -63,27 +74,38 @@ public class PickupNPCProp : Prop
 
 
         //enable objects
-        foreach (Transform t in objectsToEnable)
+        if (objectsToEnable.Length > 0)
         {
-            t.gameObject.SetActive(true);
+            foreach (Transform t in objectsToEnable)
+            {
+                if (t == null) continue;
+                t.gameObject.SetActive(true);
 
-            //FX
-            RuntimeManager.PlayOneShot("event:/Fanfare", t.position);
-            // Spawn particle
-            Instantiate(dustParticle, t.position, Quaternion.identity);
-
+                //FX
+                RuntimeManager.PlayOneShot("event:/Fanfare", t.position);
+                // Spawn particle
+                Instantiate(dustParticle, t.position, Quaternion.identity);
+            }
         }
 
         //destroy objects
-        foreach (Transform t in objectsToDestroy)
+        if (objectsToDestroy.Length > 0)
         {
-            Destroy(t.gameObject);
+            foreach (Transform t in objectsToDestroy)
+            {
+                if (t == null) continue;
+                Destroy(t.gameObject);
 
-            //FX
-            RuntimeManager.PlayOneShot("event:/WallBreak", transform.position);
-            // Spawn particle
-            Instantiate(dustParticle, t.position, Quaternion.identity);
+                //FX
+                RuntimeManager.PlayOneShot("event:/WallBreak", transform.position);
+                // Spawn particle
+                Instantiate(dustParticle, t.position, Quaternion.identity);
+            }
         }
+
+        spawnCutscene.Configure(cutsceneStartPos, lookAtTarget, cutsceneDuration, cutsceneHoldFraction, cutsceneBlendInDelay, cutsceneBlendInTime);
+        CameraCutsceneHandler.Instance.StartCutscene(spawnCutscene);
+
     }
 
     public override void ActivateOutline(bool activate)

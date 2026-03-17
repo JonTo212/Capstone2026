@@ -93,7 +93,6 @@ public class EndSequeenceTracker : MonoBehaviour
     public void EndSequence()
     {
         //Play Scene
-        DisabledThings();
         GetComponent<Animator>().enabled = true;
 
         Debug.Log("THE END SCENE HAPPENED");
@@ -115,6 +114,7 @@ public class EndSequeenceTracker : MonoBehaviour
 
     public void StartPillar()
     {
+        Pillar.gameObject.SetActive(true);
         Pillar.enabled = true;
     }
 
@@ -122,6 +122,7 @@ public class EndSequeenceTracker : MonoBehaviour
     {
         SpaceShip.enabled = true;
         DisabledThings();
+        EnabledThings();
     }
 
 

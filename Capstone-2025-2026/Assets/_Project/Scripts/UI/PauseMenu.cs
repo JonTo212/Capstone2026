@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
@@ -15,32 +14,31 @@ public class PauseMenu : MonoBehaviour
     public GameObject settingsFirst;
     public GameObject menuFirst;
 
-    public PlayerActions playerActions;
+    private void Start()
+    {
+        pauseMenuScreen.SetActive(false);
+        settingsUI.SetActive(false);
+    }
 
-    // Update is called once per frame
     void Update()
     {
-        if (playerActions.MenuDown)
+        if (PlayerActions.Instance.MenuDown)
         {
             if (gameIsPaused)
-            {
                 Resume();
-            }
             else
-            {
                 Pause();
-            }
         }
 
-        /*
         if(!gameIsPaused)
         {
-            Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
         }
-        */
     }
+
     #region PauseDefaults
+
     public void Resume()
     {
         Cursor.visible = false;
@@ -50,7 +48,8 @@ public class PauseMenu : MonoBehaviour
         //missionImageUI.SetActive(true);
         Time.timeScale = 1f;
         gameIsPaused = false;
-        playerActions.EnableAllInput();
+        PlayerActions.Instance.EnableAllInput();
+        EventSystem.current.SetSelectedGameObject(null);
     }
 
     public void Pause()
@@ -62,10 +61,9 @@ public class PauseMenu : MonoBehaviour
         gameIsPaused = true;
         //critterUI.SetActive(false);
         //missionImageUI.SetActive(false);
-        playerActions.DisableAllInput();
+        PlayerActions.Instance.DisableAllInput();
         EventSystem.current.SetSelectedGameObject(menuFirst);
     }
-
 
     public void ReturnToTitle()
     {
@@ -93,10 +91,10 @@ public class PauseMenu : MonoBehaviour
 
     public void allBack()
     {
-        settingsUI.SetActive(false) ;
-        pauseMenuUI.SetActive(true) ;
-
+        settingsUI.SetActive(false);
+        pauseMenuUI.SetActive(true);
         EventSystem.current.SetSelectedGameObject(null);
     }
+
     #endregion
 }
