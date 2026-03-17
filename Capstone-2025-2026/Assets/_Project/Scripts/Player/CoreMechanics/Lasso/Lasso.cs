@@ -325,7 +325,9 @@ public class Lasso : MonoBehaviour
 
             else
             {
-                AnchorDist = Mathf.Clamp(Vector3.Distance(prop.transform.position, transform.position), minLassoRange, maxLassoRange);
+                AnchorDist = Mathf.Clamp(Vector3.Distance(hit.Value.transform.position, transform.position), minLassoRange, maxLassoRange);
+
+                //AnchorDist = Mathf.Clamp(Vector3.Distance(prop.transform.position, transform.position), minLassoRange, maxLassoRange);
                 _attachPointLocal = prop.transform.InverseTransformPoint(hit.Value.point);
             }
         }
