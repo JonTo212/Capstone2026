@@ -43,7 +43,7 @@ public class UISelectable : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
         _hoveredElement = this;
         _lastHovered = this;
         EventSystem.current.SetSelectedGameObject(gameObject);
-        PlayerActions.Instance.RumbleFor(0.1f, 0.2f, 0.1f);
+        if(PlayerActions.Instance != null) PlayerActions.Instance.RumbleFor(0.1f, 0.2f, 0.1f);
     }
 
     //on mouse exit, deselect
@@ -56,7 +56,7 @@ public class UISelectable : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 
     public void OnSelect(BaseEventData eventData)
     {
-        PlayerActions.Instance.RumbleFor(0.1f, 0.2f, 0.1f);
+        if (PlayerActions.Instance != null) PlayerActions.Instance.RumbleFor(0.1f, 0.2f, 0.1f);
     
         if (_hoveredElement != this)
             PlayHoverSound();

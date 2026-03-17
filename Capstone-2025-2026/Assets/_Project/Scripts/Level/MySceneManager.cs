@@ -1,8 +1,9 @@
 //using UnityEditor.SearchService;
+using DG.Tweening;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
-using DG.Tweening;
 
 public class MySceneManager : MonoBehaviour
 {
@@ -14,9 +15,12 @@ public class MySceneManager : MonoBehaviour
     //public GameObject goalScreen;
 
     public ScreenTransitions transitions;
+
+    public GameObject firstButton;
     private void Start()
     {
         transitions = FindAnyObjectByType<ScreenTransitions>();
+        if(firstButton)EventSystem.current.SetSelectedGameObject(firstButton);
     }
 
     public void LoadNewScene(int sceneIndex)
