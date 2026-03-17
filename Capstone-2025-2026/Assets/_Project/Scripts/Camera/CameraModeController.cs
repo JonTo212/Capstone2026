@@ -80,8 +80,13 @@ public class CameraModeController : MonoBehaviour
     private float currentTargetDistance;
     private Vector2 optimalFraming;
 
+    public static CameraModeController Instance { get; private set; }
+
     private void Awake()
     {
+        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+        Instance = this;
+
         if (cameraController == null)
             cameraController = GetComponent<ZeldaCameraController>();
 
@@ -104,12 +109,22 @@ public class CameraModeController : MonoBehaviour
         baseSensitivityY = cameraController.GetMouseYSensitivity();
     }
 
+    public (Vector2 screenOffset, Vector3 targetOffset, float distanceOffset) GetCurrentStateOffsets()
+    {
+        CamState state = lassoTetherController.rodEquipped ? CamState.LassoEquipped : CamState.TetherEquipped;
+        CameraStateSettings? settings = GetSettingsForState(state);
+        Vector2 screen = settings.HasValue ? settings.Value.screenOffset : defaultScreenOffset;
+        Vector3 target = settings.HasValue ? defaultTargetOffset + settings.Value.targetOffset : defaultTargetOffset;
+        float distance = settings.HasValue ? settings.Value.distanceOffset : 0f;
+        return (screen, target, distance);
+    }
+
     private void Update()
     {
         if (CameraCutsceneHandler.Instance != null && CameraCutsceneHandler.Instance.IsActive())
-        {
+        {                
             CutsceneBase current = CameraCutsceneHandler.Instance.CurrentCutscene;
-            if (current != null && current is RopeSwingCutscene)
+            if (current != null && current is PlayerCutsceneBase)
             {
                 _wasInCutscene = true;
                 return;
@@ -132,6 +147,24 @@ public class CameraModeController : MonoBehaviour
                 TetherModeCamera();
                 break;
         }
+    }
+
+    public void ForceSnapToCurrentState()
+    {
+        CamState correctState = lassoTetherController.rodEquipped ? CamState.LassoEquipped : CamState.TetherEquipped;
+
+        CameraStateSettings? settings = GetSettingsForState(correctState);
+
+        currentScreenOffset = settings.HasValue ? settings.Value.screenOffset : defaultScreenOffset;
+        currentTargetOffset = settings.HasValue ? defaultTargetOffset + settings.Value.targetOffset : defaultTargetOffset;
+        currentDistanceOffset = settings.HasValue ? settings.Value.distanceOffset : 0f;
+
+        cameraController.SetScreenOffset(currentScreenOffset);
+        cameraController.SetTargetOffset(currentTargetOffset);
+        cameraController.SetZOffset(currentDistanceOffset);
+
+        float targetDistance = defaultDistance + (settings.HasValue ? settings.Value.distanceOffset : 0f);
+        cameraController.SnapDistance(targetDistance);
     }
 
     private void LassoModeCamera()
@@ -171,28 +204,29 @@ public class CameraModeController : MonoBehaviour
 
     private void TetherModeCamera()
     {
-        cameraController.SetDistanceLimit(10f);
+        cameraController.SetCollisionSmoothTimeOverride(null);
+        cameraController.SetPitchSmoothOverride(null);
+        cameraController.SetDistanceLimit(defaultDistance);
+        hasSnappedToLasso = false;
+
+        cameraController.SetVerticalClamp(null, null);
+        _lassoAboveClamp = false;
+        _lassoBelowClamp = false;
+        if (lassoTetherController.Lasso != null)
+            lassoTetherController.Lasso.SuppressLiftInput = false;
+
         ApplyCameraStateSettings(CamState.Tether, tetherModeAdjustSpeed);
         ApplySensitivity(tetherSensMultiplier, tetherSensMultiplier);
     }
 
     private void ResetCamera()
     {
-        if (_wasInCutscene)
-        {
-            currentScreenOffset = cameraController.GetScreenOffset();
-            currentTargetOffset = cameraController.GetTargetOffset();
-            _wasInCutscene = false;
-        }
-
         cameraController.SetCollisionSmoothTimeOverride(null);
         cameraController.SetPitchSmoothOverride(null);
         cameraController.SetDistanceLimit(defaultDistance);
         hasSnappedToLasso = false;
 
-        ApplyCameraStateSettings(
-            lassoTetherController.rodEquipped ? CamState.LassoEquipped : CamState.TetherEquipped,
-            defaultAdjustSpeed);
+        ApplyCameraStateSettings(lassoTetherController.rodEquipped ? CamState.LassoEquipped : CamState.TetherEquipped, defaultAdjustSpeed);
 
         currentTargetDistance = defaultDistance;
         ApplySensitivity(1f, 1f);
@@ -226,7 +260,7 @@ public class CameraModeController : MonoBehaviour
 
         cameraController.SetScreenOffset(currentScreenOffset);
         cameraController.SetTargetOffset(currentTargetOffset);
-        cameraController.SetDistance(defaultDistance + currentDistanceOffset);
+        cameraController.SetZOffset(currentDistanceOffset);
 
         cameraController.SetYAxisLocked(lockY);
         cameraController.SetXAxisLocked(lockX);

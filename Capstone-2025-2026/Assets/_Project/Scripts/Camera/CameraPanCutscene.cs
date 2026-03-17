@@ -2,7 +2,6 @@ using UnityEngine;
 
 public class CameraPanCutscene : CameraCutsceneBase
 {
-    [SerializeField] private GameObject panTarget;
     [SerializeField] private Transform[] midPoints;
     [SerializeField] private CutsceneBase nextCutscene;
 
@@ -17,21 +16,27 @@ public class CameraPanCutscene : CameraCutsceneBase
     public override void OnCutsceneStart()
     {
         base.OnCutsceneStart();
+
         HandleScripts(false);
+        PlayerActions.Instance.ChangeSpecificInput("Move", false);
+        PlayerActions.Instance.ChangeSpecificInput("Look", false);
+
+        /*ZeldaCameraController zeldaCam = cam.GetComponent<ZeldaCameraController>();
+        if (zeldaCam != null) zeldaCam.SetFrozen(true);*/
     }
 
     public override void OnCutsceneTick()
     {
         base.OnCutsceneTick();
         cam.transform.position = GetCatmullRomPosition(T);
-        cam.transform.LookAt(panTarget.transform.position);
+        cam.transform.LookAt(lookAtTarget.transform.position);
     }
 
     public override void OnCutsceneEnd()
     {
         base.OnCutsceneEnd();
         cam.transform.position = endPos.position;
-        cam.transform.LookAt(panTarget.transform.position);
+        cam.transform.LookAt(lookAtTarget.transform.position);
 
         if (nextCutscene != null)
             CameraCutsceneHandler.Instance.StartCutscene(nextCutscene);

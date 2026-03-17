@@ -27,6 +27,7 @@ public class PlayerLedgeGrab : MonoBehaviour
     private Vector3 grabPosLocal;
     private Collider grabbedLedgeCollider;
     private Quaternion _localLedgeRotation;
+    private Vector3 _grabWallNormal;
     public event Action<bool> OnMantle;
 
     public bool IsHanging { get; private set; }
@@ -70,13 +71,12 @@ public class PlayerLedgeGrab : MonoBehaviour
             return;
         }
 
-
         if (_playerController.IsGrounded()) canGrab = true;
     }
 
     private void FixedUpdate()
     {
-        if(IsHanging && grabbedLedge != null && _mantleCoroutine == null)
+        if (IsHanging && grabbedLedge != null && _mantleCoroutine == null)
         {
             //convert relative ledge location back to world space and move rigidbody to follow it
             Vector3 worldGrabPos = grabbedLedge.TransformPoint(grabPosLocal);
@@ -98,7 +98,6 @@ public class PlayerLedgeGrab : MonoBehaviour
         return canGrab && notHanging && aboveMinHeight;
     }
 
-
     private Vector3? CheckForLedge()
     {
         if (Physics.SphereCast(transform.position, coneRadius, forwardRef.forward, out RaycastHit sphereHit, forwardCheckDistance, grabbableLayers))
@@ -115,7 +114,6 @@ public class PlayerLedgeGrab : MonoBehaviour
                 return ValidateLedge(wallHit);
             }
         }
-
 
         return null;
     }
@@ -148,8 +146,16 @@ public class PlayerLedgeGrab : MonoBehaviour
 
             //desired position is 2nd spot moved backwards to accommodate for player size, then back down to accommodate for player's height
             Vector3 upOffset = Vector3.down * (_playerCol.height * verticalCheckDistance / 2f);
-            Vector3 backOffset = -forwardRef.forward * _playerCol.radius * 2f;
+            Vector3 wallBack = new Vector3(forwardHit.normal.x, 0f, forwardHit.normal.z).normalized;
+            _grabWallNormal = wallBack; // bake for use in CalculateMantleTarget
+            Vector3 backOffset = wallBack * _playerCol.radius * 2f;
             Vector3 target = topHit.point + backOffset + upOffset;
+
+            Vector3 snapOrigin = new Vector3(target.x, topHit.point.y + _playerCol.height, target.z);
+            if (Physics.Raycast(snapOrigin, Vector3.down, out RaycastHit surfaceCheck, _playerCol.height * 2f, grabbableLayers, QueryTriggerInteraction.Ignore))
+            {
+                target.y = surfaceCheck.point.y + (_playerCol.height * verticalCheckDistance / 2f);
+            }
 
             //save relative location to the ledge for movement tracking
             grabbedLedge = topHit.transform;
@@ -164,7 +170,6 @@ public class PlayerLedgeGrab : MonoBehaviour
 
     private void HangOnLedge(Vector3 ledgePos)
     {
-        //_playerController.PlayerInput.ChangeSpecificInput("Move", false);
         Quaternion initialRot = grabbedLedge.rotation * _localLedgeRotation;
         _playerController.Rb.MovePosition(ledgePos);
         _playerController.EnableGravity(false);
@@ -182,7 +187,6 @@ public class PlayerLedgeGrab : MonoBehaviour
         hangTimer = 0;
         IsHanging = true;
         RuntimeManager.PlayOneShot("event:/Mantle", transform.position);
-
     }
 
     private void ReleaseLedge()
@@ -229,6 +233,7 @@ public class PlayerLedgeGrab : MonoBehaviour
 
         Vector3 startPos = _playerController.Rb.position;
         Vector3 climbPos = new Vector3(startPos.x, targetPos.y, startPos.z);
+        targetPos = SafeMantleTarget(targetPos);
 
         //first half -> climb upwards
         float timer = 0;
@@ -280,14 +285,30 @@ public class PlayerLedgeGrab : MonoBehaviour
     {
         Vector3 hangWorldPos = grabbedLedge.TransformPoint(grabPosLocal);
 
+        //use wall normal baked at grab time
         Vector3 upOffset = Vector3.down * (_playerCol.height * verticalCheckDistance / 2f);
-        Vector3 backOffset = -forwardRef.forward * _playerCol.radius * 2f;
+        Vector3 backOffset = _grabWallNormal * _playerCol.radius * 2f;
         Vector3 topHitPoint = hangWorldPos - backOffset - upOffset;
 
         Vector3 mantleUpOffset = Vector3.up * (_playerCol.height * 0.5f);
-        Vector3 mantleBackOffset = -forwardRef.forward * _playerCol.radius / 2f;
+        Vector3 mantleBackOffset = _grabWallNormal * _playerCol.radius / 2f;
         Vector3 mantleTarget = topHitPoint + mantleUpOffset + mantleBackOffset;
 
         return mantleTarget;
+    }
+
+    private Vector3 SafeMantleTarget(Vector3 candidate)
+    {
+        float castOriginHeight = _playerCol.height;
+        Vector3 castOrigin = new Vector3(candidate.x, candidate.y + castOriginHeight, candidate.z);
+
+        float castRange = castOriginHeight + _playerCol.height * 0.5f;
+
+        if (Physics.Raycast(castOrigin, Vector3.down, out RaycastHit hit, castRange, grabbableLayers, QueryTriggerInteraction.Ignore))
+        {
+            candidate.y = hit.point.y + _playerCol.height * 0.5f;
+        }
+
+        return candidate;
     }
 }

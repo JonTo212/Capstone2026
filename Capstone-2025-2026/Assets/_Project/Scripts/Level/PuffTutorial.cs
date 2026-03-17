@@ -11,10 +11,19 @@ public class PuffTutorial : PluckOutProp
 
     public CritterInstance CritterInstanceScript;
     [SerializeField] private GameObject grabIndicator;
+    private NPCKeyCutscene spawnCutscene;
+
+    [SerializeField] private Transform cutsceneStartPos;
+    [SerializeField] private Transform lookAtTarget;
+    [SerializeField] private float cutsceneDuration;
+    [SerializeField] private float cutsceneHoldFraction;
+    [SerializeField] private float cutsceneBlendInDelay;
+    [SerializeField] private float cutsceneBlendInTime;
 
     private void Awake()
     {
         Init();
+        spawnCutscene = Camera.main.GetComponent<NPCKeyCutscene>();
     }
 
     public override void ActivateOutline(bool activate)
@@ -31,6 +40,8 @@ public class PuffTutorial : PluckOutProp
         //helpText.gameObject.SetActive(false);
 
         CritterInstanceScript.BeRescued(); // this tells eloras UI to add guy as saved
+        spawnCutscene.Configure(cutsceneStartPos, lookAtTarget, cutsceneDuration, cutsceneHoldFraction, cutsceneBlendInDelay, cutsceneBlendInTime);
+        CameraCutsceneHandler.Instance.StartCutscene(spawnCutscene);
 
         RuntimeManager.PlayOneShot("event:/Pluck", transform.position);
         savedFishTransform.gameObject.SetActive(true);

@@ -8,6 +8,7 @@ public class DynamicCrosshair : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        if (tetherPlacer == null) tetherPlacer = GameObject.FindWithTag("Player").GetComponent<JointTetherPlacer>();
         tetherPlacer.OnPlacementValidityUpdate += UpdateCrosshair;
     }
 

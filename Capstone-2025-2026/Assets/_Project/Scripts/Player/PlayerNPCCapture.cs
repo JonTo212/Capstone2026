@@ -117,7 +117,9 @@ public class PlayerNPCCapture : MonoBehaviour
         OnObjectYankCompleted?.Invoke();
         _objectYankCoroutine = null;
         _playerInput.EnableAllInput();
-        Destroy(prop.gameObject);
+
+        PlayerActions.Instance.RumbleFor(0.2f, 0.4f, 0.1f);
+        prop.gameObject.SetActive(false);
     }
 
     #endregion
