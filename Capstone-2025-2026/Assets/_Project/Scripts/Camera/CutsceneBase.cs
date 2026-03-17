@@ -2,15 +2,15 @@ using UnityEngine;
 
 public abstract class CutsceneBase : MonoBehaviour
 {
-    [field: SerializeField] public float Duration { get; private set; }
-    [field: SerializeField] public float BlendInDelay { get; private set; }
-    [field: SerializeField] public float BlendInTime { get; private set; }
-    [field: SerializeField] public float BlendOutTime { get; private set; }
-    [field: SerializeField] public bool Skippable { get; private set; } = true;
+    [field: SerializeField] public float Duration { get; protected set; }
+    [field: SerializeField] public float BlendInDelay { get; protected set; }
+    [field: SerializeField] public float BlendInTime { get; protected set; }
+    [field: SerializeField] public float BlendOutTime { get; protected set; }
+    [field: SerializeField] public bool Skippable { get; protected set; } = true;
 
-    public float T { get; private set; }
-    public bool IsPlaying { get; private set; }
-    public bool BlendDelayActive { get; private set; }
+    public float T { get; protected set; }
+    public bool IsPlaying { get; protected set; }
+    public bool BlendDelayActive { get; protected set; }
     protected float Elapsed { get; private set; }
 
     public virtual void OnCutscenePrepare() { }
@@ -27,7 +27,9 @@ public abstract class CutsceneBase : MonoBehaviour
         Elapsed += Time.fixedDeltaTime;
         T = Mathf.Clamp01(Elapsed / Duration);
     }
+
     public virtual void OnBlendTick(float t) { }
+    public virtual void OnBlendOutTick(float t) { }
     public virtual void OnCutsceneSkip() { }
     public virtual void OnCutsceneEnd()
     {

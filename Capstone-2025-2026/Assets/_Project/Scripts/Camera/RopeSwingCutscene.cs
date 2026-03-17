@@ -78,6 +78,8 @@ public class RopeSwingCutscene : PlayerCutsceneBase
 
         if (playerModelRotation != null)
             playerModelRotation.SetNewRotationDir(null, true);
+
+        PlayerActions.Instance.RumbleFor(0.015f, 0.03f, Duration);
     }
 
     public override void OnCutsceneTick()
@@ -96,6 +98,16 @@ public class RopeSwingCutscene : PlayerCutsceneBase
         _previousPos = basePos;
 
         UpdateSway(T, _currentSpeed);
+
+        float blendOutStart = 1f - (BlendOutTime / Duration);
+        if (T >= blendOutStart)
+        {
+            float blendT = Mathf.Clamp01((T - blendOutStart) / (BlendOutTime / Duration));
+            var (lassoScreen, lassoTarget, lassoDistance) = CameraModeController.Instance.GetCurrentStateOffsets();
+            CameraCutsceneHandler.Instance?.SetCameraScreenOffsetDirect(Vector2.Lerp(cameraScreenOffset, lassoScreen, blendT));
+            CameraCutsceneHandler.Instance?.SetCameraTargetOffsetDirect(Vector3.Lerp(cameraTargetOffset, lassoTarget, blendT));
+            CameraCutsceneHandler.Instance?.SetCameraZOffsetDirect(Mathf.Lerp(0f, lassoDistance, blendT));
+        }
     }
 
     public override void OnCutsceneSkip()
@@ -123,7 +135,7 @@ public class RopeSwingCutscene : PlayerCutsceneBase
             playerModelRotation.SetNewRotationDir(Quaternion.LookRotation(finalForward), false);
 
         _bakedPlayerPath = null;
-        CameraCutsceneHandler.Instance.SetCameraPositionDamping(null);
+        CameraCutsceneHandler.Instance?.SetCameraPositionDamping(null);
     }
 
     public override void OnCutsceneLateUpdate()

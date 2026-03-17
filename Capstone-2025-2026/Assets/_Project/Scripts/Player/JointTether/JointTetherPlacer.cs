@@ -52,7 +52,6 @@ public class JointTetherPlacer : MonoBehaviour
     [SerializeField] private Vector3 startLocalPosition;
     [SerializeField] private Vector3 endLocalPosition;
     [SerializeField] private TMP_Text tetherAmountText;
-    [SerializeField] private TMP_Text tetherControlsText;
     public float originalAmountTextPosition;
     public event Action<bool> OnPlacementValidityUpdate;
     public event Action OnTetherStartHit;
@@ -161,9 +160,9 @@ public class JointTetherPlacer : MonoBehaviour
         //OnTetherStartHit?.Invoke();
     }
 
-    public void EndTetherPlacement(bool autoActivate)
+    public void EndTetherPlacement(bool autoActivate, bool cancelTetherPlacement)
     {
-        if (didStartPointHit)
+        if (didStartPointHit && !cancelTetherPlacement)
         {
             if (GetObjectInPlayerFront(out RaycastHit hit) && hit.transform != startTransform && Vector3.Distance(startWorldLocation, hit.point) < maxTetherLength)
             {
@@ -186,6 +185,7 @@ public class JointTetherPlacer : MonoBehaviour
                 }
             }
         }
+
         DeletePreviewTetherLine();
         ResetVariables();
         tetherRangeSphere.gameObject.SetActive(false);
@@ -207,6 +207,7 @@ public class JointTetherPlacer : MonoBehaviour
 
         //AudioManager.Instance.PlaySFX(AudioManager.Instance.TetherStart, 4, 1f);
         RuntimeManager.PlayOneShot("event:/TetherStart", transform.position);
+        PlayerActions.Instance.RumbleFor(0.2f, 0.4f, 0.1f);
     }
 
     private void SetTetherEndPoint(Transform endTransform, Vector3 endPosition)
@@ -215,7 +216,7 @@ public class JointTetherPlacer : MonoBehaviour
 
         this.endTransform = endTransform;
 
-        if (endTransform.gameObject.TryGetComponent<Prop>(out Prop propComponent))
+        if (endTransform.gameObject.TryGetComponent(out Prop propComponent))
         {
             if (propComponent.CheckNearestGrabPoint(endPosition) != null)
             {
@@ -228,6 +229,8 @@ public class JointTetherPlacer : MonoBehaviour
 
 
         RuntimeManager.PlayOneShot("event:/TetherEnd", transform.position);
+        PlayerActions.Instance.RumbleFor(2f, 3f, 0.1f);
+
     }
 
     //Creates and initializes tether parameters like hit transforms and positions
@@ -512,18 +515,11 @@ public class JointTetherPlacer : MonoBehaviour
         tetherAmountText.text = "Tethers: " + (maxNumOfTethers - numOfTethersPlaced).ToString() + "/" + maxNumOfTethers.ToString();
         if (numOfTethersPlaced == 0)
         {
-            tetherControlsText.SetText("");
             TextOffScreen();
         }
-        else if (numOfTethersPlaced == 1)
+        else
         {
-            tetherControlsText.SetText("[E]: Activate Selected Tether\n[C]: Deactivate Selected Tether");
             TextOnScreen();
-        }
-        else if (numOfTethersPlaced > 1)
-        {
-
-            tetherControlsText.SetText("[E]: Activate Selected Tether\nHold [E]: Activate All Tethers\n[C]: Deactivate Selected Tether\nHold [C]: Deactivate all Tethers");
         }
     }
 
