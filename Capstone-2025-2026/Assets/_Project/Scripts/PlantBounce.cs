@@ -20,7 +20,7 @@ public class PlantBounce : MonoBehaviour
             animator.Play("PlantBouncingAnimaion",0,0f);
 
             //instantiate particle
-            particle.Play();
+            if (particle !=null ) particle.Play();
 
 
     }
