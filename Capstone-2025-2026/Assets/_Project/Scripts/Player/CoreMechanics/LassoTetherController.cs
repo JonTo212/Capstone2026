@@ -253,7 +253,7 @@ public class LassoTetherController : MonoBehaviour
         playerLasso.MoveAnchorPointZ(playerActions.GetDPadScrollValue());
         playerLasso.MoveAnchorPointY(playerActions.LookInput.y);
 
-        if (playerActions.toolSwitchDown)
+        if (playerActions.toolSwitchDown && tetherPickedUp)
         {
             if (TetherMode)
             {
@@ -280,7 +280,7 @@ public class LassoTetherController : MonoBehaviour
             playerLasso.HandleObjectReleased();
         }
 
-        if (playerActions.FreeRotateToggleDown)
+        /*if (playerActions.FreeRotateToggleDown)
         {
             if (useObjectManipulationMode)
             {
@@ -292,7 +292,7 @@ public class LassoTetherController : MonoBehaviour
             playerLasso.SnaredObject.DisableJointTemp();
             playerLasso.SetRotating(true);
             SwitchLassoState(LassoState.FreeRotating);
-        }
+        }*/
     }
 
     #endregion
