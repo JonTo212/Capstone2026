@@ -198,7 +198,7 @@ public class LassoTetherController : MonoBehaviour
 
     public void ClearHold()
     {
-        playerLasso.SnaredObject.SetRigidbodyConstraints(null);
+        if(playerLasso.SnaredObject != null) playerLasso.SnaredObject.SetRigidbodyConstraints(null);
         playerTether.EndTetherPlacement(false, true);
         playerLasso.HandleObjectReleased();
         SwitchLassoState(LassoState.Empty);
