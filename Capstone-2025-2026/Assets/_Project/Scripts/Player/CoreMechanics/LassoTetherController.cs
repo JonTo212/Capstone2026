@@ -18,6 +18,8 @@ public enum LassoState
 
 public class LassoTetherController : MonoBehaviour
 {
+    public static LassoTetherController Instance { get; private set; }
+
     [Header("Components")]
     private Lasso playerLasso;
     private PlayerNPCCapture playerNPCCapture;
@@ -47,6 +49,13 @@ public class LassoTetherController : MonoBehaviour
     #region Unity Functions
     private void Awake()
     {
+        if (Instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+
         playerLasso = GetComponent<Lasso>();
         playerActions = GetComponent<PlayerActions>();
         //playerInventory = GetComponent<PlayerNPCHolder>();
@@ -187,6 +196,15 @@ public class LassoTetherController : MonoBehaviour
         SwitchLassoState(LassoState.Empty);
     }
 
+    public void ClearHold()
+    {
+        if(playerLasso.SnaredObject != null) playerLasso.SnaredObject.SetRigidbodyConstraints(null);
+        playerTether.EndTetherPlacement(false, true);
+        playerLasso.HandleObjectReleased();
+        SwitchLassoState(LassoState.Empty);
+
+    }
+
     #endregion
 
     #region Empty Controls
@@ -253,7 +271,7 @@ public class LassoTetherController : MonoBehaviour
         playerLasso.MoveAnchorPointZ(playerActions.GetDPadScrollValue());
         playerLasso.MoveAnchorPointY(playerActions.LookInput.y);
 
-        if (playerActions.toolSwitchDown)
+        if (playerActions.toolSwitchDown && tetherPickedUp)
         {
             if (TetherMode)
             {
@@ -280,7 +298,7 @@ public class LassoTetherController : MonoBehaviour
             playerLasso.HandleObjectReleased();
         }
 
-        if (playerActions.FreeRotateToggleDown)
+        /*if (playerActions.FreeRotateToggleDown)
         {
             if (useObjectManipulationMode)
             {
@@ -292,7 +310,7 @@ public class LassoTetherController : MonoBehaviour
             playerLasso.SnaredObject.DisableJointTemp();
             playerLasso.SetRotating(true);
             SwitchLassoState(LassoState.FreeRotating);
-        }
+        }*/
     }
 
     #endregion

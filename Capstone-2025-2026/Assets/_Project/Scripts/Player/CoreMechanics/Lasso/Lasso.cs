@@ -23,6 +23,7 @@ public class Lasso : MonoBehaviour
     [SerializeField] private float rotationalDampingStrength = 0.5f;
     [SerializeField] private float maxLassoStrength;
     [SerializeField] private float maxLassoTorque;
+    [SerializeField] private float maxForceMultiplierFreeHold = 2f;
     [SerializeField] private bool useSizeScale;
     [SerializeField, Range(0, 1)] private float angularVelMultiplier = 1f;
     private LassoTetherController lassoTetherController;
@@ -325,7 +326,9 @@ public class Lasso : MonoBehaviour
 
             else
             {
-                AnchorDist = Mathf.Clamp(Vector3.Distance(prop.transform.position, transform.position), minLassoRange, maxLassoRange);
+                AnchorDist = Mathf.Clamp(Vector3.Distance(hit.Value.point, transform.position), minLassoRange, maxLassoRange);
+
+                //AnchorDist = Mathf.Clamp(Vector3.Distance(prop.transform.position, transform.position), minLassoRange, maxLassoRange);
                 _attachPointLocal = prop.transform.InverseTransformPoint(hit.Value.point);
             }
         }
@@ -419,16 +422,17 @@ public class Lasso : MonoBehaviour
         SnaredObject.Rb.angularVelocity = axis.normalized * rotationAccel;
     }
 
-
     private Vector3 CalculateLinearForce(Vector3 displacement, Vector3 pointVelocity)
     {
         float springStrength = centerStrength;
+        float maxForce = maxLassoStrength;
+        if (!SnaredObject.IsTetherPulled) maxForce *= maxForceMultiplierFreeHold;
         Vector3 springForce = springStrength * displacement;
         float damping = 2f * Mathf.Sqrt(springStrength * SnaredObject.Rb.mass);
         Vector3 dampingForce = -pointVelocity * damping;
         Vector3 totalForce = springForce + dampingForce;
 
-        totalForce = totalForce.normalized * Mathf.Clamp(totalForce.magnitude, 0f, maxLassoStrength);
+        totalForce = totalForce.normalized * Mathf.Clamp(totalForce.magnitude, 0f, maxForce);
         return totalForce;
     }
 

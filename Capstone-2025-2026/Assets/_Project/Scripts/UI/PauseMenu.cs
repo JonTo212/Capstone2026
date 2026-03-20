@@ -14,6 +14,8 @@ public class PauseMenu : MonoBehaviour
     public GameObject settingsFirst;
     public GameObject menuFirst;
 
+    public PlayerRespawn respawnScript;
+
     private void Start()
     {
         pauseMenuScreen.SetActive(false);
@@ -30,7 +32,7 @@ public class PauseMenu : MonoBehaviour
                 Pause();
         }
 
-        if(!gameIsPaused)
+        if(!gameIsPaused && !DevMenu.Instance.devMenuOpen)
         {
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
@@ -69,6 +71,12 @@ public class PauseMenu : MonoBehaviour
     {
         Time.timeScale = 1f;
         SceneManager.LoadScene("StartMenu");
+    }
+
+    public void HandleRespawn()
+    {
+        respawnScript.StartRespawn();
+        Resume();
     }
 
     #endregion
