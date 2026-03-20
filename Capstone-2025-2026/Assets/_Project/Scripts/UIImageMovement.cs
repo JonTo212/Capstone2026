@@ -1,34 +1,49 @@
 using DG.Tweening;
 using FMODUnity;
+using System.Collections;
+using TMPro;
+using Unity.VisualScripting.Antlr3.Runtime.Tree;
 using UnityEngine;
 using UnityEngine.UI;
 
 
 public class UIImageMovement : MonoBehaviour
 {
-    [SerializeField] private GameObject player;
-    [SerializeField] private LassoTetherController lassoTetherControllerScript;
-    [SerializeField] private PlayerActions playerActionsScript;
+
+    //References
+    private GameObject player;
+    private LassoTetherController lassoTetherControllerScript;
+    private PlayerActions playerActionsScript;
+
+    //Sprite and Object References
+    //[SerializeField] private GameObject tetherIconObject;
+    //[SerializeField] private GameObject toolSwitchIconObject;
+
+    [SerializeField] private RawImage rodImage;
+    [SerializeField] private RawImage tetherImage;
+    [SerializeField] private RawImage selectionRingImage;
+    [SerializeField] private RawImage swapToolImage;
 
 
-    [SerializeField] private GameObject tetherIconObject;
-    [SerializeField] private GameObject toolSwitchIconObject;
-
-    public RawImage RodIcon;
-    public RawImage TetherIcon;
-    public RawImage SwapIcon;
-
-    public Texture RodSprite; // needed to store the origional sprites
-    public Texture TetherSprite; // needed to store the origional sprites
+    //Sprites
+    public Texture tetherSprite;
+    public Texture tetherBrokenSprite; // sprite reference so i can show it being broken and fixed
 
 
-    public Transform location1;
-    public Transform location2;
-
-    
+    //tool locations
+    private RectTransform rodLocation;
+    private RectTransform tetherLocation;
 
     private float timeToMove = 0.5f; //time in seconds to move between points
 
+
+    //TetherCutscene
+    public bool tetherCutsceneActive = false;
+    [SerializeField] private GameObject Tools;
+
+    //Tethertext
+    [SerializeField] private TextMeshProUGUI tetherUnlockedText;
+    [SerializeField] private TextMeshProUGUI tetherUnlockedDescription;
 
     private void Start()
     {
@@ -36,76 +51,78 @@ public class UIImageMovement : MonoBehaviour
         player = GameObject.FindWithTag("Player");
         lassoTetherControllerScript = player.GetComponent<LassoTetherController>();
         playerActionsScript = player.GetComponent<PlayerActions>();
+
+        rodLocation = rodImage.GetComponent<RectTransform>();
+        tetherLocation = tetherImage.GetComponent<RectTransform>();
     }
 
     void Update()
     {
-        /*
-        //disable tether icon untill its picked up
-        if (!lassoTetherControllerScript.tetherPickedUp)
-        {
-            tetherIconObject.SetActive(false);
-            toolSwitchIconObject.SetActive(false);
-            return;
-        }
-        else
-        {
-            tetherIconObject.SetActive(true);
-            toolSwitchIconObject.SetActive(true);
-            TetherIcon.texture = TetherSprite;
-        }
-
-        */
-
         if (playerActionsScript.toolSwitchDown)
         {
             //playsound
-
             RuntimeManager.PlayOneShot("event:/MenuSelect", transform.position);
 
+            //rotate
             RotateIcon();
 
+            //No Tether Yet
+            if (!lassoTetherControllerScript.tetherPickedUp)
+            {
+                //placeholder animation for the switch failing, having issues making the shake work
+                selectionRingImage.transform.DOMove(tetherLocation.position, timeToMove, false);
+            }
         }
 
-        /*
-        if (lassoTetherControllerScript.rodEquipped == true)
+        var lastRodEquipped = lassoTetherControllerScript.rodEquipped;
+        if (lassoTetherControllerScript.rodEquipped != lastRodEquipped)
         {
-            RodEquip();
+            lastRodEquipped = lassoTetherControllerScript.rodEquipped;
+
+            if (lastRodEquipped)
+            {
+                RodEquip();
+            }
+            else
+            {
+                TetherEquip();
+            }
         }
-        else
+
+
+        //tether get sequence
+        if (tetherCutsceneActive)
         {
-            TetherEquip();
+            StartCoroutine(TetherObtainedSequence());
+            tetherCutsceneActive = false;
         }
-        */
     }
 
 
     void RodEquip()
     {
-        //Equip Rod
-        RodIcon.transform.DOMove(location1.position, timeToMove, false);
-        RodIcon.transform.DOScale(location1.localScale, timeToMove);
-        RodIcon.DOColor(new Color(1, 1, 1), timeToMove);
+        //Change selected tool
+        selectionRingImage.transform.DOMove(rodLocation.position, timeToMove, false);
 
-        //Unequip Tether
-        TetherIcon.transform.DOMove(location2.position, timeToMove, false);
-        TetherIcon.transform.DOScale(location2.localScale, timeToMove);
-        TetherIcon.DOColor(new Color(1, 1, 1, 0.6f), timeToMove);
+        //Edit Colors
+        rodImage.DOColor(new Color(1, 1, 1), timeToMove); //Set Rod to full color
+        tetherImage.DOColor(new Color(1, 1, 1, 0.6f), timeToMove); // Set Tether low alpha
+        selectionRingImage.DOColor(new Color(0, 255, 139), .1f);
     }
 
     void TetherEquip()
     {
         if (lassoTetherControllerScript.tetherPickedUp)
         {
-            //Equip Tether
-            TetherIcon.transform.DOMove(location1.position, timeToMove, false);
-            TetherIcon.transform.DOScale(location1.localScale, timeToMove);
-            TetherIcon.DOColor(new Color(1, 1, 1), timeToMove);
 
-            //Unequip Rod
-            RodIcon.transform.DOMove(location2.position, timeToMove, false);
-            RodIcon.transform.DOScale(location2.localScale, timeToMove);
-            RodIcon.DOColor(new Color(1, 1, 1, 0.6f), timeToMove);
+
+            //Change selected tool
+            selectionRingImage.transform.DOMove(tetherLocation.position, timeToMove, false);
+
+            //Edit Colors
+            selectionRingImage.DOColor(new Color(255, 199, 0), .1f);
+            rodImage.DOColor(new Color(1, 1, 1, 0.6f), timeToMove);
+            tetherImage.DOColor(new Color(1, 1, 1), timeToMove);
         }
         else
         {
@@ -117,9 +134,64 @@ public class UIImageMovement : MonoBehaviour
     void RotateIcon()
     {
         //swap icon rotate
-        SwapIcon.transform.DORotate(new Vector3(0, 0, SwapIcon.transform.rotation.eulerAngles.z - 360f), timeToMove, RotateMode.FastBeyond360);
+        swapToolImage.transform.DORotate(new Vector3(0, 0, swapToolImage.transform.rotation.eulerAngles.z - 360f), timeToMove, RotateMode.FastBeyond360);
 
         //play different animation if no tether equipped
 
     }
+
+    IEnumerator TetherObtainedSequence()
+    {
+
+        //start cutscene transition
+
+        //move tools
+        Tools.transform.DOLocalMove(new Vector2(-718f, -359f), timeToMove*3, false);
+        Tools.transform.DOScale(new Vector3(2, 2f, 1), timeToMove*3);
+
+        //remove other UI
+        swapToolImage.DOFade(0, 1);
+        selectionRingImage.DOFade(0, 1);
+
+
+        yield return new WaitForSeconds(3f);
+
+        TetherObtainedSpriteAnimation();
+
+
+        yield return new WaitForSeconds(1f);
+
+        TetherObtainedText(1);
+
+        yield return new WaitForSeconds(3f);
+
+        TetherObtainedText(0);
+
+        //fade back other UI
+        swapToolImage.DOFade(1, timeToMove);
+        selectionRingImage.DOFade(1, timeToMove);
+
+        //move tools
+        Tools.transform.DOLocalMove(new Vector3(0, 0, 0), timeToMove*3, false);
+        Tools.transform.DOScale(new Vector3(1, 1, 1), timeToMove * 3);
+
+        yield return new WaitForSeconds(3f);
+
+    }
+
+    public void TetherObtainedSpriteAnimation()
+    {
+        //update sprite
+        tetherImage.texture = tetherSprite;
+        tetherImage.transform.DOShakePosition(timeToMove, 10, 20, 90, false);
+    }
+
+    public void TetherObtainedText(int alphaValue)
+    {
+        //tetherUnlockedText.SetActive(activeState);//should make it fade niceley
+
+        tetherUnlockedText.DOFade(alphaValue, timeToMove);
+        tetherUnlockedDescription.DOFade(alphaValue, timeToMove*2);
+    }
+
 }
