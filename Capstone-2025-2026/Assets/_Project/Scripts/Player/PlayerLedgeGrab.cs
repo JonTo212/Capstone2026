@@ -2,8 +2,6 @@ using FMODUnity;
 using System;
 using System.Collections;
 using UnityEngine;
-using UnityEngine.InputSystem;
-using static UnityEngine.UI.Image;
 
 public class PlayerLedgeGrab : MonoBehaviour
 {
@@ -20,7 +18,7 @@ public class PlayerLedgeGrab : MonoBehaviour
     [SerializeField] private float maxObjectFollowSpeed;
 
     private CapsuleCollider _playerCol;
-    private PlayerMovement _playerController;
+    private PlayerRefData _playerRefData;
     private float hangTimer;
     private bool canGrab;
     private Transform grabbedLedge;
@@ -35,7 +33,7 @@ public class PlayerLedgeGrab : MonoBehaviour
     private void Awake()
     {
         _playerCol = GetComponent<CapsuleCollider>();
-        _playerController = GetComponent<PlayerMovement>();
+        _playerRefData = GetComponent<PlayerRefData>();
 
         if (forwardRef == null) forwardRef = Camera.main.transform;
         canGrab = true;
@@ -47,13 +45,13 @@ public class PlayerLedgeGrab : MonoBehaviour
         {
             hangTimer += Time.deltaTime;
             bool release = grabbedLedge.TryGetComponent(out Rigidbody rb) && (rb.linearVelocity.magnitude > maxObjectFollowSpeed);
-            bool tooLow = _playerController.IsGrounded();
+            bool tooLow = _playerRefData.PlayerMovement.IsGrounded();
 
-            if (_playerController.PlayerInput.JumpDown)
+            if (PlayerActions.Instance.JumpDown)
             {
                 HandleLedgeJump();
             }
-            else if (_playerController.PlayerInput.MoveInput.y > 0.01f)
+            else if (PlayerActions.Instance.MoveInput.y > 0.01f)
             {
                 ClimbOnLedge(CalculateMantleTarget());
             }
@@ -71,7 +69,7 @@ public class PlayerLedgeGrab : MonoBehaviour
             return;
         }
 
-        if (_playerController.IsGrounded()) canGrab = true;
+        if (_playerRefData.PlayerMovement.IsGrounded()) canGrab = true;
     }
 
     private void FixedUpdate()
@@ -80,10 +78,10 @@ public class PlayerLedgeGrab : MonoBehaviour
         {
             //convert relative ledge location back to world space and move rigidbody to follow it
             Vector3 worldGrabPos = grabbedLedge.TransformPoint(grabPosLocal);
-            _playerController.Rb.MovePosition(worldGrabPos);
+            _playerRefData.PlayerMovement.Rb.MovePosition(worldGrabPos);
 
             Quaternion targetRot = grabbedLedge.rotation * _localLedgeRotation;
-            _playerController.PlayerModelRotationHandler.SetNewRotationDir(targetRot, true);
+            _playerRefData.PlayerModelRotationHandler.SetNewRotationDir(targetRot, true);
         }
     }
 
@@ -171,12 +169,11 @@ public class PlayerLedgeGrab : MonoBehaviour
     private void HangOnLedge(Vector3 ledgePos)
     {
         Quaternion initialRot = grabbedLedge.rotation * _localLedgeRotation;
-        _playerController.Rb.MovePosition(ledgePos);
-        _playerController.EnableGravity(false);
-        _playerController.SetGrabbing(true);
-        _playerController.SetMovementLockTimer(0f);
-        _playerController.Rb.linearVelocity = Vector3.zero;
-        _playerController.Rb.angularVelocity = Vector3.zero;
+        _playerRefData.PlayerMovement.Rb.MovePosition(ledgePos);
+        _playerRefData.PlayerMovement.EnableGravity(false);
+        _playerRefData.PlayerMovement.SetGrabbing(true);
+        _playerRefData.PlayerMovement.Rb.linearVelocity = Vector3.zero;
+        _playerRefData.PlayerMovement.Rb.angularVelocity = Vector3.zero;
 
         //disable grabbed ledge collision, otherwise there's stuttering
         if (grabbedLedgeCollider != null)
@@ -191,11 +188,11 @@ public class PlayerLedgeGrab : MonoBehaviour
 
     private void ReleaseLedge()
     {
-        _playerController.PlayerModelRotationHandler.SetNewRotationDir(null, false);
-        _playerController.PlayerInput.ChangeSpecificInput("Move", true);
-        _playerController.SetGrabbing(false);
-        _playerController.EnableGravity(true);
-        _playerController.SetExternalForce(Vector3.zero);
+        _playerRefData.PlayerModelRotationHandler.SetNewRotationDir(null, false);
+        PlayerActions.Instance.ChangeSpecificInput("Move", true);
+        _playerRefData.PlayerMovement.SetGrabbing(false);
+        _playerRefData.PlayerMovement.EnableGravity(true);
+        _playerRefData.PlayerMovement.SetExternalForce(Vector3.zero);
 
         if (grabbedLedgeCollider != null)
         {
@@ -209,9 +206,9 @@ public class PlayerLedgeGrab : MonoBehaviour
 
     private void HandleLedgeJump()
     {
-        _playerController.Rb.isKinematic = false;
+        _playerRefData.PlayerMovement.Rb.isKinematic = false;
         ReleaseLedge();
-        _playerController.Jump(ledgeJumpForceMultiplier, true);
+        _playerRefData.PlayerMovement.Jump(ledgeJumpForceMultiplier, true);
         RuntimeManager.PlayOneShot("event:/Jump", transform.position);
     }
 
@@ -228,10 +225,10 @@ public class PlayerLedgeGrab : MonoBehaviour
 
     private IEnumerator Mantle(Vector3 targetPos)
     {
-        _playerController.Rb.isKinematic = true;
+        _playerRefData.PlayerMovement.Rb.isKinematic = true;
         OnMantle?.Invoke(true);
 
-        Vector3 startPos = _playerController.Rb.position;
+        Vector3 startPos = _playerRefData.PlayerMovement.Rb.position;
         Vector3 climbPos = new Vector3(startPos.x, targetPos.y, startPos.z);
         targetPos = SafeMantleTarget(targetPos);
 
@@ -239,7 +236,7 @@ public class PlayerLedgeGrab : MonoBehaviour
         float timer = 0;
         while (timer < climbDuration)
         {
-            if (_playerController.PlayerInput.JumpDown)
+            if (PlayerActions.Instance.JumpDown)
             {
                 HandleLedgeJump();
                 _mantleCoroutine = null;
@@ -250,7 +247,7 @@ public class PlayerLedgeGrab : MonoBehaviour
             float t = timer / climbDuration;
             float smoothedT = t * t * (3f - 2f * t);
 
-            _playerController.Rb.MovePosition(Vector3.Lerp(startPos, climbPos, smoothedT));
+            _playerRefData.PlayerMovement.Rb.MovePosition(Vector3.Lerp(startPos, climbPos, smoothedT));
 
             yield return new WaitForFixedUpdate();
         }
@@ -259,7 +256,7 @@ public class PlayerLedgeGrab : MonoBehaviour
         timer = 0;
         while (timer < forwardDuration)
         {
-            if (_playerController.PlayerInput.JumpDown)
+            if (PlayerActions.Instance.JumpDown)
             {
                 HandleLedgeJump();
                 _mantleCoroutine = null;
@@ -270,13 +267,13 @@ public class PlayerLedgeGrab : MonoBehaviour
             float t = timer / forwardDuration;
             float smoothedT = t * t * (3f - 2f * t);
 
-            _playerController.Rb.MovePosition(Vector3.Lerp(climbPos, targetPos, smoothedT));
+            _playerRefData.PlayerMovement.Rb.MovePosition(Vector3.Lerp(climbPos, targetPos, smoothedT));
 
             yield return new WaitForFixedUpdate();
         }
 
-        _playerController.Rb.position = targetPos;
-        _playerController.Rb.isKinematic = false;
+        _playerRefData.PlayerMovement.Rb.position = targetPos;
+        _playerRefData.PlayerMovement.Rb.isKinematic = false;
         ReleaseLedge();
         _mantleCoroutine = null;
     }

@@ -14,9 +14,9 @@ public class PropSpawnPile : Prop
         Rb.isKinematic = true;
     }
 
-    public override void OnSnare(Lasso lasso)
+    public override void OnSnare(PlayerRefData playerData)
     {
-        base.OnSnare(lasso);
+        base.OnSnare(playerData);
         SpawnPropOnPluck();
     }
 
@@ -24,6 +24,6 @@ public class PropSpawnPile : Prop
     {
         if(previouslySpawnedProp != null) Destroy(previouslySpawnedProp.gameObject);
         previouslySpawnedProp = Instantiate(objectToSpawn, transform.position, Quaternion.identity);
-        lassoRef.SetupHeldProp(previouslySpawnedProp, null);
+        _playerRefData.Lasso.SetupHeldProp(previouslySpawnedProp, null);
     }
 }

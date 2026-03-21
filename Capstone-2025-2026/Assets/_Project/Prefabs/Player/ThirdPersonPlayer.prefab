@@ -776,8 +776,7 @@ MonoBehaviour:
   musicSlider: {fileID: 385498895558801820}
   xSensitivitySlider: {fileID: 7943011442325459303}
   ySensitivitySlider: {fileID: 5052850773031587233}
-  cameraController: {fileID: 0}
-  input: {fileID: 4800881338183066832}
+  camController: {fileID: 0}
   windowModeText: {fileID: 7400464365100584081}
   MasterVolume: 0.5
   SFXVolume: 0.5
@@ -3785,31 +3784,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Lasso
   <HoldPos>k__BackingField: {fileID: 3373959760345332201}
-  <PlayerCamLookPos>k__BackingField: {fileID: 5362378367012366984}
-  <PlayerCam>k__BackingField: {fileID: 0}
   lassoGrabVisualIndicator: {fileID: 1396640615803879811}
-  reelIncrement: 2.5
   minLassoRange: 3
-  maxLassoRange: 25
-  centerStrength: 250
+  <MaxLassoRange>k__BackingField: 25
+  lassoHoldStrength: 250
+  useSizeScale: 0
   lookAtStrength: 0.5
   lookAtDamping: 0.05
   rotationalDampingStrength: 0.25
   maxLassoStrength: 250
   maxLassoTorque: 500
-  useSizeScale: 0
   angularVelMultiplier: 0.925
   aimAssistType: 0
   aimAssistBufferRadius: 1.5
-  useAimOutline: 1
-  usePickupOutline: 1
-  <usePhysicsLasso>k__BackingField: 1
-  <usePhysicsTorque>k__BackingField: 1
   swingJumpForce: 10
   forwardRef: {fileID: 2136325372021395796}
-  rotationMode: 1
-  degreesPerSecond: 180
-  mkSensMultiplier: 0.05
   liftSpeed: 5
   <maxLiftHeight>k__BackingField: 15
   <minHeightAboveGround>k__BackingField: 0.05
@@ -3830,9 +3819,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80a740280c73cb54a987b08758d98485, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LassoTetherController
-  controlsText: {fileID: 5046125116692931103}
-  useObjectManipulationMode: 0
   TetherMode: 0
+  reelSpeedMultiplier: 0
   rodPickedUp: 1
   tetherPickedUp: 1
   <CurrentLassoState>k__BackingField: 0
@@ -3859,7 +3847,6 @@ MonoBehaviour:
   placedTethers: []
   currentSelectedTether: {fileID: 0}
   previousTether: {fileID: 0}
-  aManage: {fileID: 0}
   isLookingAtTether: 0
   isLookingAtActiveTether: 0
 --- !u!114 &7792931581381523645
@@ -3911,7 +3898,6 @@ MonoBehaviour:
   startLocalPosition: {x: 0, y: 0, z: 0}
   endLocalPosition: {x: 0, y: 0, z: 0}
   tetherAmountText: {fileID: 1989082145137285839}
-  tetherControlsText: {fileID: 3669251776759208674}
   originalAmountTextPosition: 0
 --- !u!114 &8608974983609837561
 MonoBehaviour:
@@ -3950,12 +3936,8 @@ MonoBehaviour:
   jumpBufferCounter: 0
   coyoteTime: 0.2
   coyoteTimeCounter: 0
-  ledgeScanLength: 1.5
-  ledgeScanDepth: 5
-  doubleJumpDuration: 0
   doubleJumpMultiplier: 0.825
   useDoubleJump: 1
-  playerCam: {fileID: 0}
 --- !u!114 &9141277693401130519
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3968,7 +3950,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e7ae4973e22dce4e983f46fc6528d1f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::playerRespawn
-  tinyTornado: {fileID: 2756618522217592439, guid: c552e0141e0642a48a844b45c5ad62b0, type: 3}
   isFalling: 0
   returnSpeed: 20
   returnBuffer: 0.1
@@ -4015,11 +3996,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3432f558f63adf14e84ca197f87ff6de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerSwing
-  playerCam: {fileID: 0}
   startRopeLength: 3
   minRopeLength: 0
   maxRopeLength: 4
   airAccel: 12.5
+  swingJumpForce: 0
 --- !u!114 &7777431948427391573
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4039,7 +4020,7 @@ MonoBehaviour:
   missionImageUI: {fileID: 2965844414402353664}
   settingsFirst: {fileID: 4466312991506336320}
   menuFirst: {fileID: 2013573229768598438}
-  playerActions: {fileID: 4800881338183066832}
+  respawnScript: {fileID: 0}
 --- !u!114 &3642584705358189346
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4146,11 +4127,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f7506fa9f0493264a9fee3fe88aa044e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerFade
-  cameraController: {fileID: 0}
-  player: {fileID: 8270672228115741398}
   fadeStartDistance: 3
   fadeEndDistance: 1
   minAlpha: 0
+  Renderers: []
 --- !u!114 &8270672228115741398
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8822,16 +8802,16 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5799689359923236665}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.46518767, y: 0.6453527, z: 0.5735568, w: -0.19532777}
-  m_LocalPosition: {x: -0.0018, y: 0.0121, z: 0.0025}
-  m_LocalScale: {x: 0.06250004, y: 0.062499993, z: 0.062500015}
+  m_LocalRotation: {x: -0.4574463, y: 0.6308702, z: 0.60102695, w: -0.17751673}
+  m_LocalPosition: {x: -0.002, y: 0.0139, z: 0.001}
+  m_LocalScale: {x: 0.06250002, y: 0.062499996, z: 0.06250001}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 2861805309275221009}
   - {fileID: 8400349038088336790}
   - {fileID: 1632544621372031650}
   m_Father: {fileID: 259754315028875639}
-  m_LocalEulerAnglesHint: {x: 213.957, y: 71.313, z: 83.72}
+  m_LocalEulerAnglesHint: {x: 216.579, y: 74.507, z: 79.889}
 --- !u!120 &688304112621150590
 LineRenderer:
   serializedVersion: 2
@@ -8954,10 +8934,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de5457aae4035dd438211e3107409c92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LassoVisuals
-  lassoScript: {fileID: 5704081936607653163}
-  lassoController: {fileID: 187563627807177223}
-  playerActions: {fileID: 4800881338183066832}
   lassoPointVisuals: {fileID: 4576809661034606496}
+  playerRefData: {fileID: 0}
   ropeSegmentCount: 50
   damper: 15
   strength: 800
@@ -12595,7 +12573,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8622d29ee18094a468de3bf8623e83d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DevMenu
-  _actions: {fileID: 4800881338183066832}
+  devMenuOpen: 0
   devUI: {fileID: 1321111356551411583}
 --- !u!114 &3197878294249692439
 MonoBehaviour:
@@ -13175,7 +13153,7 @@ PrefabInstance:
       insertIndex: 0
       addedObject: {fileID: 3339033022260136487}
     - targetCorrespondingSourceObject: {fileID: 1852576806548013000, guid: f82cbc3e784de2f469ae8a60275a56ad, type: 3}
-      insertIndex: -1
+      insertIndex: 0
       addedObject: {fileID: 9006377413760869527}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f82cbc3e784de2f469ae8a60275a56ad, type: 3}

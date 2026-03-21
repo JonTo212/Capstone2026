@@ -101,7 +101,6 @@ GameObject:
   - component: {fileID: 7862329235016133052}
   - component: {fileID: 7625383232764766720}
   - component: {fileID: 4065338929517175119}
-  - component: {fileID: 6787055729979682582}
   - component: {fileID: 5715952363694005919}
   m_Layer: 0
   m_Name: Apple
@@ -193,28 +192,6 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
---- !u!114 &6787055729979682582
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1576014167211383102}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8da93e4e5dee9534a953a3c66c18ff57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::EnvironmentalProp
-  debugThisProp: 0
-  coyoteFallDelay: 0.3
-  slowFall: 1
-  attachedTethers: []
-  connectedObject: []
-  connectedAnchors: []
-  <CanHoldWhileStandingOn>k__BackingField: 0
-  <GrabPoints>k__BackingField: []
-  <FaceRows>k__BackingField: 0
-  <FaceColumns>k__BackingField: 0
 --- !u!114 &5715952363694005919
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -244,12 +221,13 @@ MonoBehaviour:
   horizontalForceMultiplier: 1
   hasBeenPlucked: 0
   startDist: 0
-  lassoRef: {fileID: 0}
+  groundedVisuals: {fileID: 0}
   propToSpawnAfterBreak: {fileID: 8011998679803410671, guid: 0e462d2652626cf418dd70e6de62308c, type: 3}
   numberOfObjectsToSpawn: 1
   minimumSpeedToBreak: 1
   spawnImpulseAmount: {x: 2, y: 1}
   breakOnPluck: 0
+  endSequeenceTracker: {fileID: 0}
 --- !u!1 &3334929565235388226
 GameObject:
   m_ObjectHideFlags: 0

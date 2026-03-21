@@ -5,10 +5,8 @@ using UnityEngine;
 public class LassoVisuals : MonoBehaviour
 {
     [Header("Components")]
-    [SerializeField] private Lasso lassoScript;
-    [SerializeField] private LassoTetherController lassoController;
-    [SerializeField] private PlayerActions playerActions;
     [SerializeField] private Transform lassoPointVisuals;
+    [SerializeField] private PlayerRefData playerRefData;
 
     [Header("Spring Wave Values")]
     [SerializeField] private int ropeSegmentCount = 50;
@@ -32,11 +30,12 @@ public class LassoVisuals : MonoBehaviour
     private bool isSpringSettled;
     private bool hasMouseMoved = false;
 
-    // Set externally by CameraCutsceneHandler during rope swing cutscenes
+    //set externally by CameraCutsceneHandler during rope swing cutscenes
     private bool _inCutscene = false;
 
-    private void Awake()
+    private void Start()
     {
+        playerRefData = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerRefData>();
         lineRenderer = GetComponent<LineRenderer>();
         lineRendererMat = lineRenderer.material;
         lassoPointVisuals.gameObject.SetActive(false);
@@ -46,15 +45,13 @@ public class LassoVisuals : MonoBehaviour
 
     private void LateUpdate()
     {
-        // Cutscene drawing is driven externally by CameraCutsceneHandler.LateUpdate()
-        // to stay in sync with the physics-moved player position. Nothing to do here.
         if (_inCutscene) return;
 
-        Vector3 currentMousePosition = playerActions.LookInput;
+        Vector3 currentMousePosition = PlayerActions.Instance.LookInput;
         hasMouseMoved = (currentMousePosition - lastMousePosition).sqrMagnitude > 1f;
         lastMousePosition = currentMousePosition;
 
-        if (lassoScript.SnaredObject == null || DisableVisuals())
+        if (playerRefData.Lasso.SnaredObject == null)
         {
             ResetRope();
             lassoPointVisuals.gameObject.SetActive(false);
@@ -62,14 +59,7 @@ public class LassoVisuals : MonoBehaviour
             return;
         }
 
-        if (lassoController.CurrentLassoState == LassoState.ObjectYanking)
-        {
-            ResetRope();
-            DrawSnapLasso();
-            return;
-        }
-
-        if (lassoController.CurrentLassoState != LassoState.Swinging)
+        if (playerRefData.LassoTetherController.CurrentLassoState != LassoState.Swinging)
         {
             bool shouldDrawBendyRope = isSpringSettled || hasMouseMoved;
 
@@ -112,14 +102,7 @@ public class LassoVisuals : MonoBehaviour
         ResetRope();
     }
 
-    public Vector3 GetHoldPos() => lassoScript.HoldPos.position;
-
-    private bool DisableVisuals()
-    {
-        bool isHolding = lassoController.CurrentLassoState == LassoState.Held;
-        bool isUsing = lassoController.CurrentLassoState == LassoState.Using;
-        return isHolding || isUsing;
-    }
+    public Vector3 GetHoldPos() => playerRefData.Lasso.HoldPos.position;
 
     private void DrawSnapLasso()
     {
@@ -133,11 +116,11 @@ public class LassoVisuals : MonoBehaviour
         spring.SetStrength(strength);
         spring.Update(Time.deltaTime);
 
-        Vector3 startPoint = lassoScript.HoldPos.position;
-        Vector3 targetPoint = lassoScript.HitPos;
+        Vector3 startPoint = playerRefData.Lasso.HoldPos.position;
+        Vector3 targetPoint = playerRefData.Lasso.HitPos;
         Vector3 up = Quaternion.LookRotation((targetPoint - startPoint).normalized) * Vector3.up;
 
-        currentPullPos = lassoScript.HitPos;
+        currentPullPos = playerRefData.Lasso.HitPos;
 
         lassoPointVisuals.gameObject.SetActive(true);
         lassoPointVisuals.transform.position = currentPullPos;
@@ -154,11 +137,11 @@ public class LassoVisuals : MonoBehaviour
 
     private void DrawBendyRope()
     {
-        if (lassoScript == null || lineRenderer == null) return;
+        if (playerRefData.Lasso == null || lineRenderer == null) return;
 
-        Vector3 startPoint = lassoScript.HoldPos.position;
-        Vector3 endPoint = lassoScript.HitPos;
-        Camera cam = lassoScript.PlayerCam;
+        Vector3 startPoint = playerRefData.Lasso.HoldPos.position;
+        Vector3 endPoint = playerRefData.Lasso.HitPos;
+        Camera cam = Camera.main;
 
         Vector3 cameraToObject = endPoint - cam.transform.position;
         float objectDepth = Vector3.Dot(cameraToObject, cam.transform.forward);
@@ -194,7 +177,7 @@ public class LassoVisuals : MonoBehaviour
         lineRenderer.endWidth = 0.1f;
 
         lassoPointVisuals.gameObject.SetActive(true);
-        currentPullPos = lassoScript.HitPos;
+        currentPullPos = playerRefData.Lasso.HitPos;
         lassoPointVisuals.transform.position = currentPullPos;
         lassoPointVisuals.transform.rotation = Quaternion.Euler(Vector3.zero);
     }
@@ -215,7 +198,7 @@ public class LassoVisuals : MonoBehaviour
 
     private void ResetRope()
     {
-        currentPullPos = lassoScript.HoldPos.position;
+        currentPullPos = playerRefData.Lasso.HoldPos.position;
         spring.Reset();
         isSpringSettled = false;
         if (lineRenderer.positionCount > 0)

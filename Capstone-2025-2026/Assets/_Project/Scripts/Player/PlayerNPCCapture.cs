@@ -5,9 +5,7 @@ using UnityEngine;
 public class PlayerNPCCapture : MonoBehaviour
 {
     [SerializeField] private Transform npcBackpackPos;
-    private Lasso _playerLasso;
-    private PlayerActions _playerInput;
-    private PlayerModelRotationHandler _playerModelRotator;
+    private PlayerRefData _playerRefData;
 
     [Header("Object Yank Properties")]
     [SerializeField] private float handAttachThreshold = 0.2f;
@@ -18,16 +16,13 @@ public class PlayerNPCCapture : MonoBehaviour
 
     private void Awake()
     {
-        _playerLasso = GetComponent<Lasso>();
-        _playerInput = GetComponent<PlayerActions>();
-        _playerModelRotator = GetComponent<PlayerModelRotationHandler>();
-
-        _playerLasso.OnNPCHit += CaptureNPC;
+        _playerRefData = GetComponent<PlayerRefData>();
+        _playerRefData.Lasso.OnNPCHit += CaptureNPC;
     }
 
     private void OnDisable()
     {
-        _playerLasso.OnNPCHit -= CaptureNPC;
+        _playerRefData.Lasso.OnNPCHit -= CaptureNPC;
     }
 
     #region Helper Functions
@@ -52,15 +47,15 @@ public class PlayerNPCCapture : MonoBehaviour
         if (_objectYankCoroutine != null)
             StopCoroutine(_objectYankCoroutine);
 
-        _objectYankCoroutine = StartCoroutine(YankObjectCoroutine(_playerLasso.SnaredObject.transform, _playerLasso.SnaredObject.transform, npcBackpackPos));
-        _playerInput.DisableAllInput();
+        _objectYankCoroutine = StartCoroutine(YankObjectCoroutine(_playerRefData.Lasso.SnaredObject.transform, _playerRefData.Lasso.SnaredObject.transform, npcBackpackPos));
+        PlayerActions.Instance.DisableAllInput();
 
-        Vector3 toTarget = (_playerLasso.SnaredObject.transform.position - transform.position).normalized;
+        Vector3 toTarget = (_playerRefData.Lasso.SnaredObject.transform.position - transform.position).normalized;
         toTarget.y = 0f;
         Quaternion targetRotation = Quaternion.LookRotation(toTarget, Vector3.up);
-        _playerModelRotator.SetNewRotationDir(targetRotation, false);
+        _playerRefData.PlayerModelRotationHandler.SetNewRotationDir(targetRotation, false);
 
-        PickupNPCProp pickupObj = _playerLasso.SnaredObject as PickupNPCProp;
+        PickupNPCProp pickupObj = _playerRefData.Lasso.SnaredObject as PickupNPCProp;
         pickupObj.OnCaptureStart(objectYankDuration);
     }
 
@@ -116,8 +111,8 @@ public class PlayerNPCCapture : MonoBehaviour
         
         OnObjectYankCompleted?.Invoke();
         _objectYankCoroutine = null;
-        _playerInput.EnableAllInput();
-
+        PlayerActions.Instance.EnableAllInput();
+        _playerRefData.LassoTetherController.ClearHold();
         PlayerActions.Instance.RumbleFor(0.2f, 0.4f, 0.1f);
         prop.gameObject.SetActive(false);
     }

@@ -67,7 +67,6 @@ public class BreakablePluckupProp : PluckOutProp
                 }
             }
         }
-
         Destroy(gameObject);
     }    
 

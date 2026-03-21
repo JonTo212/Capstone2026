@@ -10,8 +10,8 @@ public class PlayerRespawn : MonoBehaviour
 
     //Components
     private Rigidbody rb;
-    [SerializeField] private ParticleSystem tinyTornado;
     private Coroutine respawnCoroutine;
+    private PlayerRefData playerRefData;
 
     //respawning
     private Vector3 spawnPosition;
@@ -28,18 +28,15 @@ public class PlayerRespawn : MonoBehaviour
 
     void Awake()
     {
-        fadeToBlackScript.gameObject.SetActive(false);
-    }
-
-    void Start()
-    {
         //set spawn position
         spawnPosition = transform.position;
 
         //get Components
         rb = GetComponent<Rigidbody>();
-    }
+        playerRefData = GetComponent<PlayerRefData>();
 
+        fadeToBlackScript.gameObject.SetActive(false);
+    }
 
 
     private void OnTriggerEnter(Collider other)
@@ -78,13 +75,9 @@ public class PlayerRespawn : MonoBehaviour
     IEnumerator Respawn()
     {
         //fade to black
-        LassoTetherController.Instance.ClearHold();
+        playerRefData.LassoTetherController.ClearHold();
         fadeToBlackScript.gameObject.SetActive(true);
         fadeToBlackScript.FadeIn();
-
-        //play particle effect
-        tinyTornado.Play();
-        //AudioManager.Instance.PlaySFX(AudioManager.Instance.PlayerSaved, 6, 1);
         RuntimeManager.PlayOneShot("event:/Respawn", transform.position);
 
         yield return new WaitUntil(() => fadeToBlackScript.FadeComplete);
@@ -108,9 +101,6 @@ public class PlayerRespawn : MonoBehaviour
         //Enable Components
         rb.isKinematic = false;
         isFalling = false;
-
-        //end particle effect
-        tinyTornado.Stop();
         respawnCoroutine = null;
 
     }

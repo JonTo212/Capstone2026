@@ -11,7 +11,7 @@ public class StuckOnABranch : MonoBehaviour
     {
         playermovement = GetComponent<PlayerMovement>();
 
-        playermovement.PlayerInput.ChangeSpecificInput("Move", false);
+        PlayerActions.Instance.ChangeSpecificInput("Move", false);
         playermovement.EnableGravity(false);
         playermovement.EnableFriction(false);
         StartCoroutine(UnstuckAfterDelay());
@@ -23,6 +23,6 @@ public class StuckOnABranch : MonoBehaviour
 
         playermovement.EnableGravity(true);
         playermovement.EnableFriction(true);
-        playermovement.PlayerInput.ChangeSpecificInput("Move", true);
+        PlayerActions.Instance.ChangeSpecificInput("Move", true);
     }
 }
