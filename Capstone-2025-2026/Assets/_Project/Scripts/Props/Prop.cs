@@ -16,7 +16,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     [SerializeField] protected List<JointTether> attachedTethers = new List<JointTether>();
     [SerializeField] protected List<Transform> connectedObject = new List<Transform>();
     [SerializeField] protected List<Transform> connectedAnchors = new List<Transform>();
-    protected Lasso lassoRef;
+    protected PlayerRefData _playerRefData;
     private static float _rumbleCooldown;
 
     //getters/setters - default value is false (protected set means only derived classes can change IsHeld)
@@ -129,7 +129,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     }
 
     #region ISnareable
-    public virtual void OnSnare(Lasso lasso)
+    public virtual void OnSnare(PlayerRefData playerData)
     {
         IsSnared = true;
         IsHeld = false;
@@ -137,7 +137,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         Rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
         Rb.angularVelocity = Vector3.zero;
         Rb.linearVelocity = Vector3.zero;
-        lassoRef = lasso;
+        _playerRefData = playerData;
         OnPropSnared?.Invoke();
     }
 
@@ -150,7 +150,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         Rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
         //Rb.isKinematic = WasKinematicToStart;
         AttachedTransform = null;
-        lassoRef = null;
+        _playerRefData = null;
 
         Invoke(nameof(CoyoteFall), coyoteFallDelay);
         OnPropReleased?.Invoke();
@@ -379,31 +379,6 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         else
         {
             Rb.constraints = OriginalConstraints;
-        }
-    }
-
-    public void UpdateTetherGrabPointsAndLockRotation()
-    {
-        foreach (var tether in attachedTethers)
-        {
-            tether.UpdateGrabPointToNearest();
-            tether.UpdateTetherRotation(transform.rotation);
-        }
-    }
-
-    public void DisableJointTemp()
-    {
-        foreach (var tether in attachedTethers)
-        {
-            tether.DisableJoint();
-        }
-    }
-
-    public void EnableJoint()
-    {
-        foreach (var tether in attachedTethers)
-        {
-            tether.ActivateJoint();
         }
     }
 

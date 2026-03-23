@@ -189,14 +189,14 @@ public class ClawHead : EnvironmentalProp
     {
         clawAttachmentJoint = connectedObject.AddComponent<FixedJoint>();
         clawAttachmentJoint.connectedBody = rb;
-        OnAttachToObject();
+        OnAttachToObject?.Invoke();
     }
 
     private void DisconnectObjectWithClaw()
     {
         Destroy(clawAttachmentJoint);
         clawAttachmentJoint = null;
-        OnDetachToObject();
+        OnDetachToObject?.Invoke();
     }
 
     private void OpenClaw()
@@ -220,7 +220,7 @@ public class ClawHead : EnvironmentalProp
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.TryGetComponent<Prop>(out Prop prop))
+        if (other.gameObject.TryGetComponent(out Prop prop))
         {
             if (prop.transform.GetComponent<ClawHead>() != null) return;
 
@@ -232,7 +232,7 @@ public class ClawHead : EnvironmentalProp
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.gameObject.TryGetComponent<Prop>(out Prop prop))
+        if (other.gameObject.TryGetComponent(out Prop prop))
         {
             if (prop == currentSelectedProp)
             {

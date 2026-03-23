@@ -80,6 +80,7 @@ public class RopeSwingCutscene : PlayerCutsceneBase
             playerModelRotation.SetNewRotationDir(null, true);
 
         PlayerActions.Instance.RumbleFor(0.015f, 0.03f, Duration);
+        player.GetComponent<PlayerRefData>().LassoTetherController.ClearHold();
     }
 
     public override void OnCutsceneTick()

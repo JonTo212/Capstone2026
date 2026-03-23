@@ -31,14 +31,9 @@ public abstract class CutsceneBase : MonoBehaviour
     public virtual void OnBlendTick(float t) { }
     public virtual void OnBlendOutTick(float t) { }
     public virtual void OnCutsceneSkip() { }
-    public virtual void OnCutsceneEnd()
-    {
-        IsPlaying = false;
-    }
+    public virtual void OnCutsceneEnd() => IsPlaying = false;
+
     public virtual void OnCutsceneUpdate() { }
     public virtual void OnCutsceneLateUpdate() { }
-    public void SetBlendDelayActive(bool active)
-    {
-        BlendDelayActive = active;
-    }
+    public void SetBlendDelayActive(bool active) => BlendDelayActive = active;
 }

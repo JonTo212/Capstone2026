@@ -2391,6 +2391,10 @@ PrefabInstance:
       propertyPath: controlsText
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 187563627807177223, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+      propertyPath: reelSpeedMultiplier
+      value: 0.33
+      objectReference: {fileID: 0}
     - target: {fileID: 412334985279009504, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       propertyPath: m_LocalPosition.x
       value: -6.3
@@ -2525,6 +2529,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 7777431948427391573, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+    - {fileID: 1747977646083282892, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
     m_RemovedGameObjects:
     - {fileID: 2965844414402353664, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
     m_AddedGameObjects: []
@@ -13498,6 +13503,13 @@ MonoBehaviour:
   objectsToEnable: []
   objectsToDestroy: []
   dustParticle: {fileID: 0}
+  cutsceneStartPos: {fileID: 0}
+  lookAtTarget: {fileID: 0}
+  cutsceneDuration: 0
+  cutsceneHoldFraction: 0
+  cutsceneBlendInDelay: 0
+  cutsceneBlendInTime: 0
+  endTrack: {fileID: 0}
 --- !u!1 &735784660 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4815329418715265619, guid: ac6f3bb8b67eea94ba5246e0bdbd56b2, type: 3}
@@ -22047,6 +22059,13 @@ MonoBehaviour:
   objectsToEnable: []
   objectsToDestroy: []
   dustParticle: {fileID: 0}
+  cutsceneStartPos: {fileID: 0}
+  lookAtTarget: {fileID: 0}
+  cutsceneDuration: 0
+  cutsceneHoldFraction: 0
+  cutsceneBlendInDelay: 0
+  cutsceneBlendInTime: 0
+  endTrack: {fileID: 0}
 --- !u!1 &1124576578 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2524196107324677976, guid: ac6f3bb8b67eea94ba5246e0bdbd56b2, type: 3}
@@ -22144,7 +22163,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 66a06a1f8b3246a47bb520c100a5ef04, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIDebugger
-  _lastSelection: {fileID: 0}
 --- !u!43 &1134555890
 Mesh:
   m_ObjectHideFlags: 0
@@ -32647,6 +32665,13 @@ MonoBehaviour:
   objectsToEnable: []
   objectsToDestroy: []
   dustParticle: {fileID: 0}
+  cutsceneStartPos: {fileID: 0}
+  lookAtTarget: {fileID: 0}
+  cutsceneDuration: 0
+  cutsceneHoldFraction: 0
+  cutsceneBlendInDelay: 0
+  cutsceneBlendInTime: 0
+  endTrack: {fileID: 0}
 --- !u!43 &1619769701
 Mesh:
   m_ObjectHideFlags: 0
@@ -33948,6 +33973,13 @@ MonoBehaviour:
   objectsToEnable: []
   objectsToDestroy: []
   dustParticle: {fileID: 0}
+  cutsceneStartPos: {fileID: 0}
+  lookAtTarget: {fileID: 0}
+  cutsceneDuration: 0
+  cutsceneHoldFraction: 0
+  cutsceneBlendInDelay: 0
+  cutsceneBlendInTime: 0
+  endTrack: {fileID: 0}
 --- !u!4 &1739864921 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 770677586523418901, guid: 9c649bf40900adb4ca72e5d72143857a, type: 3}
@@ -45173,8 +45205,8 @@ MonoBehaviour:
   minDistance: 2
   mouseXSensitivity: 0.25
   mouseYSensitivity: 0.25
-  controllerXSensitivityMultiplier: 5
-  controllerYSensitivityMultiplier: 5
+  controllerXSensitivityMultiplier: 10
+  controllerYSensitivityMultiplier: 10
   minVerticalAngle: -89
   maxVerticalAngle: 89
   rotationSmoothTime: 0.01

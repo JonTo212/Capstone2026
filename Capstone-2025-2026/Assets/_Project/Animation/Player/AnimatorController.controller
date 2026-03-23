@@ -28,6 +28,34 @@ AnimatorStateTransition:
   m_InterruptionSource: 2
   m_OrderedInterruption: 1
   m_CanTransitionToSelf: 0
+--- !u!1102 &-8853056460719849866
+AnimatorState:
+  serializedVersion: 6
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Fishing Reel
+  m_Speed: 1
+  m_CycleOffset: 0
+  m_Transitions:
+  - {fileID: 8127146641008596215}
+  - {fileID: 3600617830145636477}
+  m_StateMachineBehaviours: []
+  m_Position: {x: 50, y: 50, z: 0}
+  m_IKOnFeet: 0
+  m_WriteDefaultValues: 1
+  m_Mirror: 0
+  m_SpeedParameterActive: 1
+  m_MirrorParameterActive: 0
+  m_CycleOffsetParameterActive: 0
+  m_TimeParameterActive: 0
+  m_Motion: {fileID: -203655887218126122, guid: 0598d2c371e7bc94a84b69b80ea61a90, type: 3}
+  m_Tag: 
+  m_SpeedParameter: LassoReel
+  m_MirrorParameter: 
+  m_CycleOffsetParameter: 
+  m_TimeParameter: 
 --- !u!1101 &-8699500551553805963
 AnimatorStateTransition:
   m_ObjectHideFlags: 1
@@ -37,7 +65,7 @@ AnimatorStateTransition:
   m_Name: 
   m_Conditions:
   - m_ConditionMode: 1
-    m_ConditionEvent: TetherStartPointHit
+    m_ConditionEvent: TetherStart
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: -2787612055543153369}
@@ -210,18 +238,18 @@ AnimatorState:
   m_MirrorParameter: 
   m_CycleOffsetParameter: 
   m_TimeParameter: 
---- !u!1102 &-6648487977877337258
+--- !u!1102 &-6755269727766154850
 AnimatorState:
   serializedVersion: 6
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Fishing Cast 0
-  m_Speed: 4
+  m_Name: Fishing Idle
+  m_Speed: 1
   m_CycleOffset: 0
   m_Transitions:
-  - {fileID: -4291717673904477508}
+  - {fileID: -6594546549809646665}
   m_StateMachineBehaviours: []
   m_Position: {x: 50, y: 50, z: 0}
   m_IKOnFeet: 0
@@ -231,12 +259,65 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: -203655887218126122, guid: 7ffe4810a769a564bbb1ac2ea17d2ce0, type: 3}
+  m_Motion: {fileID: -203655887218126122, guid: 87754beee43cb1d4987062f342cbf26d, type: 3}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
   m_CycleOffsetParameter: 
   m_TimeParameter: 
+--- !u!1101 &-6594546549809646665
+AnimatorStateTransition:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_Conditions:
+  - m_ConditionMode: 2
+    m_ConditionEvent: LassoSnared
+    m_EventTreshold: 0
+  m_DstStateMachine: {fileID: 0}
+  m_DstState: {fileID: -2249991496441068082}
+  m_Solo: 0
+  m_Mute: 0
+  m_IsExit: 0
+  serializedVersion: 3
+  m_TransitionDuration: 0.25
+  m_TransitionOffset: 0
+  m_ExitTime: 0
+  m_HasExitTime: 0
+  m_HasFixedDuration: 1
+  m_InterruptionSource: 0
+  m_OrderedInterruption: 1
+  m_CanTransitionToSelf: 1
+--- !u!1101 &-6074132643704550633
+AnimatorStateTransition:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_Conditions:
+  - m_ConditionMode: 3
+    m_ConditionEvent: LassoReel
+    m_EventTreshold: 0.01
+  - m_ConditionMode: 1
+    m_ConditionEvent: LassoSnared
+    m_EventTreshold: 0
+  m_DstStateMachine: {fileID: 0}
+  m_DstState: {fileID: -8853056460719849866}
+  m_Solo: 0
+  m_Mute: 0
+  m_IsExit: 0
+  serializedVersion: 3
+  m_TransitionDuration: 0.25000003
+  m_TransitionOffset: 0
+  m_ExitTime: 0
+  m_HasExitTime: 0
+  m_HasFixedDuration: 1
+  m_InterruptionSource: 0
+  m_OrderedInterruption: 1
+  m_CanTransitionToSelf: 1
 --- !u!1102 &-5919487017876152221
 AnimatorState:
   serializedVersion: 6
@@ -307,13 +388,10 @@ AnimatorStateTransition:
     m_ConditionEvent: Mantling
     m_EventTreshold: 0
   - m_ConditionMode: 2
-    m_ConditionEvent: LassoStart
+    m_ConditionEvent: LassoSnared
     m_EventTreshold: 0
   - m_ConditionMode: 2
     m_ConditionEvent: TetherStartPointHit
-    m_EventTreshold: 0
-  - m_ConditionMode: 2
-    m_ConditionEvent: OnTetherStart
     m_EventTreshold: 0
   - m_ConditionMode: 2
     m_ConditionEvent: IsHanging
@@ -323,9 +401,6 @@ AnimatorStateTransition:
     m_EventTreshold: 0
   - m_ConditionMode: 2
     m_ConditionEvent: Swinging
-    m_EventTreshold: 0
-  - m_ConditionMode: 2
-    m_ConditionEvent: LassoStart
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: -2450488894084032637}
@@ -341,34 +416,6 @@ AnimatorStateTransition:
   m_InterruptionSource: 3
   m_OrderedInterruption: 1
   m_CanTransitionToSelf: 0
---- !u!1101 &-4291717673904477508
-AnimatorStateTransition:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: 
-  m_Conditions:
-  - m_ConditionMode: 1
-    m_ConditionEvent: Swinging
-    m_EventTreshold: 0
-  - m_ConditionMode: 2
-    m_ConditionEvent: AttachingToRail
-    m_EventTreshold: 0
-  m_DstStateMachine: {fileID: 0}
-  m_DstState: {fileID: 3376442264232541066}
-  m_Solo: 0
-  m_Mute: 0
-  m_IsExit: 0
-  serializedVersion: 3
-  m_TransitionDuration: 0.25
-  m_TransitionOffset: 0
-  m_ExitTime: 0.25
-  m_HasExitTime: 0
-  m_HasFixedDuration: 1
-  m_InterruptionSource: 0
-  m_OrderedInterruption: 1
-  m_CanTransitionToSelf: 1
 --- !u!1101 &-3405011170451488868
 AnimatorStateTransition:
   m_ObjectHideFlags: 1
@@ -391,7 +438,7 @@ AnimatorStateTransition:
   m_ExitTime: 0
   m_HasExitTime: 0
   m_HasFixedDuration: 1
-  m_InterruptionSource: 2
+  m_InterruptionSource: 0
   m_OrderedInterruption: 1
   m_CanTransitionToSelf: 1
 --- !u!1102 &-2787612055543153369
@@ -535,25 +582,7 @@ AnimatorController:
     m_DefaultInt: 0
     m_DefaultBool: 0
     m_Controller: {fileID: 9100000}
-  - m_Name: LassoStart
-    m_Type: 4
-    m_DefaultFloat: 0
-    m_DefaultInt: 0
-    m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
-  - m_Name: LassoSnared
-    m_Type: 4
-    m_DefaultFloat: 0
-    m_DefaultInt: 0
-    m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
   - m_Name: TetherStartPointHit
-    m_Type: 4
-    m_DefaultFloat: 0
-    m_DefaultInt: 0
-    m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
-  - m_Name: OnTetherStart
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
@@ -591,6 +620,30 @@ AnimatorController:
     m_Controller: {fileID: 9100000}
   - m_Name: AttachingToRail
     m_Type: 4
+    m_DefaultFloat: 0
+    m_DefaultInt: 0
+    m_DefaultBool: 0
+    m_Controller: {fileID: 9100000}
+  - m_Name: LassoReel
+    m_Type: 1
+    m_DefaultFloat: 0
+    m_DefaultInt: 0
+    m_DefaultBool: 0
+    m_Controller: {fileID: 9100000}
+  - m_Name: LassoSnared
+    m_Type: 4
+    m_DefaultFloat: 0
+    m_DefaultInt: 0
+    m_DefaultBool: 0
+    m_Controller: {fileID: 9100000}
+  - m_Name: LassoStart
+    m_Type: 9
+    m_DefaultFloat: 0
+    m_DefaultInt: 0
+    m_DefaultBool: 0
+    m_Controller: {fileID: 9100000}
+  - m_Name: TetherStart
+    m_Type: 9
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
@@ -645,7 +698,7 @@ AnimatorStateTransition:
   m_Name: 
   m_Conditions:
   - m_ConditionMode: 1
-    m_ConditionEvent: OnTetherStart
+    m_ConditionEvent: TetherStartPointHit
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: -2787612055543153369}
@@ -671,9 +724,6 @@ AnimatorStateTransition:
   m_Conditions:
   - m_ConditionMode: 2
     m_ConditionEvent: MoveInput
-    m_EventTreshold: 0
-  - m_ConditionMode: 2
-    m_ConditionEvent: LassoStart
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: -2249991496441068082}
@@ -745,6 +795,31 @@ AnimatorStateTransition:
   m_InterruptionSource: 0
   m_OrderedInterruption: 1
   m_CanTransitionToSelf: 1
+--- !u!1101 &3600617830145636477
+AnimatorStateTransition:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_Conditions:
+  - m_ConditionMode: 2
+    m_ConditionEvent: LassoSnared
+    m_EventTreshold: 0
+  m_DstStateMachine: {fileID: 0}
+  m_DstState: {fileID: -2249991496441068082}
+  m_Solo: 0
+  m_Mute: 0
+  m_IsExit: 0
+  serializedVersion: 3
+  m_TransitionDuration: 0.1
+  m_TransitionOffset: 0
+  m_ExitTime: 0
+  m_HasExitTime: 0
+  m_HasFixedDuration: 1
+  m_InterruptionSource: 0
+  m_OrderedInterruption: 1
+  m_CanTransitionToSelf: 1
 --- !u!1102 &3613925415559325275
 AnimatorState:
   serializedVersion: 6
@@ -758,6 +833,7 @@ AnimatorState:
   m_Transitions:
   - {fileID: 4045902840216488396}
   - {fileID: -5814263835893033702}
+  - {fileID: 6744422670882597774}
   m_StateMachineBehaviours: []
   m_Position: {x: 50, y: 50, z: 0}
   m_IKOnFeet: 0
@@ -813,6 +889,9 @@ AnimatorStateTransition:
     m_EventTreshold: 0
   - m_ConditionMode: 2
     m_ConditionEvent: Swinging
+    m_EventTreshold: 0
+  - m_ConditionMode: 2
+    m_ConditionEvent: LassoSnared
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: -2249991496441068082}
@@ -884,6 +963,31 @@ AnimatorStateTransition:
   m_InterruptionSource: 2
   m_OrderedInterruption: 1
   m_CanTransitionToSelf: 1
+--- !u!1101 &6744422670882597774
+AnimatorStateTransition:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_Conditions:
+  - m_ConditionMode: 1
+    m_ConditionEvent: LassoSnared
+    m_EventTreshold: 0
+  m_DstStateMachine: {fileID: 0}
+  m_DstState: {fileID: -6755269727766154850}
+  m_Solo: 0
+  m_Mute: 0
+  m_IsExit: 0
+  serializedVersion: 3
+  m_TransitionDuration: 0.25000012
+  m_TransitionOffset: 0
+  m_ExitTime: 0
+  m_HasExitTime: 1
+  m_HasFixedDuration: 1
+  m_InterruptionSource: 0
+  m_OrderedInterruption: 1
+  m_CanTransitionToSelf: 1
 --- !u!1101 &7125250589024537527
 AnimatorStateTransition:
   m_ObjectHideFlags: 1
@@ -900,9 +1004,6 @@ AnimatorStateTransition:
     m_EventTreshold: 0
   - m_ConditionMode: 2
     m_ConditionEvent: Mantling
-    m_EventTreshold: 0
-  - m_ConditionMode: 2
-    m_ConditionEvent: LassoStart
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: -2249991496441068082}
@@ -938,25 +1039,28 @@ AnimatorStateMachine:
     m_Position: {x: 360, y: -30, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -2450488894084032637}
-    m_Position: {x: -470, y: 200, z: 0}
+    m_Position: {x: -400, y: 60, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 4007498776077785068}
-    m_Position: {x: 400, y: 240, z: 0}
+    m_Position: {x: 350, y: -150, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 3613925415559325275}
-    m_Position: {x: 0, y: 10, z: 0}
+    m_Position: {x: -320, y: 200, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -2787612055543153369}
-    m_Position: {x: -410, y: -230, z: 0}
+    m_Position: {x: -400, y: -150, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -5919487017876152221}
-    m_Position: {x: -410, y: -120, z: 0}
+    m_Position: {x: -400, y: -40, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -7637610359549434193}
     m_Position: {x: 470, y: 430, z: 0}
   - serializedVersion: 1
-    m_State: {fileID: -6648487977877337258}
-    m_Position: {x: 360, y: -150, z: 0}
+    m_State: {fileID: -8853056460719849866}
+    m_Position: {x: -230, y: 440, z: 0}
+  - serializedVersion: 1
+    m_State: {fileID: -6755269727766154850}
+    m_Position: {x: -410, y: 360, z: 0}
   m_ChildStateMachines: []
   m_AnyStateTransitions:
   - {fileID: -5781917963843662758}
@@ -966,6 +1070,7 @@ AnimatorStateMachine:
   - {fileID: 649616331646204917}
   - {fileID: -9123503131694511933}
   - {fileID: -7395142345257468189}
+  - {fileID: -6074132643704550633}
   m_EntryTransitions: []
   m_StateMachineTransitions: {}
   m_StateMachineBehaviours: []
@@ -1002,6 +1107,37 @@ AnimatorStateTransition:
   m_InterruptionSource: 2
   m_OrderedInterruption: 1
   m_CanTransitionToSelf: 0
+--- !u!1101 &8127146641008596215
+AnimatorStateTransition:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_Conditions:
+  - m_ConditionMode: 1
+    m_ConditionEvent: LassoSnared
+    m_EventTreshold: 0
+  - m_ConditionMode: 3
+    m_ConditionEvent: LassoReel
+    m_EventTreshold: -0.01
+  - m_ConditionMode: 4
+    m_ConditionEvent: LassoReel
+    m_EventTreshold: 0.01
+  m_DstStateMachine: {fileID: 0}
+  m_DstState: {fileID: -6755269727766154850}
+  m_Solo: 0
+  m_Mute: 0
+  m_IsExit: 0
+  serializedVersion: 3
+  m_TransitionDuration: 0.24999976
+  m_TransitionOffset: 0
+  m_ExitTime: 0
+  m_HasExitTime: 0
+  m_HasFixedDuration: 1
+  m_InterruptionSource: 0
+  m_OrderedInterruption: 1
+  m_CanTransitionToSelf: 1
 --- !u!1101 &8946260232342076470
 AnimatorStateTransition:
   m_ObjectHideFlags: 1
@@ -1012,9 +1148,6 @@ AnimatorStateTransition:
   m_Conditions:
   - m_ConditionMode: 1
     m_ConditionEvent: MoveInput
-    m_EventTreshold: 0
-  - m_ConditionMode: 2
-    m_ConditionEvent: LassoStart
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: -6943080246351686350}

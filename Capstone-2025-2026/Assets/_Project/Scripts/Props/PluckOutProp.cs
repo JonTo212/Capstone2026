@@ -61,10 +61,10 @@ public class PluckOutProp : Prop
         */
 
         //plucks after a delay, force needs to be above the minimum for as long as the delay
-        if (lassoRef != null)
+        if (_playerRefData != null)
         {
-            stepCheck = Vector3.Distance(transform.position, lassoRef.transform.position) > playerStartDist + walkBackDist;
-            reelCheck = lassoRef.AnchorDist < startDist;
+            stepCheck = Vector3.Distance(transform.position, _playerRefData.Lasso.transform.position) > playerStartDist + walkBackDist;
+            reelCheck = _playerRefData.Lasso.AnchorDist < startDist;
         }
 
         if (stepCheck || reelCheck) //Condition for code
@@ -87,7 +87,7 @@ public class PluckOutProp : Prop
         Rb.isKinematic = false;
         hasBeenPlucked = true;
         if (groundedVisuals != null) groundedVisuals.SetActive(false);
-        lassoRef.HandleObjectReleased();
+        _playerRefData.LassoTetherController.ClearHold();
     }
 
     IEnumerator PluckAfterDelay(float delay)
@@ -101,16 +101,14 @@ public class PluckOutProp : Prop
         pluckCoroutine = null;
     }
 
-    public void SaveDist(float anchorStartDist, float playerStartDist, Lasso LassoFake)
+    public void SaveDist(float anchorStartDist, float playerStartDist)
     {
-        lassoRef = LassoFake;
         startDist = anchorStartDist;
         playerStartDist = this.playerStartDist;
     }
 
-    public void Reset()
+    public void ResetLassoVariables()
     {
-        lassoRef = null;
         startDist = 0;
         playerStartDist = 0;
     }
