@@ -7,7 +7,7 @@ public class ThirdPersonAnimatorController : MonoBehaviour
     [SerializeField] private CameraCutsceneHandler _cameraController;
     [SerializeField] private Animator animator;
 
-    private void Awake()
+    private void Start()
     {
         _playerRefData = GetComponent<PlayerRefData>();
 
