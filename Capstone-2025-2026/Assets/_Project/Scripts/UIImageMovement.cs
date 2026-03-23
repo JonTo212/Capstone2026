@@ -14,6 +14,7 @@ public class UIImageMovement : MonoBehaviour
     private GameObject player;
     private LassoTetherController lassoTetherControllerScript;
     private PlayerActions playerActionsScript;
+    private RodObtained rodObtainedScript;
 
     //Sprite and Object References
     //[SerializeField] private GameObject tetherIconObject;
@@ -38,19 +39,24 @@ public class UIImageMovement : MonoBehaviour
 
 
     //TetherCutscene
-    public bool tetherCutsceneActive = false;
+    public bool tetherCutsceneForceStart = false;
     [SerializeField] private GameObject Tools;
 
     //Tethertext
     [SerializeField] private TextMeshProUGUI tetherUnlockedText;
     [SerializeField] private TextMeshProUGUI tetherUnlockedDescription;
 
+    
+
     private void Start()
     {
         //player info
         player = GameObject.FindWithTag("Player");
+        rodObtainedScript = GameObject.Find("FindRod").GetComponent<RodObtained>();
+
         lassoTetherControllerScript = player.GetComponent<LassoTetherController>();
         playerActionsScript = player.GetComponent<PlayerActions>();
+
 
         rodLocation = rodImage.GetComponent<RectTransform>();
         tetherLocation = tetherImage.GetComponent<RectTransform>();
@@ -73,7 +79,8 @@ public class UIImageMovement : MonoBehaviour
                 selectionRingImage.transform.DOMove(tetherLocation.position, timeToMove, false);
             }
         }
-
+        
+        //update UI based on equipped tool
         var lastRodEquipped = lassoTetherControllerScript.rodEquipped;
         if (lassoTetherControllerScript.rodEquipped != lastRodEquipped)
         {
@@ -89,12 +96,13 @@ public class UIImageMovement : MonoBehaviour
             }
         }
 
-
-        //tether get sequence
-        if (tetherCutsceneActive)
+        //check to see if player obtained tether this frame to start cutscene
+        if ((lassoTetherControllerScript.tetherPickedUp && rodObtainedScript.tetherObtainedThisFrame) || (tetherCutsceneForceStart))
         {
             StartCoroutine(TetherObtainedSequence());
-            tetherCutsceneActive = false;
+
+            rodObtainedScript.tetherObtainedThisFrame = false;
+            tetherCutsceneForceStart = false;
         }
     }
 

@@ -7,6 +7,8 @@ public class RodObtained : MonoBehaviour
 
     //!rodEquipped
     [SerializeField] private LassoTetherController lassoTetherControllerScript;
+    [SerializeField] private bool toolUnlockedFromStart = false;
+    private GameObject selectedModel; //tool model that will display in the ground
 
     [Header("Tool to Give")]
 
@@ -18,47 +20,59 @@ public class RodObtained : MonoBehaviour
     }
 
     [Header("Rod")]
-    [SerializeField] private GameObject rodModel;
-    [SerializeField] private GameObject toolUI;
+    [SerializeField] private GameObject rodDummyModel;
 
-    public bool rodDisabledFromStart = true;
 
 
     [Header("Tether")]
-    [SerializeField] private GameObject tetherModel;
-    public bool tetherDisabledFromStart = true;
+    [SerializeField] private GameObject tetherDummyModel;
+    [HideInInspector] public bool tetherObtainedThisFrame; // checked in 1 frame so the cutscene only triggers once
 
 
     public void Awake() 
     {
-        //get depe
+        //get dependencies
         lassoTetherControllerScript = GameObject.Find("ThirdPersonPlayer").GetComponent<LassoTetherController>();
-        toolUI = GameObject.Find("RodUI");
-        rodModel = GameObject.Find("NewTool");
-        //tetherModel = GameObject.Find("NewToolGrapple");
+        //toolUI = GameObject.Find("RodUI");
 
-        if (rodDisabledFromStart)
+
+
+        //Switch out models depending on what tool is selected 
+        rodDummyModel.SetActive(false);
+        tetherDummyModel.SetActive(false);
+
+
+        if (selectedTool == ToolEnum.Rod) selectedModel = rodDummyModel;
+        if (selectedTool == ToolEnum.Tether) selectedModel = tetherDummyModel;
+
+        //change setup depeing on if the tool is unlocked from the start or not 
+        if (toolUnlockedFromStart)
         {
+            //disable model since its already been picked up
+            if (selectedModel != null) selectedModel.SetActive(false);
+
+
+            //disable the non-selected tools logic
+            if (selectedTool != ToolEnum.Rod) DeActivateRod();
+            if (selectedTool != ToolEnum.Tether) DeActivateTether();
+        }
+        else
+        {
+
+            //enable model ready to be obtained
+            if (selectedModel != null) selectedModel.SetActive(true);
+
+            //disable all tool logic
+            DeActivateRod();
             DeActivateRod();
         }
 
-        if (tetherDisabledFromStart)
-        {
-            DeActivateTether();
-        }
+
     }
 
     public void ActivateRod()
     {
         print("rod obtained");
-
-  
-        //check if everything is here
-        if (toolUI == null)
-        {
-            Debug.LogWarning("No Tool UI Found");
-            return;
-        }
 
         if (lassoTetherControllerScript == null)
         {
@@ -66,42 +80,36 @@ public class RodObtained : MonoBehaviour
             return;
         }
 
-        if (rodModel == null)
-        {
-            Debug.LogWarning("No Rod Model Found");
-            return;
-        }
-
-        // Enable tool UI
-        toolUI.SetActive(true);
-
         // Enable rod functionality
         lassoTetherControllerScript.rodPickedUp = true;
-        if (rodModel != null) rodModel.SetActive(true);
+        if (rodDummyModel != null) rodDummyModel.SetActive(false);
 
         //play sfx and disable game object
         //AudioManager.Instance.PlaySFX(AudioManager.Instance.RodCollect, 10, 1);
         RuntimeManager.PlayOneShot("event:/Fanfare", transform.position);
-        gameObject.SetActive(false);
+        //gameObject.SetActive(false);
 
     }
 
     public void DeActivateRod()
     {
-        toolUI.SetActive(false);
         lassoTetherControllerScript.rodPickedUp = false;
-        if (rodModel != null) rodModel.SetActive(false);
     }
 
     public void ActivateTether()
     {
-        //tutorialText.SetActive(true);
+        //Update Variables 
         lassoTetherControllerScript.tetherPickedUp = true;
         lassoTetherControllerScript.rodEquipped = false;
+        tetherObtainedThisFrame = true;
 
-        if (tetherModel!=null) tetherModel.SetActive(true);
+        //Disable Dummy model 
+        if (tetherDummyModel != null) tetherDummyModel.SetActive(false); //i think this can be deleted becuase there is no longer 2 seperate models
 
-        gameObject.SetActive(false);
+        //gameObject.SetActive(false);
+
+
+
         //AudioManager.Instance.PlaySFX(AudioManager.Instance.RodCollect, 10, 1);
         RuntimeManager.PlayOneShot("event:/Fanfare", transform.position);
 
@@ -111,7 +119,6 @@ public class RodObtained : MonoBehaviour
     public void DeActivateTether()
     {
         lassoTetherControllerScript.tetherPickedUp = false;
-        if (tetherModel != null) tetherModel.SetActive(false);
     }
 
     private void OnTriggerEnter(Collider other)
@@ -124,11 +131,8 @@ public class RodObtained : MonoBehaviour
             {
                 ActivateTether();
 
-                GetComponent<DialogueTrigger>().CreateNPCDialogue();
+                //GetComponent<DialogueTrigger>().CreateNPCDialogue();
             }
-
         }
-
     }
-
 }
