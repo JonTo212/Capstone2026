@@ -33,7 +33,7 @@ public class LassoTetherController : MonoBehaviour
     private bool previousRodEquipped;
 
     #region Unity Functions
-    private void Awake()
+    private void Start()
     {
         _playerRefData = GetComponent<PlayerRefData>();
 
@@ -138,13 +138,16 @@ public class LassoTetherController : MonoBehaviour
 
     private void OnLassoHit()
     {
-        if (_playerRefData.Lasso.SnaredObject != null && _playerRefData.Lasso.SnaredObject.TryGetComponent(out SwingPoint swingPoint))
+        if (_playerRefData.Lasso.SnaredObject == null) return;
+
+        if (_playerRefData.Lasso.SnaredObject.TryGetComponent(out SwingPoint swingPoint))
         {
             _playerRefData.Lasso.HandleSwingSetup();
             SwitchLassoState(LassoState.Swinging);
         }
         else
         {
+            _playerRefData.Lasso.SnaredObject.OnPropDestroyed += ClearHold;
             _playerRefData.PlayerMovement.SetGrabbing(true);
             SwitchLassoState(LassoState.Snared);
         }
@@ -160,6 +163,7 @@ public class LassoTetherController : MonoBehaviour
     {
         if (_playerRefData.Lasso.SnaredObject != null)
         {
+            _playerRefData.Lasso.SnaredObject.OnPropDestroyed -= ClearHold;
             _playerRefData.Lasso.SnaredObject.SetRigidbodyConstraints(null);
             _playerRefData.Lasso.HandleObjectReleased();
         }

@@ -14,7 +14,7 @@ public class PlayerNPCCapture : MonoBehaviour
 
     public event Action OnObjectYankCompleted;
 
-    private void Awake()
+    private void Start()
     {
         _playerRefData = GetComponent<PlayerRefData>();
         _playerRefData.Lasso.OnNPCHit += CaptureNPC;
