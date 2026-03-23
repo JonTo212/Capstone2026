@@ -6,6 +6,7 @@ public class RodObtained : MonoBehaviour
 {
 
     //!rodEquipped
+    [SerializeField] private GameObject player;
     [SerializeField] private LassoTetherController lassoTetherControllerScript;
     [SerializeField] private bool toolUnlockedFromStart = false;
     private GameObject selectedModel; //tool model that will display in the ground
@@ -20,27 +21,36 @@ public class RodObtained : MonoBehaviour
     }
 
     [Header("Rod")]
+    [SerializeField] private GameObject rodPlayerHandModel;
     [SerializeField] private GameObject rodDummyModel;
 
 
 
     [Header("Tether")]
     [SerializeField] private GameObject tetherDummyModel;
-    [HideInInspector] public bool tetherObtainedThisFrame; // checked in 1 frame so the cutscene only triggers once
+    [SerializeField] public bool tetherObtainedThisFrame; // checked in 1 frame so the cutscene only triggers once
+
+    [SerializeField] private Collider col;
 
 
     public void Awake() 
     {
         //get dependencies
-        lassoTetherControllerScript = GameObject.Find("ThirdPersonPlayer").GetComponent<LassoTetherController>();
+        player = GameObject.FindWithTag("Player");
+        lassoTetherControllerScript = player.GetComponent<LassoTetherController>();
+        col = GetComponent<SphereCollider>();
+
+        //rodPlayerHandModel = player.transform.Find("NewTool").gameObject;
+
         //toolUI = GameObject.Find("RodUI");
 
 
 
         //Switch out models depending on what tool is selected 
+        rodPlayerHandModel.SetActive(false);
         rodDummyModel.SetActive(false);
         tetherDummyModel.SetActive(false);
-
+        
 
         if (selectedTool == ToolEnum.Rod) selectedModel = rodDummyModel;
         if (selectedTool == ToolEnum.Tether) selectedModel = tetherDummyModel;
@@ -64,7 +74,7 @@ public class RodObtained : MonoBehaviour
 
             //disable all tool logic
             DeActivateRod();
-            DeActivateRod();
+            DeActivateTether();
         }
 
 
@@ -82,7 +92,10 @@ public class RodObtained : MonoBehaviour
 
         // Enable rod functionality
         lassoTetherControllerScript.rodPickedUp = true;
-        if (rodDummyModel != null) rodDummyModel.SetActive(false);
+
+        rodPlayerHandModel.SetActive(true); // make tool appear in players hand
+        if (rodDummyModel != null) rodDummyModel.SetActive(false); // make tool in ground disapear
+
 
         //play sfx and disable game object
         //AudioManager.Instance.PlaySFX(AudioManager.Instance.RodCollect, 10, 1);
@@ -133,6 +146,8 @@ public class RodObtained : MonoBehaviour
 
                 //GetComponent<DialogueTrigger>().CreateNPCDialogue();
             }
+
+            col.enabled = false; //disable collider so it cant be obtained again
         }
     }
 }

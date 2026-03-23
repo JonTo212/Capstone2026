@@ -444,7 +444,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5971934844053885386}
   - component: {fileID: 7809282499391062002}
-  - component: {fileID: 1751554374370694638}
+  - component: {fileID: 290628690718367020}
   m_Layer: 5
   m_Name: button
   m_TagString: Untagged
@@ -479,7 +479,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3367397680787148053}
   m_CullTransparentMesh: 1
---- !u!114 &1751554374370694638
+--- !u!114 &290628690718367020
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -488,9 +488,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 3367397680787148053}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Script: {fileID: 11500000, guid: 1344c3c82d62a2a41a3576d8abb8e3ea, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.RawImage
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
@@ -499,16 +499,13 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 3bee2a58f211aa242b831cc01646e304, type: 3}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
+  m_Texture: {fileID: 2800000, guid: 3bee2a58f211aa242b831cc01646e304, type: 3}
+  m_UVRect:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 1
+    height: 1
 --- !u!1 &3842659727548176370
 GameObject:
   m_ObjectHideFlags: 0
@@ -700,14 +697,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca3b5465792f20444aca1a57c45cf3ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIImageMovement
+  player: {fileID: 0}
+  lassoTetherControllerScript: {fileID: 0}
+  playerActionsScript: {fileID: 0}
+  rodObtainedScript: {fileID: 0}
   rodImage: {fileID: 145471977075687548}
   tetherImage: {fileID: 2344850748133505193}
   selectionRingImage: {fileID: 360610579465701717}
+  selectionRingButton: {fileID: 290628690718367020}
   swapToolImage: {fileID: 2892616381406307661}
   tetherSprite: {fileID: 2800000, guid: 7cdf34f2e6f66874a864f46a68e044a0, type: 3}
   tetherBrokenSprite: {fileID: 2800000, guid: db14cf3bbdf8a724690582be43ffd18d, type: 3}
-  tetherCutsceneActive: 0
   Tools: {fileID: 435157075472011174}
+  OtherControls: {fileID: 3215591685470524756}
+  tetherCutsceneForceStart: 0
   tetherUnlockedText: {fileID: 2362644175725603059}
   tetherUnlockedDescription: {fileID: 1344564933781256226}
 --- !u!1 &4298004458608905535

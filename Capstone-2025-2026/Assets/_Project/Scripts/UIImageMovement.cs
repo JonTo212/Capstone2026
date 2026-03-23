@@ -11,10 +11,10 @@ public class UIImageMovement : MonoBehaviour
 {
 
     //References
-    private GameObject player;
-    private LassoTetherController lassoTetherControllerScript;
-    private PlayerActions playerActionsScript;
-    private RodObtained rodObtainedScript;
+    [SerializeField] private GameObject player;
+    [SerializeField] private LassoTetherController lassoTetherControllerScript;
+    [SerializeField] private PlayerActions playerActionsScript;
+    [SerializeField] private RodObtained rodObtainedScript;
 
     //Sprite and Object References
     //[SerializeField] private GameObject tetherIconObject;
@@ -23,6 +23,7 @@ public class UIImageMovement : MonoBehaviour
     [SerializeField] private RawImage rodImage;
     [SerializeField] private RawImage tetherImage;
     [SerializeField] private RawImage selectionRingImage;
+    [SerializeField] private RawImage selectionRingButton;
     [SerializeField] private RawImage swapToolImage;
 
 
@@ -38,21 +39,28 @@ public class UIImageMovement : MonoBehaviour
     private float timeToMove = 0.5f; //time in seconds to move between points
 
 
+    //UI objects
+    [SerializeField] private GameObject Tools;
+    [SerializeField] private GameObject OtherControls;
+
     //TetherCutscene
     public bool tetherCutsceneForceStart = false;
-    [SerializeField] private GameObject Tools;
+
+    public float UIFadeTime = 1f;
+    public float toolUIMoveTime = 3f;
+
 
     //Tethertext
     [SerializeField] private TextMeshProUGUI tetherUnlockedText;
     [SerializeField] private TextMeshProUGUI tetherUnlockedDescription;
 
-    
+    private bool lastRodEquipped; //used to check if the equipped tool has changed since last frame to update UI
 
     private void Start()
     {
         //player info
         player = GameObject.FindWithTag("Player");
-        rodObtainedScript = GameObject.Find("FindRod").GetComponent<RodObtained>();
+        rodObtainedScript = GameObject.Find("FindTether").GetComponent<RodObtained>();
 
         lassoTetherControllerScript = player.GetComponent<LassoTetherController>();
         playerActionsScript = player.GetComponent<PlayerActions>();
@@ -60,6 +68,9 @@ public class UIImageMovement : MonoBehaviour
 
         rodLocation = rodImage.GetComponent<RectTransform>();
         tetherLocation = tetherImage.GetComponent<RectTransform>();
+
+
+        lastRodEquipped = !lassoTetherControllerScript.rodEquipped;
     }
 
     void Update()
@@ -76,15 +87,15 @@ public class UIImageMovement : MonoBehaviour
             if (!lassoTetherControllerScript.tetherPickedUp)
             {
                 //placeholder animation for the switch failing, having issues making the shake work
-                selectionRingImage.transform.DOMove(tetherLocation.position, timeToMove, false);
+                selectionRingImage.transform.DOShakePosition(timeToMove, 10, 20, 90, false);
             }
         }
         
         //update UI based on equipped tool
-        var lastRodEquipped = lassoTetherControllerScript.rodEquipped;
+
         if (lassoTetherControllerScript.rodEquipped != lastRodEquipped)
         {
-            lastRodEquipped = lassoTetherControllerScript.rodEquipped;
+            print("tool switch animation");
 
             if (lastRodEquipped)
             {
@@ -94,11 +105,17 @@ public class UIImageMovement : MonoBehaviour
             {
                 TetherEquip();
             }
+
+            lastRodEquipped = lassoTetherControllerScript.rodEquipped; //invert the bool so it only fires logic for 1 frame
         }
 
-        //check to see if player obtained tether this frame to start cutscene
+
+        print("rod equipt   " + lastRodEquipped);
+;       //check to see if player obtained tether this frame to start cutscene
         if ((lassoTetherControllerScript.tetherPickedUp && rodObtainedScript.tetherObtainedThisFrame) || (tetherCutsceneForceStart))
         {
+            print("TetherCutscene");
+
             StartCoroutine(TetherObtainedSequence());
 
             rodObtainedScript.tetherObtainedThisFrame = false;
@@ -150,19 +167,23 @@ public class UIImageMovement : MonoBehaviour
 
     IEnumerator TetherObtainedSequence()
     {
+        selectionRingImage.DOFade(0, UIFadeTime);
+        selectionRingButton.DOFade(0, UIFadeTime);
 
-        //start cutscene transition
+        OtherControls.transform.DOScale(new Vector3(0, 0, 0), UIFadeTime);
+
+
+        //OtherControls.SetActive(false);
+
+        yield return new WaitForSeconds(UIFadeTime);
 
         //move tools
-        Tools.transform.DOLocalMove(new Vector2(-718f, -359f), timeToMove*3, false);
-        Tools.transform.DOScale(new Vector3(2, 2f, 1), timeToMove*3);
-
-        //remove other UI
-        swapToolImage.DOFade(0, 1);
-        selectionRingImage.DOFade(0, 1);
+        Tools.transform.DOLocalMove(new Vector2(-718f, -359f), timeToMove* toolUIMoveTime, false);
+        Tools.transform.DOScale(new Vector3(2, 2f, 1), timeToMove* toolUIMoveTime);
 
 
-        yield return new WaitForSeconds(3f);
+
+        yield return new WaitForSeconds(toolUIMoveTime);
 
         TetherObtainedSpriteAnimation();
 
@@ -171,19 +192,23 @@ public class UIImageMovement : MonoBehaviour
 
         TetherObtainedText(1);
 
-        yield return new WaitForSeconds(3f);
+        yield return new WaitForSeconds(toolUIMoveTime);
 
         TetherObtainedText(0);
 
-        //fade back other UI
-        swapToolImage.DOFade(1, timeToMove);
-        selectionRingImage.DOFade(1, timeToMove);
 
         //move tools
-        Tools.transform.DOLocalMove(new Vector3(0, 0, 0), timeToMove*3, false);
-        Tools.transform.DOScale(new Vector3(1, 1, 1), timeToMove * 3);
+        Tools.transform.DOLocalMove(new Vector3(0, 0, 0), timeToMove* toolUIMoveTime, false);
+        Tools.transform.DOScale(new Vector3(1, 1, 1), timeToMove * toolUIMoveTime);
 
-        yield return new WaitForSeconds(3f);
+        yield return new WaitForSeconds(toolUIMoveTime-2);
+
+        //fade back other UI
+        OtherControls.transform.DOScale(new Vector3(1, 1, 1), UIFadeTime);
+
+        selectionRingImage.transform.position = rodLocation.position;
+        selectionRingImage.DOFade(1, 1);
+        selectionRingButton.DOFade(1, 1);
 
     }
 
