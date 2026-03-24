@@ -8,7 +8,6 @@ public class CritterInstance : MonoBehaviour
 {
     public CritterColllectible CritterCollectibleData;
 
-    [HideInInspector]
     public int instID;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -36,6 +35,7 @@ public class CritterInstance : MonoBehaviour
         RuntimeManager.PlayOneShot("event:/NPCSave", transform.position);
         CollectibleManager.Instance.CritterCollected(instID);
 
+        Debug.Log("saved");
         //Destroy(this.gameObject);
 
     }
@@ -44,7 +44,6 @@ public class CritterInstance : MonoBehaviour
     {
         GameObject critterVisual = Instantiate(CritterCollectibleData.CritterModelPrefab, this.transform);
 
-        CollectibleManager.Instance.RegisterCritter(CritterCollectibleData.CritterStampSilhouette, CritterCollectibleData.CritterStampImg);
-        instID = CollectibleManager.Instance.GetID();
+        CollectibleManager.Instance.RegisterCritter(CritterCollectibleData.CritterStampSilhouette, CritterCollectibleData.CritterStampImg, instID);
     }
 }

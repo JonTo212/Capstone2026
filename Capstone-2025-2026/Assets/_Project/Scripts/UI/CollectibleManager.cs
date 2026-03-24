@@ -45,10 +45,6 @@ public class CollectibleManager : MonoBehaviour
 
     }
 
-    public int GetID ()
-    {
-        return count;
-    }
 
     public void CoinCollected()
     {
@@ -58,12 +54,14 @@ public class CollectibleManager : MonoBehaviour
 
     public void CritterCollected(int ID)
     {
+        Debug.Log("count: " + count);
 
         for (int i = 0; i < critLog.Count; i++)
         {
             if (critLog[i].critID == ID)
             {
-                spawner.UpdateVisual(critLog[i].stmSpr, i);
+                Debug.Log("Found critterID");
+                spawner.UpdateVisual(critLog[i].stmSpr, critLog[i].critID);
             }
 
 
@@ -73,12 +71,12 @@ public class CollectibleManager : MonoBehaviour
     }
 
 
-    public void RegisterCritter (Sprite critterSilSprite, Sprite critterStampSprite)
+    public void RegisterCritter (Sprite critterSilSprite, Sprite critterStampSprite, int ID)
     {
         count++;
 
         critLog.Add(new CritterCatalogue());
-        critLog[count-1].critID = count;
+        critLog[count-1].critID = ID;
         critLog[count-1].silSpr = critterSilSprite;
         critLog[count-1].stmSpr = critterStampSprite;
 
