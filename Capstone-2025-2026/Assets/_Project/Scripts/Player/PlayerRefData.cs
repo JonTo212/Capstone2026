@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class PlayerRefData : MonoBehaviour
 {
+    public static PlayerRefData Instance { get; private set; }
     public PlayerMovement PlayerMovement { get; private set; }
     public PlayerModelRotationHandler PlayerModelRotationHandler { get; private set; }
     public PlayerSwing PlayerSwing { get; private set; }
@@ -16,6 +17,8 @@ public class PlayerRefData : MonoBehaviour
 
     private void Awake()
     {
+        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+        Instance = this;
         PlayerMovement = GetComponent<PlayerMovement>();
         PlayerModelRotationHandler = GetComponent<PlayerModelRotationHandler>();
         PlayerSwing = GetComponent<PlayerSwing>();

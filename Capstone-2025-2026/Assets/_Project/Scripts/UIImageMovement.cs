@@ -10,16 +10,17 @@ using UnityEngine.UI;
 public class UIImageMovement : MonoBehaviour
 {
 
-    //References
+    [Header("References")]
     [SerializeField] private GameObject player;
     [SerializeField] private LassoTetherController lassoTetherControllerScript;
-    [SerializeField] private PlayerActions playerActionsScript;
     [SerializeField] private RodObtained rodObtainedScript;
+    [SerializeField] private TetherTutorialCutscene tetherTutorialCutsceneScript;
 
     //Sprite and Object References
     //[SerializeField] private GameObject tetherIconObject;
     //[SerializeField] private GameObject toolSwitchIconObject;
 
+    [Header("Raw Images")]
     [SerializeField] private RawImage rodImage;
     [SerializeField] private RawImage tetherImage;
     [SerializeField] private RawImage selectionRingImage;
@@ -27,9 +28,9 @@ public class UIImageMovement : MonoBehaviour
     [SerializeField] private RawImage swapToolImage;
 
 
-    //Sprites
-    public Texture tetherSprite;
-    public Texture tetherBrokenSprite; // sprite reference so i can show it being broken and fixed
+    [Header("Sprites")]
+    [SerializeField] private Texture tetherSprite;
+    [SerializeField] private Texture tetherBrokenSprite; // sprite reference so i can show it being broken and fixed
 
 
     //tool locations
@@ -38,23 +39,32 @@ public class UIImageMovement : MonoBehaviour
 
     private float timeToMove = 0.5f; //time in seconds to move between points
 
-
-    //UI objects
-    [SerializeField] private GameObject Tools;
-    [SerializeField] private GameObject OtherControls;
-
-    //TetherCutscene
+    [Header("Tether Cutscene")]
     public bool tetherCutsceneForceStart = false;
-
     public float UIFadeTime = 1f;
     public float toolUIMoveTime = 3f;
+    private bool lastRodEquipped; //used to check if the equipped tool has changed since last frame to update UI
 
+    [Header("UI Objects")]
+    [SerializeField] private GameObject Tools;
+    [SerializeField] private GameObject OtherControls;
 
     //Tethertext
     [SerializeField] private TextMeshProUGUI tetherUnlockedText;
     [SerializeField] private TextMeshProUGUI tetherUnlockedDescription;
 
-    private bool lastRodEquipped; //used to check if the equipped tool has changed since last frame to update UI
+    [SerializeField] private TextMeshProUGUI transformTutorialText;
+
+
+    [Header("NPC Cutscene Variables")] //Used for the tether wall puzzle cutscene
+    [SerializeField] private Transform cutsceneStartPos;
+    [SerializeField] private Transform lookAtTarget;
+    [SerializeField] private float cutsceneDuration;
+    [SerializeField] private float cutsceneHoldFraction;
+    [SerializeField] private float cutsceneBlendInDelay;
+    [SerializeField] private float cutsceneBlendInTime;
+    [SerializeField] private EndSequeenceTracker endTrack;
+    private NPCKeyCutscene spawnCutscene;
 
     private void Start()
     {
@@ -63,7 +73,7 @@ public class UIImageMovement : MonoBehaviour
         rodObtainedScript = GameObject.Find("FindTether").GetComponent<RodObtained>();
 
         lassoTetherControllerScript = player.GetComponent<LassoTetherController>();
-        playerActionsScript = player.GetComponent<PlayerActions>();
+        //playerActionsScript = player.GetComponent<PlayerActions>();
 
 
         rodLocation = rodImage.GetComponent<RectTransform>();
@@ -71,11 +81,21 @@ public class UIImageMovement : MonoBehaviour
 
 
         lastRodEquipped = !lassoTetherControllerScript.rodEquipped;
+
+
+        //tether text alpha
+        tetherUnlockedText.alpha = 0;
+        tetherUnlockedDescription.alpha = 0;
+        transformTutorialText.alpha = 0;
+
+        //Cutscene
+        spawnCutscene = Camera.main.GetComponent<NPCKeyCutscene>();
+
     }
 
     void Update()
     {
-        if (playerActionsScript.toolSwitchDown)
+        if (PlayerActions.Instance.toolSwitchDown)
         {
             //playsound
             RuntimeManager.PlayOneShot("event:/MenuSelect", transform.position);
@@ -99,11 +119,12 @@ public class UIImageMovement : MonoBehaviour
 
             if (lastRodEquipped)
             {
-                RodEquip();
+                TetherEquip();
+                
             }
             else
             {
-                TetherEquip();
+                RodEquip();
             }
 
             lastRodEquipped = lassoTetherControllerScript.rodEquipped; //invert the bool so it only fires logic for 1 frame
@@ -112,7 +133,7 @@ public class UIImageMovement : MonoBehaviour
 
         print("rod equipt   " + lastRodEquipped);
 ;       //check to see if player obtained tether this frame to start cutscene
-        if ((lassoTetherControllerScript.tetherPickedUp && rodObtainedScript.tetherObtainedThisFrame) || (tetherCutsceneForceStart))
+        if ((rodObtainedScript.tetherObtainedThisFrame) || (tetherCutsceneForceStart))
         {
             print("TetherCutscene");
 
@@ -167,8 +188,12 @@ public class UIImageMovement : MonoBehaviour
 
     IEnumerator TetherObtainedSequence()
     {
-        selectionRingImage.DOFade(0, UIFadeTime);
-        selectionRingButton.DOFade(0, UIFadeTime);
+        //change camera view to look at player
+        if (tetherTutorialCutsceneScript!=null)
+        {
+            CameraCutsceneHandler.Instance.StartCutscene(tetherTutorialCutsceneScript);
+        }
+
 
         OtherControls.transform.DOScale(new Vector3(0, 0, 0), UIFadeTime);
 
@@ -192,7 +217,7 @@ public class UIImageMovement : MonoBehaviour
 
         TetherObtainedText(1);
 
-        yield return new WaitForSeconds(toolUIMoveTime);
+        yield return new WaitUntil(() => PlayerActions.Instance.JumpDown); //press A to continue
 
         TetherObtainedText(0);
 
@@ -201,14 +226,33 @@ public class UIImageMovement : MonoBehaviour
         Tools.transform.DOLocalMove(new Vector3(0, 0, 0), timeToMove* toolUIMoveTime, false);
         Tools.transform.DOScale(new Vector3(1, 1, 1), timeToMove * toolUIMoveTime);
 
-        yield return new WaitForSeconds(toolUIMoveTime-2);
+        yield return new WaitForSeconds(toolUIMoveTime);
+
+
+        //enable tether
+        lassoTetherControllerScript.tetherPickedUp = true;
+
+
+        //Start QuicktimeEvent
+        TransformTutorialText(1);
+
+        yield return new WaitUntil(() => PlayerActions.Instance.toolSwitchDown);
+
+        yield return new WaitForSeconds(toolUIMoveTime);
+
+        //end cutscene
+        tetherTutorialCutsceneScript.EndIndefiniteCutscene();
+
+        //wall cutscene
+        spawnCutscene.Configure(cutsceneStartPos, lookAtTarget, cutsceneDuration, cutsceneHoldFraction, cutsceneBlendInDelay, cutsceneBlendInTime);
+        CameraCutsceneHandler.Instance.StartCutscene(spawnCutscene);
+
+        //Start QuicktimeEvent
+        TransformTutorialText(0);
 
         //fade back other UI
         OtherControls.transform.DOScale(new Vector3(1, 1, 1), UIFadeTime);
 
-        selectionRingImage.transform.position = rodLocation.position;
-        selectionRingImage.DOFade(1, 1);
-        selectionRingButton.DOFade(1, 1);
 
     }
 
@@ -223,8 +267,13 @@ public class UIImageMovement : MonoBehaviour
     {
         //tetherUnlockedText.SetActive(activeState);//should make it fade niceley
 
-        tetherUnlockedText.DOFade(alphaValue, timeToMove);
-        tetherUnlockedDescription.DOFade(alphaValue, timeToMove*2);
+        tetherUnlockedText.DOFade(alphaValue, UIFadeTime);
+        tetherUnlockedDescription.DOFade(alphaValue, UIFadeTime * 2);
+    }
+
+    public void TransformTutorialText(int alphaValue)
+    {
+        transformTutorialText.DOFade(alphaValue, UIFadeTime);
     }
 
 }

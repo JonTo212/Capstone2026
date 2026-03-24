@@ -4,8 +4,6 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 public class RodObtained : MonoBehaviour
 {
-
-    //!rodEquipped
     [SerializeField] private GameObject player;
     [SerializeField] private LassoTetherController lassoTetherControllerScript;
     [SerializeField] private bool toolUnlockedFromStart = false;
@@ -23,8 +21,6 @@ public class RodObtained : MonoBehaviour
     [Header("Rod")]
     [SerializeField] private GameObject rodPlayerHandModel;
     [SerializeField] private GameObject rodDummyModel;
-
-
 
     [Header("Tether")]
     [SerializeField] private GameObject tetherDummyModel;
@@ -47,7 +43,7 @@ public class RodObtained : MonoBehaviour
 
 
         //Switch out models depending on what tool is selected 
-        rodPlayerHandModel.SetActive(false);
+        if (rodPlayerHandModel != null) rodPlayerHandModel.SetActive(false);
         rodDummyModel.SetActive(false);
         tetherDummyModel.SetActive(false);
         
@@ -93,7 +89,7 @@ public class RodObtained : MonoBehaviour
         // Enable rod functionality
         lassoTetherControllerScript.rodPickedUp = true;
 
-        rodPlayerHandModel.SetActive(true); // make tool appear in players hand
+        if (rodPlayerHandModel!=null) rodPlayerHandModel.SetActive(true); // make tool appear in players hand
         if (rodDummyModel != null) rodDummyModel.SetActive(false); // make tool in ground disapear
 
 
@@ -112,8 +108,8 @@ public class RodObtained : MonoBehaviour
     public void ActivateTether()
     {
         //Update Variables 
-        lassoTetherControllerScript.tetherPickedUp = true;
-        lassoTetherControllerScript.rodEquipped = false;
+        //lassoTetherControllerScript.tetherPickedUp = true;
+        //lassoTetherControllerScript.rodEquipped = false;
         tetherObtainedThisFrame = true;
 
         //Disable Dummy model 

@@ -77,7 +77,9 @@ public class CameraCutsceneHandler : MonoBehaviour
         _isBlendingIn = false;
 
         _cutscene.OnCutsceneStart();
-        yield return new WaitForSeconds(_cutscene.Duration);
+        
+        if (_cutscene.Indefinite) yield return new WaitUntil(() => _cutscene.SkipInputDetected);
+        else yield return new WaitForSeconds(_cutscene.Duration);
 
         if (cameraController != null)
         {

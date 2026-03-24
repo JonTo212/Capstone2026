@@ -72,7 +72,7 @@ public class PlayerMovement : MonoBehaviour
     private bool _hasJumped;
     private bool _canDoubleJump;
 
-    public Vector3 WishDir { get; private set; }
+    public Vector3 WishDir { get; set; }
     public Rigidbody Rb { get; private set; }
     public PlayerMoveState CurrentMovementState { get; private set; }
 
