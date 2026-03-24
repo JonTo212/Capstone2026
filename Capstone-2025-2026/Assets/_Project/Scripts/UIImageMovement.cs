@@ -52,8 +52,9 @@ public class UIImageMovement : MonoBehaviour
     //Tethertext
     [SerializeField] private TextMeshProUGUI tetherUnlockedText;
     [SerializeField] private TextMeshProUGUI tetherUnlockedDescription;
-
     [SerializeField] private TextMeshProUGUI transformTutorialText;
+
+    [SerializeField] private RawImage blackBG;
 
 
     [Header("NPC Cutscene Variables")] //Used for the tether wall puzzle cutscene
@@ -87,6 +88,7 @@ public class UIImageMovement : MonoBehaviour
         tetherUnlockedText.alpha = 0;
         tetherUnlockedDescription.alpha = 0;
         transformTutorialText.alpha = 0;
+
 
         //Cutscene
         spawnCutscene = Camera.main.GetComponent<NPCKeyCutscene>();
@@ -211,11 +213,13 @@ public class UIImageMovement : MonoBehaviour
         yield return new WaitForSeconds(toolUIMoveTime);
 
         TetherObtainedSpriteAnimation();
+        blackBG.DOFade(0f, UIFadeTime);
 
 
         yield return new WaitForSeconds(1f);
 
         TetherObtainedText(1);
+        blackBG.DOFade(.8f, UIFadeTime);
 
         yield return new WaitUntil(() => PlayerActions.Instance.JumpDown); //press A to continue
 
@@ -238,7 +242,7 @@ public class UIImageMovement : MonoBehaviour
 
         yield return new WaitUntil(() => PlayerActions.Instance.toolSwitchDown);
 
-        yield return new WaitForSeconds(toolUIMoveTime);
+        yield return new WaitForSeconds(1);
 
         //end cutscene
         tetherTutorialCutsceneScript.EndIndefiniteCutscene();
