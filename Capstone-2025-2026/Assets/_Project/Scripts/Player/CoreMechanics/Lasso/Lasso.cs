@@ -71,12 +71,16 @@ public class Lasso : MonoBehaviour
 
     private void Update()
     {
-        if (CheckIfStandingOn() || Vector3.Distance(SnaredObject.transform.position, transform.position) > MaxLassoRange * 1.5f)
+        if (SnaredObject != null)
         {
-            HandleObjectReleased();
-        }
+            if (CheckIfStandingOn() || Vector3.Distance(SnaredObject.transform.position, transform.position) > MaxLassoRange * 1.5f)
+            {
+                _playerRefData.LassoTetherController.ClearHold();
+                return;
+            }
 
-        if (SnaredObject != null) SetVerticalAnchor(false);
+            SetVerticalAnchor(false);
+        }
     }
 
     #endregion
@@ -85,13 +89,9 @@ public class Lasso : MonoBehaviour
     public bool CheckIfStandingOn()
     {
         Transform standingOn = _playerRefData.PlayerMovement.IsGrounded();
-        bool nulled = SnaredObject == null;
-
-        if (nulled) return true;
 
         if (standingOn != null)
         {
-
             bool sameAsHeld = standingOn == SnaredObject.transform;
             bool allowedToHoldWhileStanding = standingOn.TryGetComponent(out Prop prop) && !prop.CanHoldWhileStandingOn;
 

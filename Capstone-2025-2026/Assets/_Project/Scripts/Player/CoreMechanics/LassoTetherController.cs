@@ -275,14 +275,23 @@ public class LassoTetherController : MonoBehaviour
     {
         if (PlayerActions.Instance.LassoUp)
         {
-            ClearHold();
+            if (_playerRefData.Lasso.SnaredObject != null)
+            {
+                _playerRefData.Lasso.SnaredObject.OnPropDestroyed -= ClearHold;
+                _playerRefData.Lasso.SnaredObject.SetRigidbodyConstraints(null);
+                _playerRefData.Lasso.HandleObjectReleased();
+            }
+
+            _playerRefData.JointTetherPlacer.EndTetherPlacement(false, false);
+            _playerRefData.PlayerMovement.SetGrabbing(false);
+
+            SwitchLassoState(LassoState.Empty);
         }
 
         if (PlayerActions.Instance.toolSwitchDown)
         {
             if(_playerRefData.Lasso.SnaredObject != null) _playerRefData.Lasso.SnaredObject.SetRigidbodyConstraints(null);
             _playerRefData.JointTetherPlacer.EndTetherPlacement(false, true);
-            _playerRefData.PlayerMovement.SetGrabbing(false);
             SwitchLassoState(LassoState.Snared);
         }
     }
