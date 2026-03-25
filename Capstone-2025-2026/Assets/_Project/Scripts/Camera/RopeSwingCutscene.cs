@@ -76,11 +76,11 @@ public class RopeSwingCutscene : PlayerCutsceneBase
         Vector3 startFwdFlat = new Vector3(startFwd.x, 0f, startFwd.z);
         _currentModelYaw = startFwdFlat.sqrMagnitude > 0.01f ? Quaternion.LookRotation(startFwdFlat).eulerAngles.y : 0f;
 
-        if (playerModelRotation != null)
-            playerModelRotation.SetNewRotationDir(null, true);
-
         PlayerActions.Instance.RumbleFor(0.015f, 0.03f, Duration);
         player.GetComponent<PlayerRefData>().LassoTetherController.ClearHold();
+
+        if (playerModelRotation != null)
+            playerModelRotation.SetNewRotationDir(null, true);
     }
 
     public override void OnCutsceneTick()
