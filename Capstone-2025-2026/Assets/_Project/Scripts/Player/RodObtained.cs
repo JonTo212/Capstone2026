@@ -4,6 +4,8 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 public class RodObtained : MonoBehaviour
 {
+    //THIS SCRIPT IS WORKING WITH UIIMAGEMOVEMENT SCRIPT TO TELL IT WHEN TO ENABLE THE TOOLS AND START THE CUTSCENES.
+
     [SerializeField] private GameObject player;
     [SerializeField] private LassoTetherController lassoTetherControllerScript;
     [SerializeField] private bool toolUnlockedFromStart = false;
@@ -21,6 +23,7 @@ public class RodObtained : MonoBehaviour
     [Header("Rod")]
     [SerializeField] private GameObject rodPlayerHandModel;
     [SerializeField] private GameObject rodDummyModel;
+    [SerializeField] public bool rodObtainedThisFrame; // checked in 1 frame so the cutscene only triggers once
 
     [Header("Tether")]
     [SerializeField] private GameObject tetherDummyModel;
@@ -28,18 +31,12 @@ public class RodObtained : MonoBehaviour
 
     [SerializeField] private Collider col;
 
-
     public void Awake() 
     {
         //get dependencies
         player = GameObject.FindWithTag("Player");
         lassoTetherControllerScript = player.GetComponent<LassoTetherController>();
         col = GetComponent<SphereCollider>();
-
-        //rodPlayerHandModel = player.transform.Find("NewTool").gameObject;
-
-        //toolUI = GameObject.Find("RodUI");
-
 
 
         //Switch out models depending on what tool is selected 
@@ -72,13 +69,11 @@ public class RodObtained : MonoBehaviour
             DeActivateRod();
             DeActivateTether();
         }
-
-
     }
 
     public void ActivateRod()
     {
-        print("rod obtained");
+        rodObtainedThisFrame = true;
 
         if (lassoTetherControllerScript == null)
         {
@@ -92,12 +87,8 @@ public class RodObtained : MonoBehaviour
         if (rodPlayerHandModel!=null) rodPlayerHandModel.SetActive(true); // make tool appear in players hand
         if (rodDummyModel != null) rodDummyModel.SetActive(false); // make tool in ground disapear
 
-
-        //play sfx and disable game object
-        //AudioManager.Instance.PlaySFX(AudioManager.Instance.RodCollect, 10, 1);
+        //fanfare sfx 
         RuntimeManager.PlayOneShot("event:/Fanfare", transform.position);
-        //gameObject.SetActive(false);
-
     }
 
     public void DeActivateRod()
@@ -107,22 +98,14 @@ public class RodObtained : MonoBehaviour
 
     public void ActivateTether()
     {
-        //Update Variables 
-        //lassoTetherControllerScript.tetherPickedUp = true;
-        //lassoTetherControllerScript.rodEquipped = false;
+        //tells the UIIMAGEMOVEMENT script to start cutscene
         tetherObtainedThisFrame = true;
 
         //Disable Dummy model 
         if (tetherDummyModel != null) tetherDummyModel.SetActive(false); //i think this can be deleted becuase there is no longer 2 seperate models
 
-        //gameObject.SetActive(false);
-
-
-
-        //AudioManager.Instance.PlaySFX(AudioManager.Instance.RodCollect, 10, 1);
+        //fanfare sfx
         RuntimeManager.PlayOneShot("event:/Fanfare", transform.position);
-
-        //InsertVisuals
     }
 
     public void DeActivateTether()

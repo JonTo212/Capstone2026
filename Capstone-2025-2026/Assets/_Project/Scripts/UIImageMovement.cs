@@ -13,12 +13,17 @@ public class UIImageMovement : MonoBehaviour
     [Header("References")]
     [SerializeField] private GameObject player;
     [SerializeField] private LassoTetherController lassoTetherControllerScript;
-    [SerializeField] private RodObtained rodObtainedScript;
-    [SerializeField] private TetherTutorialCutscene tetherTutorialCutsceneScript;
 
-    //Sprite and Object References
-    //[SerializeField] private GameObject tetherIconObject;
-    //[SerializeField] private GameObject toolSwitchIconObject;
+    //[SerializeField] private RodObtained tetherObtainedScript;
+    [SerializeField] private RodObtained rodObtainedScript; //must reference the specific prefab instance
+    [SerializeField] private RodObtained tetherObtainedScript;
+
+    [SerializeField] private TetherTutorialCutscene tetherTutorialCutsceneScript;
+    [SerializeField] private RodTutorialCutscene rodTutorialCutsceneScript;
+
+    
+    private bool lastRodEquipped; //used to check if the equipped tool has changed since last frame to update UI
+
 
     [Header("Raw Images")]
     [SerializeField] private RawImage rodImage;
@@ -26,38 +31,54 @@ public class UIImageMovement : MonoBehaviour
     [SerializeField] private RawImage selectionRingImage;
     [SerializeField] private RawImage selectionRingButton;
     [SerializeField] private RawImage swapToolImage;
+    [SerializeField] private RawImage blackBG;
 
 
-    [Header("Sprites")]
+    [Header("Lost Tool Sprites")]// sprite reference so i can show it being broken and fixed
+    [SerializeField] private Texture rodSprite;
+    [SerializeField] private Texture rodBrokenSprite;
+
     [SerializeField] private Texture tetherSprite;
-    [SerializeField] private Texture tetherBrokenSprite; // sprite reference so i can show it being broken and fixed
+    [SerializeField] private Texture tetherBrokenSprite; 
 
 
     //tool locations
     private RectTransform rodLocation;
     private RectTransform tetherLocation;
 
+
     private float timeToMove = 0.5f; //time in seconds to move between points
 
-    [Header("Tether Cutscene")]
+    [Header("Tool Cutscene Variables")] //Used for the rod
+    public bool RodCutsceneForceStart = false; //used to trigger the cutscene for testing, will be triggered by the rod pickup in the actual game
     public bool tetherCutsceneForceStart = false;
+
     public float UIFadeTime = 1f;
     public float toolUIMoveTime = 3f;
-    private bool lastRodEquipped; //used to check if the equipped tool has changed since last frame to update UI
+
+
+
 
     [Header("UI Objects")]
     [SerializeField] private GameObject Tools;
     [SerializeField] private GameObject OtherControls;
 
-    //Tethertext
+    [Header("RodUnlockText")]
+    [SerializeField] private TextMeshProUGUI rodUnlockedText;
+    [SerializeField] private TextMeshProUGUI rodUnlockedDescription;
+
+    [Header("TetherUnlockText")]
     [SerializeField] private TextMeshProUGUI tetherUnlockedText;
     [SerializeField] private TextMeshProUGUI tetherUnlockedDescription;
     [SerializeField] private TextMeshProUGUI transformTutorialText;
 
-    [SerializeField] private RawImage blackBG;
+
+    [Header("Selection Ring Colors")]
+    [SerializeField] private Color rodSelectedColor = new Color(255, 199, 0, 1);
+    [SerializeField] private Color tetherSelectedColor = new Color(0, 255, 139,1);
 
 
-    [Header("NPC Cutscene Variables")] //Used for the tether wall puzzle cutscene
+    [Header("Tether Tutorial Cutscene Variables")] //Used for the tether wall puzzle cutscene
     [SerializeField] private Transform cutsceneStartPos;
     [SerializeField] private Transform lookAtTarget;
     [SerializeField] private float cutsceneDuration;
@@ -67,32 +88,42 @@ public class UIImageMovement : MonoBehaviour
     [SerializeField] private EndSequeenceTracker endTrack;
     private NPCKeyCutscene spawnCutscene;
 
+
+    
+
+
+
     private void Start()
     {
-        //player info
+        //references
         player = GameObject.FindWithTag("Player");
-        rodObtainedScript = GameObject.Find("FindTether").GetComponent<RodObtained>();
+
+        tetherObtainedScript = GameObject.Find("FindTether").GetComponent<RodObtained>();
+        rodObtainedScript = GameObject.Find("FindRod").GetComponent<RodObtained>();
 
         lassoTetherControllerScript = player.GetComponent<LassoTetherController>();
-        //playerActionsScript = player.GetComponent<PlayerActions>();
-
-
         rodLocation = rodImage.GetComponent<RectTransform>();
         tetherLocation = tetherImage.GetComponent<RectTransform>();
 
+        //Disable Tool UI at start of game 
+        selectionRingImage.DOFade(0f, 0f);
+        selectionRingButton.DOFade(0f, 0f);
 
+        OtherControls.SetActive(false);
+        OtherControls.transform.localScale = new Vector3(0, 0, 0);
+
+        //setup where the UI starts selecting first
         lastRodEquipped = !lassoTetherControllerScript.rodEquipped;
 
-
         //tether text alpha
+        rodUnlockedText.alpha = 0;
+        rodUnlockedDescription.alpha = 0;
         tetherUnlockedText.alpha = 0;
         tetherUnlockedDescription.alpha = 0;
         transformTutorialText.alpha = 0;
 
-
-        //Cutscene
+        //TetherUnlockCutscene
         spawnCutscene = Camera.main.GetComponent<NPCKeyCutscene>();
-
     }
 
     void Update()
@@ -124,7 +155,7 @@ public class UIImageMovement : MonoBehaviour
                 TetherEquip();
                 
             }
-            else
+            else if (lassoTetherControllerScript.rodPickedUp)
             {
                 RodEquip();
             }
@@ -135,27 +166,40 @@ public class UIImageMovement : MonoBehaviour
 
         print("rod equipt   " + lastRodEquipped);
 ;       //check to see if player obtained tether this frame to start cutscene
-        if ((rodObtainedScript.tetherObtainedThisFrame) || (tetherCutsceneForceStart))
+        if ((tetherObtainedScript.tetherObtainedThisFrame) || (tetherCutsceneForceStart))
         {
             print("TetherCutscene");
 
             StartCoroutine(TetherObtainedSequence());
 
-            rodObtainedScript.tetherObtainedThisFrame = false;
+            tetherObtainedScript.tetherObtainedThisFrame = false;
             tetherCutsceneForceStart = false;
+        }
+
+
+        if ((rodObtainedScript.rodObtainedThisFrame) || (RodCutsceneForceStart))
+        {
+            print("Ballright");
+
+            StartCoroutine(RodObtainedSequence());
+            rodObtainedScript.rodObtainedThisFrame = false;
+            RodCutsceneForceStart = false;
         }
     }
 
 
     void RodEquip()
     {
+        print("rodEquipt");
+
         //Change selected tool
         selectionRingImage.transform.DOMove(rodLocation.position, timeToMove, false);
 
         //Edit Colors
         rodImage.DOColor(new Color(1, 1, 1), timeToMove); //Set Rod to full color
         tetherImage.DOColor(new Color(1, 1, 1, 0.6f), timeToMove); // Set Tether low alpha
-        selectionRingImage.DOColor(new Color(0, 255, 139), .1f);
+
+        selectionRingImage.DOColor(rodSelectedColor, .1f);
     }
 
     void TetherEquip()
@@ -168,9 +212,10 @@ public class UIImageMovement : MonoBehaviour
             selectionRingImage.transform.DOMove(tetherLocation.position, timeToMove, false);
 
             //Edit Colors
-            selectionRingImage.DOColor(new Color(255, 199, 0), .1f);
             rodImage.DOColor(new Color(1, 1, 1, 0.6f), timeToMove);
             tetherImage.DOColor(new Color(1, 1, 1), timeToMove);
+
+            selectionRingImage.DOColor(tetherSelectedColor, .1f);
         }
         else
         {
@@ -183,24 +228,24 @@ public class UIImageMovement : MonoBehaviour
     {
         //swap icon rotate
         swapToolImage.transform.DORotate(new Vector3(0, 0, swapToolImage.transform.rotation.eulerAngles.z - 360f), timeToMove, RotateMode.FastBeyond360);
-
-        //play different animation if no tether equipped
-
     }
 
+
+    #region TetherUnlockSequence
     IEnumerator TetherObtainedSequence()
     {
         //change camera view to look at player
-        if (tetherTutorialCutsceneScript!=null)
+        if (tetherTutorialCutsceneScript != null)
         {
             CameraCutsceneHandler.Instance.StartCutscene(tetherTutorialCutsceneScript);
         }
 
-
+        //make UI tool controls disapear
         OtherControls.transform.DOScale(new Vector3(0, 0, 0), UIFadeTime);
+        selectionRingButton.DOFade(.25f, UIFadeTime);
 
-
-        //OtherControls.SetActive(false);
+        //black fade
+        blackBG.DOFade(.9f, UIFadeTime);
 
         yield return new WaitForSeconds(UIFadeTime);
 
@@ -208,29 +253,28 @@ public class UIImageMovement : MonoBehaviour
         Tools.transform.DOLocalMove(new Vector2(-718f, -359f), timeToMove* toolUIMoveTime, false);
         Tools.transform.DOScale(new Vector3(2, 2f, 1), timeToMove* toolUIMoveTime);
 
-
-
         yield return new WaitForSeconds(toolUIMoveTime);
 
+        //play animation of getting tether
         TetherObtainedSpriteAnimation();
-        blackBG.DOFade(0f, UIFadeTime);
-
 
         yield return new WaitForSeconds(1f);
 
+        //"You Got the tether!"
         TetherObtainedText(1);
-        blackBG.DOFade(.8f, UIFadeTime);
 
         yield return new WaitUntil(() => PlayerActions.Instance.JumpDown); //press A to continue
 
-        TetherObtainedText(0);
+        //fanfare text disapears
 
+        blackBG.DOFade(0f, UIFadeTime);
+        TetherObtainedText(0);
 
         //move tools
         Tools.transform.DOLocalMove(new Vector3(0, 0, 0), timeToMove* toolUIMoveTime, false);
         Tools.transform.DOScale(new Vector3(1, 1, 1), timeToMove * toolUIMoveTime);
 
-        yield return new WaitForSeconds(toolUIMoveTime);
+        yield return new WaitForSeconds(toolUIMoveTime-1);
 
 
         //enable tether
@@ -255,7 +299,8 @@ public class UIImageMovement : MonoBehaviour
         TransformTutorialText(0);
 
         //fade back other UI
-        OtherControls.transform.DOScale(new Vector3(1, 1, 1), UIFadeTime);
+        OtherControls.transform.DOScale(new Vector3(1, 1, 1), UIFadeTime+.2f); // slight delay to have it appear after selection ring button. Gives it more character
+        selectionRingButton.DOFade(1f, UIFadeTime);
 
 
     }
@@ -280,4 +325,79 @@ public class UIImageMovement : MonoBehaviour
         transformTutorialText.DOFade(alphaValue, UIFadeTime);
     }
 
+    #endregion
+
+
+    #region RodUnlockSequence
+    IEnumerator RodObtainedSequence()
+    {
+        //change camera view to look at player
+        if (rodTutorialCutsceneScript != null)
+        {
+            CameraCutsceneHandler.Instance.StartCutscene(rodTutorialCutsceneScript);
+        }
+
+
+        //black fade
+        blackBG.DOFade(.9f, UIFadeTime);
+
+        yield return new WaitForSeconds(UIFadeTime);
+
+        //move tools
+        Tools.transform.DOLocalMove(new Vector2(-718f, -359f), toolUIMoveTime, false);
+        Tools.transform.DOScale(new Vector3(2, 2f, 1), timeToMove * toolUIMoveTime);
+
+        yield return new WaitForSeconds(toolUIMoveTime);
+
+        //play animation of getting tether
+        RodObtainedSpriteAnimation();
+
+        yield return new WaitForSeconds(1f);
+
+        //"You Got the tether!"
+        RodObtainedText(1);
+
+        yield return new WaitUntil(() => PlayerActions.Instance.JumpDown); //press A to continue
+
+        //fanfare text disapears
+
+        blackBG.DOFade(0f, UIFadeTime);
+        RodObtainedText(0);
+
+        //move tools
+        Tools.transform.DOLocalMove(new Vector3(0, 0, 0), timeToMove * toolUIMoveTime, false);
+        Tools.transform.DOScale(new Vector3(1, 1, 1), timeToMove * toolUIMoveTime);
+
+        yield return new WaitForSeconds(toolUIMoveTime);
+
+        rodTutorialCutsceneScript.EndIndefiniteCutscene();
+
+        //unlock rod functionality
+        //lassoTetherControllerScript.rodPickedUp = true;
+
+
+        //fade back other UI
+        OtherControls.SetActive(true);
+        OtherControls.transform.DOScale(new Vector3(1, 1, 1), UIFadeTime + .2f); // slight delay to have it appear after selection ring button. Gives it more character
+        selectionRingImage.DOFade(1f, UIFadeTime);
+        selectionRingButton.DOFade(1f, UIFadeTime);
+
+
+    }
+
+    public void RodObtainedSpriteAnimation()
+    {
+        //update sprite
+        rodImage.texture = rodSprite;
+        rodImage.transform.DOShakePosition(timeToMove, 10, 20, 90, false);
+    }
+
+    public void RodObtainedText(int alphaValue)
+    {
+        rodUnlockedText.DOFade(alphaValue, UIFadeTime);
+        rodUnlockedDescription.DOFade(alphaValue, UIFadeTime * 2);
+    }
+
+
+    #endregion
 }
