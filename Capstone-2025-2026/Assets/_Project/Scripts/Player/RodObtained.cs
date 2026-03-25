@@ -88,7 +88,7 @@ public class RodObtained : MonoBehaviour
         if (rodDummyModel != null) rodDummyModel.SetActive(false); // make tool in ground disapear
 
         //fanfare sfx 
-        RuntimeManager.PlayOneShot("event:/Fanfare", transform.position);
+        //RuntimeManager.PlayOneShot("event:/Fanfare", transform.position);
     }
 
     public void DeActivateRod()

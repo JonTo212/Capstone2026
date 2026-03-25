@@ -57,11 +57,11 @@ public class ContextPrompts : MonoBehaviour
     void Update()
     {
         UpdateLassoStateUI();
-        UpdateTetherLookUI();
     }
 
     private void UpdateLassoStateUI()
     {
+        GrabPrompt.SetActive(false);
         HoldingStateIcons.SetActive(false);
         RotationStateIcons.SetActive(false);
         TetheringStateIcons.SetActive(false);
@@ -84,11 +84,6 @@ public class ContextPrompts : MonoBehaviour
         }
     }
 
-    private void UpdateTetherLookUI()
-    {
-        if (jointTetherActivator.placedTethers.Count > 0) ActiveTetherPrompts.SetActive(true);
-        else ActiveTetherPrompts.SetActive(false);
-    }
 
 
     public void LookingAtObject(bool active)

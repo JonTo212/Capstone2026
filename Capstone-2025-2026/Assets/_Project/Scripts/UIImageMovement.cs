@@ -31,7 +31,11 @@ public class UIImageMovement : MonoBehaviour
     [SerializeField] private RawImage selectionRingImage;
     [SerializeField] private RawImage selectionRingButton;
     [SerializeField] private RawImage swapToolImage;
+    [SerializeField] private Vector3 swapToolImageStartSize;
+    [SerializeField] private RawImage tetherBreakImage;
+    [SerializeField] private Vector3 tetherBreakImageStartSize;
     [SerializeField] private RawImage blackBG;
+
 
 
     [Header("Lost Tool Sprites")]// sprite reference so i can show it being broken and fixed
@@ -61,7 +65,9 @@ public class UIImageMovement : MonoBehaviour
 
     [Header("UI Objects")]
     [SerializeField] private GameObject Tools;
-    [SerializeField] private GameObject OtherControls;
+    [SerializeField] private GameObject switchTool;
+    [SerializeField] private GameObject tetherBreak;
+
 
     [Header("RodUnlockText")]
     [SerializeField] private TextMeshProUGUI rodUnlockedText;
@@ -89,7 +95,9 @@ public class UIImageMovement : MonoBehaviour
     private NPCKeyCutscene spawnCutscene;
 
 
-    
+    [Header("Active Tethers Count UI")]
+    [SerializeField] private GameObject ActiveTetherPrompts;
+    private JointTetherActivator jointTetherActivator;
 
 
 
@@ -106,11 +114,20 @@ public class UIImageMovement : MonoBehaviour
         tetherLocation = tetherImage.GetComponent<RectTransform>();
 
         //Disable Tool UI at start of game 
+
+        //selection ring
         selectionRingImage.DOFade(0f, 0f);
         selectionRingButton.DOFade(0f, 0f);
 
-        OtherControls.SetActive(false);
-        OtherControls.transform.localScale = new Vector3(0, 0, 0);
+        //switch tool
+        swapToolImageStartSize = switchTool.transform.localScale;
+        switchTool.SetActive(false);
+        switchTool.transform.localScale = new Vector3(0, 0, 0);
+
+        //tether break
+        tetherBreakImageStartSize = tetherBreakImage.transform.localScale;
+        tetherBreak.SetActive(false);
+        switchTool.transform.localScale = new Vector3(0, 0, 0);
 
         //setup where the UI starts selecting first
         lastRodEquipped = !lassoTetherControllerScript.rodEquipped;
@@ -128,6 +145,7 @@ public class UIImageMovement : MonoBehaviour
 
     void Update()
     {
+
         if (PlayerActions.Instance.toolSwitchDown)
         {
             //playsound
@@ -185,6 +203,7 @@ public class UIImageMovement : MonoBehaviour
             rodObtainedScript.rodObtainedThisFrame = false;
             RodCutsceneForceStart = false;
         }
+
     }
 
 
@@ -241,7 +260,8 @@ public class UIImageMovement : MonoBehaviour
         }
 
         //make UI tool controls disapear
-        OtherControls.transform.DOScale(new Vector3(0, 0, 0), UIFadeTime);
+        switchTool.transform.DOScale(new Vector3(0, 0, 0), UIFadeTime);
+        tetherBreak.transform.DOScale(new Vector3(0, 0, 0), UIFadeTime);
         selectionRingButton.DOFade(.25f, UIFadeTime);
 
         //black fade
@@ -299,8 +319,12 @@ public class UIImageMovement : MonoBehaviour
         TransformTutorialText(0);
 
         //fade back other UI
-        OtherControls.transform.DOScale(new Vector3(1, 1, 1), UIFadeTime+.2f); // slight delay to have it appear after selection ring button. Gives it more character
+        switchTool.transform.DOScale(swapToolImageStartSize, UIFadeTime); // slight delay to have it appear after selection ring button. Gives it more character
         selectionRingButton.DOFade(1f, UIFadeTime);
+
+        //add the new tether break button
+        tetherBreak.SetActive(true);
+        tetherBreak.transform.DOScale(tetherBreakImageStartSize, UIFadeTime + .5f); // slight delay to have it appear after selection ring button. Gives it more character
 
 
     }
@@ -308,8 +332,12 @@ public class UIImageMovement : MonoBehaviour
     public void TetherObtainedSpriteAnimation()
     {
         //update sprite
-        tetherImage.texture = tetherSprite;
+        //tetherImage.texture = tetherSprite;
+
+        tetherImage.DOFade(1f, 0);
         tetherImage.transform.DOShakePosition(timeToMove, 10, 20, 90, false);
+
+
     }
 
     public void TetherObtainedText(int alphaValue)
@@ -318,6 +346,8 @@ public class UIImageMovement : MonoBehaviour
 
         tetherUnlockedText.DOFade(alphaValue, UIFadeTime);
         tetherUnlockedDescription.DOFade(alphaValue, UIFadeTime * 2);
+
+        RuntimeManager.PlayOneShot("event:/Fanfare", transform.position);
     }
 
     public void TransformTutorialText(int alphaValue)
@@ -377,8 +407,9 @@ public class UIImageMovement : MonoBehaviour
 
 
         //fade back other UI
-        OtherControls.SetActive(true);
-        OtherControls.transform.DOScale(new Vector3(1, 1, 1), UIFadeTime + .2f); // slight delay to have it appear after selection ring button. Gives it more character
+        switchTool.SetActive(true);
+        switchTool.transform.DOScale(new Vector3(1, 1, 1), UIFadeTime + .5f); // slight delay to have it appear after selection ring button. Gives it more character
+        
         selectionRingImage.DOFade(1f, UIFadeTime);
         selectionRingButton.DOFade(1f, UIFadeTime);
 
@@ -388,7 +419,9 @@ public class UIImageMovement : MonoBehaviour
     public void RodObtainedSpriteAnimation()
     {
         //update sprite
-        rodImage.texture = rodSprite;
+        //rodImage.texture = rodSprite;
+
+        rodImage.DOFade(1,0);
         rodImage.transform.DOShakePosition(timeToMove, 10, 20, 90, false);
     }
 
@@ -396,8 +429,12 @@ public class UIImageMovement : MonoBehaviour
     {
         rodUnlockedText.DOFade(alphaValue, UIFadeTime);
         rodUnlockedDescription.DOFade(alphaValue, UIFadeTime * 2);
+
+        RuntimeManager.PlayOneShot("event:/Fanfare", transform.position);
     }
 
 
     #endregion
+
+
 }
