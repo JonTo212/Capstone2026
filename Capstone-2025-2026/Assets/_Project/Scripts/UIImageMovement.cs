@@ -35,6 +35,7 @@ public class UIImageMovement : MonoBehaviour
     [SerializeField] private RawImage tetherBreakImage;
     [SerializeField] private Vector3 tetherBreakImageStartSize;
     [SerializeField] private RawImage blackBG;
+    [SerializeField] private RawImage continueButtonImage;
 
 
 
@@ -113,7 +114,7 @@ public class UIImageMovement : MonoBehaviour
         rodLocation = rodImage.GetComponent<RectTransform>();
         tetherLocation = tetherImage.GetComponent<RectTransform>();
 
-        //Disable Tool UI at start of game 
+        //Set stuff as disabled or transparent at the start
 
         //selection ring
         selectionRingImage.DOFade(0f, 0f);
@@ -129,8 +130,6 @@ public class UIImageMovement : MonoBehaviour
         tetherBreak.SetActive(false);
         switchTool.transform.localScale = new Vector3(0, 0, 0);
 
-        //setup where the UI starts selecting first
-        lastRodEquipped = !lassoTetherControllerScript.rodEquipped;
 
         //tether text alpha
         rodUnlockedText.alpha = 0;
@@ -139,8 +138,15 @@ public class UIImageMovement : MonoBehaviour
         tetherUnlockedDescription.alpha = 0;
         transformTutorialText.alpha = 0;
 
+        //continue button
+        continueButtonImage.DOFade(0f, 0f);
+
         //TetherUnlockCutscene
         spawnCutscene = Camera.main.GetComponent<NPCKeyCutscene>();
+
+
+        //setup where the UI starts selecting first
+        lastRodEquipped = !lassoTetherControllerScript.rodEquipped;
     }
 
     void Update()
@@ -281,14 +287,17 @@ public class UIImageMovement : MonoBehaviour
         yield return new WaitForSeconds(1f);
 
         //"You Got the tether!"
-        TetherObtainedText(1);
+        TetherObtainedText(1,UIFadeTime);
+        RuntimeManager.PlayOneShot("event:/Fanfare", transform.position);
+        ContinueButton(1, UIFadeTime + 0.5f);
 
         yield return new WaitUntil(() => PlayerActions.Instance.JumpDown); //press A to continue
 
         //fanfare text disapears
 
         blackBG.DOFade(0f, UIFadeTime);
-        TetherObtainedText(0);
+        TetherObtainedText(0, UIFadeTime);
+        ContinueButton(0, UIFadeTime);
 
         //move tools
         Tools.transform.DOLocalMove(new Vector3(0, 0, 0), timeToMove* toolUIMoveTime, false);
@@ -297,8 +306,10 @@ public class UIImageMovement : MonoBehaviour
         yield return new WaitForSeconds(toolUIMoveTime-1);
 
 
-        //enable tether
+        //ENABLES TETHER TOOL//
         lassoTetherControllerScript.tetherPickedUp = true;
+
+        if (!lassoTetherControllerScript.rodPickedUp) lassoTetherControllerScript.rodPickedUp = true; // activate rod just incase of sequence break or debug menu
 
 
         //Start QuicktimeEvent
@@ -340,14 +351,12 @@ public class UIImageMovement : MonoBehaviour
 
     }
 
-    public void TetherObtainedText(int alphaValue)
+    public void TetherObtainedText(int alphaValue, float time)
     {
         //tetherUnlockedText.SetActive(activeState);//should make it fade niceley
 
-        tetherUnlockedText.DOFade(alphaValue, UIFadeTime);
-        tetherUnlockedDescription.DOFade(alphaValue, UIFadeTime * 2);
-
-        RuntimeManager.PlayOneShot("event:/Fanfare", transform.position);
+        tetherUnlockedText.DOFade(alphaValue, time);
+        tetherUnlockedDescription.DOFade(alphaValue, time * 2);
     }
 
     public void TransformTutorialText(int alphaValue)
@@ -385,14 +394,17 @@ public class UIImageMovement : MonoBehaviour
         yield return new WaitForSeconds(1f);
 
         //"You Got the tether!"
-        RodObtainedText(1);
+        RodObtainedText(1, UIFadeTime);
+        RuntimeManager.PlayOneShot("event:/Fanfare", transform.position);
+        ContinueButton(1, UIFadeTime+0.5f);
 
         yield return new WaitUntil(() => PlayerActions.Instance.JumpDown); //press A to continue
 
         //fanfare text disapears
 
         blackBG.DOFade(0f, UIFadeTime);
-        RodObtainedText(0);
+        RodObtainedText(0, UIFadeTime);
+        ContinueButton(0, UIFadeTime);
 
         //move tools
         Tools.transform.DOLocalMove(new Vector3(0, 0, 0), timeToMove * toolUIMoveTime, false);
@@ -401,10 +413,6 @@ public class UIImageMovement : MonoBehaviour
         yield return new WaitForSeconds(toolUIMoveTime);
 
         rodTutorialCutsceneScript.EndIndefiniteCutscene();
-
-        //unlock rod functionality
-        //lassoTetherControllerScript.rodPickedUp = true;
-
 
         //fade back other UI
         switchTool.SetActive(true);
@@ -425,12 +433,15 @@ public class UIImageMovement : MonoBehaviour
         rodImage.transform.DOShakePosition(timeToMove, 10, 20, 90, false);
     }
 
-    public void RodObtainedText(int alphaValue)
+    public void RodObtainedText(int alphaValue,float time)
     {
-        rodUnlockedText.DOFade(alphaValue, UIFadeTime);
-        rodUnlockedDescription.DOFade(alphaValue, UIFadeTime * 2);
+        rodUnlockedText.DOFade(alphaValue, time);
+        rodUnlockedDescription.DOFade(alphaValue, time * 2);
+    }
 
-        RuntimeManager.PlayOneShot("event:/Fanfare", transform.position);
+    public void ContinueButton(int alphaValue,float time)
+    {
+        continueButtonImage.DOFade(alphaValue, time);
     }
 
 

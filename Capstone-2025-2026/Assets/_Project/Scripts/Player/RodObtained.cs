@@ -56,8 +56,20 @@ public class RodObtained : MonoBehaviour
 
 
             //disable the non-selected tools logic
-            if (selectedTool != ToolEnum.Rod) DeActivateRod();
-            if (selectedTool != ToolEnum.Tether) DeActivateTether();
+            if (selectedTool == ToolEnum.Rod)
+            {
+                ActivateRod();
+               // DeActivateTether();
+            }
+
+            if (selectedTool == ToolEnum.Tether)
+            {
+                lassoTetherControllerScript.tetherPickedUp = true;
+
+                ActivateTether(false);
+               // DeActivateRod();
+            }
+
         }
         else
         {
@@ -96,16 +108,13 @@ public class RodObtained : MonoBehaviour
         lassoTetherControllerScript.rodPickedUp = false;
     }
 
-    public void ActivateTether()
+    public void ActivateTether(bool playCutscene)
     {
         //tells the UIIMAGEMOVEMENT script to start cutscene
-        tetherObtainedThisFrame = true;
+        if (playCutscene) tetherObtainedThisFrame = true; // playcutcene bool is so we can enable all tools on start for debug
 
         //Disable Dummy model 
         if (tetherDummyModel != null) tetherDummyModel.SetActive(false); //i think this can be deleted becuase there is no longer 2 seperate models
-
-        //fanfare sfx
-        RuntimeManager.PlayOneShot("event:/Fanfare", transform.position);
     }
 
     public void DeActivateTether()
@@ -119,14 +128,9 @@ public class RodObtained : MonoBehaviour
         {
            if (selectedTool == ToolEnum.Rod) ActivateRod();
 
-            if (selectedTool == ToolEnum.Tether)
-            {
-                ActivateTether();
+           if (selectedTool == ToolEnum.Tether) ActivateTether(true);
 
-                //GetComponent<DialogueTrigger>().CreateNPCDialogue();
-            }
-
-            col.enabled = false; //disable collider so it cant be obtained again
+           col.enabled = false; //disable collider so it cant be obtained again
         }
     }
 }
