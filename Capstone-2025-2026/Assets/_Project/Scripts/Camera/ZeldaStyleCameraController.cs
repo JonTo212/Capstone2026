@@ -11,8 +11,8 @@ public class ZeldaCameraController : MonoBehaviour
 
     [Header("Camera Distance")]
     [SerializeField] private float defaultDistance = 5f;
-    [SerializeField] private float minDistance = 2f;
-    private float currentMaxDistance;
+    [SerializeField] private float closestDistance = 1f;
+    [SerializeField] private int stepCount = 100;
 
     [Header("Rotation Settings")]
     [SerializeField] private float mouseXSensitivity = 1f;
@@ -35,6 +35,15 @@ public class ZeldaCameraController : MonoBehaviour
     [SerializeField] private float collisionZoomInTime = 0.1f;
     [SerializeField] private float collisionZoomOutTime = 0.8f;
 
+    // how many steps to move per frame, calculated from smooth times
+    private float _stepsPerFrameIn;
+    private float _stepsPerFrameOut;
+
+    // discrete collision stepping
+    private int _currentStep;
+    private float[] _stepDistances;
+    private bool _hasInput;
+
     //ghost transform -> what the camera tracks
     private Vector3 ghostPosition;
     private Quaternion ghostRotation;
@@ -51,9 +60,6 @@ public class ZeldaCameraController : MonoBehaviour
 
     //collision
     private float collisionDistance;
-    private float collisionVelocity;
-    private float collisionSmoothTime;
-    private float previousTargetDistance;
     private bool colliding;
 
     private bool isFrozen;
@@ -71,7 +77,6 @@ public class ZeldaCameraController : MonoBehaviour
     private Vector3 positionVelocity;
     private Vector3 rotationVelocity;
     private Vector3 smoothedTargetPosition;
-    private float? overrideSmoothTime = null;
     private float? pitchSmoothOverride = null;
 
     //input
@@ -85,7 +90,7 @@ public class ZeldaCameraController : MonoBehaviour
 
     private void Awake()
     {
-        if(Instance != null && Instance != this)
+        if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
             return;
@@ -97,11 +102,14 @@ public class ZeldaCameraController : MonoBehaviour
         if (cam == null)
             cam = Camera.main;
 
+        BuildStepDistances();
+        CalculateStepRates();
+
         currentDistance = defaultDistance;
         targetDistance = defaultDistance;
         collisionDistance = defaultDistance;
-        previousTargetDistance = defaultDistance;
-        collisionSmoothTime = collisionZoomInTime;
+        _currentStep = stepCount - 1;
+
         originalPositionDamping = positionDamping;
 
         Vector3 currentRotation = transform.eulerAngles;
@@ -124,6 +132,31 @@ public class ZeldaCameraController : MonoBehaviour
         originalMaxVerticalAngle = maxVerticalAngle;
 
         isFrozen = false;
+    }
+
+    private void BuildStepDistances()
+    {
+        stepCount = Mathf.Max(2, stepCount);
+        _stepDistances = new float[stepCount];
+        for (int i = 0; i < stepCount; i++)
+        {
+            float t = (float)i / (stepCount - 1);
+            _stepDistances[i] = Mathf.Lerp(closestDistance, defaultDistance, t);
+        }
+    }
+
+    private void CalculateStepRates(float? overrideTime = null)
+    {
+        float inTime = overrideTime ?? collisionZoomInTime;
+        float outTime = overrideTime ?? collisionZoomOutTime;
+        _stepsPerFrameIn = (stepCount - 1) / Mathf.Max(inTime / Time.fixedDeltaTime, 1f);
+        _stepsPerFrameOut = (stepCount - 1) / Mathf.Max(outTime / Time.fixedDeltaTime, 1f);
+    }
+
+    private void OnValidate()
+    {
+        BuildStepDistances();
+        CalculateStepRates();
     }
 
     private void LateUpdate()
@@ -156,6 +189,9 @@ public class ZeldaCameraController : MonoBehaviour
             mouseY *= mouseYSensitivity * controllerYSensitivityMultiplier;
         }
 
+        Vector2 moveInput = PlayerActions.Instance.MoveInput;
+        _hasInput = Mathf.Abs(mouseX) > 0.001f || Mathf.Abs(mouseY) > 0.001f || Mathf.Abs(moveInput.x) > 0.001f || Mathf.Abs(moveInput.y) > 0.001f;
+
         if (!xAxisLocked)
         {
             targetYaw += mouseX;
@@ -170,7 +206,6 @@ public class ZeldaCameraController : MonoBehaviour
 
     private void UpdateGhostTransform()
     {
-
         //rotation
         if (rotationSmoothTime > 0.001f)
         {
@@ -220,57 +255,61 @@ public class ZeldaCameraController : MonoBehaviour
 
         if (handleCollision)
         {
-            //base direction used for zoom detection and smoothing — no zOffset so it stays stable
-            Vector3 direction = desiredPosition - smoothedTargetPosition;
-            float distance = direction.magnitude;
+            //find the highest step whose position is unobstructed
+            int desiredStep = FindClearStep();
 
-            //extended position including zOffset — this is where the camera actually ends up
-            Vector3 extendedDesiredPosition = desiredPosition - ghostRotation * Vector3.forward * zOffset;
-            Vector3 extendedDirection = extendedDesiredPosition - smoothedTargetPosition;
-            float extendedDistance = extendedDirection.magnitude;
-
-            //cast over the full extended distance so geometry is never missed
-            float targetCollisionDistance;
-            if (Physics.SphereCast(smoothedTargetPosition, cameraRadius, extendedDirection.normalized, out RaycastHit hit, extendedDistance, collisionLayers))
+            //zoom in immediately; zoom out only with input
+            if (desiredStep < _currentStep)
             {
-                float hitDistance = hit.distance - collisionBuffer;
-                targetCollisionDistance = Mathf.Max(hitDistance, collisionBuffer);
-                colliding = true;
+                float newStep = _currentStep - _stepsPerFrameIn;
+                _currentStep = Mathf.Max(Mathf.RoundToInt(newStep), desiredStep);
             }
-            else
+            else if (desiredStep > _currentStep && _hasInput)
             {
-                targetCollisionDistance = extendedDistance;
-                colliding = false;
+                float newStep = _currentStep + _stepsPerFrameOut;
+                _currentStep = Mathf.Min(Mathf.RoundToInt(newStep), desiredStep);
             }
 
-            //zoom detection uses base distance so zOffset lerping doesn't trigger stutter
-            float baseTargetCollisionDistance = Mathf.Min(targetCollisionDistance, distance);
-            bool zoomingIn = baseTargetCollisionDistance < previousTargetDistance - 0.01f;
-            bool zoomingOut = baseTargetCollisionDistance > previousTargetDistance + 0.01f;
+            currentDistance = _stepDistances[_currentStep];
+            colliding = _currentStep < stepCount - 1;
+            collisionDistance = currentDistance;
 
-            if (overrideSmoothTime.HasValue)
-                collisionSmoothTime = overrideSmoothTime.Value;
-            else if (zoomingIn)
-                collisionSmoothTime = collisionZoomInTime;
-            else if (zoomingOut)
-                collisionSmoothTime = collisionZoomOutTime;
-
-            /*//only move camera on input or if colliding
-            if (colliding || hasInput || overrideSmoothTime.HasValue)
-                collisionDistance = Mathf.SmoothDamp(collisionDistance, targetCollisionDistance, ref collisionVelocity, collisionSmoothTime);
-            else
-                collisionVelocity = 0f;*/
-
-            collisionDistance = Mathf.SmoothDamp(collisionDistance, targetCollisionDistance, ref collisionVelocity, collisionSmoothTime);
-
-            previousTargetDistance = baseTargetCollisionDistance;
-            ghostPosition = smoothedTargetPosition + extendedDirection.normalized * collisionDistance;
+            //recompute final position at the stepped distance, preserving zOffset logic from the original
+            Vector3 steppedBase = smoothedTargetPosition - (ghostRotation * Vector3.forward * currentDistance);
+            Vector3 steppedDesired = ApplyScreenSpaceOffset(steppedBase);
+            Vector3 extendedDesiredPosition = steppedDesired - ghostRotation * Vector3.forward * zOffset;
+            ghostPosition = extendedDesiredPosition;
         }
         else
         {
             ghostPosition = desiredPosition - ghostRotation * Vector3.forward * zOffset;
-            collisionDistance = desiredPosition.magnitude;
+            collisionDistance = currentDistance;
         }
+    }
+
+    // checks from stepCount-1 downward, returns the highest step that is clear
+    private int FindClearStep()
+    {
+        for (int step = stepCount - 1; step >= 0; step--)
+        {
+            float distance = _stepDistances[step];
+
+            Vector3 basePosition = smoothedTargetPosition - (ghostRotation * Vector3.forward * distance);
+            Vector3 desiredPosition = ApplyScreenSpaceOffset(basePosition);
+            Vector3 extendedDesiredPosition = desiredPosition - ghostRotation * Vector3.forward * zOffset;
+
+            Vector3 direction = extendedDesiredPosition - smoothedTargetPosition;
+            float castDistance = direction.magnitude;
+
+            //if nothing is hit, this step is valid
+            if (!Physics.SphereCast(smoothedTargetPosition, cameraRadius, direction.normalized, out RaycastHit _, castDistance - collisionBuffer, collisionLayers))
+            {
+                return step;
+            }
+        }
+
+        //all steps obstructed - stay at closest
+        return 0;
     }
 
     private Vector3 ApplyScreenSpaceOffset(Vector3 cameraPosition)
@@ -297,21 +336,10 @@ public class ZeldaCameraController : MonoBehaviour
         transform.rotation = ghostRotation;
     }
 
-    public void SetTarget(Transform newTarget)
-    {
-        target = newTarget;
-    }
-
     public void SetRotation(float yaw, float pitch)
     {
         targetYaw = yaw;
         targetPitch = Mathf.Clamp(pitch, minVerticalAngle, maxVerticalAngle);
-    }
-
-    public void SetDistance(float distance)
-    {
-        targetDistance = Mathf.Clamp(distance, minDistance, currentMaxDistance);
-        currentDistance = targetDistance;
     }
 
     public void SnapDistance(float distance)
@@ -319,8 +347,7 @@ public class ZeldaCameraController : MonoBehaviour
         currentDistance = distance;
         targetDistance = distance;
         collisionDistance = distance;
-        collisionVelocity = 0f;
-        previousTargetDistance = distance;
+        _currentStep = stepCount - 1;
     }
 
     public Vector3 GetGhostPosition() => ghostPosition;
@@ -328,7 +355,6 @@ public class ZeldaCameraController : MonoBehaviour
     public float GetCurrentDistance() => currentDistance;
     public float GetCurrentYaw() => currentYaw;
     public float GetCurrentPitch() => currentPitch;
-    public float GetRawLookInputY() => PlayerActions.Instance.LookInput.y;
     public float GetTargetPitch() => targetPitch;
     public void SetVerticalClamp(float? min, float? max)
     {
@@ -348,39 +374,16 @@ public class ZeldaCameraController : MonoBehaviour
         mouseYSensitivity = ySens;
     }
 
-    public void SetBaseXSensitivity(float value)
-    {
-        mouseXSensitivity = value;
-    }
-
-    public void SetBaseYSensitivity(float value)
-    {
-        mouseYSensitivity = value;
-    }
     public void SetZOffset(float offset) => zOffset = offset;
     public void SetYAxisLocked(bool locked) => yAxisLocked = locked;
     public void SetXAxisLocked(bool locked) => xAxisLocked = locked;
-    public void SetDistanceLimit(float max)
-    {
-        currentMaxDistance = max;
-    }
-
-    public void SetCollisionSmoothTimeOverride(float? time)
-    {
-        overrideSmoothTime = time;
-    }
-
-    public void SetPitchSmoothOverride(float? time)
-    {
-        pitchSmoothOverride = time;
-    }
-
+    public void SetCollisionSmoothTimeOverride(float? time) => CalculateStepRates(time);
+    public void SetPitchSmoothOverride(float? time) => pitchSmoothOverride = time;
     public void SetPositionDamping(Vector3? newDamping)
     {
         if (newDamping.HasValue) positionDamping = newDamping.Value;
         else positionDamping = originalPositionDamping;
     }
-
     public void SetFrozen(bool frozen) => isFrozen = frozen;
     public void SnapSmoothedPosition()
     {
