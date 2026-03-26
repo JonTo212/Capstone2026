@@ -147,6 +147,7 @@ public class LassoTetherController : MonoBehaviour
         }
         else
         {
+            _playerRefData.PlayerMovement.KillVelocity();
             _playerRefData.Lasso.SnaredObject.OnPropDestroyed += ClearHold;
             _playerRefData.PlayerMovement.SetGrabbing(true);
             SwitchLassoState(LassoState.Snared);

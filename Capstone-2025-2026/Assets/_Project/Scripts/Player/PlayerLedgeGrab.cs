@@ -172,8 +172,7 @@ public class PlayerLedgeGrab : MonoBehaviour
         _playerRefData.PlayerMovement.Rb.MovePosition(ledgePos);
         _playerRefData.PlayerMovement.EnableGravity(false);
         _playerRefData.PlayerMovement.SetGrabbing(true);
-        _playerRefData.PlayerMovement.Rb.linearVelocity = Vector3.zero;
-        _playerRefData.PlayerMovement.Rb.angularVelocity = Vector3.zero;
+        _playerRefData.PlayerMovement.KillVelocity();
 
         //disable grabbed ledge collision, otherwise there's stuttering
         if (grabbedLedgeCollider != null)

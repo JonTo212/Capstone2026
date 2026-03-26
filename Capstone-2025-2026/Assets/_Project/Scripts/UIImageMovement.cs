@@ -1,8 +1,8 @@
 using DG.Tweening;
 using FMODUnity;
+using System;
 using System.Collections;
 using TMPro;
-using Unity.VisualScripting.Antlr3.Runtime.Tree;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -99,6 +99,8 @@ public class UIImageMovement : MonoBehaviour
     [SerializeField] private GameObject ActiveTetherPrompts;
     private JointTetherActivator jointTetherActivator;
 
+    private Vector3 rodImageStartPos;
+    private Vector3 tetherImageStartPos;
 
 
     private void Start()
@@ -141,6 +143,10 @@ public class UIImageMovement : MonoBehaviour
 
         //TetherUnlockCutscene
         spawnCutscene = Camera.main.GetComponent<NPCKeyCutscene>();
+
+        rodImageStartPos = rodImage.transform.localPosition;
+        tetherImageStartPos = tetherImage.transform.localPosition;
+
     }
 
     void Update()
@@ -249,85 +255,151 @@ public class UIImageMovement : MonoBehaviour
         swapToolImage.transform.DORotate(new Vector3(0, 0, swapToolImage.transform.rotation.eulerAngles.z - 360f), timeToMove, RotateMode.FastBeyond360);
     }
 
-
     #region TetherUnlockSequence
     IEnumerator TetherObtainedSequence()
     {
-        //change camera view to look at player
+        // Start camera cutscene
         if (tetherTutorialCutsceneScript != null)
-        {
             CameraCutsceneHandler.Instance.StartCutscene(tetherTutorialCutsceneScript);
-        }
 
-        //make UI tool controls disapear
-        switchTool.transform.DOScale(new Vector3(0, 0, 0), UIFadeTime);
-        tetherBreak.transform.DOScale(new Vector3(0, 0, 0), UIFadeTime);
+        // Fully skippable intro block
+        yield return StartCoroutine(PlayTetherIntroBlock());
+
+        // Wait for player to continue
+        yield return new WaitUntil(() => PlayerActions.Instance.JumpDown);
+
+        // Fully skippable outro block
+        yield return StartCoroutine(PlayTetherOutroBlock());
+
+        // Finalize cutscene
+        FinishTetherCutscene();
+    }
+
+    IEnumerator PlayTetherIntroBlock()
+    {
+        // Hide UI tool controls
+        switchTool.transform.DOScale(Vector3.zero, UIFadeTime);
+        tetherBreak.transform.DOScale(Vector3.zero, UIFadeTime);
         selectionRingButton.DOFade(.25f, UIFadeTime);
 
-        //black fade
+        // Fade in black
         blackBG.DOFade(.9f, UIFadeTime);
 
-        yield return new WaitForSeconds(UIFadeTime);
+        yield return StartCoroutine(WaitOrSkip(UIFadeTime, () =>
+        {
+            DOTween.Kill(blackBG);
+            blackBG.DOFade(.9f, 0f);
 
-        //move tools
-        Tools.transform.DOLocalMove(new Vector2(-718f, -359f), timeToMove* toolUIMoveTime, false);
-        Tools.transform.DOScale(new Vector3(2, 2f, 1), timeToMove* toolUIMoveTime);
+            DOTween.Kill(switchTool.transform);
+            DOTween.Kill(tetherBreak.transform);
+            DOTween.Kill(selectionRingButton);
 
-        yield return new WaitForSeconds(toolUIMoveTime);
+            switchTool.transform.DOScale(Vector3.zero, 0f);
+            tetherBreak.transform.DOScale(Vector3.zero, 0f);
+            selectionRingButton.DOFade(.25f, 0f);
+        }));
 
-        //play animation of getting tether
+
+        // Move tools
+        Tools.transform.DOLocalMove(new Vector2(-718f, -359f), toolUIMoveTime, false);
+        Tools.transform.DOScale(new Vector3(2, 2f, 1), toolUIMoveTime);
+
+        yield return StartCoroutine(WaitOrSkip(toolUIMoveTime, () =>
+        {
+            DOTween.Kill(Tools.transform);
+
+            Tools.transform.DOLocalMove(new Vector2(-718f, -359f), 0f);
+            Tools.transform.DOScale(new Vector3(2, 2f, 1), 0f);
+        }));
+
+
+        // Shake animation
         TetherObtainedSpriteAnimation();
 
-        yield return new WaitForSeconds(1f);
+        yield return StartCoroutine(WaitOrSkip(1f, () =>
+        {
+            DOTween.Kill(tetherImage);
+            DOTween.Kill(tetherImage.transform);
 
-        //"You Got the tether!"
+            tetherImage.DOFade(1f, 0f);
+            tetherImage.transform.DOLocalMove(tetherImageStartPos, 0f); // adjust if needed
+        }));
+
+
+        // Text fade-in
         TetherObtainedText(1);
 
-        yield return new WaitUntil(() => PlayerActions.Instance.JumpDown); //press A to continue
+        yield return StartCoroutine(WaitOrSkip(UIFadeTime, () =>
+        {
+            DOTween.Kill(tetherUnlockedText);
+            DOTween.Kill(tetherUnlockedDescription);
 
-        //fanfare text disapears
+            tetherUnlockedText.DOFade(1f, 0f);
+            tetherUnlockedDescription.DOFade(1f, 0f);
+        }));
+    }
 
+    IEnumerator PlayTetherOutroBlock()
+    {
+        // Fade out black + text
         blackBG.DOFade(0f, UIFadeTime);
         TetherObtainedText(0);
 
-        //move tools
-        Tools.transform.DOLocalMove(new Vector3(0, 0, 0), timeToMove* toolUIMoveTime, false);
-        Tools.transform.DOScale(new Vector3(1, 1, 1), timeToMove * toolUIMoveTime);
+        // Move tools back
+        Tools.transform.DOLocalMove(Vector3.zero, toolUIMoveTime, false);
+        Tools.transform.DOScale(Vector3.one, toolUIMoveTime);
 
-        yield return new WaitForSeconds(toolUIMoveTime-1);
+        yield return StartCoroutine(WaitOrSkip(toolUIMoveTime, () =>
+        {
+            DOTween.Kill(blackBG);
+            DOTween.Kill(tetherUnlockedText);
+            DOTween.Kill(tetherUnlockedDescription);
+            DOTween.Kill(Tools.transform);
 
+            blackBG.DOFade(0f, 0f);
+            tetherUnlockedText.DOFade(0f, 0f);
+            tetherUnlockedDescription.DOFade(0f, 0f);
 
-        //enable tether
+            Tools.transform.DOLocalMove(Vector3.zero, 0f);
+            Tools.transform.DOScale(Vector3.one, 0f);
+        }));
+    }
+
+    void FinishTetherCutscene()
+    {
+        // Enable tether
         lassoTetherControllerScript.tetherPickedUp = true;
 
-
-        //Start QuicktimeEvent
+        // Start quick-time prompt
         TransformTutorialText(1);
 
-        yield return new WaitUntil(() => PlayerActions.Instance.toolSwitchDown);
+        // Wait for tool switch
+        StartCoroutine(WaitForToolSwitch());
+    }
 
+    IEnumerator WaitForToolSwitch()
+    {
+        yield return new WaitUntil(() => PlayerActions.Instance.toolSwitchDown);
         yield return new WaitForSeconds(1);
 
-        //end cutscene
+        // End cutscene
         tetherTutorialCutsceneScript.EndIndefiniteCutscene();
 
-        //wall cutscene
+        // Wall cutscene
         spawnCutscene.Configure(cutsceneStartPos, lookAtTarget, cutsceneDuration, cutsceneHoldFraction, cutsceneBlendInDelay, cutsceneBlendInTime);
         CameraCutsceneHandler.Instance.StartCutscene(spawnCutscene);
 
-        //Start QuicktimeEvent
+        // Hide tutorial text
         TransformTutorialText(0);
 
-        //fade back other UI
-        switchTool.transform.DOScale(swapToolImageStartSize, UIFadeTime); // slight delay to have it appear after selection ring button. Gives it more character
+        // Restore UI
+        switchTool.transform.DOScale(swapToolImageStartSize, UIFadeTime);
         selectionRingButton.DOFade(1f, UIFadeTime);
 
-        //add the new tether break button
         tetherBreak.SetActive(true);
-        tetherBreak.transform.DOScale(tetherBreakImageStartSize, UIFadeTime + .5f); // slight delay to have it appear after selection ring button. Gives it more character
-
-
+        tetherBreak.transform.DOScale(tetherBreakImageStartSize, UIFadeTime + .5f);
     }
+
 
     public void TetherObtainedSpriteAnimation()
     {
@@ -359,47 +431,109 @@ public class UIImageMovement : MonoBehaviour
 
 
     #region RodUnlockSequence
+
     IEnumerator RodObtainedSequence()
     {
-        //change camera view to look at player
         if (rodTutorialCutsceneScript != null)
-        {
             CameraCutsceneHandler.Instance.StartCutscene(rodTutorialCutsceneScript);
-        }
+
+        //skippable intro block
+        yield return StartCoroutine(PlayIntroBlock());
+
+        //press A to continue
+        yield return new WaitUntil(() => PlayerActions.Instance.JumpDown);
+
+        //skippable outro block
+        yield return StartCoroutine(PlayOutroBlock());
+
+        //end cutscene
+        RunRodCutsceneEnd();
+    }
 
 
-        //black fade
+
+    IEnumerator PlayIntroBlock()
+    {
+        //fade in black background
         blackBG.DOFade(.9f, UIFadeTime);
 
-        yield return new WaitForSeconds(UIFadeTime);
+        yield return StartCoroutine(WaitOrSkip(UIFadeTime, () =>
+        {
+            DOTween.Kill(blackBG);
+            blackBG.DOFade(.9f, 0f);
+        }));
 
-        //move tools
+
+        //move tool ui
         Tools.transform.DOLocalMove(new Vector2(-718f, -359f), toolUIMoveTime, false);
-        Tools.transform.DOScale(new Vector3(2, 2f, 1), timeToMove * toolUIMoveTime);
+        Tools.transform.DOScale(new Vector3(2, 2f, 1), toolUIMoveTime);
 
-        yield return new WaitForSeconds(toolUIMoveTime);
+        yield return StartCoroutine(WaitOrSkip(toolUIMoveTime, () =>
+        {
+            DOTween.Kill(Tools.transform);
 
-        //play animation of getting tether
+            Tools.transform.DOLocalMove(new Vector2(-718f, -359f), 0f);
+            Tools.transform.DOScale(new Vector3(2, 2f, 1), 0f);
+        }));
+
+
+        //anim
         RodObtainedSpriteAnimation();
 
-        yield return new WaitForSeconds(1f);
+        yield return StartCoroutine(WaitOrSkip(1f, () =>
+        {
+            DOTween.Kill(rodImage);
+            DOTween.Kill(rodImage.transform);
 
-        //"You Got the tether!"
+            rodImage.DOFade(1f, 0f);
+            rodImage.transform.DOLocalMove(rodImageStartPos, 0f);
+        }));
+
+        //fade in text
         RodObtainedText(1);
 
-        yield return new WaitUntil(() => PlayerActions.Instance.JumpDown); //press A to continue
+        yield return StartCoroutine(WaitOrSkip(UIFadeTime, () =>
+        {
+            DOTween.Kill(rodUnlockedText);
+            DOTween.Kill(rodUnlockedDescription);
 
-        //fanfare text disapears
+            rodUnlockedText.DOFade(1f, 0f);
+            rodUnlockedDescription.DOFade(1f, 0f);
+        }));
+    }
 
+    IEnumerator PlayOutroBlock()
+    {
+        //fade out black tint + text
         blackBG.DOFade(0f, UIFadeTime);
-        RodObtainedText(0);
+        var (textTween, descTween) = RodObtainedText(0);
 
-        //move tools
-        Tools.transform.DOLocalMove(new Vector3(0, 0, 0), timeToMove * toolUIMoveTime, false);
-        Tools.transform.DOScale(new Vector3(1, 1, 1), timeToMove * toolUIMoveTime);
+        //move tool ui back
+        Tools.transform.DOLocalMove(Vector3.zero, toolUIMoveTime, false);
+        Tools.transform.DOScale(Vector3.one, toolUIMoveTime);
 
-        yield return new WaitForSeconds(toolUIMoveTime);
+        yield return StartCoroutine(WaitOrSkip(toolUIMoveTime, () =>
+        {
+            //kill tweens
+            DOTween.Kill(blackBG);
+            DOTween.Kill(rodUnlockedText);
+            DOTween.Kill(rodUnlockedDescription);
+            DOTween.Kill(Tools.transform);
 
+            //run the same tweens but with 0 duration for instant finish
+            blackBG.DOFade(0f, 0f);
+            rodUnlockedText.DOFade(0f, 0f);
+            rodUnlockedDescription.DOFade(0f, 0f);
+
+            Tools.transform.DOLocalMove(Vector3.zero, 0f);
+            Tools.transform.DOScale(Vector3.one, 0f);
+        }));
+    }
+
+
+
+    private void RunRodCutsceneEnd()
+    {
         rodTutorialCutsceneScript.EndIndefiniteCutscene();
 
         //unlock rod functionality
@@ -409,32 +543,55 @@ public class UIImageMovement : MonoBehaviour
         //fade back other UI
         switchTool.SetActive(true);
         switchTool.transform.DOScale(new Vector3(1, 1, 1), UIFadeTime + .5f); // slight delay to have it appear after selection ring button. Gives it more character
-        
+
         selectionRingImage.DOFade(1f, UIFadeTime);
         selectionRingButton.DOFade(1f, UIFadeTime);
-
-
     }
 
-    public void RodObtainedSpriteAnimation()
+    public Tween RodObtainedSpriteAnimation()
     {
-        //update sprite
-        //rodImage.texture = rodSprite;
+        rodImage.DOFade(1, 0); // instant fade-in
 
-        rodImage.DOFade(1,0);
-        rodImage.transform.DOShakePosition(timeToMove, 10, 20, 90, false);
+        // return the shake tween so we can kill it on skip
+        return rodImage.transform.DOShakePosition(timeToMove, strength: 10, vibrato: 20, randomness: 90, snapping: false);
     }
 
-    public void RodObtainedText(int alphaValue)
+
+    public (Tween textTween, Tween descTween) RodObtainedText(int alphaValue)
     {
-        rodUnlockedText.DOFade(alphaValue, UIFadeTime);
-        rodUnlockedDescription.DOFade(alphaValue, UIFadeTime * 2);
+        var t1 = rodUnlockedText.DOFade(alphaValue, UIFadeTime);
+        var t2 = rodUnlockedDescription.DOFade(alphaValue, UIFadeTime * 2);
 
         RuntimeManager.PlayOneShot("event:/Fanfare", transform.position);
+
+        return (t1, t2);
     }
+
 
 
     #endregion
 
+    #region Skip Helper
+
+    IEnumerator WaitOrSkip(float duration, Action onSkip)
+    {
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            if (PlayerActions.Instance.JumpDown)
+            {
+                onSkip?.Invoke();
+                yield break;
+            }
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+    }
+
+
+
+    #endregion
 
 }

@@ -72,7 +72,7 @@ public class PlayerMovement : MonoBehaviour
     private bool _hasJumped;
     private bool _canDoubleJump;
 
-    public Vector3 WishDir { get; set; }
+    public Vector3 WishDir { get; private set; }
     public Rigidbody Rb { get; private set; }
     public PlayerMoveState CurrentMovementState { get; private set; }
 
@@ -205,6 +205,18 @@ public class PlayerMovement : MonoBehaviour
     #endregion
 
     #region Misc
+
+    public void KillVelocity()
+    {
+        Rb.linearVelocity = Vector3.zero;
+        Rb.angularVelocity = Vector3.zero;
+    }
+
+    public void KillRemainingInput()
+    {
+        WishDir = Vector3.zero;
+        //add anything else input related here if it comes up
+    }
 
     public void InheritPlatformMomentum(Vector3 externalForce)
     {

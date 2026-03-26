@@ -28,8 +28,8 @@ public class RodTutorialCutscene : CameraCutsceneBase
     {
         PlayerActions.Instance.ChangeSpecificInput("Move",false);
         //PlayerActions.Instance.ChangeSpecificInput("Jump", false);
-        PlayerRefData.Instance.PlayerMovement.Rb.linearVelocity=(Vector3.zero); //stop players movement
-        PlayerRefData.Instance.PlayerMovement.WishDir = (Vector3.zero); //stop players movemen
+        PlayerRefData.Instance.PlayerMovement.KillVelocity(); //stop players movement
+        PlayerRefData.Instance.PlayerMovement.KillRemainingInput();
 
         cam.transform.position = startPos.position;
         cam.transform.LookAt (lookAtTarget.position);
