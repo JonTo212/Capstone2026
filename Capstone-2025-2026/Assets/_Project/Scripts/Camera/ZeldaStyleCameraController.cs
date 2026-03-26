@@ -34,6 +34,9 @@ public class ZeldaCameraController : MonoBehaviour
     [SerializeField] private LayerMask collisionLayers = ~0;
     [SerializeField] private float collisionZoomInTime = 0.1f;
     [SerializeField] private float collisionZoomOutTime = 0.8f;
+    [Tooltip("How long (seconds) the desired step eases toward the clear step when collision clears suddenly " +
+             "(e.g. exiting a tight room into open air). Set to 0 to disable edge smoothing.")]
+    [SerializeField] private float collisionEdgeSmoothTime = 0.4f;
 
     // how many steps to move per frame, calculated from smooth times
     private float _stepsPerFrameIn;
@@ -43,6 +46,10 @@ public class ZeldaCameraController : MonoBehaviour
     private int _currentStep;
     private float[] _stepDistances;
     private bool _hasInput;
+
+    // smoothed desired step — eases the zoom-out target when collision clears abruptly
+    private float _smoothedDesiredStep;
+    private float _smoothedDesiredStepVelocity;
 
     //ghost transform -> what the camera tracks
     private Vector3 ghostPosition;
@@ -54,11 +61,8 @@ public class ZeldaCameraController : MonoBehaviour
     private float targetYaw = 0f;
     private float targetPitch = 0f;
 
-    //distance
+    //distance / collision
     private float currentDistance;
-    private float targetDistance;
-
-    //collision
     private float collisionDistance;
     private bool colliding;
 
@@ -106,9 +110,10 @@ public class ZeldaCameraController : MonoBehaviour
         CalculateStepRates();
 
         currentDistance = defaultDistance;
-        targetDistance = defaultDistance;
         collisionDistance = defaultDistance;
         _currentStep = stepCount - 1;
+        _smoothedDesiredStep = stepCount - 1;
+        _smoothedDesiredStepVelocity = 0f;
 
         originalPositionDamping = positionDamping;
 
@@ -256,7 +261,28 @@ public class ZeldaCameraController : MonoBehaviour
         if (handleCollision)
         {
             //find the highest step whose position is unobstructed
-            int desiredStep = FindClearStep();
+            int rawDesiredStep = FindClearStep();
+
+            //when collision clears suddenly (e.g. exiting a room), ease the desired step so _currentStep doesn't receive a huge jump all at once
+            //zoom-in is still instant
+            //bool isDrastic = Mathf.Abs(rawDesiredStep - _smoothedDesiredStep) >= collisionEdgeSmoothThreshold * (stepCount - 1);
+            //^use this and add collisionEdgeSmoothThreshold to make it work both ways, based on a threshold
+            if (rawDesiredStep < _smoothedDesiredStep)
+            {
+                _smoothedDesiredStep = rawDesiredStep;
+                _smoothedDesiredStepVelocity = 0f;
+            }
+            else if (collisionEdgeSmoothTime > 0.001f)
+            {
+                _smoothedDesiredStep = Mathf.SmoothDamp(_smoothedDesiredStep, rawDesiredStep, ref _smoothedDesiredStepVelocity, collisionEdgeSmoothTime);
+            }
+            else
+            {
+                _smoothedDesiredStep = rawDesiredStep;
+                _smoothedDesiredStepVelocity = 0f;
+            }
+
+            int desiredStep = Mathf.RoundToInt(_smoothedDesiredStep);
 
             //zoom in immediately; zoom out only with input
             if (desiredStep < _currentStep)
@@ -345,7 +371,6 @@ public class ZeldaCameraController : MonoBehaviour
     public void SnapDistance(float distance)
     {
         currentDistance = distance;
-        targetDistance = distance;
         collisionDistance = distance;
         _currentStep = stepCount - 1;
     }
