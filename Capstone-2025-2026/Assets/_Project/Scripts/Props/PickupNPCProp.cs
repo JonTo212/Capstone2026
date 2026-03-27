@@ -64,11 +64,17 @@ public class PickupNPCProp : Prop
         //tell UI that you got a puff
         critterInstanceScript.BeRescued();
 
-        if (keyNPC) KeyNPCAction();// make npc summon object or destory object
+        if (keyNPC)
+        {
+            Invoke("KeyNPCAction", 2.0f);
+        }
+           // KeyNPCAction(); // make npc summon object or destroy object
     }
 
     private void KeyNPCAction()
     {
+
+
         //Voice Line
         GetComponent<DialogueTrigger>().CreateNPCDialogue();
 

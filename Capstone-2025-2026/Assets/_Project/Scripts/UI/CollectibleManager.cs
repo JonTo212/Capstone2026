@@ -11,6 +11,8 @@ public class CollectibleManager : MonoBehaviour
     public static CollectibleManager Instance { get; private set; }
 
     public TextMeshProUGUI coinCounter;
+
+    private CollectedCritterPopUp CritCollPopUp;
         
     public int coins = 0000;
 
@@ -43,6 +45,9 @@ public class CollectibleManager : MonoBehaviour
         GameObject spawnerGO = GameObject.Find("CritterCountSpawner");
         spawner = spawnerGO.GetComponent<CritterCountSpawner>();
 
+        GameObject PopUpGO = GameObject.Find("CritterCollectedPopUp");
+        CritCollPopUp = PopUpGO.GetComponent<CollectedCritterPopUp>();
+
     }
 
 
@@ -67,6 +72,7 @@ public class CollectibleManager : MonoBehaviour
 
         }
 
+        CritCollPopUp.RunAnims();
 
     }
 
