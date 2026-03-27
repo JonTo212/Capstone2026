@@ -5,6 +5,8 @@ using System.Collections;
 public class VesselExplode : MonoBehaviour
 {
 
+
+    [SerializeField] Animator animator;
     [SerializeField] MeshRenderer mr;
     [SerializeField] private Rigidbody rb;
 
@@ -25,6 +27,9 @@ public class VesselExplode : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         mr = GetComponent<MeshRenderer>();
+        animator = GetComponent<Animator>();
+
+
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -50,6 +55,9 @@ public class VesselExplode : MonoBehaviour
         yield return new WaitForSeconds(hitFlashDuration);
 
         mr.material = origionalMaterial;
+
+        //play animation
+        animator.Play("tetherVesselDamagedAnimation");
 
 
         yield return new WaitForSeconds(timeToExplode);
