@@ -12,6 +12,8 @@ public class PlayerFade : MonoBehaviour
     [SerializeField] private List<Renderer> Renderers = new List<Renderer>();
     private List<Material> Materials = new List<Material>();
 
+    public bool EnableFade { get; private set; }
+
     private void Awake()
     {
         if (Renderers.Count == 0)
@@ -45,6 +47,7 @@ public class PlayerFade : MonoBehaviour
     private void Update()
     {
         if(Materials.Count == 0) return;
+        if (!EnableFade) return;
 
         float distance = Vector3.Distance(Camera.main.transform.position, transform.position);
         float alpha = Mathf.InverseLerp(fadeEndDistance, fadeStartDistance, distance);
@@ -54,6 +57,21 @@ public class PlayerFade : MonoBehaviour
             if (material.HasProperty("_Opacity"))
             {
                 material.SetFloat("_Opacity", Mathf.Lerp(minAlpha, 1f, alpha));
+            }
+        }
+    }
+
+    public void SetFade(bool enabled)
+    {
+        EnableFade = enabled;
+        if (!enabled)
+        {
+            foreach (Material material in Materials)
+            {
+                if (material.HasProperty("_Opacity"))
+                {
+                    material.SetFloat("_Opacity", 1f);
+                }
             }
         }
     }

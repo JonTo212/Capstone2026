@@ -173,6 +173,8 @@ public class PlayerLedgeGrab : MonoBehaviour
         _playerRefData.PlayerMovement.EnableGravity(false);
         _playerRefData.PlayerMovement.SetGrabbing(true);
         _playerRefData.PlayerMovement.KillVelocity();
+        _playerRefData.LassoTetherController.SetLassoState(false);
+        _playerRefData.LassoTetherController.SetTetherState(false);
 
         //disable grabbed ledge collision, otherwise there's stuttering
         if (grabbedLedgeCollider != null)
@@ -188,10 +190,11 @@ public class PlayerLedgeGrab : MonoBehaviour
     private void ReleaseLedge()
     {
         _playerRefData.PlayerModelRotationHandler.SetNewRotationDir(null, false);
-        PlayerActions.Instance.ChangeSpecificInput("Move", true);
         _playerRefData.PlayerMovement.SetGrabbing(false);
         _playerRefData.PlayerMovement.EnableGravity(true);
         _playerRefData.PlayerMovement.SetExternalForce(Vector3.zero);
+        _playerRefData.LassoTetherController.SetLassoState(true);
+        _playerRefData.LassoTetherController.SetTetherState(true);
 
         if (grabbedLedgeCollider != null)
         {

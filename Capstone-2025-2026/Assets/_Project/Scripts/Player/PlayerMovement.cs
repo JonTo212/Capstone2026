@@ -188,12 +188,20 @@ public class PlayerMovement : MonoBehaviour
         if (isGrabbing)
         {
             SwitchMovementState(PlayerMoveState.Grabbing);
+
+            _currentMultipliers = MovementProperties.Default;
+            _lastExternalForce = Vector3.zero;
+            _externalForce = Vector3.zero;
+            KillVelocity();
+            KillRemainingInput();
+
             if (_playerRefData.Lasso.SnaredObject != null)
             {
                 Vector3 dir = _playerRefData.Lasso.SnaredObject.transform.position - transform.position;
                 dir.y = 0;
                 _playerRefData.PlayerModelRotationHandler.SetNewRotationDir(Quaternion.LookRotation(dir), true);
             }
+
         }
         else
         {
@@ -252,13 +260,17 @@ public class PlayerMovement : MonoBehaviour
         return hit.transform;
     }
 
-
-
     #endregion
 
     #region Forward / Camera
     public void HandleForward()
     {
+        if (CurrentMovementState == PlayerMoveState.Grabbing)
+        {
+            WishDir = Vector3.zero;
+            return;
+        }
+
         Vector3 camForward = Camera.main.transform.forward;
         Vector3 camRight = Camera.main.transform.right;
 
@@ -278,6 +290,8 @@ public class PlayerMovement : MonoBehaviour
 
     private void HandleJumpBuffer()
     {
+        if (CurrentMovementState == PlayerMoveState.Grabbing) return;
+
         if (PlayerActions.Instance.JumpDown)
         {
             if (_lastJumpFrame == Time.frameCount) return; //to prevent ledge jump -> double jump misfires
@@ -360,7 +374,11 @@ public class PlayerMovement : MonoBehaviour
     #region Gravity
     private void HandleGravityRelative(ref Vector3 relVel)
     {
-        if (CurrentMovementState == PlayerMoveState.Walking) return;
+        if (CurrentMovementState == PlayerMoveState.Walking)
+        {
+            relVel.y = -1f;
+            return;
+        }
 
         //apply gravity to the reference variable instead of addForce
         relVel.y -= _gravity * Time.fixedDeltaTime;
