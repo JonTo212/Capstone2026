@@ -17,8 +17,11 @@ public class CollectedCritterPopUp : MonoBehaviour
 
     public void RunAnims ()
     {
+        //Collected critter sound fx
+        Debug.Log("Juan put Sound FX here.");
+        
         text_Anim.DORestart();
-        Debug.Log("Running DOTween anims...");
+       
         text_PopUp.gameObject.SetActive(true);
         text_Anim.DOPlay();
     }

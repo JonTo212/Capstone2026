@@ -18,6 +18,7 @@ public class PickupNPCProp : Prop
     [SerializeField] Transform[] objectsToDestroy;
 
     //particles
+    [SerializeField] private ParticleSystem captureStars;
     [SerializeField] private ParticleSystem dustParticle;
 
     private NPCKeyCutscene spawnCutscene;
@@ -52,10 +53,14 @@ public class PickupNPCProp : Prop
 
     public void OnCaptureStart(float captureDuration)
     {
+
+        Instantiate(captureStars, this.transform.position, Quaternion.identity);
+
         if (animCoroutine != null) StopCoroutine(animCoroutine);
         animCoroutine = StartCoroutine(Deflate(captureDuration, deflatedScale));
 
         DestroyAllAttachedTethers();
+
 
 
         RuntimeManager.PlayOneShot("event:/NPCSave", transform.position);
