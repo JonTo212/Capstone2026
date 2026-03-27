@@ -14,10 +14,10 @@ public class TetherVessel : EnvironmentalProp
     private Vector3 raisePosition;
     private Vector3 nudgePosition; // how far to move vessel when player attached a single tether
 
-    public ParticleSystem dustParticle;
-    public ParticleSystem windPipeEntranceParticles;
+    //public ParticleSystem dustParticle;
+    //public ParticleSystem windPipeEntranceParticles;
 
-    private List<ClawSetpiece> attachedClawSetPieces = new List<ClawSetpiece>();
+    //private List<ClawSetpiece> attachedClawSetPieces = new List<ClawSetpiece>();
 
     //states
     public enum VesselState{Stuck, Underground, Surfaced}
@@ -35,6 +35,8 @@ public class TetherVessel : EnvironmentalProp
     {
         raisePosition = new Vector3(transform.position.x, transform.position.y + raiseHeight, transform.position.z);
         nudgePosition = new Vector3(transform.position.x, transform.position.y + raiseHeight + 0.5f, transform.position.z);
+
+        currentState = VesselState.Surfaced;
     }
 
     // Update is called once per frame
@@ -48,7 +50,7 @@ public class TetherVessel : EnvironmentalProp
                 StuckState();
                 break;
             case VesselState.Underground:
-                UndergroundState();
+                //UndergroundState();
                 break;
             case VesselState.Surfaced:
                 SurfacedState();
@@ -60,10 +62,11 @@ public class TetherVessel : EnvironmentalProp
     {
         if (numberOfAttachedClaws == 3 && clawBreakCoroutine == null)
         {
-            clawBreakCoroutine = StartCoroutine(BreakClawsAfterDelay());
+            //clawBreakCoroutine = StartCoroutine(BreakClawsAfterDelay());
         }
     }
 
+    /*
     void UndergroundState()
     {
         transform.position = Vector3.Lerp(transform.position, raisePosition, raiseSpeed * Time.deltaTime);
@@ -79,13 +82,16 @@ public class TetherVessel : EnvironmentalProp
 
         }
     }
+    */
 
     void SurfacedState()
     {
         // Play particle here as the transition occurs
 
-        if (attachedTethers.Count >= 1 && Vector3.Dot(GetForcesFromJoint().normalized, Vector3.up) > 0.7)
+        if (attachedTethers.Count >= 1) //&& Vector3.Dot(GetForcesFromJoint().normalized, Vector3.up) > 0.7)
         {
+
+
             Rb.isKinematic = false;
         }
     }
@@ -93,15 +99,16 @@ public class TetherVessel : EnvironmentalProp
     public void IncreaseAttachedClawCount(ClawSetpiece claw)
     {
         numberOfAttachedClaws++;
-        attachedClawSetPieces.Add(claw);
+        //attachedClawSetPieces.Add(claw);
     }
 
     public void DecreaseAttachedClawCount(ClawSetpiece claw)
     {
         numberOfAttachedClaws++;
-        attachedClawSetPieces.Remove(claw);
+       // attachedClawSetPieces.Remove(claw);
     }
 
+    /*
     IEnumerator BreakClawsAfterDelay()
     {
         yield return new WaitForSeconds(2f);
@@ -115,4 +122,5 @@ public class TetherVessel : EnvironmentalProp
         currentState = VesselState.Underground;
         windPipeEntranceParticles.Play();
     }
+    */
 }
