@@ -1,4 +1,5 @@
 using FMODUnity;
+using System;
 using UnityEngine;
 
 public enum PlayerMoveState
@@ -61,6 +62,7 @@ public class PlayerMovement : MonoBehaviour
     private MovementProperties _currentMultipliers;
     private Vector3 _lastExternalForce;
     private Vector3 _externalForce;
+    private float _inputMagnitude;
     private float _acceleration;
     private float _jumpForce;
     private float _friction;
@@ -75,6 +77,8 @@ public class PlayerMovement : MonoBehaviour
     public Vector3 WishDir { get; private set; }
     public Rigidbody Rb { get; private set; }
     public PlayerMoveState CurrentMovementState { get; private set; }
+    private float GetTargetSpeed() => defaultMaxSpeed * _currentMultipliers.maxSpeedMultiplier * _inputMagnitude;
+    public event Action OnDoubleJumpFired;
 
     #region Unity Functions
     private void Awake()
@@ -280,9 +284,10 @@ public class PlayerMovement : MonoBehaviour
         Vector3 forwardRelative = camForward * PlayerActions.Instance.MoveInput.y;
         Vector3 rightRelative = camRight * PlayerActions.Instance.MoveInput.x;
 
-        Vector3 desiredDir = Vector3.ClampMagnitude(forwardRelative + rightRelative, 1f);
-        WishDir = (forwardRelative + rightRelative).normalized;
-        //WishDir = LedgeCheckWithoutAForLoop(desiredDir);
+        Vector3 desiredDir = forwardRelative + rightRelative;
+        _inputMagnitude = Mathf.Clamp01(desiredDir.magnitude);
+        print(_inputMagnitude);
+        WishDir = _inputMagnitude > 0.001f ? desiredDir.normalized : Vector3.zero;
     }
     #endregion
 
@@ -352,7 +357,7 @@ public class PlayerMovement : MonoBehaviour
         _lastJumpFrame = Time.frameCount;
     }
 
-    private void HandleDoubleJump()
+    public void HandleDoubleJump()
     {
         //v2: redirect current horizontal velocity to wishDir, set vertical to jump force
         Vector3 horizontalVel = new Vector3(Rb.linearVelocity.x, 0, Rb.linearVelocity.z);
@@ -368,17 +373,15 @@ public class PlayerMovement : MonoBehaviour
         Rb.linearVelocity = redirectedVel + defaultJumpForce; // + addedJumpForce;
         _canDoubleJump = false;
         RuntimeManager.PlayOneShot("event:/DoubleJump",transform.position);
+
+        OnDoubleJumpFired?.Invoke();
     }
     #endregion
 
     #region Gravity
     private void HandleGravityRelative(ref Vector3 relVel)
     {
-        if (CurrentMovementState == PlayerMoveState.Walking)
-        {
-            relVel.y = -1f;
-            return;
-        }
+        if (CurrentMovementState == PlayerMoveState.Walking) return;
 
         //apply gravity to the reference variable instead of addForce
         relVel.y -= _gravity * Time.fixedDeltaTime;
@@ -453,7 +456,7 @@ public class PlayerMovement : MonoBehaviour
         if (velocityOnAxis.sqrMagnitude < 0.0001f) return;
 
         float speed = velocityOnAxis.magnitude;
-        float targetSpeed = defaultMaxSpeed * _currentMultipliers.maxSpeedMultiplier;
+        float targetSpeed = GetTargetSpeed();
         Vector3 frictionDir = -velocityOnAxis.normalized;
 
         Vector3 horizontalVel = new Vector3(playerVel.x, 0, playerVel.z);
@@ -496,9 +499,8 @@ public class PlayerMovement : MonoBehaviour
         Vector3 wishDirNormalized = WishDir.normalized;
         Vector3 horizontalVel = new Vector3(relVel.x, 0, relVel.z);
         float currentSpeed = horizontalVel.magnitude;
-        float targetSpeed = defaultMaxSpeed * _currentMultipliers.maxSpeedMultiplier;
+        float targetSpeed = GetTargetSpeed();
 
-        //regular acceleration, when below max speed
         if (currentSpeed < targetSpeed)
         {
             float currentSpeedInWishDir = Vector3.Dot(horizontalVel, wishDirNormalized);
@@ -508,8 +510,6 @@ public class PlayerMovement : MonoBehaviour
 
             relVel += wishDirNormalized * clampedAccel;
         }
-
-        //redirect acceleration when over max speed
         else
         {
             Vector3 targetVelocity = wishDirNormalized * currentSpeed;

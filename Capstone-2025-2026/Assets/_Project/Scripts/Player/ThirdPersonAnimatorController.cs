@@ -13,12 +13,14 @@ public class ThirdPersonAnimatorController : MonoBehaviour
 
         _playerRefData.Lasso.OnObjectHit += SetLassoStart;
         _playerRefData.JointTetherActivator.OnTetherActivated += SetTetherStart;
+        _playerRefData.PlayerMovement.OnDoubleJumpFired += SetDoubleJump;
     }
 
     private void OnDisable()
     {
         _playerRefData.Lasso.OnObjectHit -= SetLassoStart;
         _playerRefData.JointTetherActivator.OnTetherActivated -= SetTetherStart;
+        _playerRefData.PlayerMovement.OnDoubleJumpFired -= SetDoubleJump;
     }
 
     private void Update()
@@ -44,5 +46,10 @@ public class ThirdPersonAnimatorController : MonoBehaviour
     private void SetTetherStart()
     {
         animator.SetTrigger("TetherStart");
+    }
+
+    private void SetDoubleJump()
+    {
+        animator.SetTrigger("DoubleJump");
     }
 }
