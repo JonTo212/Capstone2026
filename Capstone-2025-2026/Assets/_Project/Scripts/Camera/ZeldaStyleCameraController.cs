@@ -38,16 +38,16 @@ public class ZeldaCameraController : MonoBehaviour
              "(e.g. exiting a tight room into open air). Set to 0 to disable edge smoothing.")]
     [SerializeField] private float collisionEdgeSmoothTime = 0.4f;
 
-    // how many steps to move per frame, calculated from smooth times
+    //how many steps to move per frame, calculated from smooth times
     private float _stepsPerFrameIn;
     private float _stepsPerFrameOut;
 
-    // discrete collision stepping
+    //discrete collision stepping
     private int _currentStep;
     private float[] _stepDistances;
     private bool _hasInput;
 
-    // smoothed desired step — eases the zoom-out target when collision clears abruptly
+    //smoothed desired step eases the zoom-out target when collision clears abruptly
     private float _smoothedDesiredStep;
     private float _smoothedDesiredStepVelocity;
 
@@ -313,7 +313,7 @@ public class ZeldaCameraController : MonoBehaviour
         }
     }
 
-    // checks from stepCount-1 downward, returns the highest step that is clear
+    //checks from stepCount-1 downward, returns the highest step that is clear
     private int FindClearStep()
     {
         for (int step = stepCount - 1; step >= 0; step--)
@@ -366,6 +366,13 @@ public class ZeldaCameraController : MonoBehaviour
     {
         targetYaw = yaw;
         targetPitch = Mathf.Clamp(pitch, minVerticalAngle, maxVerticalAngle);
+    }
+
+    //for pitch clamp removal, so it doesn't snap
+    public void SyncTargetPitchToCurrent()
+    {
+        targetPitch = currentPitch;
+        rotationVelocity.x = 0f;
     }
 
     public void SnapDistance(float distance)

@@ -51,7 +51,7 @@ public class PropSpawnPile : Prop
         stale.transform.rotation = Quaternion.Euler(0f, spawnDirection != null ? spawnDirection.eulerAngles.y : 0f, 0f);
         stale.gameObject.SetActive(true);
 
-        _playerRefData.Lasso.SetupHeldProp(stale, GetFaceHit(stale));  // <-- pass computed hit
+        _playerRefData.Lasso.SetupHeldProp(stale, GetFaceHit(stale));
 
         _pool.Enqueue(stale);
     }
@@ -63,13 +63,10 @@ public class PropSpawnPile : Prop
         Collider col = prop.GetComponentInChildren<Collider>();
         if (col == null) return null;
 
-        // Find the point on the prop's surface closest to the spawn origin
         Vector3 surfacePoint = col.ClosestPoint(spawnDirection.position);
 
+        //raycast from slightly outside the closest point 
         RaycastHit hit = new RaycastHit();
-
-        // Raycast from just outside the surface back toward the prop center
-        // to properly populate hit.point and hit.normal
         Vector3 direction = (prop.transform.position - spawnDirection.position).normalized;
         Vector3 rayOrigin = surfacePoint - direction * 0.01f;
 
@@ -79,8 +76,7 @@ public class PropSpawnPile : Prop
         }
         else
         {
-            // Fallback: manually fill in the point so CheckNearestGrabPoint still works
-            hit.point = surfacePoint; // Unity doesn't expose a public setter for normal, but point is enough
+            hit.point = surfacePoint; //fallback
         }
 
         return hit;

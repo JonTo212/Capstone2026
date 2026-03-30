@@ -286,7 +286,6 @@ public class PlayerMovement : MonoBehaviour
 
         Vector3 desiredDir = forwardRelative + rightRelative;
         _inputMagnitude = Mathf.Clamp01(desiredDir.magnitude);
-        print(_inputMagnitude);
         WishDir = _inputMagnitude > 0.001f ? desiredDir.normalized : Vector3.zero;
     }
     #endregion
