@@ -12,6 +12,8 @@ public class DebrisBlokedProp : EnvironmentalProp
 
     [SerializeField] private bool isFree = false;
 
+    [SerializeField] ParticleSystem dustBurstParticle;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -29,8 +31,12 @@ public class DebrisBlokedProp : EnvironmentalProp
                 DestroyAllDestructableDebris();
                 Rb.isKinematic = false;
                 isFree = true;
+
+                //particle
+                dustBurstParticle.Play();
             }
         }
+
     }
 
     private bool IsForceDirectionAligned()
@@ -51,13 +57,14 @@ public class DebrisBlokedProp : EnvironmentalProp
             RuntimeManager.PlayOneShot("event:/TetherRockBreak", transform.position);
             if (debrisRb != null) debrisRb.isKinematic = false;
         }
+
     }
 
     private void DestroyAllDestructableDebris()
     {
         foreach(GameObject destructables in destructableDebris)
         {
-            if(destructables != null) Destroy(destructables);
+            if (destructables != null) Destroy(destructables);
         }
     }
 }
