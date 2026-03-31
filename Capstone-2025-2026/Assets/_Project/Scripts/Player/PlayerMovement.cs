@@ -389,11 +389,7 @@ public class PlayerMovement : MonoBehaviour
     #region Gravity
     private void HandleGravityRelative(ref Vector3 relVel)
     {
-        if (CurrentMovementState == PlayerMoveState.Walking)
-        {
-            relVel.y = -0.5f;
-            return;
-        }
+        if (CurrentMovementState == PlayerMoveState.Walking) return;
 
         //apply gravity to the reference variable instead of addForce
         relVel.y -= _gravity * Time.fixedDeltaTime;

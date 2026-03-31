@@ -16,6 +16,8 @@ public class PlayerFade : MonoBehaviour
 
     private void Awake()
     {
+        EnableFade = true;
+
         if (Renderers.Count == 0)
         {
             Renderers.AddRange(GetComponentsInChildren<Renderer>());

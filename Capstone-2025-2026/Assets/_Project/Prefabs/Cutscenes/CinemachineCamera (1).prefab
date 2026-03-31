@@ -20,6 +20,7 @@ GameObject:
   - component: {fileID: 7360455401066649952}
   - component: {fileID: 2048018067307641960}
   - component: {fileID: 4090546917536674319}
+  - component: {fileID: 1714217857182088549}
   m_Layer: 7
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -74,7 +75,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 2000
+  far clip plane: 3000
   field of view: 70
   orthographic: 0
   orthographic size: 5
@@ -153,14 +154,15 @@ MonoBehaviour:
   targetOffset: {x: 0, y: 0, z: 0}
   screenOffset: {x: 0, y: 0}
   defaultDistance: 5
-  minDistance: 2
+  closestDistance: 1
+  stepCount: 100
   mouseXSensitivity: 0.25
   mouseYSensitivity: 0.25
-  controllerXSensitivityMultiplier: 4
-  controllerYSensitivityMultiplier: 3
+  controllerXSensitivityMultiplier: 5
+  controllerYSensitivityMultiplier: 5
   minVerticalAngle: -89
   maxVerticalAngle: 89
-  rotationSmoothTime: 0
+  rotationSmoothTime: 0.01
   positionDamping: {x: 0.05, y: 0.1, z: 0.05}
   handleCollision: 1
   collisionBuffer: 0.2
@@ -170,6 +172,7 @@ MonoBehaviour:
     m_Bits: 64
   collisionZoomInTime: 0.02
   collisionZoomOutTime: 0.8
+  collisionEdgeSmoothTime: 0.4
 --- !u!114 &1879080133409769875
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -184,42 +187,48 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CameraModeController
   cameraController: {fileID: 4419986128599733150}
   playerRef: {fileID: 0}
-  playerRefData: {fileID: 0}
   cameraStates:
   - cameraState: 0
     screenOffset: {x: 0.1, y: 0.05}
-    targetOffset: {x: 0, y: 1.5, z: 0}
+    worldSpaceOffset: {x: 0, y: 1.5, z: 0}
     distanceOffset: 0
     lockYAxis: 0
     lockXAxis: 0
+    transitionSpeed: 2.5
+    sensitivityMultiplierX: 1
+    sensitivityMultiplierY: 1
   - cameraState: 1
     screenOffset: {x: 0.1, y: 0.05}
-    targetOffset: {x: 0, y: 1.5, z: 0}
+    worldSpaceOffset: {x: 0, y: 1.5, z: 0}
     distanceOffset: 0
     lockYAxis: 0
     lockXAxis: 0
+    transitionSpeed: 2.5
+    sensitivityMultiplierX: 1
+    sensitivityMultiplierY: 1
   - cameraState: 2
+    screenOffset: {x: 0, y: 0.5}
+    worldSpaceOffset: {x: 0, y: 2.5, z: 0}
+    distanceOffset: 0
+    lockYAxis: 0
+    lockXAxis: 0
+    transitionSpeed: 2.5
+    sensitivityMultiplierX: 0.75
+    sensitivityMultiplierY: 0.75
+  - cameraState: 3
     screenOffset: {x: 0, y: 0}
-    targetOffset: {x: 0, y: 2.5, z: 0}
-    distanceOffset: 0
+    worldSpaceOffset: {x: 0, y: 2, z: 0}
+    distanceOffset: 1
     lockYAxis: 0
     lockXAxis: 0
-  - cameraState: 4
-    screenOffset: {x: 0.2, y: 0.1}
-    targetOffset: {x: 0, y: 0, z: 1}
-    distanceOffset: 0
-    lockYAxis: 0
-    lockXAxis: 0
-  tetherModeAdjustSpeed: 2.5
-  lassoModeAdjustSpeed: 5
-  defaultAdjustSpeed: 2.5
-  tetherSensMultiplier: 0.75
-  lassoSensMultiplier: 0.9
-  playerDefaultYOffset: 0.25
-  zoomPadding: 0.75
+    transitionSpeed: 5
+    sensitivityMultiplierX: 0.9
+    sensitivityMultiplierY: 0.9
+  playerDefaultYOffset: 0.1
+  zoomPadding: 0.8
   lassoZoomOutSmoothTime: 0.1
-  lassoMinPitch: -30
-  lassoMaxPitch: 30
+  lassoMinPitch: -20
+  lassoMaxPitch: 20
 --- !u!114 &8840996119367643210
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -248,7 +257,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CameraCutsceneHandler
   cameraController: {fileID: 4419986128599733150}
   cameraModeController: {fileID: 1879080133409769875}
-  openingCutscene: {fileID: 0}
+  openingCutscene: {fileID: 1229299451564321437}
 --- !u!114 &1229299451564321437
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -261,19 +270,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 407124f1acf188d49b81d050822375ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraPanCutscene
-  <Duration>k__BackingField: 0
+  <Duration>k__BackingField: 4
   <BlendInDelay>k__BackingField: 0
   <BlendInTime>k__BackingField: 0
   <BlendOutTime>k__BackingField: 0
   <Skippable>k__BackingField: 1
   <Indefinite>k__BackingField: 0
-  startPos: {fileID: 0}
-  endPos: {fileID: 0}
-  lookAtTarget: {fileID: 0}
-  scriptsToModify: []
+  startPos: {fileID: 8559221249729181534}
+  endPos: {fileID: 1550910859610952736}
+  lookAtTarget: {fileID: 3499481388358268756}
+  scriptsToModify:
+  - {fileID: 4419986128599733150}
   objectsToModify: []
   objectsToEnableOnStart: []
-  midPoints: []
+  midPoints:
+  - {fileID: 6727917516794901251}
+  - {fileID: 1889454209210498460}
   nextCutscene: {fileID: 8447290795709846506}
 --- !u!114 &8447290795709846506
 MonoBehaviour:
@@ -287,7 +299,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 92f53bcccdcdec74fa30d316d85568a3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ZoomToPlayerCutscene
-  <Duration>k__BackingField: 0
+  <Duration>k__BackingField: 8
   <BlendInDelay>k__BackingField: 0
   <BlendInTime>k__BackingField: 0
   <BlendOutTime>k__BackingField: 0
@@ -296,9 +308,11 @@ MonoBehaviour:
   startPos: {fileID: 29341059007446484}
   endPos: {fileID: 6574319139901563366}
   lookAtTarget: {fileID: 5018817863018730790}
-  scriptsToModify: []
+  scriptsToModify:
+  - {fileID: 4419986128599733150}
   objectsToModify: []
-  objectsToEnableOnStart: []
+  objectsToEnableOnStart:
+  - {fileID: 0}
   startFOV: 30
   endFOV: 70
 --- !u!114 &7360455401066649952
@@ -313,7 +327,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 407124f1acf188d49b81d050822375ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraPanCutscene
-  <Duration>k__BackingField: 4
+  <Duration>k__BackingField: 5
   <BlendInDelay>k__BackingField: 0
   <BlendInTime>k__BackingField: 0
   <BlendOutTime>k__BackingField: 0
@@ -344,15 +358,16 @@ MonoBehaviour:
   <BlendInDelay>k__BackingField: 0
   <BlendInTime>k__BackingField: 0
   <BlendOutTime>k__BackingField: 0
-  <Skippable>k__BackingField: 1
+  <Skippable>k__BackingField: 0
   <Indefinite>k__BackingField: 1
   startPos: {fileID: 0}
   endPos: {fileID: 0}
   lookAtTarget: {fileID: 0}
-  scriptsToModify: []
+  scriptsToModify:
+  - {fileID: 0}
   objectsToModify: []
   objectsToEnableOnStart: []
-  nextCutscene: {fileID: 0}
+  nextCutscene: {fileID: 1714217857182088549}
 --- !u!114 &4090546917536674319
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -369,15 +384,43 @@ MonoBehaviour:
   <BlendInDelay>k__BackingField: 0
   <BlendInTime>k__BackingField: 0
   <BlendOutTime>k__BackingField: 0
+  <Skippable>k__BackingField: 0
+  <Indefinite>k__BackingField: 1
+  startPos: {fileID: 0}
+  endPos: {fileID: 0}
+  lookAtTarget: {fileID: 0}
+  scriptsToModify:
+  - {fileID: 0}
+  objectsToModify: []
+  objectsToEnableOnStart: []
+  playerPos: {fileID: 0}
+--- !u!114 &1714217857182088549
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2433073019588045867}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a00b8d38b02e15147a7bd2c85bb159dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCKeyCutscene
+  <Duration>k__BackingField: 3
+  <BlendInDelay>k__BackingField: 0.05
+  <BlendInTime>k__BackingField: 0.95
+  <BlendOutTime>k__BackingField: 0
   <Skippable>k__BackingField: 1
   <Indefinite>k__BackingField: 0
   startPos: {fileID: 0}
   endPos: {fileID: 0}
   lookAtTarget: {fileID: 0}
   scriptsToModify: []
-  objectsToModify: []
+  objectsToModify:
+  - {fileID: 0}
+  - {fileID: 0}
   objectsToEnableOnStart: []
-  nextCutscene: {fileID: 0}
+  lookAtFOV: 0
 --- !u!1 &5034725151940635292
 GameObject:
   m_ObjectHideFlags: 0
@@ -402,7 +445,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5034725151940635292}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 150.73297, y: 49.759094, z: -235.52414}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -433,15 +476,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4071908578814120439, guid: 788b70e811eb2fb4690ad16d33feb461, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 64.87706
+      value: 65.85604
       objectReference: {fileID: 0}
     - target: {fileID: 4071908578814120439, guid: 788b70e811eb2fb4690ad16d33feb461, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -7.342827
+      value: -8.323467
       objectReference: {fileID: 0}
     - target: {fileID: 4071908578814120439, guid: 788b70e811eb2fb4690ad16d33feb461, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.633728
+      value: -4.3845825
       objectReference: {fileID: 0}
     - target: {fileID: 4530799888279438098, guid: 788b70e811eb2fb4690ad16d33feb461, type: 3}
       propertyPath: m_LocalPosition.x
@@ -457,15 +500,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5993825889158809413, guid: 788b70e811eb2fb4690ad16d33feb461, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -6.2829742
+      value: 0.77
       objectReference: {fileID: 0}
     - target: {fileID: 5993825889158809413, guid: 788b70e811eb2fb4690ad16d33feb461, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 16.980904
+      value: 18.39
       objectReference: {fileID: 0}
     - target: {fileID: 5993825889158809413, guid: 788b70e811eb2fb4690ad16d33feb461, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -340.26584
+      value: -343.56
       objectReference: {fileID: 0}
     - target: {fileID: 5993825889158809413, guid: 788b70e811eb2fb4690ad16d33feb461, type: 3}
       propertyPath: m_LocalRotation.w
@@ -533,6 +576,16 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 7194151455887871429, guid: 788b70e811eb2fb4690ad16d33feb461, type: 3}
   m_PrefabInstance: {fileID: 7187462618229420049}
   m_PrefabAsset: {fileID: 0}
+--- !u!4 &1550910859610952736 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8519418642425619505, guid: 788b70e811eb2fb4690ad16d33feb461, type: 3}
+  m_PrefabInstance: {fileID: 7187462618229420049}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &1889454209210498460 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8756774194553621901, guid: 788b70e811eb2fb4690ad16d33feb461, type: 3}
+  m_PrefabInstance: {fileID: 7187462618229420049}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &3499481388358268756 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5993825889158809413, guid: 788b70e811eb2fb4690ad16d33feb461, type: 3}
@@ -546,5 +599,15 @@ Transform:
 --- !u!4 &6574319139901563366 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4071908578814120439, guid: 788b70e811eb2fb4690ad16d33feb461, type: 3}
+  m_PrefabInstance: {fileID: 7187462618229420049}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &6727917516794901251 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4530799888279438098, guid: 788b70e811eb2fb4690ad16d33feb461, type: 3}
+  m_PrefabInstance: {fileID: 7187462618229420049}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &8559221249729181534 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1546574478939752271, guid: 788b70e811eb2fb4690ad16d33feb461, type: 3}
   m_PrefabInstance: {fileID: 7187462618229420049}
   m_PrefabAsset: {fileID: 0}
