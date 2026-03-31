@@ -27,7 +27,7 @@ public class ThirdPersonAnimatorController : MonoBehaviour
 
     private void Update()
     {
-        if (_playerRefData.PlayerMovement.CurrentMovementState != PlayerMoveState.Grabbing) animator.SetFloat("MoveInput", Mathf.Abs(_playerRefData.PlayerMovement.SmoothedInputMagnitude));
+        animator.SetFloat("MoveInput", Mathf.Abs(_playerRefData.PlayerMovement.SmoothedInputMagnitude));
         animator.SetBool("Swinging", (_playerRefData.LassoTetherController.CurrentLassoState == LassoState.Swinging) || (_cameraController.IsActive() && _cameraController.CurrentCutscene is RopeSwingCutscene));
         animator.SetBool("IsGrounded", _playerRefData.PlayerMovement.IsGrounded());
         animator.SetBool("LassoSnared", _playerRefData.LassoTetherController.CurrentLassoState == LassoState.Snared);

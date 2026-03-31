@@ -200,6 +200,7 @@ public class PlayerMovement : MonoBehaviour
             _currentMultipliers = MovementProperties.Default;
             _lastExternalForce = Vector3.zero;
             _externalForce = Vector3.zero;
+            _smoothedInputMagnitude = 0;
             KillVelocity();
             KillRemainingInput();
 

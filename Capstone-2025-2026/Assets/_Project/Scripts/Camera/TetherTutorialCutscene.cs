@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class TetherTutorialCutscene : CameraCutsceneBase
 {
+    [SerializeField] private Transform playerPos;
     [SerializeField] private CutsceneBase nextCutscene;
 
     public override void OnCutscenePrepare()
@@ -22,6 +23,10 @@ public class TetherTutorialCutscene : CameraCutsceneBase
     {
         PlayerRefData.Instance.PlayerMovement.SetGrabbing(true);
 
+        //move player to position
+        PlayerRefData.Instance.PlayerMovement.Rb.position = playerPos.position;
+        PlayerRefData.Instance.transform.position = playerPos.position;
+
         cam.transform.position = startPos.position;
         cam.transform.LookAt (lookAtTarget.position);
 
@@ -30,6 +35,7 @@ public class TetherTutorialCutscene : CameraCutsceneBase
         Quaternion rotation = Quaternion.LookRotation(direction);
         PlayerRefData.Instance.PlayerModelRotationHandler.SetNewRotationDir(rotation,true); //stop player model rotation
 
+        PlayerRefData.Instance.PlayerFade.SetFade(false);
     }
 
     public override void OnCutsceneEnd()
@@ -48,6 +54,7 @@ public class TetherTutorialCutscene : CameraCutsceneBase
         //unfreeze player rotation
         PlayerRefData.Instance.PlayerModelRotationHandler.SetNewRotationDir(null, false); //stop player model rotation
         PlayerRefData.Instance.LassoTetherController.SetTetherState(true);
+        PlayerRefData.Instance.PlayerFade.SetFade(true);
 
         if (nextCutscene != null)
         {
