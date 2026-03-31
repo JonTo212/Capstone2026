@@ -203,6 +203,9 @@ AnimatorStateTransition:
   - m_ConditionMode: 3
     m_ConditionEvent: MoveInput
     m_EventTreshold: 0.01
+  - m_ConditionMode: 1
+    m_ConditionEvent: IsGrounded
+    m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: -4043272464119405585}
   m_Solo: 0
@@ -386,7 +389,7 @@ BlendTree:
   m_Name: Blend Tree
   m_Childs:
   - serializedVersion: 2
-    m_Motion: {fileID: -203655887218126122, guid: 6113dcb17f2f9f14290336c1b131e4db, type: 3}
+    m_Motion: {fileID: -203655887218126122, guid: f82cbc3e784de2f469ae8a60275a56ad, type: 3}
     m_Threshold: 0
     m_Position: {x: 0, y: 0}
     m_TimeScale: 1
@@ -394,7 +397,7 @@ BlendTree:
     m_DirectBlendParameter: LassoReel
     m_Mirror: 0
   - serializedVersion: 2
-    m_Motion: {fileID: -203655887218126122, guid: a959c26f0f7fc18458e723079c49adfe, type: 3}
+    m_Motion: {fileID: -203655887218126122, guid: 501f1b1a8ff54cc428773b5a4bc56184, type: 3}
     m_Threshold: 0.5
     m_Position: {x: 0, y: 0}
     m_TimeScale: 1
@@ -563,7 +566,7 @@ AnimatorState:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Stylish Flip
-  m_Speed: -1
+  m_Speed: -1.5
   m_CycleOffset: 0
   m_Transitions:
   - {fileID: 7527294459549893008}
