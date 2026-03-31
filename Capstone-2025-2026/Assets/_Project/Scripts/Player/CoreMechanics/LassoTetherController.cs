@@ -23,6 +23,8 @@ public class LassoTetherController : MonoBehaviour
     [Header("States")]
     public bool rodPickedUp = true;
     public bool tetherPickedUp = true;
+    public bool RodEnabled { get; private set; }
+    public bool TetherEnabled { get; private set; }
     [field: SerializeField] public LassoState CurrentLassoState { get; private set; }
 
     public bool rodEquipped = true;
@@ -41,6 +43,9 @@ public class LassoTetherController : MonoBehaviour
         _playerRefData.Lasso.OnObjectHit += OnLassoHit;
         _playerRefData.JointTetherPlacer.OnTetherStartHit += OnTetherStartHit;
         _playerRefData.PlayerNPCCapture.OnObjectYankCompleted += OnObjectYankCompleted;
+
+        TetherEnabled = false;
+        RodEnabled = false;
     }
 
     private void OnDisable()
@@ -147,6 +152,7 @@ public class LassoTetherController : MonoBehaviour
         }
         else
         {
+            _playerRefData.PlayerMovement.KillVelocity();
             _playerRefData.Lasso.SnaredObject.OnPropDestroyed += ClearHold;
             _playerRefData.PlayerMovement.SetGrabbing(true);
             SwitchLassoState(LassoState.Snared);
@@ -157,6 +163,16 @@ public class LassoTetherController : MonoBehaviour
     {
         _playerRefData.Lasso.HandleHold();
         SwitchLassoState(LassoState.Empty);
+    }
+
+    public void SetTetherState(bool enabled)
+    {
+        TetherEnabled = enabled;
+    }
+
+    public void SetLassoState(bool enabled)
+    {
+        RodEnabled = enabled;
     }
 
     public void ClearHold()
@@ -186,12 +202,12 @@ public class LassoTetherController : MonoBehaviour
             autoEquippedRod = false; // player took manual control, cancel auto-restore
         }
 
-        if (PlayerActions.Instance.LassoDown && rodEquipped)
+        if (PlayerActions.Instance.LassoDown && rodEquipped && RodEnabled)
         {
             _playerRefData.Lasso.HandleLassoStart();
 
         }
-        if (PlayerActions.Instance.LassoDown && !rodEquipped && tetherPickedUp) // temporarily making it check for lasso input so they can use the same button
+        if (PlayerActions.Instance.LassoDown && !rodEquipped && tetherPickedUp && TetherEnabled) // temporarily making it check for lasso input so they can use the same button
         {
             _playerRefData.JointTetherPlacer.StartTetherPlacement();
         }

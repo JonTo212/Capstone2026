@@ -4,12 +4,6 @@ public class TetherTutorialCutscene : CameraCutsceneBase
 {
     [SerializeField] private CutsceneBase nextCutscene;
 
-    public void Configure(Transform start, Transform lookAt)
-    {
-        startPos = start;
-        lookAtTarget = lookAt;  
-    }
-
     public override void OnCutscenePrepare()
     {
         base.OnCutscenePrepare();
@@ -26,10 +20,7 @@ public class TetherTutorialCutscene : CameraCutsceneBase
 
     public override void OnCutsceneStart()
     {
-        PlayerActions.Instance.ChangeSpecificInput("Move",false);
-        //PlayerActions.Instance.ChangeSpecificInput("Jump", false);
-        PlayerRefData.Instance.PlayerMovement.Rb.linearVelocity=(Vector3.zero); //stop players movement
-        PlayerRefData.Instance.PlayerMovement.WishDir = (Vector3.zero); //stop players movemen
+        PlayerRefData.Instance.PlayerMovement.SetGrabbing(true);
 
         cam.transform.position = startPos.position;
         cam.transform.LookAt (lookAtTarget.position);
@@ -50,21 +41,18 @@ public class TetherTutorialCutscene : CameraCutsceneBase
             zeldaCam.SetFrozen(false);
         }
 
-        PlayerActions.Instance.ChangeSpecificInput("Move", true);
-        //PlayerActions.Instance.ChangeSpecificInput("Jump", true);
+        PlayerRefData.Instance.PlayerMovement.SetGrabbing(false);
 
         HandleScripts(true);
 
         //unfreeze player rotation
         PlayerRefData.Instance.PlayerModelRotationHandler.SetNewRotationDir(null, false); //stop player model rotation
+        PlayerRefData.Instance.LassoTetherController.SetTetherState(true);
 
         if (nextCutscene != null)
         {
             CameraCutsceneHandler.Instance.StartCutscene(nextCutscene);
         }
-
-
-
     }
 
 }

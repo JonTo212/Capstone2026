@@ -13,18 +13,21 @@ public class ThirdPersonAnimatorController : MonoBehaviour
 
         _playerRefData.Lasso.OnObjectHit += SetLassoStart;
         _playerRefData.JointTetherActivator.OnTetherActivated += SetTetherStart;
+        _playerRefData.PlayerMovement.OnDoubleJump += SetDoubleJump;
+        _playerRefData.PlayerMovement.OnJump += SetJump;
     }
 
     private void OnDisable()
     {
         _playerRefData.Lasso.OnObjectHit -= SetLassoStart;
         _playerRefData.JointTetherActivator.OnTetherActivated -= SetTetherStart;
+        _playerRefData.PlayerMovement.OnDoubleJump -= SetDoubleJump;
+        _playerRefData.PlayerMovement.OnJump -= SetJump;
     }
 
     private void Update()
     {
-        animator.SetBool("MoveInput", _playerRefData.PlayerMovement.WishDir != Vector3.zero && _playerRefData.PlayerMovement.CurrentMovementState != PlayerMoveState.Grabbing);
-        animator.SetBool("Jump", PlayerActions.Instance.JumpDown);
+        if (_playerRefData.PlayerMovement.CurrentMovementState != PlayerMoveState.Grabbing) animator.SetFloat("MoveInput", Mathf.Abs(_playerRefData.PlayerMovement.SmoothedInputMagnitude));
         animator.SetBool("Swinging", (_playerRefData.LassoTetherController.CurrentLassoState == LassoState.Swinging) || (_cameraController.IsActive() && _cameraController.CurrentCutscene is RopeSwingCutscene));
         animator.SetBool("IsGrounded", _playerRefData.PlayerMovement.IsGrounded());
         animator.SetBool("LassoSnared", _playerRefData.LassoTetherController.CurrentLassoState == LassoState.Snared);
@@ -34,6 +37,7 @@ public class ThirdPersonAnimatorController : MonoBehaviour
         animator.SetBool("IsHanging", _playerRefData.PlayerLedgeGrab.IsHanging);
         animator.SetBool("Mantling", _playerRefData.PlayerLedgeGrab._mantleCoroutine != null);
         animator.SetBool("AttachingToRail", _cameraController.BlendingIn && _cameraController.CurrentCutscene is RopeSwingCutscene);
+        animator.SetFloat("YVelocity", _playerRefData.PlayerMovement.Rb.linearVelocity.y);
     }
 
     private void SetLassoStart()
@@ -44,5 +48,15 @@ public class ThirdPersonAnimatorController : MonoBehaviour
     private void SetTetherStart()
     {
         animator.SetTrigger("TetherStart");
+    }
+
+    private void SetDoubleJump()
+    {
+        animator.SetTrigger("DoubleJump");
+    }
+
+    private void SetJump()
+    {
+        animator.SetTrigger("JumpInput");
     }
 }
