@@ -73,12 +73,16 @@ public class PlayerMovement : MonoBehaviour
     private bool _useFriction;
     private bool _hasJumped;
     private bool _canDoubleJump;
+    private float _smoothedInputMagnitude;
 
     public Vector3 WishDir { get; private set; }
     public Rigidbody Rb { get; private set; }
     public PlayerMoveState CurrentMovementState { get; private set; }
     private float GetTargetSpeed() => defaultMaxSpeed * _currentMultipliers.maxSpeedMultiplier * _inputMagnitude;
-    public event Action OnDoubleJumpFired;
+    public bool CanDoubleJump => _canDoubleJump;
+    public float SmoothedInputMagnitude => _smoothedInputMagnitude;
+    public event Action OnDoubleJump;
+    public event Action OnJump;
 
     #region Unity Functions
     private void Awake()
@@ -258,10 +262,8 @@ public class PlayerMovement : MonoBehaviour
 
     public Transform IsGrounded()
     {
-        Ray downwardRay = new Ray(transform.position, Vector3.down);
-        Physics.Raycast(downwardRay, out RaycastHit hit, 1.1f, groundLayer);
-
-        return hit.transform;
+        Collider[] hits = Physics.OverlapSphere(feetPos.position, feetRadius, groundLayer);
+        return hits.Length > 0 ? hits[0].transform : null;
     }
 
     #endregion
@@ -285,7 +287,12 @@ public class PlayerMovement : MonoBehaviour
         Vector3 rightRelative = camRight * PlayerActions.Instance.MoveInput.x;
 
         Vector3 desiredDir = forwardRelative + rightRelative;
-        _inputMagnitude = Mathf.Clamp01(desiredDir.magnitude);
+        float rawMagnitude = Mathf.Clamp01(desiredDir.magnitude);
+        bool decelerating = rawMagnitude < _smoothedInputMagnitude;
+        float duration = decelerating ? timeToZero : timeToMaxSpeed;
+        float step = Time.deltaTime / duration;
+        _smoothedInputMagnitude = Mathf.MoveTowards(_smoothedInputMagnitude, rawMagnitude, step);
+        _inputMagnitude = _smoothedInputMagnitude;
         WishDir = _inputMagnitude > 0.001f ? desiredDir.normalized : Vector3.zero;
     }
     #endregion
@@ -354,6 +361,8 @@ public class PlayerMovement : MonoBehaviour
         _hasJumped = true;
         _canDoubleJump = enableDoubleJump;
         _lastJumpFrame = Time.frameCount;
+
+        OnJump?.Invoke();
     }
 
     public void HandleDoubleJump()
@@ -373,14 +382,18 @@ public class PlayerMovement : MonoBehaviour
         _canDoubleJump = false;
         RuntimeManager.PlayOneShot("event:/DoubleJump",transform.position);
 
-        OnDoubleJumpFired?.Invoke();
+        OnDoubleJump?.Invoke();
     }
     #endregion
 
     #region Gravity
     private void HandleGravityRelative(ref Vector3 relVel)
     {
-        if (CurrentMovementState == PlayerMoveState.Walking) return;
+        if (CurrentMovementState == PlayerMoveState.Walking)
+        {
+            relVel.y = -0.5f;
+            return;
+        }
 
         //apply gravity to the reference variable instead of addForce
         relVel.y -= _gravity * Time.fixedDeltaTime;
