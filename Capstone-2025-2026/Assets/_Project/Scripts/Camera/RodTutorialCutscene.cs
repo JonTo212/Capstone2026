@@ -2,13 +2,7 @@ using UnityEngine;
 
 public class RodTutorialCutscene : CameraCutsceneBase
 {
-    [SerializeField] private CutsceneBase nextCutscene;
-
-    public void Configure(Transform start, Transform lookAt)
-    {
-        startPos = start;
-        lookAtTarget = lookAt;  
-    }
+    [SerializeField] private Transform playerPos;
 
     public override void OnCutscenePrepare()
     {
@@ -26,19 +20,22 @@ public class RodTutorialCutscene : CameraCutsceneBase
 
     public override void OnCutsceneStart()
     {
-        PlayerActions.Instance.ChangeSpecificInput("Move",false);
-        //PlayerActions.Instance.ChangeSpecificInput("Jump", false);
-        PlayerRefData.Instance.PlayerMovement.Rb.linearVelocity=(Vector3.zero); //stop players movement
-        PlayerRefData.Instance.PlayerMovement.WishDir = (Vector3.zero); //stop players movemen
+        PlayerRefData.Instance.PlayerMovement.SetGrabbing(true);
+
+        //move player to position
+        PlayerRefData.Instance.PlayerMovement.Rb.position = playerPos.position;
+        PlayerRefData.Instance.transform.position = playerPos.position;
 
         cam.transform.position = startPos.position;
         cam.transform.LookAt (lookAtTarget.position);
 
         //player rotate to face camera
         Vector3 direction = cam.transform.position - lookAtTarget.position;
+        direction.y = 0;
         Quaternion rotation = Quaternion.LookRotation(direction);
         PlayerRefData.Instance.PlayerModelRotationHandler.SetNewRotationDir(rotation,true); //stop player model rotation
 
+        PlayerRefData.Instance.PlayerFade.SetFade(false);
     }
 
     public override void OnCutsceneEnd()
@@ -50,21 +47,14 @@ public class RodTutorialCutscene : CameraCutsceneBase
             zeldaCam.SetFrozen(false);
         }
 
-        PlayerActions.Instance.ChangeSpecificInput("Move", true);
-        //PlayerActions.Instance.ChangeSpecificInput("Jump", true);
-
+        PlayerRefData.Instance.PlayerMovement.SetGrabbing(false);
         HandleScripts(true);
 
         //unfreeze player rotation
         PlayerRefData.Instance.PlayerModelRotationHandler.SetNewRotationDir(null, false); //stop player model rotation
+        PlayerRefData.Instance.LassoTetherController.SetLassoState(true);
 
-        if (nextCutscene != null)
-        {
-            CameraCutsceneHandler.Instance.StartCutscene(nextCutscene);
-        }
-
-
-
+        PlayerRefData.Instance.PlayerFade.SetFade(true);
     }
 
 }

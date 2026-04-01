@@ -13,20 +13,26 @@ public enum CamState
 public struct CameraStateSettings
 {
     public CamState cameraState;
-    public Vector2 screenOffset; // -1 to 1
-    public Vector3 targetOffset; // World-space
-    public float distanceOffset; // Zoom relative to default
+    public Vector2 screenOffset;        // -1 to 1
+    public Vector3 worldSpaceOffset;    // world-space offset added on top of the camera's default target offset
+    public float distanceOffset;        // Z distance zoom relative to default
     public bool lockYAxis;
     public bool lockXAxis;
+    public float transitionSpeed;       // lerp speed when entering/leaving this state
+    public float sensitivityMultiplierX;
+    public float sensitivityMultiplierY;
 
-    public CameraStateSettings(CamState state, Vector2 screenPos, Vector3 targetOff, float distOff, bool lockY, bool lockX)
+    public CameraStateSettings(CamState state, Vector2 screenPos, Vector3 worldOff, float distOff, bool lockY, bool lockX, float speed = 6f, float sensX = 1f, float sensY = 1f)
     {
         cameraState = state;
         screenOffset = screenPos;
-        targetOffset = targetOff;
+        worldSpaceOffset = worldOff;
         distanceOffset = distOff;
         lockYAxis = lockY;
         lockXAxis = lockX;
+        transitionSpeed = speed;
+        sensitivityMultiplierX = sensX;
+        sensitivityMultiplierY = sensY;
     }
 }
 
@@ -35,19 +41,9 @@ public class CameraModeController : MonoBehaviour
     [Header("References")]
     [SerializeField] private ZeldaCameraController cameraController;
     [SerializeField] private Transform playerRef;
-    [SerializeField] private PlayerRefData playerRefData;
 
     [Header("Camera State Settings")]
     [SerializeField] private List<CameraStateSettings> cameraStates = new();
-
-    [Header("Transition Speeds")]
-    [SerializeField] private float tetherModeAdjustSpeed = 5f;
-    [SerializeField] private float lassoModeAdjustSpeed = 8f;
-    [SerializeField] private float defaultAdjustSpeed = 6f;
-
-    [Header("Sensitivity Modifiers")]
-    [SerializeField] private float tetherSensMultiplier = 0.9f;
-    [SerializeField] private float lassoSensMultiplier = 0.75f;
 
     [Header("Lasso Mode Dynamic Zoom Settings")]
     [SerializeField] private float playerDefaultYOffset = 0.25f;
@@ -81,10 +77,10 @@ public class CameraModeController : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance != null && Instance != this) 
-        { 
-            Destroy(gameObject); 
-            return; 
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
         }
         Instance = this;
 
@@ -102,7 +98,6 @@ public class CameraModeController : MonoBehaviour
 
         if (playerRef != null)
         {
-            playerRefData = playerRef.GetComponent<PlayerRefData>();
             CapsuleCollider col = playerRef.GetComponent<CapsuleCollider>();
             if (col != null) characterHeight = col.height;
         }
@@ -113,10 +108,10 @@ public class CameraModeController : MonoBehaviour
 
     public (Vector2 screenOffset, Vector3 targetOffset, float distanceOffset) GetCurrentStateOffsets()
     {
-        CamState state = playerRefData.LassoTetherController.rodEquipped ? CamState.LassoEquipped : CamState.TetherEquipped;
+        CamState state = PlayerRefData.Instance.LassoTetherController.rodEquipped ? CamState.LassoEquipped : CamState.TetherEquipped;
         CameraStateSettings? settings = GetSettingsForState(state);
         Vector2 screen = settings.HasValue ? settings.Value.screenOffset : defaultScreenOffset;
-        Vector3 target = settings.HasValue ? defaultTargetOffset + settings.Value.targetOffset : defaultTargetOffset;
+        Vector3 target = settings.HasValue ? defaultTargetOffset + settings.Value.worldSpaceOffset : defaultTargetOffset;
         float distance = settings.HasValue ? settings.Value.distanceOffset : 0f;
         return (screen, target, distance);
     }
@@ -124,7 +119,7 @@ public class CameraModeController : MonoBehaviour
     private void Update()
     {
         if (CameraCutsceneHandler.Instance != null && CameraCutsceneHandler.Instance.IsActive())
-        {                
+        {
             CutsceneBase current = CameraCutsceneHandler.Instance.CurrentCutscene;
             if (current != null && current is PlayerCutsceneBase)
             {
@@ -132,7 +127,7 @@ public class CameraModeController : MonoBehaviour
             }
         }
 
-        switch (playerRefData.LassoTetherController.CurrentLassoState)
+        switch (PlayerRefData.Instance.LassoTetherController.CurrentLassoState)
         {
             case LassoState.Snared:
                 LassoModeCamera();
@@ -151,12 +146,12 @@ public class CameraModeController : MonoBehaviour
 
     public void ForceSnapToCurrentState()
     {
-        CamState correctState = playerRefData.LassoTetherController.rodEquipped ? CamState.LassoEquipped : CamState.TetherEquipped;
+        CamState correctState = PlayerRefData.Instance.LassoTetherController.rodEquipped ? CamState.LassoEquipped : CamState.TetherEquipped;
 
         CameraStateSettings? settings = GetSettingsForState(correctState);
 
         currentScreenOffset = settings.HasValue ? settings.Value.screenOffset : defaultScreenOffset;
-        currentTargetOffset = settings.HasValue ? defaultTargetOffset + settings.Value.targetOffset : defaultTargetOffset;
+        currentTargetOffset = settings.HasValue ? defaultTargetOffset + settings.Value.worldSpaceOffset : defaultTargetOffset;
         currentDistanceOffset = settings.HasValue ? settings.Value.distanceOffset : 0f;
 
         cameraController.SetScreenOffset(currentScreenOffset);
@@ -169,22 +164,21 @@ public class CameraModeController : MonoBehaviour
 
     private void LassoModeCamera()
     {
-        Prop snaredProp = playerRefData.Lasso.SnaredObject;
+        CameraStateSettings? lassoSettings = GetSettingsForState(CamState.Lasso);
+        Prop snaredProp = PlayerRefData.Instance.Lasso.SnaredObject;
         if (snaredProp != null)
         {
-            cameraController.SetDistanceLimit(25f);
-            playerRefData.Lasso.SuppressLiftInput = true;
-
+            PlayerRefData.Instance.Lasso.SuppressLiftInput = true;
             float requiredDistanceOffset = CalculateRequiredDistanceOffset(playerRef.position, snaredProp.transform.position, out optimalFraming);
 
-            CameraStateSettings? lassoSettings = GetSettingsForState(CamState.Lasso);
-            Vector3 lassoBaseOffset = lassoSettings.HasValue ? defaultTargetOffset + lassoSettings.Value.targetOffset : defaultTargetOffset;
+            Vector3 lassoBaseOffset = lassoSettings.HasValue ? defaultTargetOffset + lassoSettings.Value.worldSpaceOffset : defaultTargetOffset;
             Vector2 lassoBaseScreenOffset = lassoSettings.HasValue ? lassoSettings.Value.screenOffset : defaultScreenOffset;
             float lassoBaseDistance = defaultDistance + (lassoSettings.HasValue ? lassoSettings.Value.distanceOffset : 0f);
+            float lassoSpeed = lassoSettings.HasValue ? lassoSettings.Value.transitionSpeed : 6f;
             currentTargetDistance = lassoBaseDistance + requiredDistanceOffset;
 
             bool yLocked = HandleAboveClampInput();
-            ApplyCameraSettings(lassoBaseScreenOffset + optimalFraming, lassoBaseOffset, currentTargetDistance, false, false, lassoModeAdjustSpeed);
+            ApplyCameraSettings(lassoBaseScreenOffset + optimalFraming, lassoBaseOffset, currentTargetDistance, false, false, lassoSpeed);
             cameraController.SetCollisionSmoothTimeOverride(lassoZoomOutSmoothTime);
             cameraController.SetYAxisLocked(yLocked);
             cameraController.SetVerticalClamp(lassoMinPitch, lassoMaxPitch);
@@ -198,34 +192,41 @@ public class CameraModeController : MonoBehaviour
             }
         }
 
-        ApplySensitivity(lassoSensMultiplier, lassoSensMultiplier);
+        float sensX = lassoSettings.HasValue ? lassoSettings.Value.sensitivityMultiplierX : 1f;
+        float sensY = lassoSettings.HasValue ? lassoSettings.Value.sensitivityMultiplierY : 1f;
+        ApplySensitivity(sensX, sensY);
     }
 
     private void TetherModeCamera()
     {
         cameraController.SetCollisionSmoothTimeOverride(null);
         cameraController.SetPitchSmoothOverride(null);
-        cameraController.SetDistanceLimit(defaultDistance);
+
+        if (hasSnappedToLasso)
+            cameraController.SyncTargetPitchToCurrent();
+
         hasSnappedToLasso = false;
 
         cameraController.SetVerticalClamp(null, null);
         _lassoAboveClamp = false;
         _lassoBelowClamp = false;
-        if (playerRefData.Lasso != null)
-            playerRefData.Lasso.SuppressLiftInput = false;
+        if (PlayerRefData.Instance.Lasso != null)
+            PlayerRefData.Instance.Lasso.SuppressLiftInput = false;
 
-        ApplyCameraStateSettings(CamState.Tether, tetherModeAdjustSpeed);
-        ApplySensitivity(tetherSensMultiplier, tetherSensMultiplier);
+        ApplyCameraStateSettings(CamState.Tether);
     }
 
     private void ResetCamera()
     {
         cameraController.SetCollisionSmoothTimeOverride(null);
         cameraController.SetPitchSmoothOverride(null);
-        cameraController.SetDistanceLimit(defaultDistance);
+
+        if (hasSnappedToLasso)
+            cameraController.SyncTargetPitchToCurrent();
+
         hasSnappedToLasso = false;
 
-        ApplyCameraStateSettings(playerRefData.LassoTetherController.rodEquipped ? CamState.LassoEquipped : CamState.TetherEquipped, defaultAdjustSpeed);
+        ApplyCameraStateSettings(PlayerRefData.Instance.LassoTetherController.rodEquipped ? CamState.LassoEquipped : CamState.TetherEquipped);
 
         currentTargetDistance = defaultDistance;
         ApplySensitivity(1f, 1f);
@@ -233,21 +234,23 @@ public class CameraModeController : MonoBehaviour
         cameraController.SetVerticalClamp(null, null);
         _lassoAboveClamp = false;
         _lassoBelowClamp = false;
-        if (playerRefData.Lasso != null)
-            playerRefData.Lasso.SuppressLiftInput = false;
+        if (PlayerRefData.Instance.Lasso != null)
+            PlayerRefData.Instance.Lasso.SuppressLiftInput = false;
     }
 
-    private void ApplyCameraStateSettings(CamState state, float smoothSpeed)
+    private void ApplyCameraStateSettings(CamState state)
     {
         CameraStateSettings? settings = GetSettingsForState(state);
         if (settings.HasValue)
         {
             float targetDistance = defaultDistance + settings.Value.distanceOffset;
-            ApplyCameraSettings(settings.Value.screenOffset, defaultTargetOffset + settings.Value.targetOffset, targetDistance, settings.Value.lockYAxis, settings.Value.lockXAxis, smoothSpeed);
+            ApplyCameraSettings(settings.Value.screenOffset, defaultTargetOffset + settings.Value.worldSpaceOffset, targetDistance, settings.Value.lockYAxis, settings.Value.lockXAxis, settings.Value.transitionSpeed);
+            ApplySensitivity(settings.Value.sensitivityMultiplierX, settings.Value.sensitivityMultiplierY);
         }
         else
         {
-            ApplyCameraSettings(defaultScreenOffset, defaultTargetOffset, defaultDistance, false, false, smoothSpeed);
+            ApplyCameraSettings(defaultScreenOffset, defaultTargetOffset, defaultDistance, false, false, 6f);
+            ApplySensitivity(1f, 1f);
         }
     }
 
@@ -273,7 +276,7 @@ public class CameraModeController : MonoBehaviour
         float objectBottom = objectPos.y;
         float objectTop = objectPos.y;
 
-        Renderer objRenderer = playerRefData.Lasso.SnaredObject.GetComponent<Renderer>();
+        Renderer objRenderer = PlayerRefData.Instance.Lasso.SnaredObject.GetComponent<Renderer>();
         if (objRenderer != null)
         {
             objectBottom = objRenderer.bounds.min.y;
@@ -297,19 +300,19 @@ public class CameraModeController : MonoBehaviour
 
     private float CalculateLiftDelta(float rawLookY, Lasso lasso)
     {
-        float currentPitch = cameraController.GetCurrentPitch();
-        float newPitch = currentPitch - rawLookY * baseSensitivityY;
-        float currentY = Mathf.Sin(currentPitch * Mathf.Deg2Rad) * lasso.AnchorDist;
+        float pitch = cameraController.GetTargetPitch();
+        float newPitch = pitch - rawLookY * baseSensitivityY;
+        float currentY = Mathf.Sin(pitch * Mathf.Deg2Rad) * lasso.AnchorDist;
         float newY = Mathf.Sin(newPitch * Mathf.Deg2Rad) * lasso.AnchorDist;
         return currentY - newY;
     }
 
     private bool HandleAboveClampInput()
     {
-        Lasso lasso = playerRefData.Lasso;
+        Lasso lasso = PlayerRefData.Instance.Lasso;
         if (lasso == null) return false;
 
-        float rawLookY = cameraController.GetRawLookInputY();
+        float rawLookY = PlayerActions.Instance.LookInput.y;
         bool lookingUp = rawLookY > 0.001f;
         bool lookingDown = rawLookY < -0.001f;
 
