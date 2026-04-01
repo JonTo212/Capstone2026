@@ -20,7 +20,6 @@ public class PostProcessCrossfadeTrigger : MonoBehaviour
 
     private void Start()
     {
-        // Local volume starts fully active
         if (localVolume) localVolume.weight = 1f;
     }
 
