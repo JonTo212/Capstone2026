@@ -25,7 +25,7 @@ public class CritterCountSpawner : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (critterCount != CollectibleManager.Instance.count)
+        if (critterCount != CollectibleManager.Instance.critCount)
         {
             Populate();
         }
@@ -36,7 +36,7 @@ public class CritterCountSpawner : MonoBehaviour
     {
 
         
-        critterCount = CollectibleManager.Instance.count;
+        critterCount = CollectibleManager.Instance.critCount;
 
         Debug.Log("Critters in level: " + critterCount);
 

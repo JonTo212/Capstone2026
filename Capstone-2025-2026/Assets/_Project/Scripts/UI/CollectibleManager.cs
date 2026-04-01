@@ -28,7 +28,9 @@ public class CollectibleManager : MonoBehaviour
     public List<CritterCatalogue> critLog = new List<CritterCatalogue>();
     
     [HideInInspector]
-    public int count = 0;
+    public int critCount = 0;
+    [HideInInspector]
+    public int critColCount = 0;
 
     private void Awake()
     {
@@ -59,7 +61,7 @@ public class CollectibleManager : MonoBehaviour
 
     public void CritterCollected(int ID)
     {
-        Debug.Log("count: " + count);
+        Debug.Log("count: " + critCount);
 
         for (int i = 0; i < critLog.Count; i++)
         {
@@ -72,6 +74,8 @@ public class CollectibleManager : MonoBehaviour
 
         }
 
+        critColCount++;
+
         CritCollPopUp.RunAnims();
 
     }
@@ -79,12 +83,20 @@ public class CollectibleManager : MonoBehaviour
 
     public void RegisterCritter (Sprite critterSilSprite, Sprite critterStampSprite, int ID)
     {
-        count++;
+        critCount++;
 
         critLog.Add(new CritterCatalogue());
-        critLog[count-1].critID = ID;
-        critLog[count-1].silSpr = critterSilSprite;
-        critLog[count-1].stmSpr = critterStampSprite;
+        critLog[critCount -1].critID = ID;
+        critLog[critCount -1].silSpr = critterSilSprite;
+        critLog[critCount -1].stmSpr = critterStampSprite;
+
+    }
+
+    public void CallScore()
+    {
+        GameObject scoreGO = GameObject.Find("ScoreManager");
+        scoreManager score = scoreGO.GetComponent<scoreManager>();
+        score.EndGameSummary(coins, critColCount);
 
     }
 
