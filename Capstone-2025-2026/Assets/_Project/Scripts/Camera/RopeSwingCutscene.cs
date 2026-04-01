@@ -57,7 +57,7 @@ public class RopeSwingCutscene : PlayerCutsceneBase
         Vector3 endFwd = GetPathForward(1f);
         Vector3 endFwdFlat = new Vector3(endFwd.x, 0f, endFwd.z);
         _pathEndRotation = endFwdFlat.sqrMagnitude > 0.01f ? Quaternion.LookRotation(endFwdFlat) : Quaternion.identity;
-        CameraCutsceneHandler.Instance.SetCameraPositionDamping(Vector3.zero);
+        CameraRefData.Instance.CameraCutsceneHandler.SetCameraPositionDamping(Vector3.zero);
 
         base.OnCutscenePrepare();
     }
@@ -104,10 +104,10 @@ public class RopeSwingCutscene : PlayerCutsceneBase
         if (T >= blendOutStart)
         {
             float blendT = Mathf.Clamp01((T - blendOutStart) / (BlendOutTime / Duration));
-            var (lassoScreen, lassoTarget, lassoDistance) = CameraModeController.Instance.GetCurrentStateOffsets();
-            CameraCutsceneHandler.Instance?.SetCameraScreenOffsetDirect(Vector2.Lerp(cameraScreenOffset, lassoScreen, blendT));
-            CameraCutsceneHandler.Instance?.SetCameraTargetOffsetDirect(Vector3.Lerp(cameraTargetOffset, lassoTarget, blendT));
-            CameraCutsceneHandler.Instance?.SetCameraZOffsetDirect(Mathf.Lerp(0f, lassoDistance, blendT));
+            var (lassoScreen, lassoTarget, lassoDistance) = CameraRefData.Instance.CameraModeController.GetCurrentStateOffsets();
+            CameraRefData.Instance.CameraCutsceneHandler?.SetCameraScreenOffsetDirect(Vector2.Lerp(cameraScreenOffset, lassoScreen, blendT));
+            CameraRefData.Instance.CameraCutsceneHandler?.SetCameraTargetOffsetDirect(Vector3.Lerp(cameraTargetOffset, lassoTarget, blendT));
+            CameraRefData.Instance.CameraCutsceneHandler?.SetCameraZOffsetDirect(Mathf.Lerp(0f, lassoDistance, blendT));
         }
     }
 
@@ -136,7 +136,7 @@ public class RopeSwingCutscene : PlayerCutsceneBase
             playerModelRotation.SetNewRotationDir(Quaternion.LookRotation(finalForward), false);
 
         _bakedPlayerPath = null;
-        CameraCutsceneHandler.Instance?.SetCameraPositionDamping(null);
+        CameraRefData.Instance.CameraCutsceneHandler?.SetCameraPositionDamping(null);
     }
 
     public override void OnCutsceneLateUpdate()
@@ -155,7 +155,7 @@ public class RopeSwingCutscene : PlayerCutsceneBase
         {
             Vector3 dir = GetHorizontalDirection(T);
             if (dir.sqrMagnitude > 0.01f)
-                CameraCutsceneHandler.Instance.RotateCameraToDirection(dir, cameraRotationSpeed, cameraPitch);
+                CameraRefData.Instance.CameraCutsceneHandler.RotateCameraToDirection(dir, cameraRotationSpeed, cameraPitch);
         }
     }
     #endregion

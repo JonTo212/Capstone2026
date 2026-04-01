@@ -39,7 +39,6 @@ public struct CameraStateSettings
 public class CameraModeController : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private ZeldaCameraController cameraController;
     [SerializeField] private Transform playerRef;
 
     [Header("Camera State Settings")]
@@ -73,23 +72,11 @@ public class CameraModeController : MonoBehaviour
     private float currentTargetDistance;
     private Vector2 optimalFraming;
 
-    public static CameraModeController Instance { get; private set; }
-
     private void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-        Instance = this;
-
-        if (cameraController == null)
-            cameraController = GetComponent<ZeldaCameraController>();
-
-        defaultScreenOffset = cameraController.GetScreenOffset();
-        defaultTargetOffset = cameraController.GetTargetOffset();
-        defaultDistance = cameraController.GetDefaultDistance();
+        defaultScreenOffset = CameraRefData.Instance.ZeldaCameraController.GetScreenOffset();
+        defaultTargetOffset = CameraRefData.Instance.ZeldaCameraController.GetTargetOffset();
+        defaultDistance = CameraRefData.Instance.ZeldaCameraController.GetDefaultDistance();
 
         currentScreenOffset = defaultScreenOffset;
         currentTargetOffset = defaultTargetOffset;
@@ -102,8 +89,8 @@ public class CameraModeController : MonoBehaviour
             if (col != null) characterHeight = col.height;
         }
 
-        baseSensitivityX = cameraController.GetMouseXSensitivity();
-        baseSensitivityY = cameraController.GetMouseYSensitivity();
+        baseSensitivityX = CameraRefData.Instance.ZeldaCameraController.GetMouseXSensitivity();
+        baseSensitivityY = CameraRefData.Instance.ZeldaCameraController.GetMouseYSensitivity();
     }
 
     public (Vector2 screenOffset, Vector3 targetOffset, float distanceOffset) GetCurrentStateOffsets()
@@ -118,9 +105,9 @@ public class CameraModeController : MonoBehaviour
 
     private void Update()
     {
-        if (CameraCutsceneHandler.Instance != null && CameraCutsceneHandler.Instance.IsActive())
+        if (CameraRefData.Instance.CameraCutsceneHandler != null && CameraRefData.Instance.CameraCutsceneHandler.IsActive())
         {
-            CutsceneBase current = CameraCutsceneHandler.Instance.CurrentCutscene;
+            CutsceneBase current = CameraRefData.Instance.CameraCutsceneHandler.CurrentCutscene;
             if (current != null && current is PlayerCutsceneBase)
             {
                 return;
@@ -154,12 +141,12 @@ public class CameraModeController : MonoBehaviour
         currentTargetOffset = settings.HasValue ? defaultTargetOffset + settings.Value.worldSpaceOffset : defaultTargetOffset;
         currentDistanceOffset = settings.HasValue ? settings.Value.distanceOffset : 0f;
 
-        cameraController.SetScreenOffset(currentScreenOffset);
-        cameraController.SetTargetOffset(currentTargetOffset);
-        cameraController.SetZOffset(currentDistanceOffset);
+        CameraRefData.Instance.ZeldaCameraController.SetScreenOffset(currentScreenOffset);
+        CameraRefData.Instance.ZeldaCameraController.SetTargetOffset(currentTargetOffset);
+        CameraRefData.Instance.ZeldaCameraController.SetZOffset(currentDistanceOffset);
 
         float targetDistance = defaultDistance + (settings.HasValue ? settings.Value.distanceOffset : 0f);
-        cameraController.SnapDistance(targetDistance);
+        CameraRefData.Instance.ZeldaCameraController.SnapDistance(targetDistance);
     }
 
     private void LassoModeCamera()
@@ -179,15 +166,15 @@ public class CameraModeController : MonoBehaviour
 
             bool yLocked = HandleAboveClampInput();
             ApplyCameraSettings(lassoBaseScreenOffset + optimalFraming, lassoBaseOffset, currentTargetDistance, false, false, lassoSpeed);
-            cameraController.SetCollisionSmoothTimeOverride(lassoZoomOutSmoothTime);
-            cameraController.SetYAxisLocked(yLocked);
-            cameraController.SetVerticalClamp(lassoMinPitch, lassoMaxPitch);
+            CameraRefData.Instance.ZeldaCameraController.SetCollisionSmoothTimeOverride(lassoZoomOutSmoothTime);
+            CameraRefData.Instance.ZeldaCameraController.SetYAxisLocked(yLocked);
+            CameraRefData.Instance.ZeldaCameraController.SetVerticalClamp(lassoMinPitch, lassoMaxPitch);
 
             if (!hasSnappedToLasso)
             {
-                cameraController.SetPitchSmoothOverride(lassoZoomOutSmoothTime);
-                float clampedPitch = Mathf.Clamp(cameraController.GetCurrentPitch(), lassoMinPitch, lassoMaxPitch);
-                cameraController.SetRotation(cameraController.GetCurrentYaw(), clampedPitch, false);
+                CameraRefData.Instance.ZeldaCameraController.SetPitchSmoothOverride(lassoZoomOutSmoothTime);
+                float clampedPitch = Mathf.Clamp(CameraRefData.Instance.ZeldaCameraController.GetCurrentPitch(), lassoMinPitch, lassoMaxPitch);
+                CameraRefData.Instance.ZeldaCameraController.SetRotation(CameraRefData.Instance.ZeldaCameraController.GetCurrentYaw(), clampedPitch, false);
                 hasSnappedToLasso = true;
             }
         }
@@ -199,15 +186,15 @@ public class CameraModeController : MonoBehaviour
 
     private void TetherModeCamera()
     {
-        cameraController.SetCollisionSmoothTimeOverride(null);
-        cameraController.SetPitchSmoothOverride(null);
+        CameraRefData.Instance.ZeldaCameraController.SetCollisionSmoothTimeOverride(null);
+        CameraRefData.Instance.ZeldaCameraController.SetPitchSmoothOverride(null);
 
         if (hasSnappedToLasso)
-            cameraController.SyncTargetPitchToCurrent();
+            CameraRefData.Instance.ZeldaCameraController.SyncTargetPitchToCurrent();
 
         hasSnappedToLasso = false;
 
-        cameraController.SetVerticalClamp(null, null);
+        CameraRefData.Instance.ZeldaCameraController.SetVerticalClamp(null, null);
         _lassoAboveClamp = false;
         _lassoBelowClamp = false;
         if (PlayerRefData.Instance.Lasso != null)
@@ -218,11 +205,11 @@ public class CameraModeController : MonoBehaviour
 
     private void ResetCamera()
     {
-        cameraController.SetCollisionSmoothTimeOverride(null);
-        cameraController.SetPitchSmoothOverride(null);
+        CameraRefData.Instance.ZeldaCameraController.SetCollisionSmoothTimeOverride(null);
+        CameraRefData.Instance.ZeldaCameraController.SetPitchSmoothOverride(null);
 
         if (hasSnappedToLasso)
-            cameraController.SyncTargetPitchToCurrent();
+            CameraRefData.Instance.ZeldaCameraController.SyncTargetPitchToCurrent();
 
         hasSnappedToLasso = false;
 
@@ -231,7 +218,7 @@ public class CameraModeController : MonoBehaviour
         currentTargetDistance = defaultDistance;
         ApplySensitivity(1f, 1f);
 
-        cameraController.SetVerticalClamp(null, null);
+        CameraRefData.Instance.ZeldaCameraController.SetVerticalClamp(null, null);
         _lassoAboveClamp = false;
         _lassoBelowClamp = false;
         if (PlayerRefData.Instance.Lasso != null)
@@ -260,12 +247,12 @@ public class CameraModeController : MonoBehaviour
         currentTargetOffset = Vector3.Lerp(currentTargetOffset, targetOffset, smoothSpeed * Time.deltaTime);
         currentDistanceOffset = Mathf.Lerp(currentDistanceOffset, targetDistance - defaultDistance, smoothSpeed * Time.deltaTime);
 
-        cameraController.SetScreenOffset(currentScreenOffset);
-        cameraController.SetTargetOffset(currentTargetOffset);
-        cameraController.SetZOffset(currentDistanceOffset);
+        CameraRefData.Instance.ZeldaCameraController.SetScreenOffset(currentScreenOffset);
+        CameraRefData.Instance.ZeldaCameraController.SetTargetOffset(currentTargetOffset);
+        CameraRefData.Instance.ZeldaCameraController.SetZOffset(currentDistanceOffset);
 
-        cameraController.SetYAxisLocked(lockY);
-        cameraController.SetXAxisLocked(lockX);
+        CameraRefData.Instance.ZeldaCameraController.SetYAxisLocked(lockY);
+        CameraRefData.Instance.ZeldaCameraController.SetXAxisLocked(lockX);
     }
 
     private float CalculateRequiredDistanceOffset(Vector3 playerPos, Vector3 objectPos, out Vector2 optimalFraming)
@@ -300,7 +287,7 @@ public class CameraModeController : MonoBehaviour
 
     private float CalculateLiftDelta(float rawLookY, Lasso lasso)
     {
-        float pitch = cameraController.GetTargetPitch();
+        float pitch = CameraRefData.Instance.ZeldaCameraController.GetTargetPitch();
         float newPitch = pitch - rawLookY * baseSensitivityY;
         float currentY = Mathf.Sin(pitch * Mathf.Deg2Rad) * lasso.AnchorDist;
         float newY = Mathf.Sin(newPitch * Mathf.Deg2Rad) * lasso.AnchorDist;
@@ -316,8 +303,8 @@ public class CameraModeController : MonoBehaviour
         bool lookingUp = rawLookY > 0.001f;
         bool lookingDown = rawLookY < -0.001f;
 
-        bool atMinPitch = cameraController.GetTargetPitch() <= lassoMinPitch + 0.01f;
-        bool atMaxPitch = cameraController.GetTargetPitch() >= lassoMaxPitch - 0.01f;
+        bool atMinPitch = CameraRefData.Instance.ZeldaCameraController.GetTargetPitch() <= lassoMinPitch + 0.01f;
+        bool atMaxPitch = CameraRefData.Instance.ZeldaCameraController.GetTargetPitch() >= lassoMaxPitch - 0.01f;
 
         if (_lassoAboveClamp)
         {
@@ -402,17 +389,17 @@ public class CameraModeController : MonoBehaviour
     public void SetBaseXSensitivity(float value)
     {
         baseSensitivityX = value;
-        cameraController.SetMouseSensitivity(baseSensitivityX, baseSensitivityY);
+        CameraRefData.Instance.ZeldaCameraController.SetMouseSensitivity(baseSensitivityX, baseSensitivityY);
     }
 
     public void SetBaseYSensitivity(float value)
     {
         baseSensitivityY = value;
-        cameraController.SetMouseSensitivity(baseSensitivityX, baseSensitivityY);
+        CameraRefData.Instance.ZeldaCameraController.SetMouseSensitivity(baseSensitivityX, baseSensitivityY);
     }
 
     private void ApplySensitivity(float xMult, float yMult)
     {
-        cameraController.SetMouseSensitivity(baseSensitivityX * xMult, baseSensitivityY * yMult);
+        CameraRefData.Instance.ZeldaCameraController.SetMouseSensitivity(baseSensitivityX * xMult, baseSensitivityY * yMult);
     }
 }

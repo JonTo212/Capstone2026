@@ -37,8 +37,8 @@ public class CrashLandCutscene : PlayerCutsceneBase
         Vector3 fwd = GetFallDirection();
         Vector3 endFwdFlat = new Vector3(fwd.x, 0f, fwd.z);
 
-        CameraCutsceneHandler.Instance?.SetCameraPositionDamping(Vector3.zero);
-        CameraCutsceneHandler.Instance.SetRotationDirect(GetHorizontalDirection(), cameraStartPitch);
+        CameraRefData.Instance.CameraCutsceneHandler?.SetCameraPositionDamping(Vector3.zero);
+        CameraRefData.Instance.CameraCutsceneHandler.SetRotationDirect(GetHorizontalDirection(), cameraStartPitch);
         PlayerRefData.Instance.PlayerFade.SetFade(false);
         anim.SetBool("FallCutscene", true);
         HandleScripts(false);
@@ -98,39 +98,52 @@ public class CrashLandCutscene : PlayerCutsceneBase
 
         // LERP SCREEN OFFSET (Instead of World Target Offset)
         Vector2 currentScreenOffset = Vector2.Lerp(startScreenOffset, endScreenOffset, camProgress);
-        CameraCutsceneHandler.Instance?.SetCameraScreenOffsetDirect(currentScreenOffset);
+        CameraRefData.Instance.CameraCutsceneHandler?.SetCameraScreenOffsetDirect(currentScreenOffset);
 
         // Distance & Pitch logic
         float currentDistance = Mathf.Lerp(startCameraDistance, endCameraDistance, camProgress);
         float currentPitch = Mathf.Lerp(cameraStartPitch, cameraEndPitch, camProgress);
 
-        float defaultDist = ZeldaCameraController.Instance != null ? ZeldaCameraController.Instance.GetDefaultDistance() : 5f;
+        float defaultDist = CameraRefData.Instance.ZeldaCameraController != null ? CameraRefData.Instance.ZeldaCameraController.GetDefaultDistance() : 5f;
         float requiredZOffset = currentDistance - defaultDist;
 
-        CameraCutsceneHandler.Instance?.SetCameraZOffsetDirect(requiredZOffset);
+        CameraRefData.Instance.CameraCutsceneHandler?.SetCameraZOffsetDirect(requiredZOffset);
 
         Vector3 dir = GetHorizontalDirection();
         if (dir.sqrMagnitude > 0.01f)
         {
-            CameraCutsceneHandler.Instance?.RotateCameraToDirection(dir, cameraRotationSpeed, currentPitch);
+            CameraRefData.Instance.CameraCutsceneHandler?.RotateCameraToDirection(dir, cameraRotationSpeed, currentPitch);
         }
     }
 
     public override void OnCutsceneEnd()
     {
         base.OnCutsceneEnd();
-        CameraCutsceneHandler.Instance?.SetCameraPositionDamping(null);
+        CameraRefData.Instance.CameraCutsceneHandler?.SetCameraPositionDamping(null);
         CleanUpCamera();
         fadeToBlackScript.SetImageAlpha(1f);
-        anim.SetBool("FallCutscene", false);
         PlayerRefData.Instance.PlayerFade.SetFade(true);
+        if (playerRb != null) playerRb.position = GetPlayerPosition(1f);
+        playerModelRotation?.SetNewRotationDir(Quaternion.LookRotation(GetFallDirection()), true);
+        HandleScripts(true);
+    }
+
+    public override void OnCutsceneSkip()
+    {
+        base.OnCutsceneSkip();
+        CameraRefData.Instance.CameraCutsceneHandler?.SetCameraPositionDamping(null);
+        CleanUpCamera();
+        fadeToBlackScript.SetImageAlpha(1f);
+        PlayerRefData.Instance.PlayerFade.SetFade(true);
+        if (playerRb != null) playerRb.position = GetPlayerPosition(1f);
+        playerModelRotation?.SetNewRotationDir(Quaternion.LookRotation(GetFallDirection()), true);
         HandleScripts(true);
     }
 
     private void CleanUpCamera()
     {
-        CameraCutsceneHandler.Instance?.SetCameraZOffsetDirect(0f);
-        CameraCutsceneHandler.Instance?.SetCameraScreenOffsetDirect(Vector2.zero);
+        CameraRefData.Instance.CameraCutsceneHandler?.SetCameraZOffsetDirect(0f);
+        CameraRefData.Instance.CameraCutsceneHandler?.SetCameraScreenOffsetDirect(Vector2.zero);
     }
 
     public override Vector3 GetPlayerPosition(float t)

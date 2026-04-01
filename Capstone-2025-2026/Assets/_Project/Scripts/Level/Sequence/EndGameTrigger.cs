@@ -20,7 +20,7 @@ public class EndGameTrigger : MonoBehaviour
     public IEnumerator CutsceneSequence()
     {
         shipAnim.enabled = true;
-        CameraCutsceneHandler.Instance.StartCutscene(cutscene);
+        CameraRefData.Instance.CameraCutsceneHandler.StartCutscene(cutscene);
         yield return new WaitForSeconds(cutscene.Duration);
         EndScene();
 

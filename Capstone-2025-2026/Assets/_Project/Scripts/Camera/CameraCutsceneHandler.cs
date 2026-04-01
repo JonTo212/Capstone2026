@@ -3,8 +3,6 @@ using UnityEngine;
 
 public class CameraCutsceneHandler : MonoBehaviour
 {
-    public static CameraCutsceneHandler Instance { get; private set; }
-
     [Header("References")]
     [SerializeField] private ZeldaCameraController cameraController;
     [SerializeField] private CameraModeController cameraModeController;
@@ -31,9 +29,6 @@ public class CameraCutsceneHandler : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
-        Instance = this;
-
         if (cameraController == null) cameraController = Camera.main?.GetComponent<ZeldaCameraController>();
         if (cameraModeController == null) cameraModeController = Camera.main?.GetComponent<CameraModeController>();
     }

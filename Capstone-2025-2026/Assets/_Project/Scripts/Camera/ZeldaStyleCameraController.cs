@@ -2,8 +2,6 @@ using UnityEngine;
 
 public class ZeldaCameraController : MonoBehaviour
 {
-    public static ZeldaCameraController Instance { get; private set; }
-
     [Header("Target Settings")]
     [SerializeField] private Transform target;
     [SerializeField] private Vector3 targetOffset = new Vector3(0, 1.5f, 0);
@@ -94,14 +92,6 @@ public class ZeldaCameraController : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        Instance = this;
-
         cam = GetComponent<Camera>();
         if (cam == null)
             cam = Camera.main;
