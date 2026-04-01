@@ -187,7 +187,7 @@ public class CameraModeController : MonoBehaviour
             {
                 cameraController.SetPitchSmoothOverride(lassoZoomOutSmoothTime);
                 float clampedPitch = Mathf.Clamp(cameraController.GetCurrentPitch(), lassoMinPitch, lassoMaxPitch);
-                cameraController.SetRotation(cameraController.GetCurrentYaw(), clampedPitch);
+                cameraController.SetRotation(cameraController.GetCurrentYaw(), clampedPitch, false);
                 hasSnappedToLasso = true;
             }
         }

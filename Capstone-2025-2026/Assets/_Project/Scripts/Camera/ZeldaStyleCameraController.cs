@@ -362,10 +362,19 @@ public class ZeldaCameraController : MonoBehaviour
         transform.rotation = ghostRotation;
     }
 
-    public void SetRotation(float yaw, float pitch)
+    public void SetRotation(float yaw, float pitch, bool snap)
     {
         targetYaw = yaw;
         targetPitch = Mathf.Clamp(pitch, minVerticalAngle, maxVerticalAngle);
+
+        if (snap)
+        {
+            currentYaw = targetYaw;
+            currentPitch = targetPitch;
+
+            rotationVelocity.x = 0f;
+            rotationVelocity.y = 0f;
+        }
     }
 
     //for pitch clamp removal, so it doesn't snap

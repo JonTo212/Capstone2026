@@ -158,13 +158,19 @@ public class CameraCutsceneHandler : MonoBehaviour
         cameraController?.SetPositionDamping(damping);
     }
 
+    public void SetRotationDirect(Vector3 direction, float pitch)
+    {
+        float targetYaw = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg;
+        cameraController.SetRotation(targetYaw, pitch, true);
+    }
+
     public void RotateCameraToDirection(Vector3 direction, float speed, float pitch)
     {
         if (cameraController == null) return;
         float targetYaw = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg;
         float newYaw = Mathf.LerpAngle(cameraController.GetCurrentYaw(), targetYaw, speed * Time.deltaTime);
         float newPitch = Mathf.Lerp(cameraController.GetCurrentPitch(), pitch, speed * Time.deltaTime);
-        cameraController.SetRotation(newYaw, newPitch);
+        cameraController.SetRotation(newYaw, newPitch, false);
     }
 
     public void SetCameraScreenOffset(Vector2 target, float speed)
