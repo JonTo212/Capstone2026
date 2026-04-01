@@ -3598,15 +3598,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2108032701185231152, guid: 529a1691940cc5842a882509f8037ba1, type: 3}
       propertyPath: m_LocalScale.x
-      value: 2.5998
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2108032701185231152, guid: 529a1691940cc5842a882509f8037ba1, type: 3}
       propertyPath: m_LocalScale.y
-      value: 2.5998
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2108032701185231152, guid: 529a1691940cc5842a882509f8037ba1, type: 3}
       propertyPath: m_LocalScale.z
-      value: 2.5998
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2108032701185231152, guid: 529a1691940cc5842a882509f8037ba1, type: 3}
       propertyPath: m_LocalPosition.x
@@ -3648,6 +3648,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2108032701185231152, guid: 529a1691940cc5842a882509f8037ba1, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -3666,7 +3670,7 @@ PrefabInstance:
       addedObject: {fileID: 6708893236605058491}
     - targetCorrespondingSourceObject: {fileID: 1588341570501727114, guid: 529a1691940cc5842a882509f8037ba1, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 9034341756114763965}
+      addedObject: {fileID: 2462831198305520906}
   m_SourcePrefab: {fileID: 100100000, guid: 529a1691940cc5842a882509f8037ba1, type: 3}
 --- !u!1 &6031318099065971147 stripped
 GameObject:
@@ -3692,8 +3696,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.51426774
-  m_Center: {x: 0.0053967834, y: -0.016050741, z: -0.005177468}
+  m_Radius: 1.2872124
+  m_Center: {x: 0.005396843, y: 0.008396149, z: -0.005177498}
 --- !u!54 &6297129382434425235
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -3770,13 +3774,14 @@ MonoBehaviour:
   hasBeenPlucked: 0
   startDist: 0
   groundedVisuals: {fileID: 0}
-  propToSpawnAfterBreak: {fileID: 6403789751640239993, guid: 94e1a3a7154a2664196124df5117e3da, type: 3}
+  propToSpawnAfterBreak: {fileID: 5856675978409320015, guid: cb325eb129129b24cbcda4852c41921e, type: 3}
   numberOfObjectsToSpawn: 4
   minimumSpeedToBreak: 5
   spawnImpulseAmount: {x: 2, y: 1}
-  breakOnPluck: 0
+  breakOnPluck: 1
   endSequeenceTracker: {fileID: 0}
---- !u!95 &9034341756114763965
+  dontPlayDestroySound: 1
+--- !u!95 &2462831198305520906
 Animator:
   serializedVersion: 7
   m_ObjectHideFlags: 0
@@ -3786,7 +3791,7 @@ Animator:
   m_GameObject: {fileID: 6031318099065971147}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: be0abeff9aab6b64686ab907ea3af5ef, type: 2}
+  m_Controller: {fileID: 9100000, guid: 87798166e4c91a2448101d1cb79898b6, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0

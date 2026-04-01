@@ -1,32 +1,46 @@
+using FMODUnity;
 using UnityEngine;
 
 public class turnipPluckAnimateLogic : MonoBehaviour
 {
-    [SerializeField] private BreakablePluckupProp breakablePluckupPropScript;
-    [SerializeField] private Animator animator;
+    [Header("Break Parameters")]
+    [SerializeField] private GameObject propToSpawnAfterBreak = null;
+    [SerializeField] private Vector3 propSpawnOffset;
 
 
-    [SerializeField] private bool isPlayingAnimation = false;
+    [SerializeField] private int numberOfObjectsToSpawn = 1;
+    [SerializeField] private float minimumSpeedToBreak = 5f;
+    [SerializeField] private Vector2 spawnImpulseAmount = new Vector2(2f, 1f);
+    //[SerializeField] private bool breakOnPluck = false;
 
-    [SerializeField] private bool animationOverride = false;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    private Vector3 GetRandomSpawnForce()
     {
-        breakablePluckupPropScript = GetComponent<BreakablePluckupProp>();
-        animator = GetComponent<Animator>();
+        Vector2 horizontalForce = Random.insideUnitCircle * spawnImpulseAmount.x;
+
+        return new Vector3(horizontalForce.x, spawnImpulseAmount.y, horizontalForce.y);
     }
 
-    // Update is called once per frame
-    void Update()
+    private void DestroyObject()
     {
-       if (breakablePluckupPropScript.hasBeenPlucked || animationOverride )
+        RuntimeManager.PlayOneShot("event:/RockBreak", transform.position);
+
+        if (propToSpawnAfterBreak != null)
         {
-            if (isPlayingAnimation != true)
+            for (int i = 0; i < numberOfObjectsToSpawn; i++)
             {
-                animator.Play("PluckoutTurnipBreak");
-                isPlayingAnimation = true;
+                GameObject spawnedObject = Instantiate(propToSpawnAfterBreak, transform.position + propSpawnOffset, Quaternion.Euler(0, 0, 0));
+                if (spawnedObject.TryGetComponent<Rigidbody>(out Rigidbody objectRb))
+                {
+                    objectRb.AddForce(GetRandomSpawnForce(), ForceMode.VelocityChange);
+                }
             }
         }
+
+        Destroy(gameObject);
     }
+
+
+
+
 }
