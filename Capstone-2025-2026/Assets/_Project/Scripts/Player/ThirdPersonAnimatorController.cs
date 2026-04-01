@@ -12,6 +12,7 @@ public class ThirdPersonAnimatorController : MonoBehaviour
         _playerRefData = GetComponent<PlayerRefData>();
 
         _playerRefData.Lasso.OnObjectHit += SetLassoStart;
+        _playerRefData.LassoTetherController.OnRodSwap += SetRodSwitch;
         _playerRefData.JointTetherActivator.OnTetherActivated += SetTetherStart;
         _playerRefData.PlayerMovement.OnDoubleJump += SetDoubleJump;
         _playerRefData.PlayerMovement.OnJump += SetJump;
@@ -58,5 +59,10 @@ public class ThirdPersonAnimatorController : MonoBehaviour
     private void SetJump()
     {
         animator.SetTrigger("JumpInput");
+    }
+
+    private void SetRodSwitch()
+    {
+        animator.SetTrigger("RodSwitch");
     }
 }
