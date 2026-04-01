@@ -10,7 +10,7 @@ public class PluckOutProp : Prop
     [SerializeField] private float pluckDelay = 0.5f;
     [SerializeField] private float verticalForceMultiplier = 1f;
     [SerializeField] private float horizontalForceMultiplier = 1f;
-    [SerializeField] private bool hasBeenPlucked = false;
+    [SerializeField] public bool hasBeenPlucked = false;
     [SerializeField] private float startDist = 0f;
     [SerializeField] private GameObject groundedVisuals;
     private float walkBackDist = 10f;

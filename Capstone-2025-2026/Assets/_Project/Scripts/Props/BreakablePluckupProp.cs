@@ -39,11 +39,11 @@ public class BreakablePluckupProp : PluckOutProp
 
     private void OnCollisionEnter(Collision collision)
     {
-        if(isBreakable && Rb.linearVelocity.magnitude > minimumSpeedToBreak)
-        {
-            Break();
+        //if(isBreakable && Rb.linearVelocity.magnitude > minimumSpeedToBreak)
+        //{
+        //    Break();
 
-        }
+        //}
     }
 
     private Vector3 GetRandomSpawnForce()
@@ -56,6 +56,7 @@ public class BreakablePluckupProp : PluckOutProp
     private void Break()
     {
         RuntimeManager.PlayOneShot("event:/RockBreak", transform.position);
+
         if (propToSpawnAfterBreak != null)
         {
             for (int i = 0; i < numberOfObjectsToSpawn; i++)
@@ -67,6 +68,8 @@ public class BreakablePluckupProp : PluckOutProp
                 }
             }
         }
+
+
         Destroy(gameObject);
     }    
 
@@ -76,4 +79,6 @@ public class BreakablePluckupProp : PluckOutProp
 
         isBreakable = true;
     }
+
+
 }
