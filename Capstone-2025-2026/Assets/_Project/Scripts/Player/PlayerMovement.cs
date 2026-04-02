@@ -401,7 +401,7 @@ public class PlayerMovement : MonoBehaviour
 
         //add upward impulse on top of existing Y - discard downward momentum, keep upward
         float currentUpward = Mathf.Max(Rb.linearVelocity.y, 0f);
-        float jumpY = _jumpForce;
+        float jumpY = _jumpForce * doubleJumpMultiplier;
         float newY = Mathf.Max(currentUpward, jumpY); //never weaken an existing upward arc
 
         Rb.linearVelocity = new Vector3(redirectedVel.x, newY, redirectedVel.z);

@@ -90,7 +90,7 @@ public class ZeldaCameraController : MonoBehaviour
     private float originalMinVerticalAngle;
     private float originalMaxVerticalAngle;
 
-    private void Awake()
+    private void Start()
     {
         cam = GetComponent<Camera>();
         if (cam == null)
