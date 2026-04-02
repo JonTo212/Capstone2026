@@ -28,5 +28,10 @@ public class CutsceneBehaviour : MonoBehaviour
         {
             sceneManager.LoadNewScene(0);
         }
+
+        if (Input.anyKey)
+        {
+            sceneManager.LoadNewScene(0);
+        }
     }
 }
