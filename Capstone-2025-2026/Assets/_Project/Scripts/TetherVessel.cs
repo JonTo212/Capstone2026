@@ -2,6 +2,7 @@ using FMODUnity;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Hierarchy;
+using Unity.VisualScripting.Antlr3.Runtime.Tree;
 using UnityEngine;
 
 public class TetherVessel : EnvironmentalProp
@@ -24,6 +25,11 @@ public class TetherVessel : EnvironmentalProp
     public VesselState currentState = VesselState.Surfaced;
 
     private Coroutine clawBreakCoroutine;
+
+
+    [SerializeField] private GameObject destructableDebris;
+    [SerializeField] ParticleSystem dustBurstParticle;
+    [SerializeField] private bool isFree = false;
 
     private void Awake()
     {
@@ -90,12 +96,19 @@ public class TetherVessel : EnvironmentalProp
 
         if (attachedTethers.Count >= 1) //&& Vector3.Dot(GetForcesFromJoint().normalized, Vector3.up) > 0.7)
         {
-
-
             Rb.isKinematic = false;
+
+            if (isFree == false)
+            {
+                DestroyAllDestructableDebris();
+                Rb.isKinematic = false;
+                isFree = true;
+            }
         }
     }
 
+
+    
     public void IncreaseAttachedClawCount(ClawSetpiece claw)
     {
         numberOfAttachedClaws++;
@@ -123,4 +136,18 @@ public class TetherVessel : EnvironmentalProp
         windPipeEntranceParticles.Play();
     }
     */
+
+
+    private void DestroyAllDestructableDebris()
+    {
+        RuntimeManager.PlayOneShot("event:/TetherRockBreak", transform.position);
+
+        //particle
+        dustBurstParticle.Play();
+
+        if (destructableDebris != null) Destroy(destructableDebris);
+
+
+
+    }
 }
