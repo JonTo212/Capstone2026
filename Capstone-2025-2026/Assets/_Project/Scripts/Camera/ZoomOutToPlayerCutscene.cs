@@ -10,6 +10,8 @@ public class ZoomToPlayerCutscene : CameraCutsceneBase
         base.OnCutsceneStart();
         cam.fieldOfView = startFOV;
         cam.transform.position = startPos.position;
+
+        HandleScripts(false);
     }
 
     public override void OnCutsceneTick()
@@ -34,7 +36,7 @@ public class ZoomToPlayerCutscene : CameraCutsceneBase
         {
             Vector3 euler = cam.transform.eulerAngles;
             float pitch = euler.x > 180f ? euler.x - 360f : euler.x;
-            zeldaCam.SetRotation(euler.y, pitch);
+            zeldaCam.SetRotation(euler.y, pitch, true);
             zeldaCam.UpdateGhostTransformPublic();
         }
 

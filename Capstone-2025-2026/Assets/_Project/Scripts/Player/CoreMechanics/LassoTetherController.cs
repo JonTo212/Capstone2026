@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
@@ -33,6 +34,8 @@ public class LassoTetherController : MonoBehaviour
     [Header("Auto-Equip")]
     private bool autoEquippedRod = false;
     private bool previousRodEquipped;
+
+    public event Action OnRodSwap;
 
     #region Unity Functions
     private void Start()
@@ -200,6 +203,7 @@ public class LassoTetherController : MonoBehaviour
         {
             rodEquipped = !rodEquipped;
             autoEquippedRod = false; // player took manual control, cancel auto-restore
+            OnRodSwap?.Invoke();
         }
 
         if (PlayerActions.Instance.LassoDown && rodEquipped && RodEnabled)

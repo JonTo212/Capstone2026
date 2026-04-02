@@ -151,8 +151,7 @@ public class Lasso : MonoBehaviour
         lassoGrabVisualIndicator.SetActive(targetPropExists && SnaredObject == null && showIndicator);
 
         _aimAssist.HighlightSelectedProp(targetProp, false);
-
-        LookingAtAutoEquipTarget = targetPropExists && (targetProp.GetComponentInChildren<SwingPoint>() != null ||targetProp.TryGetComponent(out PickupNPCProp pu));
+        LookingAtAutoEquipTarget = targetPropExists && (targetProp.GetComponentInChildren<SwingPoint>() != null || targetProp.TryGetComponent(out PickupNPCProp pu) || targetProp.TryGetComponent(out RopeCutsceneActivator rsc));
 
         //MVG BRAEDEN INPUT STUFF
         ContextPrompts.Instance.LookingAtObject(targetPropExists);

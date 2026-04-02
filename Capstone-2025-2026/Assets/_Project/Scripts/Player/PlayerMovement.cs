@@ -69,6 +69,8 @@ public class PlayerMovement : MonoBehaviour
     private float _maxGravity;
     private float _gravity;
     private float _lastJumpFrame;
+    private bool _jumpEnabled;
+    private bool _moveEnabled;
     private bool _useGravity;
     private bool _useFriction;
     private bool _hasJumped;
@@ -98,6 +100,8 @@ public class PlayerMovement : MonoBehaviour
         CurrentMovementState = PlayerMoveState.InAir;
         _useGravity = true;
         _useFriction = true;
+        _jumpEnabled = true;
+        _moveEnabled = true;
 
         _externalForce = Vector3.zero;
     }
@@ -146,7 +150,6 @@ public class PlayerMovement : MonoBehaviour
     #endregion
 
     #region Movement State
-
     public void SwitchMovementState(PlayerMoveState newMovementState)
     {
         if (CurrentMovementState == newMovementState) return;
@@ -193,6 +196,9 @@ public class PlayerMovement : MonoBehaviour
 
     public void SetGrabbing(bool isGrabbing)
     {
+        DisableJump(isGrabbing);
+        DisableMovement(isGrabbing);
+
         if (isGrabbing)
         {
             SwitchMovementState(PlayerMoveState.Grabbing);
@@ -222,6 +228,21 @@ public class PlayerMovement : MonoBehaviour
     #endregion
 
     #region Misc
+
+    public void DisableMovement(bool disable)
+    {
+        _moveEnabled = !disable;
+    }
+
+    public void DisableJump(bool disable)
+    {
+        _jumpEnabled = !disable;
+    }
+
+    public void SetDoubleJumpAvailable(bool available)
+    {
+        _canDoubleJump = available;
+    }
 
     public void KillVelocity()
     {
@@ -282,7 +303,9 @@ public class PlayerMovement : MonoBehaviour
         Vector3 camRight = Camera.main.transform.right;
 
         camRight.y = 0;
+        camRight.Normalize();
         camForward.y = 0;
+        camForward.Normalize();
 
         Vector3 forwardRelative = camForward * PlayerActions.Instance.MoveInput.y;
         Vector3 rightRelative = camRight * PlayerActions.Instance.MoveInput.x;
@@ -302,7 +325,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void HandleJumpBuffer()
     {
-        if (CurrentMovementState == PlayerMoveState.Grabbing) return;
+        if (!_jumpEnabled) return;
 
         if (PlayerActions.Instance.JumpDown)
         {
@@ -345,7 +368,7 @@ public class PlayerMovement : MonoBehaviour
                 Jump(1f, true);
             }
 
-            else if(_canDoubleJump && useDoubleJump)
+            else if (_canDoubleJump && useDoubleJump)
             {
                 //Jump(doubleJumpMultiplier);
                 HandleDoubleJump();
@@ -376,12 +399,14 @@ public class PlayerMovement : MonoBehaviour
         if (WishDir.sqrMagnitude > 0)
             redirectedVel = WishDir.normalized * speed;
 
-        Vector3 defaultJumpForce = Vector3.up * _jumpForce * doubleJumpMultiplier;
-        //Vector3 addedJumpForce = WishDir.normalized * doubleJumpForce.x + Vector3.up * doubleJumpForce.y;
+        //add upward impulse on top of existing Y - discard downward momentum, keep upward
+        float currentUpward = Mathf.Max(Rb.linearVelocity.y, 0f);
+        float jumpY = _jumpForce;
+        float newY = Mathf.Max(currentUpward, jumpY); //never weaken an existing upward arc
 
-        Rb.linearVelocity = redirectedVel + defaultJumpForce; // + addedJumpForce;
+        Rb.linearVelocity = new Vector3(redirectedVel.x, newY, redirectedVel.z);
         _canDoubleJump = false;
-        RuntimeManager.PlayOneShot("event:/DoubleJump",transform.position);
+        RuntimeManager.PlayOneShot("event:/DoubleJump", transform.position);
 
         OnDoubleJump?.Invoke();
     }
@@ -503,7 +528,7 @@ public class PlayerMovement : MonoBehaviour
     private void ApplyAccelerationRelative(ref Vector3 relVel)
     {
         if (WishDir == Vector3.zero) return;
-        if (CurrentMovementState == PlayerMoveState.Grabbing) return;
+        if (!_moveEnabled) return;
 
         Vector3 wishDirNormalized = WishDir.normalized;
         Vector3 horizontalVel = new Vector3(relVel.x, 0, relVel.z);

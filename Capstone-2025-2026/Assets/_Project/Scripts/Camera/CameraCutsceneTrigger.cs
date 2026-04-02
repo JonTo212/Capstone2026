@@ -19,9 +19,9 @@ public class CameraCutsceneTrigger : MonoBehaviour
         if (!other.CompareTag("Player")) return;
         if (oneTimeUse && _hasTriggered) return;
         if (_cutscene == null) return;
-        if (CameraCutsceneHandler.Instance == null) return;
+        if (CameraRefData.Instance.CameraCutsceneHandler == null) return;
 
-        CameraCutsceneHandler.Instance.StartCutscene(_cutscene);
+        CameraRefData.Instance.CameraCutsceneHandler.StartCutscene(_cutscene);
         _hasTriggered = true;
 
 

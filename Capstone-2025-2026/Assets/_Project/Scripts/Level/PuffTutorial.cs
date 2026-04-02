@@ -41,7 +41,7 @@ public class PuffTutorial : PluckOutProp
 
         CritterInstanceScript.BeRescued(); // this tells eloras UI to add guy as saved
         spawnCutscene.Configure(cutsceneStartPos, lookAtTarget, cutsceneDuration, cutsceneHoldFraction, cutsceneBlendInDelay, cutsceneBlendInTime);
-        CameraCutsceneHandler.Instance.StartCutscene(spawnCutscene);
+        CameraRefData.Instance.CameraCutsceneHandler.StartCutscene(spawnCutscene);
 
         RuntimeManager.PlayOneShot("event:/Pluck", transform.position);
         savedFishTransform.gameObject.SetActive(true);

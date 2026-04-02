@@ -58,7 +58,7 @@ public class TetherTutorialCutscene : CameraCutsceneBase
 
         if (nextCutscene != null)
         {
-            CameraCutsceneHandler.Instance.StartCutscene(nextCutscene);
+            CameraRefData.Instance.CameraCutsceneHandler.StartCutscene(nextCutscene);
         }
     }
 
