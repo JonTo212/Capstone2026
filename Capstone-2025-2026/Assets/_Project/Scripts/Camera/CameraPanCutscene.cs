@@ -39,7 +39,7 @@ public class CameraPanCutscene : CameraCutsceneBase
         cam.transform.LookAt(lookAtTarget.transform.position);
 
         if (nextCutscene != null)
-            CameraCutsceneHandler.Instance.StartCutscene(nextCutscene);
+            CameraRefData.Instance.CameraCutsceneHandler.StartCutscene(nextCutscene);
     }
 
     private void BuildPointArray()

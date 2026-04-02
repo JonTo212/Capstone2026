@@ -50,6 +50,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     public event Action OnEnvironmentalForceSet;
 
     //virtual functions can be overridden by the derived classes
+    //virtual functions can be overridden by the derived classes
     //default behaviour is updating IsHeld and parenting the object to a given transform (i.e. player hand)
 
     //Gets the total force applied to this objct. NOTE: Should only be read in Update or the value will  be incorrect

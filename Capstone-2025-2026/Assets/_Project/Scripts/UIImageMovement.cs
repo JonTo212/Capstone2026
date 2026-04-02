@@ -172,8 +172,6 @@ public class UIImageMovement : MonoBehaviour
 
         if (lassoTetherControllerScript.rodEquipped != lastRodEquipped)
         {
-            print("tool switch animation");
-
             if (lastRodEquipped)
             {
                 TetherEquip();
@@ -187,13 +185,9 @@ public class UIImageMovement : MonoBehaviour
             lastRodEquipped = lassoTetherControllerScript.rodEquipped; //invert the bool so it only fires logic for 1 frame
         }
 
-
-        print("rod equipt   " + lastRodEquipped);
-;       //check to see if player obtained tether this frame to start cutscene
+        //check to see if player obtained tether this frame to start cutscene
         if ((tetherObtainedScript.tetherObtainedThisFrame) || (tetherCutsceneForceStart))
         {
-            print("TetherCutscene");
-
             StartCoroutine(TetherObtainedSequence());
 
             tetherObtainedScript.tetherObtainedThisFrame = false;
@@ -203,8 +197,6 @@ public class UIImageMovement : MonoBehaviour
 
         if ((rodObtainedScript.rodObtainedThisFrame) || (RodCutsceneForceStart))
         {
-            print("Ballright");
-
             StartCoroutine(RodObtainedSequence());
             rodObtainedScript.rodObtainedThisFrame = false;
             RodCutsceneForceStart = false;
@@ -215,8 +207,6 @@ public class UIImageMovement : MonoBehaviour
 
     void RodEquip()
     {
-        print("rodEquipt");
-
         //Change selected tool
         selectionRingImage.transform.DOMove(rodLocation.position, timeToMove, false);
 
@@ -260,7 +250,7 @@ public class UIImageMovement : MonoBehaviour
     {
         // Start camera cutscene
         if (tetherTutorialCutsceneScript != null)
-            CameraCutsceneHandler.Instance.StartCutscene(tetherTutorialCutsceneScript);
+            CameraRefData.Instance.CameraCutsceneHandler.StartCutscene(tetherTutorialCutsceneScript);
 
         // Fully skippable intro block
         yield return StartCoroutine(PlayTetherIntroBlock());
@@ -387,7 +377,7 @@ public class UIImageMovement : MonoBehaviour
 
         // Wall cutscene
         spawnCutscene.Configure(cutsceneStartPos, lookAtTarget, cutsceneDuration, cutsceneHoldFraction, cutsceneBlendInDelay, cutsceneBlendInTime);
-        CameraCutsceneHandler.Instance.StartCutscene(spawnCutscene);
+        CameraRefData.Instance.CameraCutsceneHandler.StartCutscene(spawnCutscene);
 
         // Hide tutorial text
         TransformTutorialText(0);
@@ -435,7 +425,7 @@ public class UIImageMovement : MonoBehaviour
     IEnumerator RodObtainedSequence()
     {
         if (rodTutorialCutsceneScript != null)
-            CameraCutsceneHandler.Instance.StartCutscene(rodTutorialCutsceneScript);
+            CameraRefData.Instance.CameraCutsceneHandler.StartCutscene(rodTutorialCutsceneScript);
 
         //skippable intro block
         yield return StartCoroutine(PlayIntroBlock());

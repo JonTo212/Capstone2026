@@ -32,5 +32,11 @@ public class ImageFader : MonoBehaviour
         FadeComplete = false;
         currentTween?.Kill();
         currentTween = image.DOFade(0f, duration);
+        currentTween.OnComplete(() => FadeComplete = true);
+    }
+
+    public void SetImageAlpha(float alpha)
+    {
+        image.color = new Color(image.color.r, image.color.g, image.color.b, alpha);
     }
 }
