@@ -48,7 +48,7 @@ public class PropSpawnPile : Prop
     private void SpawnPropOnPluck()
     {
         Prop stale = _pool.Dequeue();
-        Instantiate(DustEffect, stale.transform);
+        Instantiate(DustEffect, stale.AttachedTransform);
         stale.gameObject.SetActive(false);
         stale.DestroyAllAttachedTethers();
 
