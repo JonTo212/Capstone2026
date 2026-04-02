@@ -284,8 +284,14 @@ public class PlayerMovement : MonoBehaviour
 
     public Transform IsGrounded()
     {
-        Collider[] hits = Physics.OverlapSphere(feetPos.position, feetRadius, groundLayer);
-        return hits.Length > 0 ? hits[0].transform : null;
+        RaycastHit hit;
+
+        if (Physics.Raycast(transform.position, Vector3.down, out hit, 1.1f, groundLayer))
+        {
+            return hit.transform;
+        }
+
+        return null;
     }
 
     #endregion
