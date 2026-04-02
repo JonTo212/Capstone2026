@@ -31,6 +31,8 @@ public class PickupNPCProp : Prop
     [SerializeField] private float cutsceneBlendInTime;
     [SerializeField] private EndSequeenceTracker endTrack;
 
+    [SerializeField] private DialogueTrigger dialogueTrigger;
+
 
     private void Awake()
     {
@@ -53,7 +55,6 @@ public class PickupNPCProp : Prop
 
     public void OnCaptureStart(float captureDuration)
     {
-
         Instantiate(captureStars, this.transform.position, Quaternion.identity);
 
         if (animCoroutine != null) StopCoroutine(animCoroutine);
@@ -72,18 +73,13 @@ public class PickupNPCProp : Prop
         if (keyNPC)
         {
             Invoke("KeyNPCAction", 2.0f);
+
         }
-           // KeyNPCAction(); // make npc summon object or destroy object
+           
     }
 
     private void KeyNPCAction()
     {
-
-
-        //Voice Line
-        GetComponent<DialogueTrigger>().CreateNPCDialogue();
-
-
         //enable objects
         if (objectsToEnable.Length > 0)
         {
@@ -117,7 +113,9 @@ public class PickupNPCProp : Prop
         spawnCutscene.Configure(cutsceneStartPos, lookAtTarget, cutsceneDuration, cutsceneHoldFraction, cutsceneBlendInDelay, cutsceneBlendInTime);
         CameraRefData.Instance.CameraCutsceneHandler.StartCutscene(spawnCutscene);
 
+        dialogueTrigger.CreateNPCDialogue();
     }
+
 
     public override void ActivateOutline(bool activate)
     {
