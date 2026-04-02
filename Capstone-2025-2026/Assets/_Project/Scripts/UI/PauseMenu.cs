@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class PauseMenu : MonoBehaviour
 {
@@ -11,6 +12,9 @@ public class PauseMenu : MonoBehaviour
     public GameObject critterUI;
     public GameObject missionImageUI;
 
+    public Button options;
+    public int State;
+
     public GameObject settingsFirst;
     public GameObject menuFirst;
 
@@ -18,8 +22,10 @@ public class PauseMenu : MonoBehaviour
 
     private void Start()
     {
+        options = GameObject.Find("Options").GetComponent<Button>();
         pauseMenuScreen.SetActive(false);
         settingsUI.SetActive(false);
+        
     }
 
     void Update()
@@ -30,6 +36,15 @@ public class PauseMenu : MonoBehaviour
                 Resume();
             else
                 Pause();
+        }
+
+        if (State == 2 && PlayerActions.Instance.menuBackUp)
+        {
+            settingsBack();
+        }
+        else if (State == 1 && PlayerActions.Instance.menuBackUp)
+        {
+            Resume();
         }
 
         if(!gameIsPaused && !DevMenu.Instance.devMenuOpen)
@@ -56,6 +71,7 @@ public class PauseMenu : MonoBehaviour
 
     public void Pause()
     {
+        State = 1;
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
         pauseMenuScreen.SetActive(true);
@@ -64,6 +80,8 @@ public class PauseMenu : MonoBehaviour
         //critterUI.SetActive(false);
         //missionImageUI.SetActive(false);
         PlayerActions.Instance.DisableAllInput();
+        PlayerActions.Instance.ChangeSpecificInput("Menu", true);
+        PlayerActions.Instance.ChangeSpecificInput("MenuBack", true);
         EventSystem.current.SetSelectedGameObject(menuFirst);
     }
 
@@ -85,6 +103,7 @@ public class PauseMenu : MonoBehaviour
 
     public void Settings()
     {
+        State = 2;
         pauseMenuUI.SetActive(false);
         settingsUI.SetActive(true);
         EventSystem.current.SetSelectedGameObject(settingsFirst);
@@ -92,13 +111,15 @@ public class PauseMenu : MonoBehaviour
 
     public void settingsBack()
     {
+        State = 1;
         settingsUI.SetActive(false);
         pauseMenuUI.SetActive(true);
-        EventSystem.current.SetSelectedGameObject(menuFirst);
+        options.Select();
     }
 
     public void allBack()
     {
+        State = 1;
         settingsUI.SetActive(false);
         pauseMenuUI.SetActive(true);
         EventSystem.current.SetSelectedGameObject(null);
