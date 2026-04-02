@@ -4,7 +4,6 @@ using UnityEngine;
 public class ThirdPersonAnimatorController : MonoBehaviour
 {
     private PlayerRefData _playerRefData;
-    [SerializeField] private CameraCutsceneHandler _cameraController;
     [SerializeField] private Animator animator;
 
     private void Start()
@@ -29,7 +28,7 @@ public class ThirdPersonAnimatorController : MonoBehaviour
     private void Update()
     {
         animator.SetFloat("MoveInput", Mathf.Abs(_playerRefData.PlayerMovement.SmoothedInputMagnitude));
-        animator.SetBool("Swinging", (_playerRefData.LassoTetherController.CurrentLassoState == LassoState.Swinging) || (_cameraController.IsActive() && _cameraController.CurrentCutscene is RopeSwingCutscene));
+        animator.SetBool("Swinging", (_playerRefData.LassoTetherController.CurrentLassoState == LassoState.Swinging) || (CameraRefData.Instance.CameraCutsceneHandler.IsActive() && CameraRefData.Instance.CameraCutsceneHandler.CurrentCutscene is RopeSwingCutscene));
         animator.SetBool("IsGrounded", _playerRefData.PlayerMovement.IsGrounded());
         animator.SetBool("LassoSnared", _playerRefData.LassoTetherController.CurrentLassoState == LassoState.Snared);
         if (_playerRefData.LassoTetherController.CurrentLassoState == LassoState.Snared) animator.SetFloat("LassoReel", Mathf.Abs(PlayerActions.Instance.MoveInput.y));
@@ -37,7 +36,7 @@ public class ThirdPersonAnimatorController : MonoBehaviour
         animator.SetBool("TetherEndPointHit", _playerRefData.JointTetherPlacer.didEndPointHit);
         animator.SetBool("IsHanging", _playerRefData.PlayerLedgeGrab.IsHanging);
         animator.SetBool("Mantling", _playerRefData.PlayerLedgeGrab._mantleCoroutine != null);
-        animator.SetBool("AttachingToRail", _cameraController.BlendingIn && _cameraController.CurrentCutscene is RopeSwingCutscene);
+        animator.SetBool("AttachingToRail", CameraRefData.Instance.CameraCutsceneHandler.BlendingIn && CameraRefData.Instance.CameraCutsceneHandler.CurrentCutscene is RopeSwingCutscene);
         animator.SetFloat("YVelocity", _playerRefData.PlayerMovement.Rb.linearVelocity.y);
     }
 

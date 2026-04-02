@@ -45,6 +45,8 @@ public class CameraCutsceneHandler : MonoBehaviour
 
         _cutscene.OnCutscenePrepare();
 
+        yield return null;
+
         CameraRefData.Instance.ZeldaCameraController.SetXAxisLocked(true);
         CameraRefData.Instance.ZeldaCameraController.SetYAxisLocked(true);
 
