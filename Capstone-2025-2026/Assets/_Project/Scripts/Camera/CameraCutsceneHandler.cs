@@ -98,10 +98,10 @@ public class CameraCutsceneHandler : MonoBehaviour
     {
         if (!_isActive || _cutscene == null) return;
 
+        _cutscene.OnCutsceneUpdate();
+
         if (_cutscene.Skippable && PlayerActions.Instance.DeactivateTetherDown)
             SkipCutscene();
-
-        _cutscene.OnCutsceneUpdate();
     }
 
     private void LateUpdate()
