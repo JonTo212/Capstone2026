@@ -115,7 +115,7 @@ public class PickupNPCProp : Prop
         }
 
         spawnCutscene.Configure(cutsceneStartPos, lookAtTarget, cutsceneDuration, cutsceneHoldFraction, cutsceneBlendInDelay, cutsceneBlendInTime);
-        CameraCutsceneHandler.Instance.StartCutscene(spawnCutscene);
+        CameraRefData.Instance.CameraCutsceneHandler.StartCutscene(spawnCutscene);
 
     }
 

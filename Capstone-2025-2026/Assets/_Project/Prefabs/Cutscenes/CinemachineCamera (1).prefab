@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1434466678015456739
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1550008976162227616}
+  m_Layer: 0
+  m_Name: CrashEndPos
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1550008976162227616
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1434466678015456739}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 58.6, y: -9.700001, z: -5.209961}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1860967664017480872}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2433073019588045867
 GameObject:
   m_ObjectHideFlags: 0
@@ -21,6 +52,8 @@ GameObject:
   - component: {fileID: 2048018067307641960}
   - component: {fileID: 4090546917536674319}
   - component: {fileID: 1714217857182088549}
+  - component: {fileID: 3001182159464440101}
+  - component: {fileID: 3746920403772678472}
   m_Layer: 7
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -185,7 +218,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 46657f4f9fb402a4487336c23d9bceba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraModeController
-  cameraController: {fileID: 4419986128599733150}
   playerRef: {fileID: 0}
   cameraStates:
   - cameraState: 0
@@ -208,7 +240,7 @@ MonoBehaviour:
     sensitivityMultiplierY: 1
   - cameraState: 2
     screenOffset: {x: 0, y: 0.5}
-    worldSpaceOffset: {x: 0, y: 2.5, z: 0}
+    worldSpaceOffset: {x: 0, y: 1.5, z: 0}
     distanceOffset: 0
     lockYAxis: 0
     lockXAxis: 0
@@ -257,7 +289,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CameraCutsceneHandler
   cameraController: {fileID: 4419986128599733150}
   cameraModeController: {fileID: 1879080133409769875}
-  openingCutscene: {fileID: 1229299451564321437}
+  openingCutscene: {fileID: 3001182159464440101}
 --- !u!114 &1229299451564321437
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -276,13 +308,13 @@ MonoBehaviour:
   <BlendOutTime>k__BackingField: 0
   <Skippable>k__BackingField: 1
   <Indefinite>k__BackingField: 0
-  startPos: {fileID: 8559221249729181534}
-  endPos: {fileID: 1550910859610952736}
-  lookAtTarget: {fileID: 3499481388358268756}
   scriptsToModify:
   - {fileID: 4419986128599733150}
   objectsToModify: []
   objectsToEnableOnStart: []
+  startPos: {fileID: 8559221249729181534}
+  endPos: {fileID: 1550910859610952736}
+  lookAtTarget: {fileID: 3499481388358268756}
   midPoints:
   - {fileID: 6727917516794901251}
   - {fileID: 1889454209210498460}
@@ -305,14 +337,14 @@ MonoBehaviour:
   <BlendOutTime>k__BackingField: 0
   <Skippable>k__BackingField: 1
   <Indefinite>k__BackingField: 0
-  startPos: {fileID: 29341059007446484}
-  endPos: {fileID: 6574319139901563366}
-  lookAtTarget: {fileID: 5018817863018730790}
   scriptsToModify:
   - {fileID: 4419986128599733150}
   objectsToModify: []
   objectsToEnableOnStart:
   - {fileID: 0}
+  startPos: {fileID: 29341059007446484}
+  endPos: {fileID: 6574319139901563366}
+  lookAtTarget: {fileID: 5018817863018730790}
   startFOV: 30
   endFOV: 70
 --- !u!114 &7360455401066649952
@@ -333,13 +365,13 @@ MonoBehaviour:
   <BlendOutTime>k__BackingField: 0
   <Skippable>k__BackingField: 1
   <Indefinite>k__BackingField: 0
-  startPos: {fileID: 0}
-  endPos: {fileID: 0}
-  lookAtTarget: {fileID: 0}
   scriptsToModify:
   - {fileID: 4419986128599733150}
   objectsToModify: []
   objectsToEnableOnStart: []
+  startPos: {fileID: 0}
+  endPos: {fileID: 0}
+  lookAtTarget: {fileID: 0}
   midPoints: []
   nextCutscene: {fileID: 0}
 --- !u!114 &2048018067307641960
@@ -360,13 +392,14 @@ MonoBehaviour:
   <BlendOutTime>k__BackingField: 0
   <Skippable>k__BackingField: 0
   <Indefinite>k__BackingField: 1
-  startPos: {fileID: 0}
-  endPos: {fileID: 0}
-  lookAtTarget: {fileID: 0}
   scriptsToModify:
   - {fileID: 0}
   objectsToModify: []
   objectsToEnableOnStart: []
+  startPos: {fileID: 0}
+  endPos: {fileID: 0}
+  lookAtTarget: {fileID: 0}
+  playerPos: {fileID: 0}
   nextCutscene: {fileID: 1714217857182088549}
 --- !u!114 &4090546917536674319
 MonoBehaviour:
@@ -386,13 +419,12 @@ MonoBehaviour:
   <BlendOutTime>k__BackingField: 0
   <Skippable>k__BackingField: 0
   <Indefinite>k__BackingField: 1
+  scriptsToModify: []
+  objectsToModify: []
+  objectsToEnableOnStart: []
   startPos: {fileID: 0}
   endPos: {fileID: 0}
   lookAtTarget: {fileID: 0}
-  scriptsToModify:
-  - {fileID: 0}
-  objectsToModify: []
-  objectsToEnableOnStart: []
   playerPos: {fileID: 0}
 --- !u!114 &1714217857182088549
 MonoBehaviour:
@@ -412,15 +444,146 @@ MonoBehaviour:
   <BlendOutTime>k__BackingField: 0
   <Skippable>k__BackingField: 1
   <Indefinite>k__BackingField: 0
-  startPos: {fileID: 0}
-  endPos: {fileID: 0}
-  lookAtTarget: {fileID: 0}
   scriptsToModify: []
   objectsToModify:
   - {fileID: 0}
   - {fileID: 0}
   objectsToEnableOnStart: []
+  startPos: {fileID: 0}
+  endPos: {fileID: 0}
+  lookAtTarget: {fileID: 0}
   lookAtFOV: 0
+--- !u!114 &3001182159464440101
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2433073019588045867}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3a48d40c68192e4e94efde3e8e7fda3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CrashLandCutscene
+  <Duration>k__BackingField: 3
+  <BlendInDelay>k__BackingField: 0
+  <BlendInTime>k__BackingField: 0
+  <BlendOutTime>k__BackingField: 0
+  <Skippable>k__BackingField: 1
+  <Indefinite>k__BackingField: 0
+  scriptsToModify:
+  - {fileID: 0}
+  objectsToModify:
+  - {fileID: 0}
+  - {fileID: 0}
+  objectsToEnableOnStart: []
+  player: {fileID: 0}
+  cameraScreenOffset: {x: 0, y: 0.5}
+  cameraTargetOffset: {x: 0, y: 0, z: 0}
+  cameraOffsetBlendSpeed: 6
+  startPos: {fileID: 7647621485477768072}
+  endPos: {fileID: 1550008976162227616}
+  fallCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  cameraApproachCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  startScreenOffset: {x: 0, y: 0.4}
+  endScreenOffset: {x: 0, y: 0.1}
+  startCameraDistance: 19
+  endCameraDistance: 1
+  cameraStartPitch: 90
+  cameraEndPitch: 75
+  cameraRotationSpeed: 10
+  fadeToBlackScript: {fileID: 0}
+  anim: {fileID: 0}
+--- !u!114 &3746920403772678472
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2433073019588045867}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f77542aea7ec01d4ba74a3766613cc91, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CameraRefData
+  <OrderedCutscenes>k__BackingField: []
+--- !u!1 &4159361861526049973
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7647621485477768072}
+  m_Layer: 0
+  m_Name: CrashStartPos
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7647621485477768072
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4159361861526049973}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 74.5, y: 119.5, z: -3.130005}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1860967664017480872}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5034725151940635292
 GameObject:
   m_ObjectHideFlags: 0
@@ -453,6 +616,39 @@ Transform:
   - {fileID: 4182131964398801171}
   - {fileID: 3499481388358268756}
   m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &5733021729417125694
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1860967664017480872}
+  m_Layer: 0
+  m_Name: CrashCutscenePoints
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1860967664017480872
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5733021729417125694}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 3.3, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 7647621485477768072}
+  - {fileID: 1550008976162227616}
+  m_Father: {fileID: 3499481388358268756}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &7187462618229420049
 PrefabInstance:
@@ -568,7 +764,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 5993825889158809413, guid: 788b70e811eb2fb4690ad16d33feb461, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1860967664017480872}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 788b70e811eb2fb4690ad16d33feb461, type: 3}
 --- !u!4 &29341059007446484 stripped

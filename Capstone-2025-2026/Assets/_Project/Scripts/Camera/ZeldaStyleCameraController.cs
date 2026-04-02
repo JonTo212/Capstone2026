@@ -2,8 +2,6 @@ using UnityEngine;
 
 public class ZeldaCameraController : MonoBehaviour
 {
-    public static ZeldaCameraController Instance { get; private set; }
-
     [Header("Target Settings")]
     [SerializeField] private Transform target;
     [SerializeField] private Vector3 targetOffset = new Vector3(0, 1.5f, 0);
@@ -94,14 +92,6 @@ public class ZeldaCameraController : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        Instance = this;
-
         cam = GetComponent<Camera>();
         if (cam == null)
             cam = Camera.main;
@@ -180,8 +170,8 @@ public class ZeldaCameraController : MonoBehaviour
 
     private void HandleInput()
     {
-        float mouseX = PlayerActions.Instance.LookInput.x;
-        float mouseY = PlayerActions.Instance.LookInput.y;
+        float mouseX = PlayerActions.Instance.LookInput.x / 100f;
+        float mouseY = PlayerActions.Instance.LookInput.y / 100f;
 
         if (PlayerActions.Instance.CurrentDevice.Equals(PlayerActions.InputType.MouseKeyboard))
         {
@@ -362,10 +352,19 @@ public class ZeldaCameraController : MonoBehaviour
         transform.rotation = ghostRotation;
     }
 
-    public void SetRotation(float yaw, float pitch)
+    public void SetRotation(float yaw, float pitch, bool snap)
     {
         targetYaw = yaw;
         targetPitch = Mathf.Clamp(pitch, minVerticalAngle, maxVerticalAngle);
+
+        if (snap)
+        {
+            currentYaw = targetYaw;
+            currentPitch = targetPitch;
+
+            rotationVelocity.x = 0f;
+            rotationVelocity.y = 0f;
+        }
     }
 
     //for pitch clamp removal, so it doesn't snap
@@ -406,6 +405,7 @@ public class ZeldaCameraController : MonoBehaviour
         mouseYSensitivity = ySens;
     }
 
+    public float GetZOffset() => zOffset;
     public void SetZOffset(float offset) => zOffset = offset;
     public void SetYAxisLocked(bool locked) => yAxisLocked = locked;
     public void SetXAxisLocked(bool locked) => xAxisLocked = locked;
