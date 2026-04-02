@@ -69,6 +69,8 @@ public class PlayerMovement : MonoBehaviour
     private float _maxGravity;
     private float _gravity;
     private float _lastJumpFrame;
+    private bool _jumpEnabled;
+    private bool _moveEnabled;
     private bool _useGravity;
     private bool _useFriction;
     private bool _hasJumped;
@@ -98,6 +100,8 @@ public class PlayerMovement : MonoBehaviour
         CurrentMovementState = PlayerMoveState.InAir;
         _useGravity = true;
         _useFriction = true;
+        _jumpEnabled = true;
+        _moveEnabled = true;
 
         _externalForce = Vector3.zero;
     }
@@ -146,7 +150,6 @@ public class PlayerMovement : MonoBehaviour
     #endregion
 
     #region Movement State
-
     public void SwitchMovementState(PlayerMoveState newMovementState)
     {
         if (CurrentMovementState == newMovementState) return;
@@ -193,6 +196,9 @@ public class PlayerMovement : MonoBehaviour
 
     public void SetGrabbing(bool isGrabbing)
     {
+        DisableJump(isGrabbing);
+        DisableMovement(isGrabbing);
+
         if (isGrabbing)
         {
             SwitchMovementState(PlayerMoveState.Grabbing);
@@ -222,6 +228,21 @@ public class PlayerMovement : MonoBehaviour
     #endregion
 
     #region Misc
+
+    public void DisableMovement(bool disable)
+    {
+        _moveEnabled = !disable;
+    }
+
+    public void DisableJump(bool disable)
+    {
+        _jumpEnabled = !disable;
+    }
+
+    public void SetDoubleJumpAvailable(bool available)
+    {
+        _canDoubleJump = available;
+    }
 
     public void KillVelocity()
     {
@@ -302,7 +323,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void HandleJumpBuffer()
     {
-        if (CurrentMovementState == PlayerMoveState.Grabbing) return;
+        if (!_jumpEnabled) return;
 
         if (PlayerActions.Instance.JumpDown)
         {
@@ -503,7 +524,7 @@ public class PlayerMovement : MonoBehaviour
     private void ApplyAccelerationRelative(ref Vector3 relVel)
     {
         if (WishDir == Vector3.zero) return;
-        if (CurrentMovementState == PlayerMoveState.Grabbing) return;
+        if (!_moveEnabled) return;
 
         Vector3 wishDirNormalized = WishDir.normalized;
         Vector3 horizontalVel = new Vector3(relVel.x, 0, relVel.z);

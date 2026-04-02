@@ -470,6 +470,7 @@ GameObject:
   - component: {fileID: 1252616750680107932}
   - component: {fileID: 9086093428972805622}
   - component: {fileID: 6128465770690788847}
+  - component: {fileID: 7490488656194492114}
   m_Layer: 7
   m_Name: ThirdPersonPlayer
   m_TagString: Player
@@ -760,7 +761,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerModelRotationHandler
   playerObj: {fileID: 1652275945749154798}
-  rotationSpeed: 6
+  rotationSpeed: 5
 --- !u!114 &7136094397731902115
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -909,6 +910,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 967ba96c8027c2f4999a2d6854ecd1f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+--- !u!114 &7490488656194492114
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2571145194382551425}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7ef1c7cc82f5514fa65dcd8adfbadff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StuckInGround
+  fadeToBlackScript: {fileID: 0}
+  anim: {fileID: 5424001154285603630}
+  delayBeforeFadeIn: 1.3
 --- !u!1 &4814702024667298785
 GameObject:
   m_ObjectHideFlags: 0
@@ -1445,15 +1461,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: f82cbc3e784de2f469ae8a60275a56ad, type: 3}
       propertyPath: m_LocalScale.x
-      value: 13
+      value: 14.000001
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: f82cbc3e784de2f469ae8a60275a56ad, type: 3}
       propertyPath: m_LocalScale.y
-      value: 13
+      value: 14.000001
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: f82cbc3e784de2f469ae8a60275a56ad, type: 3}
       propertyPath: m_LocalScale.z
-      value: 13
+      value: 14.000001
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: f82cbc3e784de2f469ae8a60275a56ad, type: 3}
       propertyPath: m_LocalPosition.x
