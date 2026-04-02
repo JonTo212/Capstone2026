@@ -196,6 +196,9 @@ public class PlayerMovement : MonoBehaviour
 
     public void SetGrabbing(bool isGrabbing)
     {
+        DisableJump(isGrabbing);
+        DisableMovement(isGrabbing);
+
         if (isGrabbing)
         {
             SwitchMovementState(PlayerMoveState.Grabbing);
@@ -206,8 +209,6 @@ public class PlayerMovement : MonoBehaviour
             _smoothedInputMagnitude = 0;
             KillVelocity();
             KillRemainingInput();
-            DisableJump(isGrabbing);
-            DisableMovement(isGrabbing);
 
             if (_playerRefData.Lasso.SnaredObject != null)
             {

@@ -170,8 +170,8 @@ public class ZeldaCameraController : MonoBehaviour
 
     private void HandleInput()
     {
-        float mouseX = PlayerActions.Instance.LookInput.x;
-        float mouseY = PlayerActions.Instance.LookInput.y;
+        float mouseX = PlayerActions.Instance.LookInput.x / 100f;
+        float mouseY = PlayerActions.Instance.LookInput.y / 100f;
 
         if (PlayerActions.Instance.CurrentDevice.Equals(PlayerActions.InputType.MouseKeyboard))
         {

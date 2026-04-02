@@ -24,7 +24,6 @@ public class SettingsMenu : MonoBehaviour
     [Header("Sensitivity")]
     [SerializeField] private Slider xSensitivitySlider;
     [SerializeField] private Slider ySensitivitySlider;
-    [SerializeField] private CameraModeController camController;
 
     [Header("Screen Scale")]
     [SerializeField] private TextMeshProUGUI windowModeText;
@@ -87,12 +86,12 @@ public class SettingsMenu : MonoBehaviour
 
     public void SetXSensitivity()
     {
-        camController.SetBaseXSensitivity(xSensitivitySlider.value);
+        CameraRefData.Instance.CameraModeController.SetBaseXSensitivity(xSensitivitySlider.value);
     }
 
     public void SetYSensitivity()
     {
-        camController.SetBaseYSensitivity(ySensitivitySlider.value);
+        CameraRefData.Instance.CameraModeController.SetBaseYSensitivity(ySensitivitySlider.value);
     }
 
     public void WindowModeButton()

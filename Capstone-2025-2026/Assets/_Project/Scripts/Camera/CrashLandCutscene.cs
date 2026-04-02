@@ -29,21 +29,44 @@ public class CrashLandCutscene : PlayerCutsceneBase
     [SerializeField] private float cameraRotationSpeed = 10f;
 
     [Header("Transitions / Animations")]
-    [SerializeField] private ImageFader fadeToBlackScript; // Replace with your actual class name
+    [SerializeField] private ImageFader fadeToBlackScript;
+    [SerializeField] private float fadeInDuration = 1.8f;
     [SerializeField] private Animator anim;
+
+    [Header("Fall Wobble")]
+    [Tooltip("How strongly the camera wobbles on the screen offset axes during the fall.")]
+    [SerializeField] private float wobbleScreenStrength = 0.04f;
+    [Tooltip("How strongly the camera wobbles on the Z (distance) axis during the fall.")]
+    [SerializeField] private float wobbleZStrength = 0.3f;
+    [Tooltip("Frequency of the Perlin noise wobble. Higher = more chaotic.")]
+    [SerializeField] private float wobbleFrequency = 1.8f;
+
+    private float _wobbleSeedX;
+    private float _wobbleSeedY;
+    private float _wobbleSeedZ;
+    private float _perlinOffsetY;
+    private float _perlinOffsetZ;
+
 
     public override void OnCutscenePrepare()
     {
+        //randomize perlin noise values so the wobble isn't identical each time
+        _wobbleSeedX = Random.Range(0f, 100f);
+        _wobbleSeedY = Random.Range(0f, 100f);
+        _wobbleSeedZ = Random.Range(0f, 100f);
+        _perlinOffsetY = Random.Range(25f, 50f);
+        _perlinOffsetZ = Random.Range(75f, 100f);
+
         Vector3 fwd = GetFallDirection();
         Vector3 endFwdFlat = new Vector3(fwd.x, 0f, fwd.z);
 
         CameraRefData.Instance.CameraCutsceneHandler?.SetCameraPositionDamping(Vector3.zero);
         CameraRefData.Instance.CameraCutsceneHandler.SetRotationDirect(GetHorizontalDirection(), cameraStartPitch);
         PlayerRefData.Instance.PlayerFade.SetFade(false);
+
         anim.SetBool("FallCutscene", true);
         HandleScripts(false);
 
-        // Handle the fade-in and pause the cutscene logic until complete
         StartCoroutine(HandleFadeBeforeCutscene());
 
         base.OnCutscenePrepare();
@@ -55,8 +78,9 @@ public class CrashLandCutscene : PlayerCutsceneBase
 
         SetBlendDelayActive(true);
 
-        fadeToBlackScript.SetImageAlpha(1f);
         fadeToBlackScript.gameObject.SetActive(true);
+        fadeToBlackScript.SetImageAlpha(1f);
+        fadeToBlackScript.duration = fadeInDuration;
         fadeToBlackScript.FadeOut();
 
         yield return new WaitUntil(() => fadeToBlackScript.FadeComplete);
@@ -66,11 +90,9 @@ public class CrashLandCutscene : PlayerCutsceneBase
 
     public override void OnCutsceneUpdate()
     {
-        // 1. Calculate what the screen offset SHOULD be at this point in the curve
         float camProgress = cameraApproachCurve.Evaluate(T);
         cameraScreenOffset = Vector2.Lerp(startScreenOffset, endScreenOffset, camProgress);
 
-        // 2. Call the base method so it actually applies this offset to the Handler
         base.OnCutsceneUpdate();
     }
 
@@ -78,17 +100,12 @@ public class CrashLandCutscene : PlayerCutsceneBase
     {
         base.OnCutsceneTick();
 
-        // 1. Move Player
         if (playerRb != null) playerRb.MovePosition(GetPlayerPosition(T));
 
-        // 2. Rotate Player
         Vector3 forward = GetFallDirection();
         if (forward.sqrMagnitude > 0.01f)
-        {
             playerModelRotation?.SetNewRotationDir(Quaternion.LookRotation(forward), true);
-        }
 
-        // 3. Update Camera Dive
         ApplySkydivingCameraState(T);
     }
 
@@ -96,43 +113,54 @@ public class CrashLandCutscene : PlayerCutsceneBase
     {
         float camProgress = cameraApproachCurve.Evaluate(t);
 
-        // LERP SCREEN OFFSET (Instead of World Target Offset)
-        Vector2 currentScreenOffset = Vector2.Lerp(startScreenOffset, endScreenOffset, camProgress);
-        CameraRefData.Instance.CameraCutsceneHandler?.SetCameraScreenOffsetDirect(currentScreenOffset);
+        //base screen offset from the approach curve
+        Vector2 baseScreenOffset = Vector2.Lerp(startScreenOffset, endScreenOffset, camProgress);
 
-        // Distance & Pitch logic
+        //perlin noise -> between -1 and 1 so it can move in all directions
+        float noiseTime = Time.time * wobbleFrequency;
+        float nx = (Mathf.PerlinNoise(_wobbleSeedX, noiseTime) - 0.5f) * 2f;
+        float ny = (Mathf.PerlinNoise(_wobbleSeedY, noiseTime) - 0.5f) * 2f;
+        float nz = (Mathf.PerlinNoise(_wobbleSeedZ, noiseTime) - 0.5f) * 2f;
+
+        //fade out more aggressively in the last 20% of the fall
+        float wobbleIntensity = Mathf.Clamp01((1f - t) / 0.2f);
+
+        Vector2 wobbleScreen = new Vector2(nx, ny) * wobbleScreenStrength * wobbleIntensity;
+        float wobbleZ = nz * wobbleZStrength * wobbleIntensity;
+
+        CameraRefData.Instance.CameraCutsceneHandler?.SetCameraScreenOffsetDirect(baseScreenOffset + wobbleScreen);
+
+        //distance + pitch
         float currentDistance = Mathf.Lerp(startCameraDistance, endCameraDistance, camProgress);
         float currentPitch = Mathf.Lerp(cameraStartPitch, cameraEndPitch, camProgress);
 
         float defaultDist = CameraRefData.Instance.ZeldaCameraController != null ? CameraRefData.Instance.ZeldaCameraController.GetDefaultDistance() : 5f;
-        float requiredZOffset = currentDistance - defaultDist;
+        float requiredZOffset = (currentDistance - defaultDist) + wobbleZ;
 
         CameraRefData.Instance.CameraCutsceneHandler?.SetCameraZOffsetDirect(requiredZOffset);
 
         Vector3 dir = GetHorizontalDirection();
         if (dir.sqrMagnitude > 0.01f)
-        {
             CameraRefData.Instance.CameraCutsceneHandler?.RotateCameraToDirection(dir, cameraRotationSpeed, currentPitch);
-        }
     }
 
     public override void OnCutsceneEnd()
     {
         base.OnCutsceneEnd();
-        CameraRefData.Instance.CameraCutsceneHandler?.SetCameraPositionDamping(null);
-        CleanUpCamera();
-        fadeToBlackScript.SetImageAlpha(1f);
-        PlayerRefData.Instance.PlayerFade.SetFade(true);
-        if (playerRb != null) playerRb.position = GetPlayerPosition(1f);
-        playerModelRotation?.SetNewRotationDir(Quaternion.LookRotation(GetFallDirection()), true);
-        HandleScripts(true);
+        HandleCutsceneFinish();
     }
 
     public override void OnCutsceneSkip()
     {
         base.OnCutsceneSkip();
+        HandleCutsceneFinish();
+    }
+
+    private void HandleCutsceneFinish()
+    {
         CameraRefData.Instance.CameraCutsceneHandler?.SetCameraPositionDamping(null);
         CleanUpCamera();
+
         fadeToBlackScript.SetImageAlpha(1f);
         PlayerRefData.Instance.PlayerFade.SetFade(true);
         if (playerRb != null) playerRb.position = GetPlayerPosition(1f);
@@ -152,7 +180,8 @@ public class CrashLandCutscene : PlayerCutsceneBase
         return Vector3.Lerp(startPos.position, endPos.position, fallCurve.Evaluate(t));
     }
 
-    private Vector3 GetFallDirection() => (endPos != null && startPos != null) ? (endPos.position - startPos.position).normalized : Vector3.forward;
+    private Vector3 GetFallDirection() =>
+        (endPos != null && startPos != null) ? (endPos.position - startPos.position).normalized : Vector3.forward;
 
     private Vector3 GetHorizontalDirection()
     {

@@ -5,6 +5,7 @@ public class StuckInGround : MonoBehaviour
 {
     [SerializeField] private ImageFader fadeToBlackScript;
     [SerializeField] private Animator anim;
+    [SerializeField] private float fadeInDuration = 0.5f;
     [SerializeField] private float delayBeforeFadeIn = 2f;
     private CapsuleCollider playerCol;
     private bool skipRequested;
@@ -36,8 +37,10 @@ public class StuckInGround : MonoBehaviour
             yield return null;
         }
 
+        fadeToBlackScript.duration = fadeInDuration;
         fadeToBlackScript.FadeOut();
         playerCol.enabled = false;
+
         PlayerRefData.Instance.PlayerMovement.DisableMovement(true);
         CameraRefData.Instance.ZeldaCameraController.SetRotation(-90f, 0f, true);
 
@@ -47,11 +50,14 @@ public class StuckInGround : MonoBehaviour
     private IEnumerator WaitForJumpInput()
     {
         yield return new WaitUntil(() => PlayerActions.Instance.JumpDown);
+
         Vector3 forward = Camera.main.transform.forward;
         forward.y = 0;
+
         PlayerRefData.Instance.PlayerModelRotationHandler.SetNewRotationDir(Quaternion.LookRotation(forward), false);
         PlayerRefData.Instance.PlayerMovement.DisableMovement(false);
         PlayerRefData.Instance.PlayerMovement.SetDoubleJumpAvailable(false);
+
         anim.SetBool("FallCutscene", false);
         anim.SetTrigger("DoubleJump");
         playerCol.enabled = true;
