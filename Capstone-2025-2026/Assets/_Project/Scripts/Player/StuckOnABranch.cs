@@ -58,6 +58,7 @@ public class StuckInGround : MonoBehaviour
         PlayerRefData.Instance.PlayerModelRotationHandler.SetNewRotationDir(Quaternion.LookRotation(forward), false);
         PlayerRefData.Instance.PlayerMovement.DisableMovement(false);
         PlayerRefData.Instance.PlayerMovement.SetDoubleJumpAvailable(false);
+        PlayerRefData.Instance.PlayerFade.SetFade(true);
 
         anim.SetBool("FallCutscene", false);
         anim.SetTrigger("DoubleJump");

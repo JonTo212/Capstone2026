@@ -222,19 +222,21 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
                     if (jointTether.isActivated)
                     {
                         if (ObjectOutline.outlineState != Outline.OutlineStates.TetherActive)
-                            ObjectOutline.TetherActiveColor(); return;
+                        { ObjectOutline.TetherActiveColor(); return; }
                     }
                 }
                 if (ObjectOutline.outlineState != Outline.OutlineStates.TetherInnactive)
-                    ObjectOutline.TetherInactiveColor(); return;
+                { ObjectOutline.TetherInactiveColor(); return; }
             }
             if (IsSnared)
             {
                 if (ObjectOutline.outlineState != Outline.OutlineStates.Snare)
-                {
-                    ObjectOutline.SnareColor(); return;
-                }
+                { ObjectOutline.SnareColor(); return; }
             }
+        }
+        else
+        {
+            ActivateOutline(false);
         }
     }
 

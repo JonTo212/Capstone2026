@@ -8,7 +8,7 @@ public class SensitivityInitializer : MonoBehaviour
 
     private void Start()
     {
-        CameraRefData.Instance.CameraModeController.SetBaseXSensitivity(xSensitivitySlider.value);
-        CameraRefData.Instance.CameraModeController.SetBaseYSensitivity(ySensitivitySlider.value);
+        CameraRefData.Instance.CameraModeController.SetBaseXSensitivity(xSensitivitySlider.value / 100f);
+        CameraRefData.Instance.CameraModeController.SetBaseYSensitivity(ySensitivitySlider.value / 100f);
     }
 }

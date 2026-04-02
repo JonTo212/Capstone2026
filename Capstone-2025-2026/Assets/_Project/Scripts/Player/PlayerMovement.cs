@@ -303,7 +303,9 @@ public class PlayerMovement : MonoBehaviour
         Vector3 camRight = Camera.main.transform.right;
 
         camRight.y = 0;
+        camRight.Normalize();
         camForward.y = 0;
+        camForward.Normalize();
 
         Vector3 forwardRelative = camForward * PlayerActions.Instance.MoveInput.y;
         Vector3 rightRelative = camRight * PlayerActions.Instance.MoveInput.x;
@@ -366,7 +368,7 @@ public class PlayerMovement : MonoBehaviour
                 Jump(1f, true);
             }
 
-            else if(_canDoubleJump && useDoubleJump)
+            else if (_canDoubleJump && useDoubleJump)
             {
                 //Jump(doubleJumpMultiplier);
                 HandleDoubleJump();
@@ -397,12 +399,14 @@ public class PlayerMovement : MonoBehaviour
         if (WishDir.sqrMagnitude > 0)
             redirectedVel = WishDir.normalized * speed;
 
-        Vector3 defaultJumpForce = Vector3.up * _jumpForce * doubleJumpMultiplier;
-        //Vector3 addedJumpForce = WishDir.normalized * doubleJumpForce.x + Vector3.up * doubleJumpForce.y;
+        //add upward impulse on top of existing Y - discard downward momentum, keep upward
+        float currentUpward = Mathf.Max(Rb.linearVelocity.y, 0f);
+        float jumpY = _jumpForce;
+        float newY = Mathf.Max(currentUpward, jumpY); //never weaken an existing upward arc
 
-        Rb.linearVelocity = redirectedVel + defaultJumpForce; // + addedJumpForce;
+        Rb.linearVelocity = new Vector3(redirectedVel.x, newY, redirectedVel.z);
         _canDoubleJump = false;
-        RuntimeManager.PlayOneShot("event:/DoubleJump",transform.position);
+        RuntimeManager.PlayOneShot("event:/DoubleJump", transform.position);
 
         OnDoubleJump?.Invoke();
     }

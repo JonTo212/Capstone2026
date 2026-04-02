@@ -162,7 +162,6 @@ public class CrashLandCutscene : PlayerCutsceneBase
         CleanUpCamera();
 
         fadeToBlackScript.SetImageAlpha(1f);
-        PlayerRefData.Instance.PlayerFade.SetFade(true);
         if (playerRb != null) playerRb.position = GetPlayerPosition(1f);
         playerModelRotation?.SetNewRotationDir(Quaternion.LookRotation(GetFallDirection()), true);
         HandleScripts(true);

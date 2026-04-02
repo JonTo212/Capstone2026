@@ -86,12 +86,12 @@ public class SettingsMenu : MonoBehaviour
 
     public void SetXSensitivity()
     {
-        CameraRefData.Instance.CameraModeController.SetBaseXSensitivity(xSensitivitySlider.value);
+        CameraRefData.Instance.CameraModeController.SetBaseXSensitivity(xSensitivitySlider.value / 100f);
     }
 
     public void SetYSensitivity()
     {
-        CameraRefData.Instance.CameraModeController.SetBaseYSensitivity(ySensitivitySlider.value);
+        CameraRefData.Instance.CameraModeController.SetBaseYSensitivity(ySensitivitySlider.value / 100f);
     }
 
     public void WindowModeButton()
