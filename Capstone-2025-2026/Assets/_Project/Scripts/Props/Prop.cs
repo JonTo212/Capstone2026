@@ -234,10 +234,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
                 { ObjectOutline.SnareColor(); return; }
             }
         }
-        else
-        {
-            ActivateOutline(false);
-        }
+        
     }
 
     #endregion
