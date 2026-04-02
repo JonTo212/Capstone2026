@@ -3,10 +3,6 @@ using UnityEngine;
 
 public class CameraCutsceneHandler : MonoBehaviour
 {
-    [Header("References")]
-    [SerializeField] private ZeldaCameraController cameraController;
-    [SerializeField] private CameraModeController cameraModeController;
-
     [Header("Opening Sequence")]
     [SerializeField] private CutsceneBase openingCutscene;
 
@@ -26,12 +22,6 @@ public class CameraCutsceneHandler : MonoBehaviour
     public bool BlendingOut => _isBlendingOut;
 
     public CutsceneBase CurrentCutscene => _cutscene;
-
-    private void Awake()
-    {
-        if (cameraController == null) cameraController = Camera.main?.GetComponent<ZeldaCameraController>();
-        if (cameraModeController == null) cameraModeController = Camera.main?.GetComponent<CameraModeController>();
-    }
 
     private void Start()
     {
@@ -55,11 +45,8 @@ public class CameraCutsceneHandler : MonoBehaviour
 
         _cutscene.OnCutscenePrepare();
 
-        if (cameraController != null)
-        {
-            cameraController.SetXAxisLocked(true);
-            cameraController.SetYAxisLocked(true);
-        }
+        CameraRefData.Instance.ZeldaCameraController.SetXAxisLocked(true);
+        CameraRefData.Instance.ZeldaCameraController.SetYAxisLocked(true);
 
         _isBlendingIn = true;
         _cutscene.SetBlendDelayActive(true);
@@ -72,15 +59,12 @@ public class CameraCutsceneHandler : MonoBehaviour
         _isBlendingIn = false;
 
         _cutscene.OnCutsceneStart();
-        
+
         if (_cutscene.Indefinite) yield return new WaitUntil(() => _cutscene.SkipInputDetected);
         else yield return new WaitForSeconds(_cutscene.Duration);
 
-        if (cameraController != null)
-        {
-            cameraController.SetXAxisLocked(false);
-            cameraController.SetYAxisLocked(false);
-        }
+        CameraRefData.Instance.ZeldaCameraController.SetXAxisLocked(false);
+        CameraRefData.Instance.ZeldaCameraController.SetYAxisLocked(false);
 
         CutsceneBase justFinished = _cutscene;
         _cutscene = null;
@@ -134,11 +118,8 @@ public class CameraCutsceneHandler : MonoBehaviour
         _isBlendingIn = false;
         _isBlendingOut = false;
 
-        if (cameraController != null)
-        {
-            cameraController.SetXAxisLocked(false);
-            cameraController.SetYAxisLocked(false);
-        }
+        CameraRefData.Instance.ZeldaCameraController.SetXAxisLocked(false);
+        CameraRefData.Instance.ZeldaCameraController.SetYAxisLocked(false);
 
         CutsceneBase justFinished = _cutscene;
         _cutscene = null;
@@ -150,50 +131,53 @@ public class CameraCutsceneHandler : MonoBehaviour
 
     public void SetCameraPositionDamping(Vector3? damping)
     {
-        cameraController?.SetPositionDamping(damping);
+        CameraRefData.Instance.ZeldaCameraController?.SetPositionDamping(damping);
     }
 
     public void SetRotationDirect(Vector3 direction, float pitch)
     {
         float targetYaw = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg;
-        cameraController.SetRotation(targetYaw, pitch, true);
+        CameraRefData.Instance.ZeldaCameraController.SetRotation(targetYaw, pitch, true);
     }
 
     public void RotateCameraToDirection(Vector3 direction, float speed, float pitch)
     {
-        if (cameraController == null) return;
         float targetYaw = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg;
-        float newYaw = Mathf.LerpAngle(cameraController.GetCurrentYaw(), targetYaw, speed * Time.deltaTime);
-        float newPitch = Mathf.Lerp(cameraController.GetCurrentPitch(), pitch, speed * Time.deltaTime);
-        cameraController.SetRotation(newYaw, newPitch, false);
+        float newYaw = Mathf.LerpAngle(CameraRefData.Instance.ZeldaCameraController.GetCurrentYaw(), targetYaw, speed * Time.deltaTime);
+        float newPitch = Mathf.Lerp(CameraRefData.Instance.ZeldaCameraController.GetCurrentPitch(), pitch, speed * Time.deltaTime);
+        CameraRefData.Instance.ZeldaCameraController.SetRotation(newYaw, newPitch, false);
     }
 
     public void SetCameraScreenOffset(Vector2 target, float speed)
     {
-        if (cameraController == null) return;
-        Vector2 current = cameraController.GetScreenOffset();
-        cameraController.SetScreenOffset(Vector2.Lerp(current, target, speed * Time.deltaTime));
+        Vector2 current = CameraRefData.Instance.ZeldaCameraController.GetScreenOffset();
+        CameraRefData.Instance.ZeldaCameraController.SetScreenOffset(Vector2.Lerp(current, target, speed * Time.deltaTime));
     }
 
     public void SetCameraTargetOffset(Vector3 target, float speed)
     {
-        if (cameraController == null) return;
-        Vector3 current = cameraController.GetTargetOffset();
-        cameraController.SetTargetOffset(Vector3.Lerp(current, target, speed * Time.deltaTime));
+        Vector3 current = CameraRefData.Instance.ZeldaCameraController.GetTargetOffset();
+        CameraRefData.Instance.ZeldaCameraController.SetTargetOffset(Vector3.Lerp(current, target, speed * Time.deltaTime));
     }
 
     public void SetCameraScreenOffsetDirect(Vector2 offset)
     {
-        cameraController?.SetScreenOffset(offset);
+        CameraRefData.Instance.ZeldaCameraController?.SetScreenOffset(offset);
     }
 
     public void SetCameraTargetOffsetDirect(Vector3 offset)
     {
-        cameraController?.SetTargetOffset(offset);
+        CameraRefData.Instance.ZeldaCameraController?.SetTargetOffset(offset);
+    }
+
+    public void SetCameraZOffset(float target, float speed)
+    {
+        float current = CameraRefData.Instance.ZeldaCameraController.GetZOffset();
+        CameraRefData.Instance.ZeldaCameraController.SetZOffset(Mathf.Lerp(current, target, speed * Time.deltaTime));
     }
 
     public void SetCameraZOffsetDirect(float offset)
     {
-        cameraController?.SetZOffset(offset);
+        CameraRefData.Instance.ZeldaCameraController?.SetZOffset(offset);
     }
 }

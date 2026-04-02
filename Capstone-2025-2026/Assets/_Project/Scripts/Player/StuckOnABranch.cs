@@ -28,6 +28,11 @@ public class StuckInGround : MonoBehaviour
     private IEnumerator StartStuckSequence()
     {
         float timer = 0f;
+
+        PlayerRefData.Instance.PlayerMovement.DisableMovement(true);
+        CameraRefData.Instance.ZeldaCameraController.SetRotation(-90f, 0f, true);
+        playerCol.enabled = false;
+
         while (timer < delayBeforeFadeIn)
         {
             if (skipRequested)
@@ -39,10 +44,6 @@ public class StuckInGround : MonoBehaviour
 
         fadeToBlackScript.duration = fadeInDuration;
         fadeToBlackScript.FadeOut();
-        playerCol.enabled = false;
-
-        PlayerRefData.Instance.PlayerMovement.DisableMovement(true);
-        CameraRefData.Instance.ZeldaCameraController.SetRotation(-90f, 0f, true);
 
         StartCoroutine(WaitForJumpInput());
     }

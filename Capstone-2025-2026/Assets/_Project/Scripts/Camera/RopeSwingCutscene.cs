@@ -293,8 +293,13 @@ public class RopeSwingCutscene : PlayerCutsceneBase
         if (playerOffsetPath == null || playerOffsetPath.Count == 0)
             return Vector3.zero;
 
+        Transform offsetParent = playerOffsetPath[0].parent;
+
         if (playerOffsetPath.Count == 1)
-            return playerOffsetPath[0].localPosition;
+        {
+            Vector3 localOffset = playerOffsetPath[0].localPosition;
+            return offsetParent != null ? offsetParent.TransformVector(localOffset) : localOffset;
+        }
 
         //get the corresponding segment based on t, similar to how we do it for the rope path
         //but, the offset path might have a different number of points than the rope path
@@ -304,15 +309,20 @@ public class RopeSwingCutscene : PlayerCutsceneBase
         int segIndex = Mathf.Clamp(Mathf.FloorToInt(scaled), 0, segments - 1);
         float localT = scaled - segIndex;
 
+        Vector3 localSpaceOffset;
         if (!useSpline || playerOffsetPath.Count < 3)
-            return Vector3.Lerp(playerOffsetPath[segIndex].localPosition, playerOffsetPath[segIndex + 1].localPosition, localT);
+            localSpaceOffset = Vector3.Lerp(playerOffsetPath[segIndex].localPosition, playerOffsetPath[segIndex + 1].localPosition, localT);
+        else
+        {
+            Vector3 p0 = GetOffsetPoint(segIndex - 1);
+            Vector3 p1 = GetOffsetPoint(segIndex);
+            Vector3 p2 = GetOffsetPoint(segIndex + 1);
+            Vector3 p3 = GetOffsetPoint(segIndex + 2);
+            localSpaceOffset = CatmullRom(p0, p1, p2, p3, localT);
+        }
 
-        Vector3 p0 = GetOffsetPoint(segIndex - 1);
-        Vector3 p1 = GetOffsetPoint(segIndex);
-        Vector3 p2 = GetOffsetPoint(segIndex + 1);
-        Vector3 p3 = GetOffsetPoint(segIndex + 2);
-
-        return CatmullRom(p0, p1, p2, p3, localT);
+        //transform the interpolated local-space offset into world space
+        return offsetParent != null ? offsetParent.TransformVector(localSpaceOffset) : localSpaceOffset;
     }
     #endregion
 

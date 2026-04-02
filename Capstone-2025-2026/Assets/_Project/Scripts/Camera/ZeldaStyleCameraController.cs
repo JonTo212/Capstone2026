@@ -405,6 +405,7 @@ public class ZeldaCameraController : MonoBehaviour
         mouseYSensitivity = ySens;
     }
 
+    public float GetZOffset() => zOffset;
     public void SetZOffset(float offset) => zOffset = offset;
     public void SetYAxisLocked(bool locked) => yAxisLocked = locked;
     public void SetXAxisLocked(bool locked) => xAxisLocked = locked;
