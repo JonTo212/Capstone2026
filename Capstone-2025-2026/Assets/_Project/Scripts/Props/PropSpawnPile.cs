@@ -39,9 +39,9 @@ public class PropSpawnPile : Prop
         }
     }
 
-    public override void OnSnare(PlayerRefData playerData)
+    public override void OnSnare()
     {
-        base.OnSnare(playerData);
+        base.OnSnare();
         SpawnPropOnPluck();
     }
 
@@ -62,7 +62,7 @@ public class PropSpawnPile : Prop
         stale.transform.rotation = Quaternion.Euler(0f, spawnDirection != null ? spawnDirection.eulerAngles.y : 0f, 0f);
         stale.gameObject.SetActive(true);
 
-        _playerRefData.Lasso.SetupHeldProp(stale, null);
+        PlayerRefData.Instance.Lasso.SetupHeldProp(stale, null);
         _pool.Enqueue(stale);
     }
 

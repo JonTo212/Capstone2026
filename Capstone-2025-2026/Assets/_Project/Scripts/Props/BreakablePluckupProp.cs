@@ -72,7 +72,7 @@ public class BreakablePluckupProp : PluckOutProp
         }
 
 
-        Destroy(gameObject);
+        gameObject.SetActive(false);
     }    
 
     private IEnumerator BecomeBreakableDelay()

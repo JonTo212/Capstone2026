@@ -9,13 +9,7 @@ public class TetherTutorialCutscene : CameraCutsceneBase
     {
         base.OnCutscenePrepare();
 
-        ZeldaCameraController zeldaCam = cam.GetComponent<ZeldaCameraController>();
-
-        if (zeldaCam != null)
-        {
-            zeldaCam.SetFrozen(true);
-        }
-
+        CameraRefData.Instance.ZeldaCameraController.SetFrozen(true);
         HandleScripts(false);
     }
 
@@ -38,13 +32,7 @@ public class TetherTutorialCutscene : CameraCutsceneBase
 
     public override void OnCutsceneEnd()
     {
-        ZeldaCameraController zeldaCam = cam.GetComponent<ZeldaCameraController>();
-    
-        if (zeldaCam != null)
-        {
-            zeldaCam.SetFrozen(false);
-        }
-
+        CameraRefData.Instance.ZeldaCameraController.SetFrozen(false);
         HandleScripts(true);
 
         //unfreeze player rotation
