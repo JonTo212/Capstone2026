@@ -61,13 +61,10 @@ public class UIImageMovement : MonoBehaviour
     public float toolUIMoveTime = 3f;
 
 
-
-
     [Header("UI Objects")]
     [SerializeField] private GameObject Tools;
     [SerializeField] private GameObject switchTool;
     [SerializeField] private GameObject tetherBreak;
-
 
     [Header("RodUnlockText")]
     [SerializeField] private TextMeshProUGUI rodUnlockedText;
@@ -146,7 +143,6 @@ public class UIImageMovement : MonoBehaviour
 
         rodImageStartPos = rodImage.transform.localPosition;
         tetherImageStartPos = tetherImage.transform.localPosition;
-
     }
 
     void Update()

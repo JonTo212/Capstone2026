@@ -37,6 +37,8 @@ public class CameraCutsceneHandler : MonoBehaviour
 
         _cutscene = cutscene;
         StartCoroutine(CutsceneSequence());
+
+        print("ACTIVE CUTSCENE");
     }
 
     private IEnumerator CutsceneSequence()
