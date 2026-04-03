@@ -95,11 +95,13 @@ public class PlayerRespawn : MonoBehaviour
         transform.position = spawnDestination;
 
         //rotate player to face direction of checkpoint
-        Vector3 spawnPositionForward = transform.forward;
+        Vector3 spawnPositionForward = currentRespawnPoint.Forward;
         float targetYaw = Mathf.Atan2(spawnPositionForward.x, spawnPositionForward.z) * Mathf.Rad2Deg;
         CameraRefData.Instance.ZeldaCameraController.SetRotation(targetYaw,0,true);
-        PlayerRefData.Instance.PlayerModelRotationHandler.SetNewRotationDir(Quaternion.Euler(spawnPositionForward),false);
+        PlayerRefData.Instance.PlayerModelRotationHandler.SetNewRotationDir(Quaternion.Euler(new Vector3(0,targetYaw,0)),false);
 
+        print("spanposForward" + spawnPositionForward);
+        print("Yaw" + targetYaw);
 
         //disable black screen
         fadeToBlackScript.FadeOut();
