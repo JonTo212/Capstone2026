@@ -38,6 +38,7 @@ public class PlayerActions : MonoBehaviour
     private InputAction controlAction;
     private InputAction devMenuAction;
     private InputAction respawnAction;
+    private InputAction menuBackAction;
 
     public InputType CurrentDevice { get; private set; }
 
@@ -119,6 +120,9 @@ public class PlayerActions : MonoBehaviour
     public bool grabHeld => grabAction.IsPressed();
     public bool grabUp => grabAction.WasReleasedThisFrame();
 
+    public bool menuBackDown => menuBackAction.WasPressedThisFrame();
+    public bool menuBackHeld => menuBackAction.IsPressed();
+    public bool menuBackUp => menuBackAction.WasReleasedThisFrame();
     #endregion
 
     private void Awake()
@@ -153,6 +157,7 @@ public class PlayerActions : MonoBehaviour
         respawnAction = map.FindAction("Respawn");
         toolSwitchAction = map.FindAction("ToolSwitch");
         grabAction = map.FindAction("Grab");
+        menuBackAction = map.FindAction("MenuBack");
 
         allActions = new InputAction[]
         {
@@ -161,7 +166,7 @@ public class PlayerActions : MonoBehaviour
             dPadForwardAction, dPadBackwardAction, dPadRightAction, dPadLeftAction,
             moveAnchorMouseAction, snapRotateToggleAction, freeRotateToggleAction,
             snapRotateAction, recallNPCAction, menuAction, controlAction,
-            devMenuAction, respawnAction, toolSwitchAction, grabAction
+            devMenuAction, respawnAction, toolSwitchAction, grabAction, menuBackAction
         };
 
         currentRepeatRate = baseRepeatRate;

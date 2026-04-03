@@ -284,8 +284,14 @@ public class PlayerMovement : MonoBehaviour
 
     public Transform IsGrounded()
     {
-        Collider[] hits = Physics.OverlapSphere(feetPos.position, feetRadius, groundLayer);
-        return hits.Length > 0 ? hits[0].transform : null;
+        RaycastHit hit;
+
+        if (Physics.Raycast(transform.position, Vector3.down, out hit, 1.1f, groundLayer))
+        {
+            return hit.transform;
+        }
+
+        return null;
     }
 
     #endregion
@@ -401,7 +407,7 @@ public class PlayerMovement : MonoBehaviour
 
         //add upward impulse on top of existing Y - discard downward momentum, keep upward
         float currentUpward = Mathf.Max(Rb.linearVelocity.y, 0f);
-        float jumpY = _jumpForce;
+        float jumpY = _jumpForce * doubleJumpMultiplier;
         float newY = Mathf.Max(currentUpward, jumpY); //never weaken an existing upward arc
 
         Rb.linearVelocity = new Vector3(redirectedVel.x, newY, redirectedVel.z);

@@ -72,7 +72,7 @@ public class CameraModeController : MonoBehaviour
     private float currentTargetDistance;
     private Vector2 optimalFraming;
 
-    private void Awake()
+    private void Start()
     {
         defaultScreenOffset = CameraRefData.Instance.ZeldaCameraController.GetScreenOffset();
         defaultTargetOffset = CameraRefData.Instance.ZeldaCameraController.GetTargetOffset();
