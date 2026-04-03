@@ -4,6 +4,8 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 public class RodObtained : MonoBehaviour
 {
+    //THIS SCRIPT IS WORKING WITH UIIMAGEMOVEMENT SCRIPT TO TELL IT WHEN TO ENABLE THE TOOLS AND START THE CUTSCENES.
+
     [SerializeField] private GameObject player;
     [SerializeField] private LassoTetherController lassoTetherControllerScript;
     [SerializeField] private bool toolUnlockedFromStart = false;
@@ -21,6 +23,7 @@ public class RodObtained : MonoBehaviour
     [Header("Rod")]
     [SerializeField] private GameObject rodPlayerHandModel;
     [SerializeField] private GameObject rodDummyModel;
+    [SerializeField] public bool rodObtainedThisFrame; // checked in 1 frame so the cutscene only triggers once
 
     [Header("Tether")]
     [SerializeField] private GameObject tetherDummyModel;
@@ -28,18 +31,12 @@ public class RodObtained : MonoBehaviour
 
     [SerializeField] private Collider col;
 
-
     public void Awake() 
     {
         //get dependencies
         player = GameObject.FindWithTag("Player");
         lassoTetherControllerScript = player.GetComponent<LassoTetherController>();
         col = GetComponent<SphereCollider>();
-
-        //rodPlayerHandModel = player.transform.Find("NewTool").gameObject;
-
-        //toolUI = GameObject.Find("RodUI");
-
 
 
         //Switch out models depending on what tool is selected 
@@ -59,8 +56,20 @@ public class RodObtained : MonoBehaviour
 
 
             //disable the non-selected tools logic
-            if (selectedTool != ToolEnum.Rod) DeActivateRod();
-            if (selectedTool != ToolEnum.Tether) DeActivateTether();
+            if (selectedTool == ToolEnum.Rod)
+            {
+                ActivateRod();
+               // DeActivateTether();
+            }
+
+            if (selectedTool == ToolEnum.Tether)
+            {
+                lassoTetherControllerScript.tetherPickedUp = true;
+
+                ActivateTether(false);
+               // DeActivateRod();
+            }
+
         }
         else
         {
@@ -72,13 +81,11 @@ public class RodObtained : MonoBehaviour
             DeActivateRod();
             DeActivateTether();
         }
-
-
     }
 
     public void ActivateRod()
     {
-        print("rod obtained");
+        rodObtainedThisFrame = true;
 
         if (lassoTetherControllerScript == null)
         {
@@ -92,12 +99,8 @@ public class RodObtained : MonoBehaviour
         if (rodPlayerHandModel!=null) rodPlayerHandModel.SetActive(true); // make tool appear in players hand
         if (rodDummyModel != null) rodDummyModel.SetActive(false); // make tool in ground disapear
 
-
-        //play sfx and disable game object
-        //AudioManager.Instance.PlaySFX(AudioManager.Instance.RodCollect, 10, 1);
-        RuntimeManager.PlayOneShot("event:/Fanfare", transform.position);
-        //gameObject.SetActive(false);
-
+        //fanfare sfx 
+        //RuntimeManager.PlayOneShot("event:/Fanfare", transform.position);
     }
 
     public void DeActivateRod()
@@ -105,24 +108,13 @@ public class RodObtained : MonoBehaviour
         lassoTetherControllerScript.rodPickedUp = false;
     }
 
-    public void ActivateTether()
+    public void ActivateTether(bool playCutscene)
     {
-        //Update Variables 
-        //lassoTetherControllerScript.tetherPickedUp = true;
-        //lassoTetherControllerScript.rodEquipped = false;
-        tetherObtainedThisFrame = true;
+        //tells the UIIMAGEMOVEMENT script to start cutscene
+        if (playCutscene) tetherObtainedThisFrame = true; // playcutcene bool is so we can enable all tools on start for debug
 
         //Disable Dummy model 
         if (tetherDummyModel != null) tetherDummyModel.SetActive(false); //i think this can be deleted becuase there is no longer 2 seperate models
-
-        //gameObject.SetActive(false);
-
-
-
-        //AudioManager.Instance.PlaySFX(AudioManager.Instance.RodCollect, 10, 1);
-        RuntimeManager.PlayOneShot("event:/Fanfare", transform.position);
-
-        //InsertVisuals
     }
 
     public void DeActivateTether()
@@ -136,14 +128,9 @@ public class RodObtained : MonoBehaviour
         {
            if (selectedTool == ToolEnum.Rod) ActivateRod();
 
-            if (selectedTool == ToolEnum.Tether)
-            {
-                ActivateTether();
+           if (selectedTool == ToolEnum.Tether) ActivateTether(true);
 
-                //GetComponent<DialogueTrigger>().CreateNPCDialogue();
-            }
-
-            col.enabled = false; //disable collider so it cant be obtained again
+           col.enabled = false; //disable collider so it cant be obtained again
         }
     }
 }

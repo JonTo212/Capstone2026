@@ -2523,6 +2523,10 @@ PrefabInstance:
       propertyPath: playerCam
       value: 
       objectReference: {fileID: 4270019201415842798}
+    - target: {fileID: 9086093428972805622, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+      propertyPath: ditherSize
+      value: 0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 9141277693401130519, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
       propertyPath: fadeToBlackScript
       value: 
@@ -2530,10 +2534,14 @@ PrefabInstance:
     m_RemovedComponents:
     - {fileID: 7777431948427391573, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
     - {fileID: 1747977646083282892, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+    - {fileID: 8270672228115741398, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
     m_RemovedGameObjects:
     - {fileID: 2965844414402353664, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2571145194382551425, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2571145195721570091}
   m_SourcePrefab: {fileID: 100100000, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
 --- !u!43 &93446457
 Mesh:
@@ -43549,17 +43557,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1170426240345609369, guid: 3a4a8d7241019f548b24b3aa7f4606be, type: 3}
   m_PrefabInstance: {fileID: 1301314912}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &187563628638676127 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 187563627807177223, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
-  m_PrefabInstance: {fileID: 90426996}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2571145195721570073}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 80a740280c73cb54a987b08758d98485, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::LassoTetherController
 --- !u!114 &254436330274258531
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -44758,6 +44755,18 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 2571145194382551425, guid: 65f012ddb87f39342b226e7383577fc3, type: 3}
   m_PrefabInstance: {fileID: 90426996}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &2571145195721570091
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2571145195721570073}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 967ba96c8027c2f4999a2d6854ecd1f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerRefData
 --- !u!1 &3121250698151102130
 GameObject:
   m_ObjectHideFlags: 0
@@ -45027,44 +45036,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47529d04ccb6db242b125b865322fba4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SpecialCameraController
-  lassoTetherController: {fileID: 187563628638676127}
-  directionPercentages:
-  - direction: {x: -1, y: 1, z: 0}
-    cameraState: 0
-    xPercentage: 10
-    yPercentage: 5
-    camOffset: {x: 0, y: 1.75, z: 1}
-    FOV: 70
-  - direction: {x: -1, y: 1, z: 0}
-    cameraState: 1
-    xPercentage: 10
-    yPercentage: 5
-    camOffset: {x: 0, y: 1.75, z: 1}
-    FOV: 70
-  - direction: {x: 0, y: 0, z: 0}
-    cameraState: 2
-    xPercentage: 0
-    yPercentage: 0
-    camOffset: {x: 0, y: 2.5, z: 0.5}
-    FOV: 90
-  - direction: {x: 0, y: 0, z: 0}
-    cameraState: 3
-    xPercentage: 0
-    yPercentage: 0
-    camOffset: {x: 0, y: 2.5, z: 0.5}
-    FOV: 80
-  tetherModeAdjustSpeed: 2.5
-  lassoModeAdjustSpeed: 5
-  defaultAdjustSpeed: 2.5
-  playerRef: {fileID: 412334986653674616}
-  safetyMargin: 0.05
-  TetherSensMultiplier: 0.75
-  LassoSensMultiplier: 0.9
-  fovZoomSpeed: 5
-  baseMidpointOffset: 0.05
-  maxMidpointOffset: 0.1
-  playerDefaultYOffset: 0.05
-  fovPadding: 1.4
 --- !u!1001 &5305911007514172275
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -45217,6 +45188,8 @@ MonoBehaviour:
   collisionLayers:
     serializedVersion: 2
     m_Bits: 64
+  closestDistance: 1
+  stepCount: 100
   collisionZoomInTime: 0.02
   collisionZoomOutTime: 0.8
 --- !u!114 &5644415219199617038
@@ -45232,7 +45205,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraModeController
   cameraController: {fileID: 5644415219199617037}
-  lassoTetherController: {fileID: 187563628638676127}
   playerRef: {fileID: 412334986653674616}
   cameraStates:
   - cameraState: 0

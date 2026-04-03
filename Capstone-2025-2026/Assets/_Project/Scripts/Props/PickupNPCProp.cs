@@ -18,6 +18,7 @@ public class PickupNPCProp : Prop
     [SerializeField] Transform[] objectsToDestroy;
 
     //particles
+    [SerializeField] private ParticleSystem captureStars;
     [SerializeField] private ParticleSystem dustParticle;
 
     private NPCKeyCutscene spawnCutscene;
@@ -29,6 +30,8 @@ public class PickupNPCProp : Prop
     [SerializeField] private float cutsceneBlendInDelay;
     [SerializeField] private float cutsceneBlendInTime;
     [SerializeField] private EndSequeenceTracker endTrack;
+
+    [SerializeField] private DialogueTrigger dialogueTrigger;
 
 
     private void Awake()
@@ -52,10 +55,13 @@ public class PickupNPCProp : Prop
 
     public void OnCaptureStart(float captureDuration)
     {
+        Instantiate(captureStars, this.transform.position, Quaternion.identity);
+
         if (animCoroutine != null) StopCoroutine(animCoroutine);
         animCoroutine = StartCoroutine(Deflate(captureDuration, deflatedScale));
 
         DestroyAllAttachedTethers();
+
 
 
         RuntimeManager.PlayOneShot("event:/NPCSave", transform.position);
@@ -64,15 +70,16 @@ public class PickupNPCProp : Prop
         //tell UI that you got a puff
         critterInstanceScript.BeRescued();
 
-        if (keyNPC) KeyNPCAction();// make npc summon object or destory object
+        if (keyNPC)
+        {
+            Invoke("KeyNPCAction", 2.0f);
+
+        }
+           
     }
 
     private void KeyNPCAction()
     {
-        //Voice Line
-        GetComponent<DialogueTrigger>().CreateNPCDialogue();
-
-
         //enable objects
         if (objectsToEnable.Length > 0)
         {
@@ -104,9 +111,11 @@ public class PickupNPCProp : Prop
         }
 
         spawnCutscene.Configure(cutsceneStartPos, lookAtTarget, cutsceneDuration, cutsceneHoldFraction, cutsceneBlendInDelay, cutsceneBlendInTime);
-        CameraCutsceneHandler.Instance.StartCutscene(spawnCutscene);
+        CameraRefData.Instance.CameraCutsceneHandler.StartCutscene(spawnCutscene);
 
+        dialogueTrigger.CreateNPCDialogue();
     }
+
 
     public override void ActivateOutline(bool activate)
     {

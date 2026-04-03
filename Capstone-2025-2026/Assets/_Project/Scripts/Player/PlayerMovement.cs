@@ -1,4 +1,5 @@
 using FMODUnity;
+using System;
 using UnityEngine;
 
 public enum PlayerMoveState
@@ -61,20 +62,29 @@ public class PlayerMovement : MonoBehaviour
     private MovementProperties _currentMultipliers;
     private Vector3 _lastExternalForce;
     private Vector3 _externalForce;
+    private float _inputMagnitude;
     private float _acceleration;
     private float _jumpForce;
     private float _friction;
     private float _maxGravity;
     private float _gravity;
     private float _lastJumpFrame;
+    private bool _jumpEnabled;
+    private bool _moveEnabled;
     private bool _useGravity;
     private bool _useFriction;
     private bool _hasJumped;
     private bool _canDoubleJump;
+    private float _smoothedInputMagnitude;
 
-    public Vector3 WishDir { get; set; }
+    public Vector3 WishDir { get; private set; }
     public Rigidbody Rb { get; private set; }
     public PlayerMoveState CurrentMovementState { get; private set; }
+    private float GetTargetSpeed() => defaultMaxSpeed * _currentMultipliers.maxSpeedMultiplier * _inputMagnitude;
+    public bool CanDoubleJump => _canDoubleJump;
+    public float SmoothedInputMagnitude => _smoothedInputMagnitude;
+    public event Action OnDoubleJump;
+    public event Action OnJump;
 
     #region Unity Functions
     private void Awake()
@@ -90,6 +100,8 @@ public class PlayerMovement : MonoBehaviour
         CurrentMovementState = PlayerMoveState.InAir;
         _useGravity = true;
         _useFriction = true;
+        _jumpEnabled = true;
+        _moveEnabled = true;
 
         _externalForce = Vector3.zero;
     }
@@ -138,7 +150,6 @@ public class PlayerMovement : MonoBehaviour
     #endregion
 
     #region Movement State
-
     public void SwitchMovementState(PlayerMoveState newMovementState)
     {
         if (CurrentMovementState == newMovementState) return;
@@ -185,15 +196,27 @@ public class PlayerMovement : MonoBehaviour
 
     public void SetGrabbing(bool isGrabbing)
     {
+        DisableJump(isGrabbing);
+        DisableMovement(isGrabbing);
+
         if (isGrabbing)
         {
             SwitchMovementState(PlayerMoveState.Grabbing);
+
+            _currentMultipliers = MovementProperties.Default;
+            _lastExternalForce = Vector3.zero;
+            _externalForce = Vector3.zero;
+            _smoothedInputMagnitude = 0;
+            KillVelocity();
+            KillRemainingInput();
+
             if (_playerRefData.Lasso.SnaredObject != null)
             {
                 Vector3 dir = _playerRefData.Lasso.SnaredObject.transform.position - transform.position;
                 dir.y = 0;
                 _playerRefData.PlayerModelRotationHandler.SetNewRotationDir(Quaternion.LookRotation(dir), true);
             }
+
         }
         else
         {
@@ -205,6 +228,33 @@ public class PlayerMovement : MonoBehaviour
     #endregion
 
     #region Misc
+
+    public void DisableMovement(bool disable)
+    {
+        _moveEnabled = !disable;
+    }
+
+    public void DisableJump(bool disable)
+    {
+        _jumpEnabled = !disable;
+    }
+
+    public void SetDoubleJumpAvailable(bool available)
+    {
+        _canDoubleJump = available;
+    }
+
+    public void KillVelocity()
+    {
+        Rb.linearVelocity = Vector3.zero;
+        Rb.angularVelocity = Vector3.zero;
+    }
+
+    public void KillRemainingInput()
+    {
+        WishDir = Vector3.zero;
+        //add anything else input related here if it comes up
+    }
 
     public void InheritPlatformMomentum(Vector3 externalForce)
     {
@@ -234,31 +284,46 @@ public class PlayerMovement : MonoBehaviour
 
     public Transform IsGrounded()
     {
-        Ray downwardRay = new Ray(transform.position, Vector3.down);
-        Physics.Raycast(downwardRay, out RaycastHit hit, 1.1f, groundLayer);
+        RaycastHit hit;
 
-        return hit.transform;
+        if (Physics.Raycast(transform.position, Vector3.down, out hit, 1.1f, groundLayer))
+        {
+            return hit.transform;
+        }
+
+        return null;
     }
-
-
 
     #endregion
 
     #region Forward / Camera
     public void HandleForward()
     {
+        if (CurrentMovementState == PlayerMoveState.Grabbing)
+        {
+            WishDir = Vector3.zero;
+            return;
+        }
+
         Vector3 camForward = Camera.main.transform.forward;
         Vector3 camRight = Camera.main.transform.right;
 
         camRight.y = 0;
+        camRight.Normalize();
         camForward.y = 0;
+        camForward.Normalize();
 
         Vector3 forwardRelative = camForward * PlayerActions.Instance.MoveInput.y;
         Vector3 rightRelative = camRight * PlayerActions.Instance.MoveInput.x;
 
-        Vector3 desiredDir = Vector3.ClampMagnitude(forwardRelative + rightRelative, 1f);
-        WishDir = (forwardRelative + rightRelative).normalized;
-        //WishDir = LedgeCheckWithoutAForLoop(desiredDir);
+        Vector3 desiredDir = forwardRelative + rightRelative;
+        float rawMagnitude = Mathf.Clamp01(desiredDir.magnitude);
+        bool decelerating = rawMagnitude < _smoothedInputMagnitude;
+        float duration = decelerating ? timeToZero : timeToMaxSpeed;
+        float step = Time.deltaTime / duration;
+        _smoothedInputMagnitude = Mathf.MoveTowards(_smoothedInputMagnitude, rawMagnitude, step);
+        _inputMagnitude = _smoothedInputMagnitude;
+        WishDir = _inputMagnitude > 0.001f ? desiredDir.normalized : Vector3.zero;
     }
     #endregion
 
@@ -266,6 +331,8 @@ public class PlayerMovement : MonoBehaviour
 
     private void HandleJumpBuffer()
     {
+        if (!_jumpEnabled) return;
+
         if (PlayerActions.Instance.JumpDown)
         {
             if (_lastJumpFrame == Time.frameCount) return; //to prevent ledge jump -> double jump misfires
@@ -307,7 +374,7 @@ public class PlayerMovement : MonoBehaviour
                 Jump(1f, true);
             }
 
-            else if(_canDoubleJump && useDoubleJump)
+            else if (_canDoubleJump && useDoubleJump)
             {
                 //Jump(doubleJumpMultiplier);
                 HandleDoubleJump();
@@ -324,9 +391,11 @@ public class PlayerMovement : MonoBehaviour
         _hasJumped = true;
         _canDoubleJump = enableDoubleJump;
         _lastJumpFrame = Time.frameCount;
+
+        OnJump?.Invoke();
     }
 
-    private void HandleDoubleJump()
+    public void HandleDoubleJump()
     {
         //v2: redirect current horizontal velocity to wishDir, set vertical to jump force
         Vector3 horizontalVel = new Vector3(Rb.linearVelocity.x, 0, Rb.linearVelocity.z);
@@ -336,12 +405,16 @@ public class PlayerMovement : MonoBehaviour
         if (WishDir.sqrMagnitude > 0)
             redirectedVel = WishDir.normalized * speed;
 
-        Vector3 defaultJumpForce = Vector3.up * _jumpForce * doubleJumpMultiplier;
-        //Vector3 addedJumpForce = WishDir.normalized * doubleJumpForce.x + Vector3.up * doubleJumpForce.y;
+        //add upward impulse on top of existing Y - discard downward momentum, keep upward
+        float currentUpward = Mathf.Max(Rb.linearVelocity.y, 0f);
+        float jumpY = _jumpForce * doubleJumpMultiplier;
+        float newY = Mathf.Max(currentUpward, jumpY); //never weaken an existing upward arc
 
-        Rb.linearVelocity = redirectedVel + defaultJumpForce; // + addedJumpForce;
+        Rb.linearVelocity = new Vector3(redirectedVel.x, newY, redirectedVel.z);
         _canDoubleJump = false;
-        RuntimeManager.PlayOneShot("event:/DoubleJump",transform.position);
+        RuntimeManager.PlayOneShot("event:/DoubleJump", transform.position);
+
+        OnDoubleJump?.Invoke();
     }
     #endregion
 
@@ -423,7 +496,7 @@ public class PlayerMovement : MonoBehaviour
         if (velocityOnAxis.sqrMagnitude < 0.0001f) return;
 
         float speed = velocityOnAxis.magnitude;
-        float targetSpeed = defaultMaxSpeed * _currentMultipliers.maxSpeedMultiplier;
+        float targetSpeed = GetTargetSpeed();
         Vector3 frictionDir = -velocityOnAxis.normalized;
 
         Vector3 horizontalVel = new Vector3(playerVel.x, 0, playerVel.z);
@@ -461,14 +534,13 @@ public class PlayerMovement : MonoBehaviour
     private void ApplyAccelerationRelative(ref Vector3 relVel)
     {
         if (WishDir == Vector3.zero) return;
-        if (CurrentMovementState == PlayerMoveState.Grabbing) return;
+        if (!_moveEnabled) return;
 
         Vector3 wishDirNormalized = WishDir.normalized;
         Vector3 horizontalVel = new Vector3(relVel.x, 0, relVel.z);
         float currentSpeed = horizontalVel.magnitude;
-        float targetSpeed = defaultMaxSpeed * _currentMultipliers.maxSpeedMultiplier;
+        float targetSpeed = GetTargetSpeed();
 
-        //regular acceleration, when below max speed
         if (currentSpeed < targetSpeed)
         {
             float currentSpeedInWishDir = Vector3.Dot(horizontalVel, wishDirNormalized);
@@ -478,8 +550,6 @@ public class PlayerMovement : MonoBehaviour
 
             relVel += wishDirNormalized * clampedAccel;
         }
-
-        //redirect acceleration when over max speed
         else
         {
             Vector3 targetVelocity = wishDirNormalized * currentSpeed;

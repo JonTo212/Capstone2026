@@ -25,7 +25,7 @@ public class PlayerSwing : MonoBehaviour
     public void SwingJumpBoost()
     {
         _playerRefData.Lasso.HandleObjectReleased();
-        _playerRefData.PlayerMovement.Rb.AddForce(Vector3.up * swingJumpForce, ForceMode.Impulse);
+        _playerRefData.PlayerMovement.Jump(swingJumpForce, true);
     }
 
     public void StartSwing(Vector3 anchorPoint, Vector3 startingVel, float startingLength)

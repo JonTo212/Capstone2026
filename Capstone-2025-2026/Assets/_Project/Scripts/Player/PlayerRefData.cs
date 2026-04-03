@@ -9,6 +9,7 @@ public class PlayerRefData : MonoBehaviour
     public PlayerLedgeGrab PlayerLedgeGrab { get; private set; }
     public PlayerNPCCapture PlayerNPCCapture { get; private set; }
     public PlayerRespawn PlayerRespawn { get; private set; }
+    public PlayerFade PlayerFade { get; private set; }
     public JointTetherActivator JointTetherActivator { get; private set; }
     public JointTetherPlacer JointTetherPlacer { get; private set; }
     public LassoTetherController LassoTetherController { get; private set; }
@@ -25,6 +26,7 @@ public class PlayerRefData : MonoBehaviour
         PlayerLedgeGrab = GetComponent<PlayerLedgeGrab>();
         PlayerNPCCapture = GetComponent<PlayerNPCCapture>();
         PlayerRespawn = GetComponent<PlayerRespawn>();
+        PlayerFade = GetComponent<PlayerFade>();
         JointTetherActivator = GetComponent<JointTetherActivator>();
         JointTetherPlacer = GetComponent<JointTetherPlacer>();
         LassoTetherController = GetComponent<LassoTetherController>();

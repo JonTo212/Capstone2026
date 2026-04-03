@@ -57,7 +57,7 @@ public class RopeSwingCutscene : PlayerCutsceneBase
         Vector3 endFwd = GetPathForward(1f);
         Vector3 endFwdFlat = new Vector3(endFwd.x, 0f, endFwd.z);
         _pathEndRotation = endFwdFlat.sqrMagnitude > 0.01f ? Quaternion.LookRotation(endFwdFlat) : Quaternion.identity;
-        CameraCutsceneHandler.Instance.SetCameraPositionDamping(Vector3.zero);
+        CameraRefData.Instance.CameraCutsceneHandler.SetCameraPositionDamping(Vector3.zero);
 
         base.OnCutscenePrepare();
     }
@@ -104,10 +104,10 @@ public class RopeSwingCutscene : PlayerCutsceneBase
         if (T >= blendOutStart)
         {
             float blendT = Mathf.Clamp01((T - blendOutStart) / (BlendOutTime / Duration));
-            var (lassoScreen, lassoTarget, lassoDistance) = CameraModeController.Instance.GetCurrentStateOffsets();
-            CameraCutsceneHandler.Instance?.SetCameraScreenOffsetDirect(Vector2.Lerp(cameraScreenOffset, lassoScreen, blendT));
-            CameraCutsceneHandler.Instance?.SetCameraTargetOffsetDirect(Vector3.Lerp(cameraTargetOffset, lassoTarget, blendT));
-            CameraCutsceneHandler.Instance?.SetCameraZOffsetDirect(Mathf.Lerp(0f, lassoDistance, blendT));
+            var (lassoScreen, lassoTarget, lassoDistance) = CameraRefData.Instance.CameraModeController.GetCurrentStateOffsets();
+            CameraRefData.Instance.CameraCutsceneHandler?.SetCameraScreenOffsetDirect(Vector2.Lerp(cameraScreenOffset, lassoScreen, blendT));
+            CameraRefData.Instance.CameraCutsceneHandler?.SetCameraTargetOffsetDirect(Vector3.Lerp(cameraTargetOffset, lassoTarget, blendT));
+            CameraRefData.Instance.CameraCutsceneHandler?.SetCameraZOffsetDirect(Mathf.Lerp(0f, lassoDistance, blendT));
         }
     }
 
@@ -136,7 +136,7 @@ public class RopeSwingCutscene : PlayerCutsceneBase
             playerModelRotation.SetNewRotationDir(Quaternion.LookRotation(finalForward), false);
 
         _bakedPlayerPath = null;
-        CameraCutsceneHandler.Instance?.SetCameraPositionDamping(null);
+        CameraRefData.Instance.CameraCutsceneHandler?.SetCameraPositionDamping(null);
     }
 
     public override void OnCutsceneLateUpdate()
@@ -155,7 +155,7 @@ public class RopeSwingCutscene : PlayerCutsceneBase
         {
             Vector3 dir = GetHorizontalDirection(T);
             if (dir.sqrMagnitude > 0.01f)
-                CameraCutsceneHandler.Instance.RotateCameraToDirection(dir, cameraRotationSpeed, cameraPitch);
+                CameraRefData.Instance.CameraCutsceneHandler.RotateCameraToDirection(dir, cameraRotationSpeed, cameraPitch);
         }
     }
     #endregion
@@ -293,8 +293,13 @@ public class RopeSwingCutscene : PlayerCutsceneBase
         if (playerOffsetPath == null || playerOffsetPath.Count == 0)
             return Vector3.zero;
 
+        Transform offsetParent = playerOffsetPath[0].parent;
+
         if (playerOffsetPath.Count == 1)
-            return playerOffsetPath[0].localPosition;
+        {
+            Vector3 localOffset = playerOffsetPath[0].localPosition;
+            return offsetParent != null ? offsetParent.TransformVector(localOffset) : localOffset;
+        }
 
         //get the corresponding segment based on t, similar to how we do it for the rope path
         //but, the offset path might have a different number of points than the rope path
@@ -304,15 +309,20 @@ public class RopeSwingCutscene : PlayerCutsceneBase
         int segIndex = Mathf.Clamp(Mathf.FloorToInt(scaled), 0, segments - 1);
         float localT = scaled - segIndex;
 
+        Vector3 localSpaceOffset;
         if (!useSpline || playerOffsetPath.Count < 3)
-            return Vector3.Lerp(playerOffsetPath[segIndex].localPosition, playerOffsetPath[segIndex + 1].localPosition, localT);
+            localSpaceOffset = Vector3.Lerp(playerOffsetPath[segIndex].localPosition, playerOffsetPath[segIndex + 1].localPosition, localT);
+        else
+        {
+            Vector3 p0 = GetOffsetPoint(segIndex - 1);
+            Vector3 p1 = GetOffsetPoint(segIndex);
+            Vector3 p2 = GetOffsetPoint(segIndex + 1);
+            Vector3 p3 = GetOffsetPoint(segIndex + 2);
+            localSpaceOffset = CatmullRom(p0, p1, p2, p3, localT);
+        }
 
-        Vector3 p0 = GetOffsetPoint(segIndex - 1);
-        Vector3 p1 = GetOffsetPoint(segIndex);
-        Vector3 p2 = GetOffsetPoint(segIndex + 1);
-        Vector3 p3 = GetOffsetPoint(segIndex + 2);
-
-        return CatmullRom(p0, p1, p2, p3, localT);
+        //transform the interpolated local-space offset into world space
+        return offsetParent != null ? offsetParent.TransformVector(localSpaceOffset) : localSpaceOffset;
     }
     #endregion
 

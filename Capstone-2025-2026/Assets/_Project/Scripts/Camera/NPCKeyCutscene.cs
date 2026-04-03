@@ -65,7 +65,7 @@ public class NPCKeyCutscene : CameraCutsceneBase
         cam.fieldOfView = _targetFOV;
         cam.transform.LookAt(lookAtTarget.position);
 
-        PlayerActions.Instance.ChangeSpecificInput("Move", false);
+        PlayerRefData.Instance.PlayerMovement.SetGrabbing(true);
     }
 
     public override void OnCutsceneTick()
@@ -101,7 +101,7 @@ public class NPCKeyCutscene : CameraCutsceneBase
         if (zeldaCam != null) zeldaCam.SetFrozen(false);
 
         HandleScripts(true);
-        PlayerActions.Instance.ChangeSpecificInput("Move", true);
+        PlayerRefData.Instance.PlayerMovement.SetGrabbing(false);
 
         base.OnCutsceneEnd();
     }
