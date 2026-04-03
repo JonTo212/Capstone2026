@@ -10,7 +10,7 @@ public class PauseMenu : MonoBehaviour
     public GameObject pauseMenuUI;
     public GameObject settingsUI;
     public GameObject critterUI;
-    public GameObject missionImageUI;
+    //public GameObject missionImageUI;
 
     public Button options;
     public int State;
@@ -62,7 +62,7 @@ public class PauseMenu : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         pauseMenuScreen.SetActive(false);
         critterUI.SetActive(true);
-        missionImageUI.SetActive(true);
+        //missionImageUI.SetActive(true);
         Time.timeScale = 1f;
         gameIsPaused = false;
         PlayerActions.Instance.EnableAllInput();
@@ -78,7 +78,7 @@ public class PauseMenu : MonoBehaviour
         Time.timeScale = 0f;
         gameIsPaused = true;
         critterUI.SetActive(false);
-        missionImageUI.SetActive(false);
+        //missionImageUI.SetActive(false);
         PlayerActions.Instance.DisableAllInput();
         PlayerActions.Instance.ChangeSpecificInput("Menu", true);
         PlayerActions.Instance.ChangeSpecificInput("MenuBack", true);
