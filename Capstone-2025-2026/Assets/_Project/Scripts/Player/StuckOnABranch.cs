@@ -62,6 +62,7 @@ public class StuckInGround : MonoBehaviour
 
         anim.SetBool("FallCutscene", false);
         anim.SetTrigger("DoubleJump");
+        fadeToBlackScript.duration = 0.5f;
         playerCol.enabled = true;
     }
 }

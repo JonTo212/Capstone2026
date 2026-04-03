@@ -8,6 +8,7 @@ public abstract class PlayerCutsceneBase : CutsceneBase
     [Header("Camera Framing")]
     [SerializeField] protected Vector2 cameraScreenOffset;
     [SerializeField] protected Vector3 cameraTargetOffset;
+    [SerializeField] protected float cameraZOffset = 0f;
     [SerializeField] protected float cameraOffsetBlendSpeed = 6f;
 
     protected Rigidbody playerRb;
@@ -52,6 +53,7 @@ public abstract class PlayerCutsceneBase : CutsceneBase
 
         CameraRefData.Instance.CameraCutsceneHandler?.SetCameraScreenOffset(cameraScreenOffset, cameraOffsetBlendSpeed);
         CameraRefData.Instance.CameraCutsceneHandler?.SetCameraTargetOffset(cameraTargetOffset, cameraOffsetBlendSpeed);
+        CameraRefData.Instance.CameraCutsceneHandler?.SetCameraZOffset(cameraZOffset, cameraOffsetBlendSpeed);
     }
 
     public override void OnCutsceneEnd()

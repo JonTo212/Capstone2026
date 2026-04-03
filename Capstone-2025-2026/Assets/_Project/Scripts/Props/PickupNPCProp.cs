@@ -75,6 +75,8 @@ public class PickupNPCProp : Prop
             Invoke("KeyNPCAction", 2.0f);
 
         }
+
+        KeyNPCAction();
            
     }
 

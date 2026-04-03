@@ -21,8 +21,6 @@ public class TetherTutorialCutscene : CameraCutsceneBase
 
     public override void OnCutsceneStart()
     {
-        PlayerRefData.Instance.PlayerMovement.SetGrabbing(true);
-
         //move player to position
         PlayerRefData.Instance.PlayerMovement.Rb.position = playerPos.position;
         PlayerRefData.Instance.transform.position = playerPos.position;
@@ -46,8 +44,6 @@ public class TetherTutorialCutscene : CameraCutsceneBase
         {
             zeldaCam.SetFrozen(false);
         }
-
-        PlayerRefData.Instance.PlayerMovement.SetGrabbing(false);
 
         HandleScripts(true);
 
