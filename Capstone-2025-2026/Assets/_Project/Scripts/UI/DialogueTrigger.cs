@@ -18,8 +18,8 @@ public class DialogueTrigger : MonoBehaviour
     
     [SerializeField] private float delay = 0;
 
-    private GameObject template;
-    private GameObject NewDialogueStorage;
+    [SerializeField] private GameObject template;
+    [SerializeField] private GameObject NewDialogueStorage;
     private void Start()
     {
         NewDialogueStorage = GameObject.Find("NewDialogueStorage");

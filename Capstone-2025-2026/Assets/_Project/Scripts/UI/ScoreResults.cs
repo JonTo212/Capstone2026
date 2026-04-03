@@ -9,6 +9,10 @@ public class ScoreResults : MonoBehaviour
     private int critters;
     private float time;
 
+    public int RankCCeiling;
+    public int RankBCeiling;
+    public int RankACeiling;
+
     public int coinMult;
     public int critterMult;
     public Vector2 timeMults;
@@ -17,6 +21,8 @@ public class ScoreResults : MonoBehaviour
     public TextMeshProUGUI critter_text;
     public TextMeshProUGUI time_text;
     public TextMeshProUGUI score_text;
+
+    public Animator animator;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -28,7 +34,7 @@ public class ScoreResults : MonoBehaviour
         Calculate();
     }
 
-    private void Calculate ()
+    private void Calculate()
     {
         int coin_score = coins * coinMult;
         int critters_score = critters * critterMult;
@@ -39,11 +45,29 @@ public class ScoreResults : MonoBehaviour
         int score = coin_score + critters_score + (int)time_score;
 
         coin_text.text = coins + " x " + coinMult + " = " + coin_score;
-        critter_text.text = critters +" x " + critterMult + " = " + critters_score;
+        critter_text.text = critters + " x " + critterMult + " = " + critters_score;
         time_text.text = digi_time.Minutes.ToString() + ":" + digi_time.Seconds.ToString() + ":" + digi_time.Milliseconds.ToString();
 
         score_text.text = score.ToString();
 
+
+        if (score < RankCCeiling)
+        {
+            animator.Play("RankV");
+        }
+        else if (score >= RankCCeiling && score < RankBCeiling)
+        {
+            animator.Play("RankV");
+        }
+        else if (score >= RankBCeiling && score < RankACeiling)
+        {
+            animator.Play("RankV");
+        }
+        else
+        {
+            animator.Play("RankV");
+        }
     }
+
 
 }
