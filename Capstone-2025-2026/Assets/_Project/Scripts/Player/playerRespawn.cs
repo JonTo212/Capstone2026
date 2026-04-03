@@ -1,6 +1,7 @@
 using FMODUnity;
 using NodeCanvas.Tasks.Actions;
 using System.Collections;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Rendering;
@@ -93,6 +94,13 @@ public class PlayerRespawn : MonoBehaviour
         rb.position = spawnDestination;
         transform.position = spawnDestination;
 
+        //rotate player to face direction of checkpoint
+        Vector3 spawnPositionForward = transform.forward;
+        float targetYaw = Mathf.Atan2(spawnPositionForward.x, spawnPositionForward.z) * Mathf.Rad2Deg;
+        CameraRefData.Instance.ZeldaCameraController.SetRotation(targetYaw,0,true);
+        PlayerRefData.Instance.PlayerModelRotationHandler.SetNewRotationDir(Quaternion.Euler(spawnPositionForward),false);
+
+
         //disable black screen
         fadeToBlackScript.FadeOut();
         yield return new WaitForSeconds(0.5f);
@@ -102,6 +110,8 @@ public class PlayerRespawn : MonoBehaviour
         rb.isKinematic = false;
         isFalling = false;
         respawnCoroutine = null;
+
+
 
     }
 }
