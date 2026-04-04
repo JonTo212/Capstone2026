@@ -10,12 +10,12 @@ public class puffballPoof : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        //instantiate particle
+        particle.Play();
+
         foreach (GameObject puffball in puffballs)
         {
             Destroy(puffball);
         }
-
-        //instantiate particle
-        particle.Play();
     }
 }

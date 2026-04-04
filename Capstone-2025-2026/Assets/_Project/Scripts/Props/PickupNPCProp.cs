@@ -18,6 +18,7 @@ public class PickupNPCProp : Prop
     [SerializeField] Transform[] objectsToDestroy;
 
     //particles
+    [SerializeField] private ParticleSystem captureStars;
     [SerializeField] private ParticleSystem dustParticle;
 
     private NPCKeyCutscene spawnCutscene;
@@ -29,6 +30,8 @@ public class PickupNPCProp : Prop
     [SerializeField] private float cutsceneBlendInDelay;
     [SerializeField] private float cutsceneBlendInTime;
     [SerializeField] private EndSequeenceTracker endTrack;
+
+    [SerializeField] private DialogueTrigger dialogueTrigger;
 
 
     private void Awake()
@@ -52,27 +55,34 @@ public class PickupNPCProp : Prop
 
     public void OnCaptureStart(float captureDuration)
     {
+        Instantiate(captureStars, this.transform.position, Quaternion.identity);
+
         if (animCoroutine != null) StopCoroutine(animCoroutine);
         animCoroutine = StartCoroutine(Deflate(captureDuration, deflatedScale));
 
         DestroyAllAttachedTethers();
 
-
-        RuntimeManager.PlayOneShot("event:/NPCSave", transform.position);
-        if(endTrack) endTrack.EndSequence();
-
         //tell UI that you got a puff
         critterInstanceScript.BeRescued();
 
-        if (keyNPC) KeyNPCAction();// make npc summon object or destory object
+        RuntimeManager.PlayOneShot("event:/NPCSave", transform.position);
+        if (endTrack)
+        {
+            endTrack.EndSequence();
+        }
+
+        if (keyNPC && spawnCutscene != null)
+        {
+            //this is super jank right now, the cutscene blend delay has to be the same as the capture duration (capture clears the freeze and is an invoked event)
+            //otherwise you can move during the popup
+            spawnCutscene.Configure(cutsceneStartPos, lookAtTarget, cutsceneDuration, cutsceneHoldFraction, cutsceneBlendInDelay, cutsceneBlendInTime);
+            CameraRefData.Instance.CameraCutsceneHandler.StartCutscene(spawnCutscene);
+            Invoke("KeyNPCAction", cutsceneBlendInDelay);
+        }
     }
 
     private void KeyNPCAction()
     {
-        //Voice Line
-        GetComponent<DialogueTrigger>().CreateNPCDialogue();
-
-
         //enable objects
         if (objectsToEnable.Length > 0)
         {
@@ -103,10 +113,9 @@ public class PickupNPCProp : Prop
             }
         }
 
-        spawnCutscene.Configure(cutsceneStartPos, lookAtTarget, cutsceneDuration, cutsceneHoldFraction, cutsceneBlendInDelay, cutsceneBlendInTime);
-        CameraCutsceneHandler.Instance.StartCutscene(spawnCutscene);
-
+        dialogueTrigger.CreateNPCDialogue();
     }
+
 
     public override void ActivateOutline(bool activate)
     {

@@ -6,9 +6,12 @@ public class planeCrashSetpiece : MonoBehaviour
     //private InCameraDetector inCameraDetectorScript;
     //public Animator planeCrashAnimator;
 
+    private bool hasPlayed = false;
+
     //public bool hasEntererdView = false;
     public GameObject vesselDummy;
-    public GameObject vesselReal;
+
+    [SerializeField] GameObject vesselReal;
 
     //sounds
     public GameObject vesselCrashSound; //MUST START DISABLED
@@ -19,51 +22,55 @@ public class planeCrashSetpiece : MonoBehaviour
 
     public float fallSpeed = 60f;
 
-    [SerializeField] private ParticleSystem dustParticle;
 
+    [Header("Tether Tutorial Cutscene Variables")] //Used for the tether wall puzzle cutscene
+    [SerializeField] private Transform cutsceneStartPos;
+    [SerializeField] private Transform lookAtTarget;
+    [SerializeField] private float cutsceneDuration;
+    [SerializeField] private float cutsceneHoldFraction;
+    [SerializeField] private float cutsceneBlendInDelay;
+    [SerializeField] private float cutsceneBlendInTime;
+    [SerializeField] private EndSequeenceTracker endTrack;
+
+    [SerializeField] private VesselCrashCutscene vesselCrashCutsceneScript;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         mr = vesselDummy.GetComponent<MeshRenderer>();
+        vesselCrashCutsceneScript = GetComponent<VesselCrashCutscene>();
         mr.enabled = false;
 
-        //inCameraDetectorScript = GetComponent<InCameraDetector>();
 
-        vesselReal.SetActive(false);
         vesselCrashSound.SetActive(false);
         vesselFallSound.SetActive(false);
-
+        vesselReal.SetActive(false);
     }
 
     public void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
         {
-            mr.enabled = true;
-            ReadyToLook = true;
-        }
+            if (!hasPlayed)
+            {
+                mr.enabled = true;
+                ReadyToLook = true;
 
-        
+                // cutscene
+                vesselCrashCutsceneScript.Configure(cutsceneStartPos, lookAtTarget, cutsceneDuration, cutsceneHoldFraction, cutsceneBlendInDelay, cutsceneBlendInTime);
+                CameraRefData.Instance.CameraCutsceneHandler.StartCutscene(vesselCrashCutsceneScript);
+
+                hasPlayed = true;
+            }   
+        }
     }
 
     // Update is called once per frame
     void Update()
-    {
+    {    
         if (ReadyToLook)
         {
             StartFall();
-            /*
-            if (inCameraDetectorScript.isInCameraView)
-            {
-                hasEntererdView = true;
-
-                if (hasEntererdView)
-                {
-                    Crash();
-                }
-            }
-            */
         }
 
         //Crashed
@@ -71,23 +78,13 @@ public class planeCrashSetpiece : MonoBehaviour
         {
             if (vesselDummy.transform.position.y < 70)
             {
-
+                //destroy dummy
                 Destroy(vesselDummy.gameObject);
 
-                //playsound here
-                vesselCrashSound.SetActive(true);
-                //RuntimeManager.PlayOneShot("event:/WallBreak", vesselReal.transform.position);
-
+                //set real vessel active
                 vesselReal.SetActive(true);
-
-                print("VesselCrash");
-
-                //Hit Ground
-                dustParticle.Play();
-
             }
         }
-  
     }
 
 

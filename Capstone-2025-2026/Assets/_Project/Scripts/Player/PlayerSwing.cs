@@ -3,22 +3,29 @@ using UnityEngine.Splines;
 
 public class PlayerSwing : MonoBehaviour
 {
-    private PlayerMovement playerMovement;
-    private Vector3 swingPoint;
+    private PlayerRefData _playerRefData;
 
+    private Vector3 swingPoint;
     private float ropeLength;
-    [SerializeField] private Camera playerCam;
+
     [SerializeField] private float startRopeLength;
     [SerializeField] private float minRopeLength;
     [SerializeField] private float maxRopeLength;
 
     [SerializeField] private float airAccel;
+    [SerializeField] private float swingJumpForce;
 
     public float AttachLength { get; private set; }
 
     private void Awake()
     {
-        playerMovement = GetComponent<PlayerMovement>();
+        _playerRefData = GetComponent<PlayerRefData>();
+    }
+
+    public void SwingJumpBoost()
+    {
+        _playerRefData.Lasso.HandleObjectReleased();
+        _playerRefData.PlayerMovement.Jump(swingJumpForce, true);
     }
 
     public void StartSwing(Vector3 anchorPoint, Vector3 startingVel, float startingLength)
@@ -30,7 +37,7 @@ public class PlayerSwing : MonoBehaviour
         Vector3 ropeDir = (swingPoint - transform.position).normalized;
         Vector3 tangentialVel = Vector3.ProjectOnPlane(startingVel, ropeDir);
 
-        playerMovement.Rb.linearVelocity = tangentialVel;
+        _playerRefData.PlayerMovement.Rb.linearVelocity = tangentialVel;
     }
 
     public void HandleSwingMovement(Vector3 moveDir, ref Vector3 relVel)
@@ -43,7 +50,7 @@ public class PlayerSwing : MonoBehaviour
         Vector3 tangentialMoveDir = Vector3.ProjectOnPlane(moveDir, ropeDir);
         relVel += tangentialMoveDir * airAccel * Time.fixedDeltaTime;
 
-        if (playerMovement.Rb.SweepTest(displacement.normalized, out RaycastHit hit, displacement.magnitude * 2f, QueryTriggerInteraction.Ignore))
+        if (_playerRefData.PlayerMovement.Rb.SweepTest(displacement.normalized, out RaycastHit hit, displacement.magnitude * 2f, QueryTriggerInteraction.Ignore))
         {
             relVel = Vector3.ProjectOnPlane(relVel, hit.normal);
         }
@@ -62,7 +69,7 @@ public class PlayerSwing : MonoBehaviour
 
             float stretch = currentDistance - ropeLength;
             float stiffness = 25f; 
-            float damping = 2f * Mathf.Sqrt(stiffness * playerMovement.Rb.mass);
+            float damping = 2f * Mathf.Sqrt(stiffness * _playerRefData.PlayerMovement.Rb.mass);
 
             Vector3 correctiveForce = ropeDir * (stretch * stiffness);
             correctiveForce -= velocityAlongRope * damping;
@@ -78,29 +85,4 @@ public class PlayerSwing : MonoBehaviour
         ropeLength += scrollInput;
         ropeLength = Mathf.Clamp(ropeLength, minRopeLength, maxRopeLength);
     }
-
-    /* //this is the positional version, as posted in the spiderman 2 swinging
-    public void Swing(Vector3 moveDir, float gravity, float friction)
-    { 
-        Vector3 inputForce = moveDir * airAccel;
-        Vector3 gravityForce = Vector3.down * gravity;
-        Vector3 dragForce = -velocity * friction;
-
-        Vector3 accel = inputForce + gravityForce + dragForce;
-
-        velocity += accel * Time.fixedDeltaTime;
-
-        Vector3 currentPos = transform.position;
-        Vector3 newPos = currentPos + velocity * Time.fixedDeltaTime;
-
-        float distance = Vector3.Distance(newPos, swingPoint);
-        if (distance > ropeLength)
-        {
-            Vector3 dir = (newPos - swingPoint).normalized;
-            newPos = swingPoint + (dir * ropeLength);
-        }
-
-        velocity = (newPos - currentPos) / Time.fixedDeltaTime;
-        playerMovement.Rb.linearVelocity = velocity;
-    }*/
 }

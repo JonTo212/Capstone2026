@@ -28,6 +28,7 @@ public class EndSequeenceTracker : MonoBehaviour
     public void Start()
     {
         //DrawAnchors();
+
     }
 
     
@@ -92,6 +93,10 @@ public class EndSequeenceTracker : MonoBehaviour
 
     public void EndSequence()
     {
+        GameObject scoreGO = GameObject.Find("Collectible Manager");
+        CollectibleManager score = scoreGO.GetComponent<CollectibleManager>();
+        score.CallScore();
+
         //Play Scene
         GetComponent<Animator>().enabled = true;
 

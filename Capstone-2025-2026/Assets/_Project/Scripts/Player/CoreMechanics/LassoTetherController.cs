@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
@@ -9,74 +10,50 @@ public enum LassoState
     Tethering,
     SnaredTether,
     TetherMode,
-    Swinging,
-    ObjectYanking,
-    Held,
-    FreeRotating,
-    Using
+    Swinging
 }
 
 public class LassoTetherController : MonoBehaviour
 {
-    public static LassoTetherController Instance { get; private set; }
-
-    [Header("Components")]
-    private Lasso playerLasso;
-    private PlayerNPCCapture playerNPCCapture;
-    private PlayerActions playerActions;
-    private JointTetherPlacer playerTether;
-    private JointTetherActivator playerTetherActivator;
-    private PlayerSwing playerSwing;
-
     [Header("Object Manipulation Mode")]
-    [SerializeField] private bool useObjectManipulationMode;
-    private bool wasUsingPhysicsLasso;
     public bool TetherMode = false;
+    [SerializeField, Range (0,1)] private float reelSpeedMultiplier;
 
     [Header("States")]
     public bool rodPickedUp = true;
     public bool tetherPickedUp = true;
+    public bool RodEnabled { get; private set; }
+    public bool TetherEnabled { get; private set; }
     [field: SerializeField] public LassoState CurrentLassoState { get; private set; }
-    public Lasso Lasso => playerLasso;
 
     public bool rodEquipped = true;
     public bool CanUseTools { get; private set; }
+    private Coroutine holdDelayCoroutine;
 
     [Header("Auto-Equip")]
     private bool autoEquippedRod = false;
     private bool previousRodEquipped;
 
+    public event Action OnRodSwap;
+
     #region Unity Functions
-    private void Awake()
+    private void Start()
     {
-        if (Instance != null)
-        {
-            Destroy(gameObject);
-            return;
-        }
-        Instance = this;
+        PlayerRefData.Instance.Lasso.OnLassoReleased += OnLassoReleased;
+        PlayerRefData.Instance.Lasso.OnObjectHit += OnLassoHit;
+        PlayerRefData.Instance.JointTetherPlacer.OnTetherStartHit += OnTetherStartHit;
+        PlayerRefData.Instance.PlayerNPCCapture.OnObjectYankCompleted += OnObjectYankCompleted;
 
-        playerLasso = GetComponent<Lasso>();
-        playerActions = GetComponent<PlayerActions>();
-        //playerInventory = GetComponent<PlayerNPCHolder>();
-        playerNPCCapture = GetComponent<PlayerNPCCapture>();
-        playerTether = GetComponent<JointTetherPlacer>();
-        playerTetherActivator = GetComponent<JointTetherActivator>();
-        playerSwing = GetComponent<PlayerSwing>();
-
-        playerLasso.OnLassoReleased += OnLassoReleased;
-        playerLasso.OnObjectHit += OnLassoHit;
-        playerTether.OnTetherStartHit += OnTetherStartHit;
-        playerNPCCapture.OnObjectYankCompleted += OnObjectYankCompleted;
-
-        wasUsingPhysicsLasso = playerLasso.usePhysicsLasso;
+        TetherEnabled = false;
+        RodEnabled = false;
     }
 
     private void OnDisable()
     {
-        playerLasso.OnLassoReleased -= OnLassoReleased;
-        playerLasso.OnObjectHit -= OnLassoHit;
-        playerTether.OnTetherStartHit -= OnTetherStartHit;
+        PlayerRefData.Instance.Lasso.OnLassoReleased -= OnLassoReleased;
+        PlayerRefData.Instance.Lasso.OnObjectHit -= OnLassoHit;
+        PlayerRefData.Instance.JointTetherPlacer.OnTetherStartHit -= OnTetherStartHit;
+        PlayerRefData.Instance.PlayerNPCCapture.OnObjectYankCompleted -= OnObjectYankCompleted;
     }
 
     private void Update()
@@ -85,8 +62,8 @@ public class LassoTetherController : MonoBehaviour
         {
             HandleAutoEquip();
 
-            float currentRange = rodEquipped ? playerLasso.MaxLassoRange : playerTether.MaxTetherStartRange;
-            playerLasso.CheckNearbyTargets(true, currentRange);
+            float currentRange = rodEquipped && RodEnabled ? PlayerRefData.Instance.Lasso.MaxLassoRange : PlayerRefData.Instance.JointTetherPlacer.MaxTetherStartRange;
+            PlayerRefData.Instance.Lasso.HandleHighlight(true, currentRange);
 
             switch (CurrentLassoState)
             {
@@ -114,13 +91,6 @@ public class LassoTetherController : MonoBehaviour
                     HandleSwingingControls();
                     break;
 
-                case LassoState.ObjectYanking:
-                    HandleYankingControls();
-                    break;
-
-                case LassoState.FreeRotating:
-                    HandleFreeRotateControls();
-                    break;
             }
             HandleTetherActivation();
             HandleTetherDestroy();
@@ -131,12 +101,7 @@ public class LassoTetherController : MonoBehaviour
     {
         if (CurrentLassoState == LassoState.Snared)
         {
-            playerLasso.MoveObjectToPos(playerLasso.GetAnchoredCenterOfScreen());
-        }
-        else if (CurrentLassoState == LassoState.FreeRotating)
-        {
-            playerLasso.RotateWithInput(playerActions.LookInput, useObjectManipulationMode);
-            playerLasso.MoveObjectToPos(playerLasso.GetAnchoredCenterOfScreen());
+            PlayerRefData.Instance.Lasso.MoveObjectToPos(PlayerRefData.Instance.Lasso.GetAnchoredCenterOfScreen());
         }
     }
 
@@ -147,7 +112,7 @@ public class LassoTetherController : MonoBehaviour
     {
         if (CurrentLassoState != LassoState.Empty) return;
 
-        bool lookingAtAutoTarget = playerLasso.LookingAtAutoEquipTarget;
+        bool lookingAtAutoTarget = PlayerRefData.Instance.Lasso.LookingAtAutoEquipTarget;
 
         if (lookingAtAutoTarget && !autoEquippedRod)
         {
@@ -171,38 +136,90 @@ public class LassoTetherController : MonoBehaviour
     {
         SwitchLassoState(LassoState.Empty);
     }
-
-    private void OnLassoHit()
-    {
-        if (playerLasso.SnaredObject.TryGetComponent(out SwingPoint swingPoint))
-        {
-            playerLasso.HandleSwingSetup();
-            SwitchLassoState(LassoState.Swinging);
-        }
-        else
-        {
-            SwitchLassoState(LassoState.Snared);
-        }
-    }
-
     private void OnTetherStartHit()
     {
         SwitchLassoState(LassoState.Tethering);
     }
 
+    private void OnLassoHit()
+    {
+        if (PlayerRefData.Instance.Lasso.SnaredObject == null) return;
+
+        if (PlayerRefData.Instance.Lasso.SnaredObject.TryGetComponent(out SwingPoint swingPoint))
+        {
+            PlayerRefData.Instance.Lasso.HandleSwingSetup();
+            SwitchLassoState(LassoState.Swinging);
+        }
+        else
+        {
+            PlayerRefData.Instance.PlayerMovement.KillVelocity();
+            PlayerRefData.Instance.Lasso.SnaredObject.OnPropDestroyed += ClearHold;
+            PlayerRefData.Instance.PlayerMovement.SetGrabbing(true);
+            SwitchLassoState(LassoState.Snared);
+        }
+    }
+
     private void OnObjectYankCompleted()
     {
-        playerLasso.HandleHold();
+        PlayerRefData.Instance.Lasso.HandleHold();
+        ClearHold();
         SwitchLassoState(LassoState.Empty);
+    }
+
+    public void SetTetherState(bool enabled)
+    {
+        TetherEnabled = enabled;
+    }
+
+    public void SetLassoState(bool enabled)
+    {
+        RodEnabled = enabled;
     }
 
     public void ClearHold()
     {
-        if(playerLasso.SnaredObject != null) playerLasso.SnaredObject.SetRigidbodyConstraints(null);
-        playerTether.EndTetherPlacement(false, true);
-        playerLasso.HandleObjectReleased();
-        SwitchLassoState(LassoState.Empty);
+        if (HandlePluckoutDelay()) return;
 
+        if (PlayerRefData.Instance.Lasso.SnaredObject != null)
+        {
+            PlayerRefData.Instance.Lasso.SnaredObject.OnPropDestroyed -= ClearHold;
+            PlayerRefData.Instance.Lasso.SnaredObject.SetRigidbodyConstraints(null);
+            PlayerRefData.Instance.Lasso.HandleObjectReleased();
+        }
+
+        PlayerRefData.Instance.JointTetherPlacer.EndTetherPlacement(false, true);
+        PlayerRefData.Instance.PlayerMovement.SetGrabbing(false);
+
+        SwitchLassoState(LassoState.Empty);
+    }
+
+    private bool HandlePluckoutDelay()
+    {
+        bool PluckOut = PlayerRefData.Instance.Lasso.SnaredObject is BreakablePluckupProp;
+        if (PluckOut)
+        {
+            var PluckOutObject = PlayerRefData.Instance.Lasso.SnaredObject as BreakablePluckupProp;
+
+            if (holdDelayCoroutine != null)
+                StopCoroutine(holdDelayCoroutine);
+
+            holdDelayCoroutine = StartCoroutine(WaitForHoldDelay(PluckOutObject.pluckDelay));
+            return true;
+        }
+        return false;
+    }
+
+    private IEnumerator WaitForHoldDelay(float delay)
+    {
+        PlayerRefData.Instance.Lasso.SnaredObject.OnPropDestroyed -= ClearHold;
+        PlayerRefData.Instance.Lasso.SnaredObject.SetRigidbodyConstraints(null);
+
+        PlayerRefData.Instance.Lasso.HandleObjectReleased();
+        PlayerRefData.Instance.JointTetherPlacer.EndTetherPlacement(false, true);
+
+        yield return new WaitForSeconds(delay);
+
+        PlayerRefData.Instance.PlayerMovement.SetGrabbing(false);
     }
 
     #endregion
@@ -211,20 +228,21 @@ public class LassoTetherController : MonoBehaviour
     private void HandleEmptyControls()
     {
         //tool switching
-        if ((playerActions.toolSwitchDown) && tetherPickedUp)
+        if (PlayerActions.Instance.toolSwitchDown && tetherPickedUp)
         {
             rodEquipped = !rodEquipped;
             autoEquippedRod = false; // player took manual control, cancel auto-restore
+            OnRodSwap?.Invoke();
         }
-        //playerLasso.CheckNearbyTargets(!rodEquipped);
 
-        if (playerActions.LassoDown && rodEquipped)
+        if (PlayerActions.Instance.LassoDown && rodEquipped && RodEnabled)
         {
-            playerLasso.HandleLassoStart();
+            PlayerRefData.Instance.Lasso.HandleLassoStart();
+
         }
-        if (playerActions.LassoDown && !rodEquipped && tetherPickedUp) // temporarily making it check for lasso input so they can use the same button
+        if (PlayerActions.Instance.LassoDown && !rodEquipped && tetherPickedUp && TetherEnabled) // temporarily making it check for lasso input so they can use the same button
         {
-            playerTether.StartTetherPlacement();
+            PlayerRefData.Instance.JointTetherPlacer.StartTetherPlacement();
         }
     }
     #endregion
@@ -232,34 +250,34 @@ public class LassoTetherController : MonoBehaviour
     #region Tether Controls
     private void HandleTetherPlacementControls()
     {
-        if (playerActions.LassoUp)
+        if (PlayerActions.Instance.LassoUp)
         {
-            playerTether.EndTetherPlacement(false, false);
+            PlayerRefData.Instance.JointTetherPlacer.EndTetherPlacement(false, false);
             SwitchLassoState(LassoState.Empty);
         }
     }
 
     private void HandleTetherActivation()
     {
-        if (playerActions.ActivateTetherDown)
+        if (PlayerActions.Instance.ActivateTetherDown)
         {
-            playerTetherActivator.StartActivateTether();
+            PlayerRefData.Instance.JointTetherActivator.StartActivateTether();
         }
-        if (playerActions.ActivateTetherUp)
+        if (PlayerActions.Instance.ActivateTetherUp)
         {
-            playerTetherActivator.EndActivateTether();
+            PlayerRefData.Instance.JointTetherActivator.EndActivateTether();
         }
     }
 
     private void HandleTetherDestroy()
     {
-        if (playerActions.DeactivateTetherDown)
+        if (PlayerActions.Instance.DeactivateTetherDown)
         {
-            playerTetherActivator.StartDestroyTether();
+            PlayerRefData.Instance.JointTetherActivator.StartDestroyTether();
         }
-        if (playerActions.DeactivateTetherUp)
+        if (PlayerActions.Instance.DeactivateTetherUp)
         {
-            playerTetherActivator.EndDestroyTether();
+            PlayerRefData.Instance.JointTetherActivator.EndDestroyTether();
         }
 
     }
@@ -268,49 +286,35 @@ public class LassoTetherController : MonoBehaviour
     #region Snared Controls
     private void HandleSnaredControls()
     {
-        playerLasso.MoveAnchorPointZ(playerActions.GetDPadScrollValue());
-        playerLasso.MoveAnchorPointY(playerActions.LookInput.y);
+        //PlayerRefData.Instance.LassoMoveAnchorPointZ(PlayerActions.Instance.GetDPadScrollValue());
+        PlayerRefData.Instance.Lasso.MoveAnchorPointZ(PlayerActions.Instance.MoveInput.y * 0.25f);
+        PlayerRefData.Instance.Lasso.MoveAnchorPointY(PlayerActions.Instance.LookInput.y);
+        Vector3 dir = PlayerRefData.Instance.Lasso.SnaredObject.transform.position - transform.position;
+        dir.y = 0;
+        PlayerRefData.Instance.PlayerModelRotationHandler.SetNewRotationDir(Quaternion.LookRotation(dir), true);
 
-        if (playerActions.toolSwitchDown && tetherPickedUp)
+        if (PlayerActions.Instance.toolSwitchDown && tetherPickedUp)
         {
             if (TetherMode)
             {
-                playerTether.EnterTetherMode(playerLasso.SnaredObject);
-                playerLasso.SnaredObject.SetRigidbodyConstraints(RigidbodyConstraints.FreezePosition);
-                playerLasso.SnaredObject.Rb.angularVelocity = Vector3.zero;
+                PlayerRefData.Instance.JointTetherPlacer.EnterTetherMode(PlayerRefData.Instance.Lasso.SnaredObject);
+                PlayerRefData.Instance.Lasso.SnaredObject.SetRigidbodyConstraints(RigidbodyConstraints.FreezePosition);
+                PlayerRefData.Instance.Lasso.SnaredObject.Rb.angularVelocity = Vector3.zero;
                 SwitchLassoState(LassoState.TetherMode);
             }
             else
             {
-                playerTether.StartTetherPlacement(playerLasso.SnaredObject.transform, playerLasso.HitPos);
-                playerLasso.SnaredObject.SetRigidbodyConstraints(RigidbodyConstraints.FreezeAll);
-                playerLasso.SnaredObject.Rb.angularVelocity = Vector3.zero;
+                PlayerRefData.Instance.JointTetherPlacer.StartTetherPlacement(PlayerRefData.Instance.Lasso.SnaredObject.transform, PlayerRefData.Instance.Lasso.HitPos);
+                PlayerRefData.Instance.Lasso.SnaredObject.SetRigidbodyConstraints(RigidbodyConstraints.FreezeAll);
+                PlayerRefData.Instance.Lasso.SnaredObject.Rb.angularVelocity = Vector3.zero;
                 SwitchLassoState(LassoState.SnaredTether);
             }
         }
 
-        if (playerActions.LassoUp)
+        if (PlayerActions.Instance.LassoUp)
         {
-            if (useObjectManipulationMode)
-            {
-                playerLasso.usePhysicsLasso = wasUsingPhysicsLasso;
-            }
-            playerLasso.HandleObjectReleased();
+            ClearHold();
         }
-
-        /*if (playerActions.FreeRotateToggleDown)
-        {
-            if (useObjectManipulationMode)
-            {
-                playerLasso.BeginCenterPivot();
-                playerLasso.HitPos = playerLasso.SnaredObject.transform.position;
-                wasUsingPhysicsLasso = playerLasso.usePhysicsLasso;
-                playerLasso.usePhysicsLasso = false;
-            }
-            playerLasso.SnaredObject.DisableJointTemp();
-            playerLasso.SetRotating(true);
-            SwitchLassoState(LassoState.FreeRotating);
-        }*/
     }
 
     #endregion
@@ -318,38 +322,45 @@ public class LassoTetherController : MonoBehaviour
     #region Snared Tether Controls
     private void HandleSnaredTetherControls()
     {
-        if (playerActions.LassoUp)
+        if (PlayerActions.Instance.LassoUp)
         {
-            playerLasso.SnaredObject.SetRigidbodyConstraints(null);
-            playerTether.EndTetherPlacement(false, false);
-            playerLasso.HandleObjectReleased();
+            if (PlayerRefData.Instance.Lasso.SnaredObject != null)
+            {
+                PlayerRefData.Instance.Lasso.SnaredObject.OnPropDestroyed -= ClearHold;
+                PlayerRefData.Instance.Lasso.SnaredObject.SetRigidbodyConstraints(null);
+                PlayerRefData.Instance.Lasso.HandleObjectReleased();
+            }
+
+            PlayerRefData.Instance.JointTetherPlacer.EndTetherPlacement(false, false);
+            PlayerRefData.Instance.PlayerMovement.SetGrabbing(false);
+
             SwitchLassoState(LassoState.Empty);
         }
 
-        if (playerActions.toolSwitchDown)
+        if (PlayerActions.Instance.toolSwitchDown)
         {
-            playerLasso.SnaredObject.SetRigidbodyConstraints(null);
-            playerTether.EndTetherPlacement(false, true);
+            if(PlayerRefData.Instance.Lasso.SnaredObject != null) PlayerRefData.Instance.Lasso.SnaredObject.SetRigidbodyConstraints(null);
+            PlayerRefData.Instance.JointTetherPlacer.EndTetherPlacement(false, true);
             SwitchLassoState(LassoState.Snared);
         }
     }
 
     private void HandleTetherModeControls()
     {
-        playerTether.HandleTetherMode();
-        if (playerActions.PlaceTetherDown)
+        PlayerRefData.Instance.JointTetherPlacer.HandleTetherMode();
+        if (PlayerActions.Instance.PlaceTetherDown)
         {
-            playerTether.TetherModeStartTetherPlacement();
+            PlayerRefData.Instance.JointTetherPlacer.TetherModeStartTetherPlacement();
         }
-        if (playerActions.PlaceTetherUp)
+        if (PlayerActions.Instance.PlaceTetherUp)
         {
-            playerTether.TetherModeEndTetherPlacement();
+            PlayerRefData.Instance.JointTetherPlacer.TetherModeEndTetherPlacement();
         }
-        if (playerActions.LassoUp)
+        if (PlayerActions.Instance.LassoUp)
         {
-            playerLasso.SnaredObject.SetRigidbodyConstraints(null);
-            playerTether.ExitTetherMode();
-            playerLasso.HandleObjectReleased();
+            PlayerRefData.Instance.Lasso.SnaredObject.SetRigidbodyConstraints(null);
+            PlayerRefData.Instance.JointTetherPlacer.ExitTetherMode();
+            PlayerRefData.Instance.Lasso.HandleObjectReleased();
             SwitchLassoState(LassoState.Empty);
         }
     }
@@ -364,92 +375,19 @@ public class LassoTetherController : MonoBehaviour
 
     private void HandleSwingingControls()
     {
-        playerLasso.MoveAnchorPointZ(playerActions.GetDPadScrollValue());
-        playerSwing.AdjustRopeLength(playerActions.GetDPadScrollValue());
+        PlayerRefData.Instance.Lasso.MoveAnchorPointZ(PlayerActions.Instance.GetDPadScrollValue());
+        PlayerRefData.Instance.PlayerSwing.AdjustRopeLength(PlayerActions.Instance.GetDPadScrollValue());
 
-        if (playerActions.LassoUp)
+        if (PlayerActions.Instance.LassoUp)
         {
-            playerLasso.HandleObjectReleased();
+            ClearHold();
+            PlayerRefData.Instance.PlayerMovement.SetGrabbing(false);
         }
 
-        if (playerActions.JumpDown)
+        if (PlayerActions.Instance.JumpDown)
         {
-            playerLasso.SwingJumpBoost();
-        }
-    }
-
-    #endregion
-
-    #region Yanking Controls
-
-    private void HandleYankingControls()
-    {
-        if (playerActions.LassoDown)
-        {
-            playerLasso.HandleObjectReleased();
-        }
-    }
-
-    #endregion
-
-    #region Free Rotate Controls
-
-    private void HandleFreeRotateControls()
-    {
-        if (playerActions.FreeRotateToggleDown)
-        {
-            if (useObjectManipulationMode)
-            {
-                playerLasso.usePhysicsLasso = wasUsingPhysicsLasso;
-                playerLasso.RestorePivot();
-            }
-
-            if (playerLasso.SnaredObject.IsTetherPulled)
-            {
-                playerLasso.SnaredObject.UpdateTetherGrabPointsAndLockRotation();
-            }
-
-            playerLasso.SnaredObject.EnableJoint();
-            //playerLasso.camInputController.enabled = true;
-            playerLasso.SetRotating(false);
-            SwitchLassoState(LassoState.Snared);
-        }
-
-        if (playerActions.LassoUp)
-        {
-            if (useObjectManipulationMode)
-            {
-                playerLasso.usePhysicsLasso = wasUsingPhysicsLasso;
-            }
-
-            if (playerLasso.SnaredObject.IsTetherPulled)
-            {
-                playerLasso.SnaredObject.UpdateTetherGrabPointsAndLockRotation();
-            }
-
-            playerLasso.SnaredObject.EnableJoint();
-            //playerLasso.camInputController.enabled = true;
-            playerLasso.SetRotating(false);
-            playerLasso.HandleObjectReleased();
-        }
-
-        if (playerActions.PlaceTetherDown)
-        {
-            if (useObjectManipulationMode)
-            {
-                playerLasso.usePhysicsLasso = wasUsingPhysicsLasso;
-            }
-
-            if (playerLasso.SnaredObject.IsTetherPulled)
-            {
-                playerLasso.SnaredObject.UpdateTetherGrabPointsAndLockRotation();
-            }
-
-            playerLasso.SnaredObject.EnableJoint();
-            playerTether.StartTetherPlacement(playerLasso.SnaredObject.transform, playerLasso.HitPos);
-            playerLasso.SnaredObject.Rb.constraints = RigidbodyConstraints.FreezePosition;
-            playerLasso.SetRotating(false);
-            SwitchLassoState(LassoState.SnaredTether);
+            PlayerRefData.Instance.PlayerSwing.SwingJumpBoost();
+            PlayerRefData.Instance.PlayerMovement.SetGrabbing(false);
         }
     }
 

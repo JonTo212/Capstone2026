@@ -11,8 +11,6 @@ public class DevTeleport : MonoBehaviour
     [SerializeField] private TMP_Dropdown teleportDropDown;
     private int currentTeleportOption = 0;
 
-    private PlayerActions _actions;
-
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -34,9 +32,9 @@ public class DevTeleport : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (_actions.ControlHeld)
+        if (PlayerActions.Instance.ControlHeld)
         {
-            if(_actions.RespawnDown)
+            if(PlayerActions.Instance.RespawnDown)
             {
                 TeleportToLocation();
             }

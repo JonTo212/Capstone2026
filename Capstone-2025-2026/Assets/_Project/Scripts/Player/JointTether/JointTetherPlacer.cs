@@ -1,6 +1,5 @@
 using DG.Tweening;
 using FMODUnity;
-using NUnit.Framework.Constraints;
 using System;
 using System.Collections.Generic;
 using TMPro;
@@ -21,7 +20,7 @@ public class JointTetherPlacer : MonoBehaviour
     [SerializeField] private LayerMask tetherLayerMask;
     [SerializeField] private LayerMask layersToIgnore;
     [SerializeField] private Material[] untetherableMaterials;
-    [SerializeField] private int numOfTethersPlaced = 0;
+    [SerializeField] public int numOfTethersPlaced = 0; //made public to reference in Tool UI
     [SerializeField] public bool autoActivateTether = true;
     public List<JointTether> placedTethers { get; private set; } = new List<JointTether>();
     public bool didStartPointHit = false;
@@ -40,7 +39,7 @@ public class JointTetherPlacer : MonoBehaviour
     [SerializeField] private float maxTetherStartDist = 50f;
     [SerializeField] private float cameraMaxDistance = 0f;
     [SerializeField] private float maxTetherLength = 20f;
-    [SerializeField] private int maxNumOfTethers = 3;
+    [SerializeField] public int maxNumOfTethers = 3; //made public to reference in Tool UI
     [SerializeField] private float timeToActivateAllTethers = 0.8f;
     [SerializeField] private float timeToDestroyAllTethers = 0.8f;
 

@@ -23,8 +23,6 @@ public class JointTetherActivator : MonoBehaviour
     private Coroutine activateAllTethersCoroutine;
     private Coroutine destroyAllTethersCoroutine;
 
-    public AudioManager aManage;
-
     //TEMPORARY ANIMATION EVENT
     public event Action OnTetherActivated;
 
@@ -37,7 +35,6 @@ public class JointTetherActivator : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        aManage = GameObject.Find("AudioManager").GetComponent<AudioManager>();
         _playerCamera = Camera.main;
         placedTethers = gameObject.GetComponent<JointTetherPlacer>().placedTethers;
     }
@@ -74,24 +71,8 @@ public class JointTetherActivator : MonoBehaviour
             {
                 previousTether.gameObject.GetComponent<JointTetherVisuals>().SetLineColorActive();
             }
-
-            // MVG BRAEDEN INPUT STUFF
-
         }
-            //else
-            //{
-
-
-            //    foreach (JointTether tether in placedTethers)
-            //    {
-            //        if (!tether.isActivated)
-            //        {
-            //            tether.gameObject.GetComponent<JointTetherVisuals>().SetLineColorInactive();
-            //        }
-            //    }
-            //}
-
-            previousTether = currentSelectedTether;
+        previousTether = currentSelectedTether;
 
     }
     #endregion

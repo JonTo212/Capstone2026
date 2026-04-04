@@ -20,9 +20,9 @@ public class RopeCutsceneActivator : Prop
     {
         if (oneTimeUse && _hasTriggered) return;
         if (_cutscene == null) return;
-        if (CameraCutsceneHandler.Instance == null) return;
+        if (CameraRefData.Instance.CameraCutsceneHandler == null) return;
 
-        CameraCutsceneHandler.Instance.StartCutscene(_cutscene);
+        CameraRefData.Instance.CameraCutsceneHandler.StartCutscene(_cutscene);
         _hasTriggered = true;
 
         RuntimeManager.PlayOneShot("event:/ZipLineGood", transform.position);

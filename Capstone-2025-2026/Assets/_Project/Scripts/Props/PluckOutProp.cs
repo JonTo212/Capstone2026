@@ -7,10 +7,10 @@ public class PluckOutProp : Prop
     [Header("Pluck Prop Parameters")]
     [SerializeField] private bool pluckHorizontally = false;
     [SerializeField] private float pluckForceMin = 50f;
-    [SerializeField] private float pluckDelay = 0.5f;
+    public float pluckDelay = 0.5f;
     [SerializeField] private float verticalForceMultiplier = 1f;
     [SerializeField] private float horizontalForceMultiplier = 1f;
-    [SerializeField] private bool hasBeenPlucked = false;
+    [SerializeField] public bool hasBeenPlucked = false;
     [SerializeField] private float startDist = 0f;
     [SerializeField] private GameObject groundedVisuals;
     private float walkBackDist = 10f;
@@ -60,11 +60,11 @@ public class PluckOutProp : Prop
 
         */
 
-        //plucks after a delay, force needs to be above the minimum for as long as the delay
-        if (lassoRef != null)
+        /* //plucks after a delay, force needs to be above the minimum for as long as the delay
+        if (_playerRefData != null)
         {
-            stepCheck = Vector3.Distance(transform.position, lassoRef.transform.position) > playerStartDist + walkBackDist;
-            reelCheck = lassoRef.AnchorDist < startDist;
+            stepCheck = Vector3.Distance(transform.position, _playerRefData.Lasso.transform.position) > playerStartDist + walkBackDist;
+            reelCheck = _playerRefData.Lasso.AnchorDist < startDist;
         }
 
         if (stepCheck || reelCheck) //Condition for code
@@ -77,9 +77,15 @@ public class PluckOutProp : Prop
         else
         {
             pluckCoroutine = null;
-        }
+        } */
 
+        if (PlayerActions.Instance.MoveInput.y < -0.01f && IsSnared) StartCoroutine(PluckAfterDelay(0f));
+    }
 
+    public override void OnSnare()
+    {
+        base.OnSnare();
+        PlayerRefData.Instance.PlayerMovement.SetGrabbing(true);
     }
 
     protected virtual void OnPluck()
@@ -87,30 +93,26 @@ public class PluckOutProp : Prop
         Rb.isKinematic = false;
         hasBeenPlucked = true;
         if (groundedVisuals != null) groundedVisuals.SetActive(false);
-        lassoRef.HandleObjectReleased();
+        PlayerRefData.Instance.LassoTetherController.ClearHold();
     }
 
     IEnumerator PluckAfterDelay(float delay)
     {
         //PlayerActions.Instance.DisableAllInput();
-        PlayerActions.Instance.ChangeSpecificInput("Lasso", true);
         yield return new WaitForSeconds(delay);
 
         OnPluck();
-        PlayerActions.Instance.EnableAllInput();
         pluckCoroutine = null;
     }
 
-    public void SaveDist(float anchorStartDist, float playerStartDist, Lasso LassoFake)
+    public void SaveDist(float anchorStartDist, float playerStartDist)
     {
-        lassoRef = LassoFake;
         startDist = anchorStartDist;
         playerStartDist = this.playerStartDist;
     }
 
-    public void Reset()
+    public void ResetLassoVariables()
     {
-        lassoRef = null;
         startDist = 0;
         playerStartDist = 0;
     }

@@ -165,9 +165,9 @@ public class NPC_Pufferfish : Prop, INPC
 
     #region Overrides / Temp EnvironmentalForce Stuff
 
-    public override void OnSnare(Lasso lassoRef)
+    public override void OnSnare()
     {
-        base.OnSnare(lassoRef);
+        base.OnSnare();
         Rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
         pendingFreeze = false;
         SwitchNPCState(NPCState.Activated);

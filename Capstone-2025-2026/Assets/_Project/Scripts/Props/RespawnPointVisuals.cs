@@ -6,9 +6,16 @@ public class RespawnPointVisuals : MonoBehaviour
 {
     public bool activated = false;
     public bool firstTime = true;
+    public Vector3 Forward;
+
     //public GameObject activeFlag;
     //public GameObject inactiveFlag;
     //[SerializeField] private ParticleSystem particles;
+
+    private void Awake()
+    {
+        Forward = transform.forward;
+    }
 
     public void SetObjectActive()
     {

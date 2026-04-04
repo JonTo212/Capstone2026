@@ -34,38 +34,48 @@ public class NPCKeyCutscene : CameraCutsceneBase
         _blendFromPos = cam.transform.position;
         _blendFromRot = cam.transform.rotation;
 
-        ZeldaCameraController zeldaCam = cam.GetComponent<ZeldaCameraController>();
-        if (zeldaCam != null) zeldaCam.SetFrozen(true);
+        CameraRefData.Instance.ZeldaCameraController.SetFrozen(true);
+
+        PlayerRefData.Instance.PlayerMovement.SetGrabbing(true);
+        PlayerRefData.Instance.LassoTetherController.SetLassoState(false);
+        PlayerRefData.Instance.LassoTetherController.SetTetherState(false);
+
         HandleScripts(false);
     }
 
     public override void OnBlendTick(float t)
     {
+        base.OnBlendTick(t);
+
         cam.transform.position = Vector3.Lerp(_blendFromPos, startPos.position, t);
         cam.transform.rotation = Quaternion.Slerp(_blendFromRot, Quaternion.LookRotation(lookAtTarget.position - startPos.position), t);
+
+        //for npc capture, should be temp (kill movement that gets re-enabled by capture invoke)
+        PlayerRefData.Instance.PlayerMovement.SetGrabbing(true);
+        PlayerRefData.Instance.LassoTetherController.SetLassoState(false);
+        PlayerRefData.Instance.LassoTetherController.SetTetherState(false);
     }
 
     public override void OnCutsceneStart()
     {
         base.OnCutsceneStart();
 
-        ZeldaCameraController zeldaCam = cam.GetComponent<ZeldaCameraController>();
-        if (zeldaCam != null) zeldaCam.SetFrozen(true);
+        CameraRefData.Instance.ZeldaCameraController.SetFrozen(true);
+        CameraRefData.Instance.CameraModeController.ForceSnapToCurrentState();
+        CameraRefData.Instance.ZeldaCameraController.SnapSmoothedPosition();
+        CameraRefData.Instance.ZeldaCameraController.UpdateGhostTransformPublic();
 
-        CameraModeController modeController = Camera.main.GetComponent<CameraModeController>();
-        if (modeController != null) modeController.ForceSnapToCurrentState();
+        _returnTargetPos = CameraRefData.Instance.ZeldaCameraController.GetGhostPosition();
+        _returnTargetRot = CameraRefData.Instance.ZeldaCameraController.GetGhostRotation();
 
-        if (zeldaCam != null) zeldaCam.SnapSmoothedPosition();
-        if (zeldaCam != null) zeldaCam.UpdateGhostTransformPublic();
-
-        _returnTargetPos = zeldaCam != null ? zeldaCam.GetGhostPosition() : cam.transform.position;
-        _returnTargetRot = zeldaCam != null ? zeldaCam.GetGhostRotation() : cam.transform.rotation;
+        //for npc capture, should be temp (kill movement that gets re-enabled by capture invoke)
+        PlayerRefData.Instance.PlayerMovement.SetGrabbing(true);
+        PlayerRefData.Instance.LassoTetherController.SetLassoState(false);
+        PlayerRefData.Instance.LassoTetherController.SetTetherState(false);
 
         //no snap here - blend already moved us to startPos
         cam.fieldOfView = _targetFOV;
         cam.transform.LookAt(lookAtTarget.position);
-
-        PlayerActions.Instance.ChangeSpecificInput("Move", false);
     }
 
     public override void OnCutsceneTick()
@@ -96,12 +106,13 @@ public class NPCKeyCutscene : CameraCutsceneBase
     {
         cam.fieldOfView = _savedFOV;
 
-
-        ZeldaCameraController zeldaCam = cam.GetComponent<ZeldaCameraController>();
-        if (zeldaCam != null) zeldaCam.SetFrozen(false);
-
         HandleScripts(true);
-        PlayerActions.Instance.ChangeSpecificInput("Move", true);
+
+        CameraRefData.Instance.ZeldaCameraController.SetFrozen(false);
+        PlayerRefData.Instance.PlayerMovement.SetGrabbing(false);
+        PlayerRefData.Instance.LassoTetherController.SetLassoState(true);
+        PlayerRefData.Instance.LassoTetherController.SetTetherState(true);
+
 
         base.OnCutsceneEnd();
     }
@@ -110,8 +121,7 @@ public class NPCKeyCutscene : CameraCutsceneBase
     {
         cam.fieldOfView = _savedFOV;
 
-        ZeldaCameraController zeldaCam = cam.GetComponent<ZeldaCameraController>();
-        if (zeldaCam != null) zeldaCam.SetFrozen(false);
+        CameraRefData.Instance.ZeldaCameraController.SetFrozen(false);
     }
 
 #if UNITY_EDITOR

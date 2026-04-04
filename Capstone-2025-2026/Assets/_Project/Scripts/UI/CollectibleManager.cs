@@ -11,6 +11,8 @@ public class CollectibleManager : MonoBehaviour
     public static CollectibleManager Instance { get; private set; }
 
     public TextMeshProUGUI coinCounter;
+
+    private CollectedCritterPopUp CritCollPopUp;
         
     public int coins = 0000;
 
@@ -26,7 +28,9 @@ public class CollectibleManager : MonoBehaviour
     public List<CritterCatalogue> critLog = new List<CritterCatalogue>();
     
     [HideInInspector]
-    public int count = 0;
+    public int critCount = 0;
+    [HideInInspector]
+    public int critColCount = 0;
 
     private void Awake()
     {
@@ -43,12 +47,11 @@ public class CollectibleManager : MonoBehaviour
         GameObject spawnerGO = GameObject.Find("CritterCountSpawner");
         spawner = spawnerGO.GetComponent<CritterCountSpawner>();
 
+        GameObject PopUpGO = GameObject.Find("CritterCollectedPopUp");
+        CritCollPopUp = PopUpGO.GetComponent<CollectedCritterPopUp>();
+
     }
 
-    public int GetID ()
-    {
-        return count;
-    }
 
     public void CoinCollected()
     {
@@ -58,29 +61,42 @@ public class CollectibleManager : MonoBehaviour
 
     public void CritterCollected(int ID)
     {
+        Debug.Log("count: " + critCount);
 
         for (int i = 0; i < critLog.Count; i++)
         {
             if (critLog[i].critID == ID)
             {
-                spawner.UpdateVisual(critLog[i].stmSpr, i);
+                Debug.Log("Found critterID");
+                spawner.UpdateVisual(critLog[i].stmSpr, critLog[i].critID);
             }
 
 
         }
 
+        critColCount++;
+
+        CritCollPopUp.RunAnims();
 
     }
 
 
-    public void RegisterCritter (Sprite critterSilSprite, Sprite critterStampSprite)
+    public void RegisterCritter (Sprite critterSilSprite, Sprite critterStampSprite, int ID)
     {
-        count++;
+        critCount++;
 
         critLog.Add(new CritterCatalogue());
-        critLog[count-1].critID = count;
-        critLog[count-1].silSpr = critterSilSprite;
-        critLog[count-1].stmSpr = critterStampSprite;
+        critLog[critCount -1].critID = ID;
+        critLog[critCount -1].silSpr = critterSilSprite;
+        critLog[critCount -1].stmSpr = critterStampSprite;
+
+    }
+
+    public void CallScore()
+    {
+        GameObject scoreGO = GameObject.Find("ScoreManager");
+        scoreManager score = scoreGO.GetComponent<scoreManager>();
+        score.EndGameSummary(coins, critColCount);
 
     }
 

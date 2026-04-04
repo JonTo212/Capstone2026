@@ -21,12 +21,16 @@ public class RopeSwingCutscene : PlayerCutsceneBase
 
     [Header("Rotation Components")]
     [SerializeField] private float lookAheadBuffer = 0.05f;
+    [SerializeField] private float ropeVisualLookAhead = 0.1f;
     [SerializeField] private float maxLeanAngle = 45f;
     [SerializeField] private float durationUntilMaxLean = 0.1f;
 
     [Header("Camera")]
     [SerializeField] private float cameraRotationSpeed = 10f;
     [SerializeField] private float cameraPitch = 5f;
+
+    [Header("Particle System")]
+    [SerializeField] private ParticleSystem sparkParticles;
 
     [Header("Gizmos")]
     [SerializeField] private Color ropePathColor = new Color(0.2f, 0.6f, 1f, 1f);
@@ -54,10 +58,10 @@ public class RopeSwingCutscene : PlayerCutsceneBase
     {
         _bakedPlayerPath = BakePlayerPath();
 
-        Vector3 endFwd = GetPathForward(1f);
+        Vector3 endFwd = GetPathForward(1f, 0f);
         Vector3 endFwdFlat = new Vector3(endFwd.x, 0f, endFwd.z);
         _pathEndRotation = endFwdFlat.sqrMagnitude > 0.01f ? Quaternion.LookRotation(endFwdFlat) : Quaternion.identity;
-        CameraCutsceneHandler.Instance.SetCameraPositionDamping(Vector3.zero);
+        CameraRefData.Instance.CameraCutsceneHandler.SetCameraPositionDamping(Vector3.zero);
 
         base.OnCutscenePrepare();
     }
@@ -72,14 +76,23 @@ public class RopeSwingCutscene : PlayerCutsceneBase
         _currentSwayAngle = 0f;
         _previousPos = GetPlayerPosition(0f);
 
-        Vector3 startFwd = GetPathForward(0f);
+        Vector3 startFwd = GetPathForward(0f, lookAheadBuffer);
         Vector3 startFwdFlat = new Vector3(startFwd.x, 0f, startFwd.z);
         _currentModelYaw = startFwdFlat.sqrMagnitude > 0.01f ? Quaternion.LookRotation(startFwdFlat).eulerAngles.y : 0f;
+
+        PlayerActions.Instance.RumbleFor(0.015f, 0.03f, Duration);
+        PlayerRefData.Instance.LassoTetherController.ClearHold();
 
         if (playerModelRotation != null)
             playerModelRotation.SetNewRotationDir(null, true);
 
-        PlayerActions.Instance.RumbleFor(0.015f, 0.03f, Duration);
+        if (sparkParticles != null)
+        {
+            if (sparkParticles.isPlaying) sparkParticles.Stop();
+            var main = sparkParticles.main;
+            main.duration = Duration;
+            sparkParticles.Play();
+        }
     }
 
     public override void OnCutsceneTick()
@@ -87,12 +100,12 @@ public class RopeSwingCutscene : PlayerCutsceneBase
         base.OnCutsceneTick();
 
         Vector3 basePos = GetPlayerPosition(T);
-        Vector3 forward = GetPathForward(T);
+        Vector3 forward = GetPathForward(T, lookAheadBuffer);
         Vector3 right = Vector3.Cross(Vector3.up, forward).normalized;
         Vector3 swayPos = basePos - right * (_currentSwayAngle * swayPositionStrength);
 
         playerRb.MovePosition(swayPos);
-        playerRb.MoveRotation(GetPlayerBodyRotation(T));
+        playerRb.MoveRotation(GetPlayerBodyRotation(T, lookAheadBuffer));
 
         _currentSpeed = Vector3.Distance(basePos, _previousPos) / Mathf.Max(Time.fixedDeltaTime, 0.0001f);
         _previousPos = basePos;
@@ -103,10 +116,10 @@ public class RopeSwingCutscene : PlayerCutsceneBase
         if (T >= blendOutStart)
         {
             float blendT = Mathf.Clamp01((T - blendOutStart) / (BlendOutTime / Duration));
-            var (lassoScreen, lassoTarget, lassoDistance) = CameraModeController.Instance.GetCurrentStateOffsets();
-            CameraCutsceneHandler.Instance?.SetCameraScreenOffsetDirect(Vector2.Lerp(cameraScreenOffset, lassoScreen, blendT));
-            CameraCutsceneHandler.Instance?.SetCameraTargetOffsetDirect(Vector3.Lerp(cameraTargetOffset, lassoTarget, blendT));
-            CameraCutsceneHandler.Instance?.SetCameraZOffsetDirect(Mathf.Lerp(0f, lassoDistance, blendT));
+            var (lassoScreen, lassoTarget, lassoDistance) = CameraRefData.Instance.CameraModeController.GetCurrentStateOffsets();
+            CameraRefData.Instance.CameraCutsceneHandler?.SetCameraScreenOffsetDirect(Vector2.Lerp(cameraScreenOffset, lassoScreen, blendT));
+            CameraRefData.Instance.CameraCutsceneHandler?.SetCameraTargetOffsetDirect(Vector3.Lerp(cameraTargetOffset, lassoTarget, blendT));
+            CameraRefData.Instance.CameraCutsceneHandler?.SetCameraZOffsetDirect(Mathf.Lerp(cameraZOffset, lassoDistance, blendT));
         }
     }
 
@@ -130,41 +143,47 @@ public class RopeSwingCutscene : PlayerCutsceneBase
         if (lassoVisuals != null)
             lassoVisuals.ExitCutsceneMode();
 
-        Vector3 finalForward = GetPathForward(1f);
+        Vector3 finalForward = GetPathForward(1f, 0f);
         if (finalForward.sqrMagnitude > 0.001f)
             playerModelRotation.SetNewRotationDir(Quaternion.LookRotation(finalForward), false);
 
         _bakedPlayerPath = null;
-        CameraCutsceneHandler.Instance?.SetCameraPositionDamping(null);
+        CameraRefData.Instance.CameraCutsceneHandler?.SetCameraPositionDamping(null);
     }
 
     public override void OnCutsceneLateUpdate()
     {
-        if (BlendDelayActive) return;
+        if (BlendDelayActive || !IsPlaying) return;
 
         Vector3 renderPos = GetRenderPlayerPosition();
-        _attachmentPos = renderPos - SampleOffsetAtT(T);
+        _attachmentPos = renderPos - SampleOffsetInPathSpace(T);
 
         if (lassoVisuals != null)
             lassoVisuals.DrawCutsceneRopeExternal(lassoVisuals.GetHoldPos(), _attachmentPos);
 
         DrawRopeVisuals();
 
+        if (sparkParticles != null)
+        {
+            sparkParticles.transform.position = _attachmentPos;
+            sparkParticles.transform.rotation = Quaternion.LookRotation(-GetPathForward(T, ropeVisualLookAhead));
+        }
+
         if (IsPlaying)
         {
-            Vector3 dir = GetHorizontalDirection(T);
+            Vector3 dir = GetHorizontalDirection(T, lookAheadBuffer);
             if (dir.sqrMagnitude > 0.01f)
-                CameraCutsceneHandler.Instance.RotateCameraToDirection(dir, cameraRotationSpeed, cameraPitch);
+                CameraRefData.Instance.CameraCutsceneHandler.RotateCameraToDirection(dir, cameraRotationSpeed, cameraPitch);
         }
     }
     #endregion
 
     #region Helpers - Rotation
-    private Vector3 GetPathForward(float t)
+    private Vector3 GetPathForward(float t, float lookAhead)
     {
         //extrapolate ever so slightly forward continuously so it's not 'snapping' to the next spline forward
         //makes it a bit smoother
-        float t2 = Mathf.Clamp01(t + lookAheadBuffer);
+        float t2 = Mathf.Clamp01(t + lookAhead);
         Vector3 cur = GetPlayerPosition(t);
         Vector3 fwd = GetPlayerPosition(t2);
         Vector3 dir = (fwd - cur).normalized;
@@ -175,9 +194,9 @@ public class RopeSwingCutscene : PlayerCutsceneBase
         return dir;
     }
 
-    private Quaternion GetPlayerBodyRotation(float t)
+    private Quaternion GetPlayerBodyRotation(float t, float lookAhead)
     {
-        Vector3 dir = GetHorizontalDirection(t);
+        Vector3 dir = GetHorizontalDirection(t, lookAhead);
         Quaternion baseRot = dir.sqrMagnitude > 0.01f
             ? Quaternion.LookRotation(dir)
             : Quaternion.identity;
@@ -197,8 +216,8 @@ public class RopeSwingCutscene : PlayerCutsceneBase
         // --- Signed curvature for side tilt ---
         float lookDelta = 0.05f;
         float tBehind = Mathf.Clamp01(t - lookDelta);
-        Vector3 curDir = GetHorizontalDirection(t);
-        Vector3 prevDir = GetHorizontalDirection(tBehind);
+        Vector3 curDir = GetHorizontalDirection(t, lookAheadBuffer);
+        Vector3 prevDir = GetHorizontalDirection(tBehind, lookAheadBuffer);
 
         float curvature = 0f;
         if (curDir.sqrMagnitude > 0.01f && prevDir.sqrMagnitude > 0.01f)
@@ -230,7 +249,7 @@ public class RopeSwingCutscene : PlayerCutsceneBase
         float leanAngle = _smoothedSpeed * maxLeanAngle * (1f - uprightFade);
 
         // --- Model yaw ---
-        Vector3 dir = GetHorizontalDirection(t);
+        Vector3 dir = GetHorizontalDirection(t, lookAheadBuffer);
         if (t >= blendStart)
         {
             float yawBlendT = Mathf.Clamp01((t - blendStart) / BlendOutTime);
@@ -245,9 +264,9 @@ public class RopeSwingCutscene : PlayerCutsceneBase
         playerModelRotation.SetSwayAngle(_currentModelYaw, _currentSwayAngle);
         playerModelRotation.SetLeanAngle(leanAngle);
     }
-    private Vector3 GetHorizontalDirection(float t)
+    private Vector3 GetHorizontalDirection(float t, float lookAhead)
     {
-        Vector3 dir = GetPathForward(t);
+        Vector3 dir = GetPathForward(t, lookAhead);
         Vector3 h = new Vector3(dir.x, 0f, dir.z);
         return h.sqrMagnitude > 0.01f ? h.normalized : Vector3.zero;
     }
@@ -292,8 +311,13 @@ public class RopeSwingCutscene : PlayerCutsceneBase
         if (playerOffsetPath == null || playerOffsetPath.Count == 0)
             return Vector3.zero;
 
+        Transform offsetParent = playerOffsetPath[0].parent;
+
         if (playerOffsetPath.Count == 1)
-            return playerOffsetPath[0].localPosition;
+        {
+            Vector3 localOffset = playerOffsetPath[0].localPosition;
+            return offsetParent != null ? offsetParent.TransformVector(localOffset) : localOffset;
+        }
 
         //get the corresponding segment based on t, similar to how we do it for the rope path
         //but, the offset path might have a different number of points than the rope path
@@ -303,15 +327,60 @@ public class RopeSwingCutscene : PlayerCutsceneBase
         int segIndex = Mathf.Clamp(Mathf.FloorToInt(scaled), 0, segments - 1);
         float localT = scaled - segIndex;
 
+        Vector3 localSpaceOffset;
         if (!useSpline || playerOffsetPath.Count < 3)
-            return Vector3.Lerp(playerOffsetPath[segIndex].localPosition, playerOffsetPath[segIndex + 1].localPosition, localT);
+            localSpaceOffset = Vector3.Lerp(playerOffsetPath[segIndex].localPosition, playerOffsetPath[segIndex + 1].localPosition, localT);
+        else
+        {
+            Vector3 p0 = GetOffsetPoint(segIndex - 1);
+            Vector3 p1 = GetOffsetPoint(segIndex);
+            Vector3 p2 = GetOffsetPoint(segIndex + 1);
+            Vector3 p3 = GetOffsetPoint(segIndex + 2);
+            localSpaceOffset = CatmullRom(p0, p1, p2, p3, localT);
+        }
 
-        Vector3 p0 = GetOffsetPoint(segIndex - 1);
-        Vector3 p1 = GetOffsetPoint(segIndex);
-        Vector3 p2 = GetOffsetPoint(segIndex + 1);
-        Vector3 p3 = GetOffsetPoint(segIndex + 2);
+        //transform the interpolated local-space offset into world space
+        return offsetParent != null ? offsetParent.TransformVector(localSpaceOffset) : localSpaceOffset;
+    }
 
-        return CatmullRom(p0, p1, p2, p3, localT);
+    private Vector3 SampleOffsetInPathSpace(float t)
+    {
+        if (playerOffsetPath == null || playerOffsetPath.Count == 0)
+            return Vector3.zero;
+
+        // Get the raw offset value (in the offset path's local space)
+        int segments = playerOffsetPath.Count - 1;
+        float scaled = t * segments;
+        int segIndex = Mathf.Clamp(Mathf.FloorToInt(scaled), 0, segments - 1);
+        float localT = scaled - segIndex;
+
+        Vector3 localOffset;
+        if (!useSpline || playerOffsetPath.Count < 3)
+            localOffset = Vector3.Lerp(playerOffsetPath[segIndex].localPosition, playerOffsetPath[segIndex + 1].localPosition, localT);
+        else
+        {
+            Vector3 p0 = GetOffsetPoint(segIndex - 1);
+            Vector3 p1 = GetOffsetPoint(segIndex);
+            Vector3 p2 = GetOffsetPoint(segIndex + 1);
+            Vector3 p3 = GetOffsetPoint(segIndex + 2);
+            localOffset = CatmullRom(p0, p1, p2, p3, localT);
+        }
+
+        // Build a coordinate frame from the rope's tangent at this t
+        float t2 = Mathf.Clamp01(t + 0.01f);
+        int seg1 = Mathf.Clamp(Mathf.FloorToInt(t * (ropePath.Count - 1)), 0, ropePath.Count - 2);
+        int seg2 = Mathf.Clamp(Mathf.FloorToInt(t2 * (ropePath.Count - 1)), 0, ropePath.Count - 2);
+        float lt1 = t * (ropePath.Count - 1) - seg1;
+        float lt2 = t2 * (ropePath.Count - 1) - seg2;
+
+        Vector3 pos1 = SampleRopePath(seg1, lt1);
+        Vector3 pos2 = SampleRopePath(seg2, lt2);
+        Vector3 forward = (pos2 - pos1);
+        if (forward.sqrMagnitude < 0.0001f) forward = Vector3.forward;
+        forward.Normalize();
+
+        Quaternion pathRot = Quaternion.LookRotation(forward, Vector3.up);
+        return pathRot * localOffset;
     }
     #endregion
 
@@ -413,11 +482,12 @@ public class RopeSwingCutscene : PlayerCutsceneBase
             {
                 float localT = j / (float)splineSubdivisions;
                 float globalT = (i + localT) / totalSegments;
-                baked.Add(SampleRopePath(i, localT) + SampleOffsetAtT(globalT));
+                Vector3 ropePos = SampleRopePath(i, localT);
+                baked.Add(ropePos + SampleOffsetInPathSpace(globalT));
             }
         }
 
-        baked.Add(ropePath[ropePath.Count - 1].position + SampleOffsetAtT(1f));
+        baked.Add(ropePath[ropePath.Count - 1].position + SampleOffsetInPathSpace(1f));
         return baked;
     }
 
@@ -495,7 +565,7 @@ public class RopeSwingCutscene : PlayerCutsceneBase
             {
                 float localT = j / (float)splineSubdivisions;
                 float globalT = (seg + localT) / totalSegments;
-                Vector3 combined = SampleRopePath(seg, localT) + SampleOffsetAtT(globalT);
+                Vector3 combined = SampleRopePath(seg, localT) + SampleOffsetInPathSpace(globalT);
 
                 if (prev.HasValue) Gizmos.DrawLine(prev.Value, combined);
                 prev = combined;
@@ -504,7 +574,7 @@ public class RopeSwingCutscene : PlayerCutsceneBase
 
         if (ropePath[ropePath.Count - 1] != null)
         {
-            Vector3 last = ropePath[ropePath.Count - 1].position + SampleOffsetAtT(1f);
+            Vector3 last = ropePath[ropePath.Count - 1].position + SampleOffsetInPathSpace(1f);
             if (prev.HasValue) Gizmos.DrawLine(prev.Value, last);
         }
     }

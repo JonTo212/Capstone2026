@@ -1,6 +1,7 @@
 using FMODUnity;
 using NodeCanvas.Tasks.Actions;
 using System.Collections;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Rendering;
@@ -10,8 +11,8 @@ public class PlayerRespawn : MonoBehaviour
 
     //Components
     private Rigidbody rb;
-    [SerializeField] private ParticleSystem tinyTornado;
     private Coroutine respawnCoroutine;
+    private PlayerRefData playerRefData;
 
     //respawning
     private Vector3 spawnPosition;
@@ -28,18 +29,15 @@ public class PlayerRespawn : MonoBehaviour
 
     void Awake()
     {
-        fadeToBlackScript.gameObject.SetActive(false);
-    }
-
-    void Start()
-    {
         //set spawn position
         spawnPosition = transform.position;
 
         //get Components
         rb = GetComponent<Rigidbody>();
-    }
+        playerRefData = GetComponent<PlayerRefData>();
 
+        fadeToBlackScript.gameObject.SetActive(false);
+    }
 
 
     private void OnTriggerEnter(Collider other)
@@ -78,13 +76,9 @@ public class PlayerRespawn : MonoBehaviour
     IEnumerator Respawn()
     {
         //fade to black
-        LassoTetherController.Instance.ClearHold();
+        playerRefData.LassoTetherController.ClearHold();
         fadeToBlackScript.gameObject.SetActive(true);
         fadeToBlackScript.FadeIn();
-
-        //play particle effect
-        tinyTornado.Play();
-        //AudioManager.Instance.PlaySFX(AudioManager.Instance.PlayerSaved, 6, 1);
         RuntimeManager.PlayOneShot("event:/Respawn", transform.position);
 
         yield return new WaitUntil(() => fadeToBlackScript.FadeComplete);
@@ -100,6 +94,15 @@ public class PlayerRespawn : MonoBehaviour
         rb.position = spawnDestination;
         transform.position = spawnDestination;
 
+        //rotate player to face direction of checkpoint
+        Vector3 spawnPositionForward = currentRespawnPoint.Forward;
+        float targetYaw = Mathf.Atan2(spawnPositionForward.x, spawnPositionForward.z) * Mathf.Rad2Deg;
+        CameraRefData.Instance.ZeldaCameraController.SetRotation(targetYaw,0,true);
+        PlayerRefData.Instance.PlayerModelRotationHandler.SetNewRotationDir(Quaternion.Euler(new Vector3(0,targetYaw,0)),false);
+
+        print("spanposForward" + spawnPositionForward);
+        print("Yaw" + targetYaw);
+
         //disable black screen
         fadeToBlackScript.FadeOut();
         yield return new WaitForSeconds(0.5f);
@@ -108,10 +111,9 @@ public class PlayerRespawn : MonoBehaviour
         //Enable Components
         rb.isKinematic = false;
         isFalling = false;
-
-        //end particle effect
-        tinyTornado.Stop();
         respawnCoroutine = null;
+
+
 
     }
 }

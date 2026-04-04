@@ -16,7 +16,6 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     [SerializeField] protected List<JointTether> attachedTethers = new List<JointTether>();
     [SerializeField] protected List<Transform> connectedObject = new List<Transform>();
     [SerializeField] protected List<Transform> connectedAnchors = new List<Transform>();
-    protected Lasso lassoRef;
     private static float _rumbleCooldown;
 
     //getters/setters - default value is false (protected set means only derived classes can change IsHeld)
@@ -49,6 +48,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     public event Action OnPropDestroyed;
     public event Action OnEnvironmentalForceSet;
 
+    //virtual functions can be overridden by the derived classes
     //virtual functions can be overridden by the derived classes
     //default behaviour is updating IsHeld and parenting the object to a given transform (i.e. player hand)
 
@@ -129,7 +129,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
     }
 
     #region ISnareable
-    public virtual void OnSnare(Lasso lasso)
+    public virtual void OnSnare()
     {
         IsSnared = true;
         IsHeld = false;
@@ -137,7 +137,6 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         Rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
         Rb.angularVelocity = Vector3.zero;
         Rb.linearVelocity = Vector3.zero;
-        lassoRef = lasso;
         OnPropSnared?.Invoke();
     }
 
@@ -150,7 +149,6 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         Rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
         //Rb.isKinematic = WasKinematicToStart;
         AttachedTransform = null;
-        lassoRef = null;
 
         Invoke(nameof(CoyoteFall), coyoteFallDelay);
         OnPropReleased?.Invoke();
@@ -221,20 +219,19 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
                     if (jointTether.isActivated)
                     {
                         if (ObjectOutline.outlineState != Outline.OutlineStates.TetherActive)
-                            ObjectOutline.TetherActiveColor(); return;
+                        { ObjectOutline.TetherActiveColor(); return; }
                     }
                 }
                 if (ObjectOutline.outlineState != Outline.OutlineStates.TetherInnactive)
-                    ObjectOutline.TetherInactiveColor(); return;
+                { ObjectOutline.TetherInactiveColor(); return; }
             }
             if (IsSnared)
             {
                 if (ObjectOutline.outlineState != Outline.OutlineStates.Snare)
-                {
-                    ObjectOutline.SnareColor(); return;
-                }
+                { ObjectOutline.SnareColor(); return; }
             }
         }
+        
     }
 
     #endregion
@@ -379,31 +376,6 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         else
         {
             Rb.constraints = OriginalConstraints;
-        }
-    }
-
-    public void UpdateTetherGrabPointsAndLockRotation()
-    {
-        foreach (var tether in attachedTethers)
-        {
-            tether.UpdateGrabPointToNearest();
-            tether.UpdateTetherRotation(transform.rotation);
-        }
-    }
-
-    public void DisableJointTemp()
-    {
-        foreach (var tether in attachedTethers)
-        {
-            tether.DisableJoint();
-        }
-    }
-
-    public void EnableJoint()
-    {
-        foreach (var tether in attachedTethers)
-        {
-            tether.ActivateJoint();
         }
     }
 

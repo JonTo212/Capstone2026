@@ -1,5 +1,4 @@
 using System;
-using Unity.XR.OpenVR;
 using UnityEngine;
 
 public class RodAnimations : MonoBehaviour
@@ -15,6 +14,9 @@ public class RodAnimations : MonoBehaviour
     [SerializeField] private GameObject handle;
     public float rotationAmount = 5f;
 
+    [Header("Core Material")]
+    [SerializeField] private Material toolMat;
+
     [Header("SFX (STILL NEEDS UPDATE TO JUAN NEW SYSTE)")]
     [SerializeField] private AudioSource audioSource; // The AudioSource component
     [SerializeField] private AudioClip[] clips;
@@ -23,21 +25,9 @@ public class RodAnimations : MonoBehaviour
     [SerializeField] public bool facts = true;
 
 
-
     private void Awake()
     {
         animator = GetComponent<Animator>();
-
-        /*
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
-        */
     }
 
     void Update()
@@ -47,11 +37,15 @@ public class RodAnimations : MonoBehaviour
         {
             animator.SetBool("isRod", true);
             animator.SetBool("isTether", false);
+
+            toolMat.SetColor("_MainColor", Color.yellow * 8);
         }
         else
         {
             animator.SetBool("isRod", false);
             animator.SetBool("isTether", true);
+
+            toolMat.SetColor("_MainColor", Color.cyan * 8);
         }
 
 

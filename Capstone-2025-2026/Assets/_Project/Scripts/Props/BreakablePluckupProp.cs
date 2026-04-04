@@ -20,6 +20,8 @@ public class BreakablePluckupProp : PluckOutProp
     private float breakableDelay = 0.3f;
     private bool isBreakable = false;
 
+    [SerializeField] private bool dontPlayDestroySound = false; // used for the specific turnip object that plays the sound after its animation in a different script
+
     protected override void OnPluck()
     {
 
@@ -39,7 +41,7 @@ public class BreakablePluckupProp : PluckOutProp
 
     private void OnCollisionEnter(Collision collision)
     {
-        if(isBreakable && Rb.linearVelocity.magnitude > minimumSpeedToBreak)
+        if (isBreakable && Rb.linearVelocity.magnitude > minimumSpeedToBreak)
         {
             Break();
 
@@ -55,7 +57,8 @@ public class BreakablePluckupProp : PluckOutProp
 
     private void Break()
     {
-        RuntimeManager.PlayOneShot("event:/RockBreak", transform.position);
+        if (!dontPlayDestroySound) RuntimeManager.PlayOneShot("event:/RockBreak", transform.position);
+
         if (propToSpawnAfterBreak != null)
         {
             for (int i = 0; i < numberOfObjectsToSpawn; i++)
@@ -68,7 +71,8 @@ public class BreakablePluckupProp : PluckOutProp
             }
         }
 
-        Destroy(gameObject);
+
+        gameObject.SetActive(false);
     }    
 
     private IEnumerator BecomeBreakableDelay()
@@ -77,4 +81,6 @@ public class BreakablePluckupProp : PluckOutProp
 
         isBreakable = true;
     }
+
+
 }

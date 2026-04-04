@@ -6,11 +6,6 @@ public abstract class CameraCutsceneBase : CutsceneBase
     [SerializeField] protected Transform endPos;
     [SerializeField] protected Transform lookAtTarget;
 
-    [SerializeField] private MonoBehaviour[] scriptsToModify;
-    [SerializeField] private GameObject[] objectsToModify;
-
-    [SerializeField] private GameObject[] objectsToEnableOnStart;
-
     protected Camera cam;
 
     protected virtual void Awake()
@@ -22,16 +17,16 @@ public abstract class CameraCutsceneBase : CutsceneBase
     {
         base.OnCutsceneStart();
 
+        PlayerRefData.Instance.PlayerMovement.SetGrabbing(true);
+
         foreach (var objectToEnable in objectsToEnableOnStart)
             if (objectToEnable != null) objectToEnable.SetActive(true);
     }
 
-    protected void HandleScripts(bool turnOn)
+    public override void OnCutsceneEnd()
     {
-        foreach (var scriptToModify in scriptsToModify)
-            if (scriptToModify != null) scriptToModify.enabled = turnOn;
+        base.OnCutsceneEnd();
 
-        foreach (var objectToModify in objectsToModify)
-            if (objectToModify != null) objectToModify.SetActive(turnOn);
+        PlayerRefData.Instance.PlayerMovement.SetGrabbing(false);
     }
 }

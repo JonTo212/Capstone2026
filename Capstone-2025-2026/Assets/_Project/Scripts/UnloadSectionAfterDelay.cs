@@ -21,9 +21,12 @@ public class UnloadSectionAfterDelay : MonoBehaviour
     IEnumerator UnloadNextFrame()
     {
         yield return new WaitForSeconds(0.5f);
-        foreach(GameObject section in unloadSections)
+        if (unloadSections.Length < 0)
         {
-            section.SetActive(false);
+            foreach (GameObject section in unloadSections)
+            {
+                section.SetActive(false);
+            }
         }
     }
 }

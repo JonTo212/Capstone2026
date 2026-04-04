@@ -16,6 +16,9 @@ public class LeverChallengeEndPoint : MonoBehaviour
 
     [SerializeField] private bool JustCompleted = false;
 
+    //Key object meshes
+    [SerializeField] private MeshRenderer sunKeyMesh;
+    [SerializeField] private MeshRenderer moonKeyMesh;
 
 
 
@@ -30,8 +33,6 @@ public class LeverChallengeEndPoint : MonoBehaviour
     {
         if(challengeWasCompleted)
         {
-
-           
             timeElapsed = Mathf.Clamp01(timeElapsed + Time.deltaTime/timeToFallOver);
 
             float squaredTime = Mathf.Pow(timeElapsed, 2f);
@@ -73,5 +74,9 @@ public class LeverChallengeEndPoint : MonoBehaviour
         //Hit Ground
         dustParticle.Play();
         RuntimeManager.PlayOneShot("event:/WallBreak", transform.position);
+
+        //destroy lever models
+        fakeLever.gameObject.SetActive(false);
+        moonKeyMesh.enabled = false;
     }
 }

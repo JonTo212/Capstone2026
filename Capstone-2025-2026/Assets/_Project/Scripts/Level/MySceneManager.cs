@@ -30,7 +30,7 @@ public class MySceneManager : MonoBehaviour
 
         
 
-        StartCoroutine(switchLevel(sceneIndex));
+        StartCoroutine(SwitchLevel(sceneIndex));
 
         /*SceneManager.LoadScene(SceneNames[sceneIndex]);
         currentScene = SceneNames[sceneIndex];*/
@@ -64,7 +64,7 @@ public class MySceneManager : MonoBehaviour
         SceneManager.LoadScene(currentScene);
     }
 
-    IEnumerator switchLevel(int sceneIndex)
+    IEnumerator SwitchLevel(int sceneIndex)
     {
         //yield return new WaitForSeconds(3);
         if (transitions != null)
