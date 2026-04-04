@@ -20,6 +20,8 @@ public class RodTutorialCutscene : CameraCutsceneBase
 
     public override void OnCutsceneStart()
     {
+        base.OnCutsceneStart();
+
         PlayerRefData.Instance.PlayerMovement.SetGrabbing(true);
 
         //move player to position
@@ -40,12 +42,7 @@ public class RodTutorialCutscene : CameraCutsceneBase
 
     public override void OnCutsceneEnd()
     {
-        ZeldaCameraController zeldaCam = cam.GetComponent<ZeldaCameraController>();
-    
-        if (zeldaCam != null)
-        {
-            zeldaCam.SetFrozen(false);
-        }
+        CameraRefData.Instance.ZeldaCameraController.SetFrozen(false);
 
         PlayerRefData.Instance.PlayerMovement.SetGrabbing(false);
         HandleScripts(true);

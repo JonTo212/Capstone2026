@@ -192,7 +192,7 @@ public class Lasso : MonoBehaviour
 
             SetupHeldProp(prop, hit.Value);
 
-            prop.OnSnare(_playerRefData);
+            prop.OnSnare();
 
             if (prop.TryGetComponent(out PickupNPCProp npc))
             {

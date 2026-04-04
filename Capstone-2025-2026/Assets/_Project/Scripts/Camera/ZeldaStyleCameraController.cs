@@ -280,7 +280,7 @@ public class ZeldaCameraController : MonoBehaviour
                 float newStep = _currentStep - _stepsPerFrameIn;
                 _currentStep = Mathf.Max(Mathf.RoundToInt(newStep), desiredStep);
             }
-            else if (desiredStep > _currentStep && _hasInput)
+            else if (desiredStep > _currentStep && (_hasInput || CameraRefData.Instance.CameraCutsceneHandler.IsPlaying()) )
             {
                 float newStep = _currentStep + _stepsPerFrameOut;
                 _currentStep = Mathf.Min(Mathf.RoundToInt(newStep), desiredStep);

@@ -35,11 +35,20 @@ public class CameraPanCutscene : CameraCutsceneBase
     public override void OnCutsceneEnd()
     {
         base.OnCutsceneEnd();
+
         cam.transform.position = endPos.position;
         cam.transform.LookAt(lookAtTarget.transform.position);
 
         if (nextCutscene != null)
             CameraRefData.Instance.CameraCutsceneHandler.StartCutscene(nextCutscene);
+        else
+        {
+            PlayerRefData.Instance.LassoTetherController.SetTetherState(true);
+            PlayerRefData.Instance.LassoTetherController.SetLassoState(true);
+            PlayerRefData.Instance.PlayerMovement.SetGrabbing(false);
+        }
+
+
     }
 
     private void BuildPointArray()
