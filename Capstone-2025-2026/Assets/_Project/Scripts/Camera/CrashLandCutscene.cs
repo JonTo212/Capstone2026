@@ -90,10 +90,12 @@ public class CrashLandCutscene : PlayerCutsceneBase
 
     public override void OnCutsceneUpdate()
     {
+        base.OnCutsceneUpdate();
+
         float camProgress = cameraApproachCurve.Evaluate(T);
         cameraScreenOffset = Vector2.Lerp(startScreenOffset, endScreenOffset, camProgress);
 
-        base.OnCutsceneUpdate();
+        ApplySkydivingCameraState(T);
     }
 
     public override void OnCutsceneTick()
@@ -105,8 +107,6 @@ public class CrashLandCutscene : PlayerCutsceneBase
         Vector3 forward = GetFallDirection();
         if (forward.sqrMagnitude > 0.01f)
             playerModelRotation?.SetNewRotationDir(Quaternion.LookRotation(forward), true);
-
-        ApplySkydivingCameraState(T);
     }
 
     private void ApplySkydivingCameraState(float t)

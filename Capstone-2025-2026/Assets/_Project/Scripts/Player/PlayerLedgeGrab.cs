@@ -161,7 +161,7 @@ public class PlayerLedgeGrab : MonoBehaviour
     private Vector3? ValidateLedge(RaycastHit forwardHit, Vector3 approachDir)
     {
         //if the hit landed on a top surface rather than the wall face, re-cast from just below to find the true wall normal
-        if (Vector3.Dot(forwardHit.normal, Vector3.up) > 0.85f)
+        if (Vector3.Dot(forwardHit.normal, Vector3.up) > 0.7f)
         {
             Vector3 fixOrigin = forwardHit.point - (Vector3.up * 0.1f) - (approachDir * 0.1f);
             if (Physics.Raycast(fixOrigin, approachDir, out RaycastHit sideHit, 0.5f, grabbableLayers, QueryTriggerInteraction.Ignore))

@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 1434466678015456739}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 58.6, y: -9.700001, z: -5.209961}
+  m_LocalPosition: {x: 58.6, y: -9.18, z: -5.209961}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -191,8 +191,8 @@ MonoBehaviour:
   stepCount: 100
   mouseXSensitivity: 0.25
   mouseYSensitivity: 0.25
-  controllerXSensitivityMultiplier: 5
-  controllerYSensitivityMultiplier: 5
+  controllerXSensitivityMultiplier: 4
+  controllerYSensitivityMultiplier: 4
   minVerticalAngle: -89
   maxVerticalAngle: 89
   rotationSmoothTime: 0.01
@@ -203,8 +203,8 @@ MonoBehaviour:
   collisionLayers:
     serializedVersion: 2
     m_Bits: 64
-  collisionZoomInTime: 0.02
-  collisionZoomOutTime: 0.8
+  collisionZoomInTime: 0.15
+  collisionZoomOutTime: 1.5
   collisionEdgeSmoothTime: 0.4
 --- !u!114 &1879080133409769875
 MonoBehaviour:
@@ -295,7 +295,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2433073019588045867}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 407124f1acf188d49b81d050822375ee, type: 3}
   m_Name: 
@@ -324,7 +324,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2433073019588045867}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 92f53bcccdcdec74fa30d316d85568a3, type: 3}
   m_Name: 
@@ -365,7 +365,10 @@ MonoBehaviour:
   <Indefinite>k__BackingField: 0
   scriptsToModify:
   - {fileID: 4419986128599733150}
-  objectsToModify: []
+  objectsToModify:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   objectsToEnableOnStart: []
   startPos: {fileID: 0}
   endPos: {fileID: 0}
@@ -445,7 +448,6 @@ MonoBehaviour:
   scriptsToModify: []
   objectsToModify:
   - {fileID: 0}
-  - {fileID: 0}
   objectsToEnableOnStart: []
   startPos: {fileID: 0}
   endPos: {fileID: 0}
@@ -478,6 +480,7 @@ MonoBehaviour:
   player: {fileID: 0}
   cameraScreenOffset: {x: 0, y: 0.5}
   cameraTargetOffset: {x: 0, y: 0, z: 0}
+  cameraZOffset: 0
   cameraOffsetBlendSpeed: 6
   startPos: {fileID: 7647621485477768072}
   endPos: {fileID: 1550008976162227616}
@@ -529,8 +532,8 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  startScreenOffset: {x: 0, y: 0.4}
-  endScreenOffset: {x: 0, y: 0.1}
+  startScreenOffset: {x: 0, y: 0.5}
+  endScreenOffset: {x: 0, y: 0.2}
   startCameraDistance: 19
   endCameraDistance: 1
   cameraStartPitch: 90
@@ -539,9 +542,9 @@ MonoBehaviour:
   fadeToBlackScript: {fileID: 0}
   fadeInDuration: 1.8
   anim: {fileID: 0}
-  wobbleScreenStrength: 0.04
-  wobbleZStrength: 0.3
-  wobbleFrequency: 1.8
+  wobbleScreenStrength: 0.075
+  wobbleZStrength: 0.025
+  wobbleFrequency: 0.75
 --- !u!114 &3746920403772678472
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -580,7 +583,7 @@ Transform:
   m_GameObject: {fileID: 4159361861526049973}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 74.5, y: 119.5, z: -3.130005}
+  m_LocalPosition: {x: 74.5, y: 149.2, z: -3.130005}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

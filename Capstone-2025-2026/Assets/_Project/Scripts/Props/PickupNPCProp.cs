@@ -62,20 +62,23 @@ public class PickupNPCProp : Prop
 
         DestroyAllAttachedTethers();
 
-
-
-        RuntimeManager.PlayOneShot("event:/NPCSave", transform.position);
-        if(endTrack) endTrack.EndSequence();
-
         //tell UI that you got a puff
         critterInstanceScript.BeRescued();
 
-        if (keyNPC)
+        RuntimeManager.PlayOneShot("event:/NPCSave", transform.position);
+        if (endTrack)
         {
-            Invoke("KeyNPCAction", 2.0f);
-
+            endTrack.EndSequence();
         }
-           
+
+        if (keyNPC && spawnCutscene != null)
+        {
+            //this is super jank right now, the cutscene blend delay has to be the same as the capture duration (capture clears the freeze and is an invoked event)
+            //otherwise you can move during the popup
+            spawnCutscene.Configure(cutsceneStartPos, lookAtTarget, cutsceneDuration, cutsceneHoldFraction, cutsceneBlendInDelay, cutsceneBlendInTime);
+            CameraRefData.Instance.CameraCutsceneHandler.StartCutscene(spawnCutscene);
+            Invoke("KeyNPCAction", cutsceneBlendInDelay);
+        }
     }
 
     private void KeyNPCAction()
@@ -109,9 +112,6 @@ public class PickupNPCProp : Prop
                 Instantiate(dustParticle, t.position, Quaternion.identity);
             }
         }
-
-        spawnCutscene.Configure(cutsceneStartPos, lookAtTarget, cutsceneDuration, cutsceneHoldFraction, cutsceneBlendInDelay, cutsceneBlendInTime);
-        CameraRefData.Instance.CameraCutsceneHandler.StartCutscene(spawnCutscene);
 
         dialogueTrigger.CreateNPCDialogue();
     }

@@ -39,16 +39,16 @@ public class PropSpawnPile : Prop
         }
     }
 
-    public override void OnSnare(PlayerRefData playerData)
+    public override void OnSnare()
     {
-        base.OnSnare(playerData);
+        base.OnSnare();
         SpawnPropOnPluck();
+        OnRelease();
     }
 
     private void SpawnPropOnPluck()
     {
         Prop stale = _pool.Dequeue();
-        Instantiate(DustEffect, stale.AttachedTransform);
         stale.gameObject.SetActive(false);
         stale.DestroyAllAttachedTethers();
 
@@ -62,7 +62,9 @@ public class PropSpawnPile : Prop
         stale.transform.rotation = Quaternion.Euler(0f, spawnDirection != null ? spawnDirection.eulerAngles.y : 0f, 0f);
         stale.gameObject.SetActive(true);
 
-        _playerRefData.Lasso.SetupHeldProp(stale, null);
+        Instantiate(DustEffect, stale.transform.position, stale.transform.rotation);
+
+        PlayerRefData.Instance.Lasso.SetupHeldProp(stale, null);
         _pool.Enqueue(stale);
     }
 
