@@ -32,7 +32,6 @@ public class PlayerLedgeGrab : MonoBehaviour
     [SerializeField] private float grabCooldownTime = 0.3f;
 
     private CapsuleCollider _playerCol;
-    private PlayerRefData _playerRefData;
     private float hangTimer;
     private float _grabCooldown;
     private Transform grabbedLedge;
@@ -47,7 +46,6 @@ public class PlayerLedgeGrab : MonoBehaviour
     private void Awake()
     {
         _playerCol = GetComponent<CapsuleCollider>();
-        _playerRefData = GetComponent<PlayerRefData>();
 
         if (forwardRef == null) forwardRef = Camera.main.transform;
     }
@@ -58,7 +56,7 @@ public class PlayerLedgeGrab : MonoBehaviour
         {
             hangTimer += Time.deltaTime;
             bool release = grabbedLedge.TryGetComponent(out Rigidbody rb) && rb.linearVelocity.magnitude > maxObjectFollowSpeed;
-            bool tooLow = _playerRefData.PlayerMovement.IsGrounded();
+            bool tooLow = PlayerRefData.Instance.PlayerMovement.IsGrounded();
 
             if (PlayerActions.Instance.JumpDown)
             {
@@ -92,10 +90,10 @@ public class PlayerLedgeGrab : MonoBehaviour
         {
             //convert relative ledge location back to world space and move rigidbody to follow it
             Vector3 worldGrabPos = grabbedLedge.TransformPoint(grabPosLocal);
-            _playerRefData.PlayerMovement.Rb.MovePosition(worldGrabPos);
+            PlayerRefData.Instance.PlayerMovement.Rb.MovePosition(worldGrabPos);
 
             Quaternion targetRot = grabbedLedge.rotation * _localLedgeRotation;
-            _playerRefData.PlayerModelRotationHandler.SetNewRotationDir(targetRot, true);
+            PlayerRefData.Instance.PlayerModelRotationHandler.SetNewRotationDir(targetRot, true);
         }
     }
 
@@ -114,7 +112,7 @@ public class PlayerLedgeGrab : MonoBehaviour
     private Vector3? CheckForLedge()
     {
         //use WishDir when input exists, fall back to camera forward so walking up to a stationary ledge still works
-        Vector3 wishDir = _playerRefData.PlayerMovement.WishDir;
+        Vector3 wishDir = PlayerRefData.Instance.PlayerMovement.WishDir;
         bool hasInput = wishDir.sqrMagnitude > 0.001f;
 
         Vector3 horizontalDir = hasInput
@@ -127,7 +125,7 @@ public class PlayerLedgeGrab : MonoBehaviour
         if (result != null) return result;
 
         //cast 2 - upward: the horizontal cast misses ledge overhangs directly above the player, this catches them
-        bool movingUp = _playerRefData.PlayerMovement.Rb.linearVelocity.y > 0.5f;
+        bool movingUp = PlayerRefData.Instance.PlayerMovement.Rb.linearVelocity.y > 0.5f;
         if (movingUp)
         {
             //origin at shoulder height so the sphere has room to sweep before exiting the top of the capsule
@@ -161,7 +159,7 @@ public class PlayerLedgeGrab : MonoBehaviour
     private Vector3? ValidateLedge(RaycastHit forwardHit, Vector3 approachDir)
     {
         //if the hit landed on a top surface rather than the wall face, re-cast from just below to find the true wall normal
-        if (Vector3.Dot(forwardHit.normal, Vector3.up) > 0.7f)
+        if (Vector3.Angle(forwardHit.normal, Vector3.up) < maxLedgeAngle)
         {
             Vector3 fixOrigin = forwardHit.point - (Vector3.up * 0.1f) - (approachDir * 0.1f);
             if (Physics.Raycast(fixOrigin, approachDir, out RaycastHit sideHit, 0.5f, grabbableLayers, QueryTriggerInteraction.Ignore))
@@ -238,12 +236,12 @@ public class PlayerLedgeGrab : MonoBehaviour
 
     private void HangOnLedge(Vector3 ledgePos)
     {
-        _playerRefData.PlayerMovement.Rb.MovePosition(ledgePos);
-        _playerRefData.PlayerMovement.EnableGravity(false);
-        _playerRefData.PlayerMovement.SetGrabbing(true);
-        _playerRefData.PlayerMovement.KillVelocity();
-        _playerRefData.LassoTetherController.SetLassoState(false);
-        _playerRefData.LassoTetherController.SetTetherState(false);
+        PlayerRefData.Instance.PlayerMovement.Rb.MovePosition(ledgePos);
+        PlayerRefData.Instance.PlayerMovement.EnableGravity(false);
+        PlayerRefData.Instance.PlayerMovement.SetGrabbing(true);
+        PlayerRefData.Instance.PlayerMovement.KillVelocity();
+        PlayerRefData.Instance.LassoTetherController.SetLassoState(false);
+        PlayerRefData.Instance.LassoTetherController.SetTetherState(false);
 
         //disable grabbed ledge collision, otherwise there's stuttering
         if (grabbedLedgeCollider != null)
@@ -256,12 +254,12 @@ public class PlayerLedgeGrab : MonoBehaviour
 
     private void ReleaseLedge(bool restoreCollision = true)
     {
-        _playerRefData.PlayerModelRotationHandler.SetNewRotationDir(null, false);
-        _playerRefData.PlayerMovement.SetGrabbing(false);
-        _playerRefData.PlayerMovement.EnableGravity(true);
-        _playerRefData.PlayerMovement.SetExternalForce(Vector3.zero);
-        _playerRefData.LassoTetherController.SetLassoState(true);
-        _playerRefData.LassoTetherController.SetTetherState(true);
+        PlayerRefData.Instance.PlayerModelRotationHandler.SetNewRotationDir(null, false);
+        PlayerRefData.Instance.PlayerMovement.SetGrabbing(false);
+        PlayerRefData.Instance.PlayerMovement.EnableGravity(true);
+        PlayerRefData.Instance.PlayerMovement.SetExternalForce(Vector3.zero);
+        PlayerRefData.Instance.LassoTetherController.SetLassoState(true);
+        PlayerRefData.Instance.LassoTetherController.SetTetherState(true);
 
         if (restoreCollision && grabbedLedgeCollider != null)
         {
@@ -275,9 +273,11 @@ public class PlayerLedgeGrab : MonoBehaviour
 
     private void HandleLedgeJump()
     {
-        _playerRefData.PlayerMovement.Rb.isKinematic = false;
+        PlayerRefData.Instance.PlayerMovement.Rb.isKinematic = false;
+        PlayerRefData.Instance.PlayerMovement.DisableJump(true);
         ReleaseLedge();
-        _playerRefData.PlayerMovement.Jump(ledgeJumpForceMultiplier, true);
+        PlayerRefData.Instance.PlayerMovement.Jump(ledgeJumpForceMultiplier, true);
+        PlayerRefData.Instance.PlayerMovement.DisableJump(false);
         RuntimeManager.PlayOneShot("event:/Jump", transform.position);
     }
 
@@ -293,17 +293,17 @@ public class PlayerLedgeGrab : MonoBehaviour
 
     private IEnumerator Mantle(Vector3 targetPos)
     {
-        _playerRefData.PlayerMovement.Rb.isKinematic = true;
+        PlayerRefData.Instance.PlayerMovement.Rb.isKinematic = true;
         OnMantle?.Invoke(true);
 
         //snap to authoritative hang position before starting the arc
         Vector3 worldGrabPos = grabbedLedge.TransformPoint(grabPosLocal);
-        _playerRefData.PlayerMovement.Rb.MovePosition(worldGrabPos);
+        PlayerRefData.Instance.PlayerMovement.Rb.MovePosition(worldGrabPos);
 
         Quaternion targetRot = grabbedLedge.rotation * _localLedgeRotation;
-        _playerRefData.PlayerModelRotationHandler.SetNewRotationDir(targetRot, true);
+        PlayerRefData.Instance.PlayerModelRotationHandler.SetNewRotationDir(targetRot, true);
 
-        Vector3 p0 = _playerRefData.PlayerMovement.Rb.position;
+        Vector3 p0 = PlayerRefData.Instance.PlayerMovement.Rb.position;
         targetPos = SafeMantleTarget(targetPos);
         Vector3 p3 = targetPos;
 
@@ -340,13 +340,13 @@ public class PlayerLedgeGrab : MonoBehaviour
                         + (3f * u * et * et) * p2
                         + (et * et * et) * p3;
 
-            _playerRefData.PlayerMovement.Rb.MovePosition(pos);
+            PlayerRefData.Instance.PlayerMovement.Rb.MovePosition(pos);
             yield return new WaitForFixedUpdate();
         }
 
         //settle position before re-enabling collision so the capsule is fully placed before physics reacts
-        _playerRefData.PlayerMovement.Rb.position = targetPos;
-        _playerRefData.PlayerMovement.Rb.isKinematic = false;
+        PlayerRefData.Instance.PlayerMovement.Rb.position = targetPos;
+        PlayerRefData.Instance.PlayerMovement.Rb.isKinematic = false;
 
         if (grabbedLedgeCollider != null)
         {
