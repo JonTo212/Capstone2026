@@ -4,14 +4,24 @@ using DG.Tweening;
 
 public class CollectedCritterPopUp : MonoBehaviour
 {
-    private Transform text_PopUp;
-    private DOTweenAnimation text_Anim;
+    private Transform popUp1;
+    private Transform popUp2;
+
+    private DOTweenAnimation popUp1Anim;
+    private DOTweenAnimation popUp2Anim;
 
     private void Awake()
     {
 
-        text_PopUp = this.gameObject.transform.GetChild(0);
-        text_Anim = text_PopUp.GetComponent<DOTweenAnimation>();
+        popUp1 = this.gameObject.transform.GetChild(0);
+        popUp2 = this.gameObject.transform.GetChild(1);
+
+
+        popUp1.gameObject.SetActive(false);
+        popUp2.gameObject.SetActive(false);
+
+        popUp1Anim = popUp1.GetComponent<DOTweenAnimation>();
+        popUp2Anim = popUp2.GetComponent<DOTweenAnimation>();
 
     }
 
@@ -19,11 +29,15 @@ public class CollectedCritterPopUp : MonoBehaviour
     {
         //Collected critter sound fx
         Debug.Log("Juan put Sound FX here.");
-        
-        text_Anim.DORestart();
-       
-        text_PopUp.gameObject.SetActive(true);
-        text_Anim.DOPlay();
+
+        popUp1Anim.DORestart();
+        popUp1.gameObject.SetActive(true);
+        popUp1Anim.DOPlay();
+
+        popUp2Anim.DORestart();
+        popUp2.gameObject.SetActive(true);
+        popUp2Anim.DOPlay();
+
     }
 
 }
