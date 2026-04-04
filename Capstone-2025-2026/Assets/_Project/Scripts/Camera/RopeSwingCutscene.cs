@@ -81,7 +81,7 @@ public class RopeSwingCutscene : PlayerCutsceneBase
         _currentModelYaw = startFwdFlat.sqrMagnitude > 0.01f ? Quaternion.LookRotation(startFwdFlat).eulerAngles.y : 0f;
 
         PlayerActions.Instance.RumbleFor(0.015f, 0.03f, Duration);
-        player.GetComponent<PlayerRefData>().LassoTetherController.ClearHold();
+        PlayerRefData.Instance.LassoTetherController.ClearHold();
 
         if (playerModelRotation != null)
             playerModelRotation.SetNewRotationDir(null, true);
@@ -166,7 +166,7 @@ public class RopeSwingCutscene : PlayerCutsceneBase
         if (sparkParticles != null)
         {
             sparkParticles.transform.position = _attachmentPos;
-            sparkParticles.transform.rotation = Quaternion.LookRotation(GetPathForward(T, ropeVisualLookAhead));
+            sparkParticles.transform.rotation = Quaternion.LookRotation(-GetPathForward(T, ropeVisualLookAhead));
         }
 
         if (IsPlaying)

@@ -43,12 +43,12 @@ public class PropSpawnPile : Prop
     {
         base.OnSnare();
         SpawnPropOnPluck();
+        OnRelease();
     }
 
     private void SpawnPropOnPluck()
     {
         Prop stale = _pool.Dequeue();
-        Instantiate(DustEffect, stale.AttachedTransform);
         stale.gameObject.SetActive(false);
         stale.DestroyAllAttachedTethers();
 
@@ -61,6 +61,8 @@ public class PropSpawnPile : Prop
         stale.transform.position = spawnDirection != null ? spawnDirection.position : transform.position;
         stale.transform.rotation = Quaternion.Euler(0f, spawnDirection != null ? spawnDirection.eulerAngles.y : 0f, 0f);
         stale.gameObject.SetActive(true);
+
+        Instantiate(DustEffect, stale.transform.position, stale.transform.rotation);
 
         PlayerRefData.Instance.Lasso.SetupHeldProp(stale, null);
         _pool.Enqueue(stale);

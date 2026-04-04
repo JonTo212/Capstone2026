@@ -162,6 +162,7 @@ public class LassoTetherController : MonoBehaviour
     private void OnObjectYankCompleted()
     {
         PlayerRefData.Instance.Lasso.HandleHold();
+        ClearHold();
         SwitchLassoState(LassoState.Empty);
     }
 
@@ -177,18 +178,7 @@ public class LassoTetherController : MonoBehaviour
 
     public void ClearHold()
     {
-        bool PluckOut = PlayerRefData.Instance.Lasso.SnaredObject is BreakablePluckupProp;
-
-        if (PluckOut)
-        {
-            var PluckOutObject = PlayerRefData.Instance.Lasso.SnaredObject as BreakablePluckupProp;
-
-            if (holdDelayCoroutine != null)
-                StopCoroutine(holdDelayCoroutine);
-
-            holdDelayCoroutine = StartCoroutine(WaitForHoldDelay(PluckOutObject.pluckDelay));
-            return;
-        }
+        if (HandlePluckoutDelay()) return;
 
         if (PlayerRefData.Instance.Lasso.SnaredObject != null)
         {
@@ -201,6 +191,22 @@ public class LassoTetherController : MonoBehaviour
         PlayerRefData.Instance.PlayerMovement.SetGrabbing(false);
 
         SwitchLassoState(LassoState.Empty);
+    }
+
+    private bool HandlePluckoutDelay()
+    {
+        bool PluckOut = PlayerRefData.Instance.Lasso.SnaredObject is BreakablePluckupProp;
+        if (PluckOut)
+        {
+            var PluckOutObject = PlayerRefData.Instance.Lasso.SnaredObject as BreakablePluckupProp;
+
+            if (holdDelayCoroutine != null)
+                StopCoroutine(holdDelayCoroutine);
+
+            holdDelayCoroutine = StartCoroutine(WaitForHoldDelay(PluckOutObject.pluckDelay));
+            return true;
+        }
+        return false;
     }
 
     private IEnumerator WaitForHoldDelay(float delay)

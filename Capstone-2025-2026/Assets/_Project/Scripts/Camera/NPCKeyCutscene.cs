@@ -45,8 +45,15 @@ public class NPCKeyCutscene : CameraCutsceneBase
 
     public override void OnBlendTick(float t)
     {
+        base.OnBlendTick(t);
+
         cam.transform.position = Vector3.Lerp(_blendFromPos, startPos.position, t);
         cam.transform.rotation = Quaternion.Slerp(_blendFromRot, Quaternion.LookRotation(lookAtTarget.position - startPos.position), t);
+
+        //for npc capture, should be temp (kill movement that gets re-enabled by capture invoke)
+        PlayerRefData.Instance.PlayerMovement.SetGrabbing(true);
+        PlayerRefData.Instance.LassoTetherController.SetLassoState(false);
+        PlayerRefData.Instance.LassoTetherController.SetTetherState(false);
     }
 
     public override void OnCutsceneStart()
@@ -60,6 +67,11 @@ public class NPCKeyCutscene : CameraCutsceneBase
 
         _returnTargetPos = CameraRefData.Instance.ZeldaCameraController.GetGhostPosition();
         _returnTargetRot = CameraRefData.Instance.ZeldaCameraController.GetGhostRotation();
+
+        //for npc capture, should be temp (kill movement that gets re-enabled by capture invoke)
+        PlayerRefData.Instance.PlayerMovement.SetGrabbing(true);
+        PlayerRefData.Instance.LassoTetherController.SetLassoState(false);
+        PlayerRefData.Instance.LassoTetherController.SetTetherState(false);
 
         //no snap here - blend already moved us to startPos
         cam.fieldOfView = _targetFOV;
