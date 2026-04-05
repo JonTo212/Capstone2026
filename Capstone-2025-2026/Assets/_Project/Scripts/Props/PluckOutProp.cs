@@ -13,8 +13,10 @@ public class PluckOutProp : Prop
     [SerializeField] public bool hasBeenPlucked = false;
     [SerializeField] private float startDist = 0f;
     [SerializeField] private GameObject groundedVisuals;
+    [SerializeField] private float reelThreshold = 0.3f;
     private float walkBackDist = 10f;
     private float playerStartDist = 0f;
+    private float reelTimer;
 
     private Coroutine pluckCoroutine;
 
@@ -36,12 +38,12 @@ public class PluckOutProp : Prop
 
     protected void TryPluckProp()
     {
-        
+        /*
         Vector3 localForceVector = transform.InverseTransformVector(totalForceApplied);
 
         bool stepCheck = false; 
         bool reelCheck = false;
-        /*
+
         float totalForceMagnitude = 0;
 
         //pluck horizontally considers both horizontal and vertical force as valid. Each direction's multiplier is applied
@@ -79,13 +81,22 @@ public class PluckOutProp : Prop
             pluckCoroutine = null;
         } */
 
-        if (PlayerActions.Instance.MoveInput.y < -0.01f && IsSnared) StartCoroutine(PluckAfterDelay(0f));
+        if (PlayerActions.Instance.MoveInput.y < -0.1f && IsSnared)
+        {
+            reelTimer += Time.deltaTime;
+            if(reelTimer > reelThreshold)
+            {
+                OnPluck();
+            }
+            //StartCoroutine(PluckAfterDelay(0.3f));
+        }
     }
 
     public override void OnSnare()
     {
         base.OnSnare();
         PlayerRefData.Instance.PlayerMovement.SetGrabbing(true);
+        reelTimer = 0;
     }
 
     protected virtual void OnPluck()

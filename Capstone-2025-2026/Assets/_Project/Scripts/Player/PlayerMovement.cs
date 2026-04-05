@@ -1,3 +1,4 @@
+using DG.Tweening;
 using FMODUnity;
 using System;
 using UnityEngine;
@@ -86,11 +87,14 @@ public class PlayerMovement : MonoBehaviour
     public event Action OnDoubleJump;
     public event Action OnJump;
 
+    private StudioEventEmitter playerEmitter;
+
     #region Unity Functions
     private void Awake()
     {
         Rb = GetComponent<Rigidbody>();
         _playerRefData = GetComponent<PlayerRefData>();
+        playerEmitter = GetComponent<StudioEventEmitter>();
 
         _gravity = 2 * apexHeight / Mathf.Pow(apexTime, 2);
         _jumpForce = 2 * apexHeight / apexTime;
@@ -271,10 +275,13 @@ public class PlayerMovement : MonoBehaviour
     {
         if (WishDir != Vector3.zero && IsGrounded())
         {
+            if(!playerEmitter.IsPlaying())
+            playerEmitter.Play();
             //AudioManager.Instance.SFXSource7.UnPause();
         }
         else
         {
+            playerEmitter.Stop();
             //AudioManager.Instance.SFXSource7.Pause(); //PlaySFX(aManage.Walk, 5, 1);
         }
     }

@@ -57,7 +57,7 @@ public class BreakablePluckupProp : PluckOutProp
 
     private void Break()
     {
-        if (!dontPlayDestroySound) RuntimeManager.PlayOneShot("event:/RockBreak", transform.position);
+        if (!dontPlayDestroySound) RuntimeManager.PlayOneShot("event:/FruitBreak", transform.position);
 
         if (propToSpawnAfterBreak != null)
         {

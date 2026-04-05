@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using FMODUnity;
 using UnityEngine;
 
 public class RopeSwingCutscene : PlayerCutsceneBase
@@ -48,10 +49,13 @@ public class RopeSwingCutscene : PlayerCutsceneBase
     private Vector3 _attachmentPos;
     private Quaternion _pathEndRotation;
 
+    private StudioEventEmitter soundQueue;
+
     #region Unity Functions and Cutscene Overrides
     private void Awake()
     {
         DrawRopeVisuals();
+        soundQueue = GetComponent<StudioEventEmitter>();
     }
 
     public override void OnCutscenePrepare()
@@ -69,7 +73,7 @@ public class RopeSwingCutscene : PlayerCutsceneBase
     public override void OnCutsceneStart()
     {
         base.OnCutsceneStart();
-
+        soundQueue.Play();
         _startTime = Time.time;
         _smoothedCurvature = 0f;
         _smoothedSpeed = 0f;
@@ -139,6 +143,7 @@ public class RopeSwingCutscene : PlayerCutsceneBase
     public override void OnCutsceneEnd()
     {
         base.OnCutsceneEnd();
+        soundQueue.Stop();
 
         if (lassoVisuals != null)
             lassoVisuals.ExitCutsceneMode();

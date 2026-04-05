@@ -346,7 +346,7 @@ public abstract class Prop : MonoBehaviour, ISnareable, IHoldable, ITetherable
         if (IsSnared)
         {
             TriggerHoverRumble();
-            RuntimeManager.PlayOneShot("event:/Collision", transform.position);
+            RuntimeManager.PlayOneShot("event:/PropCollision", transform.position);
         }
         IsTouchingSurface = true;
     }

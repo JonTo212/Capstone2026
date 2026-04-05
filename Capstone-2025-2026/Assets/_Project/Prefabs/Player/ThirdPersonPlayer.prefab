@@ -471,6 +471,7 @@ GameObject:
   - component: {fileID: 9086093428972805622}
   - component: {fileID: 6128465770690788847}
   - component: {fileID: 7490488656194492114}
+  - component: {fileID: 7878056472664043601}
   m_Layer: 7
   m_Name: ThirdPersonPlayer
   m_TagString: Player
@@ -728,7 +729,7 @@ MonoBehaviour:
   jumpBufferCounter: 0
   coyoteTime: 0.2
   coyoteTimeCounter: 0
-  doubleJumpMultiplier: 0.825
+  doubleJumpMultiplier: 0.8
   useDoubleJump: 1
 --- !u!114 &9141277693401130519
 MonoBehaviour:
@@ -925,6 +926,37 @@ MonoBehaviour:
   anim: {fileID: 5424001154285603630}
   fadeInDuration: 0.5
   delayBeforeFadeIn: 1.3
+--- !u!114 &7878056472664043601
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2571145194382551425}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FMODUnity::FMODUnity.StudioEventEmitter
+  CollisionTag: 
+  EventReference:
+    Guid:
+      Data1: -1733479956
+      Data2: 1075424871
+      Data3: 1974782863
+      Data4: -213840204
+    Path: event:/Walk
+  Event: 
+  EventPlayTrigger: 0
+  EventStopTrigger: 0
+  AllowFadeout: 1
+  TriggerOnce: 0
+  Preload: 0
+  NonRigidbodyVelocity: 0
+  Params: []
+  OverrideAttenuation: 0
+  OverrideMinDistance: 1
+  OverrideMaxDistance: 20
 --- !u!1 &4814702024667298785
 GameObject:
   m_ObjectHideFlags: 0

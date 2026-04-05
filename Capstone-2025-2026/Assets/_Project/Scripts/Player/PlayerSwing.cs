@@ -24,6 +24,7 @@ public class PlayerSwing : MonoBehaviour
 
     public void SwingJumpBoost()
     {
+        FMODUnity.RuntimeManager.PlayOneShot("event:/Swing");
         _playerRefData.Lasso.HandleObjectReleased();
         _playerRefData.PlayerMovement.Jump(swingJumpForce, true);
     }

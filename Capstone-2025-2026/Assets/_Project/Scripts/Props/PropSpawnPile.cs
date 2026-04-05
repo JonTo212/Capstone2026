@@ -62,6 +62,7 @@ public class PropSpawnPile : Prop
         stale.transform.rotation = Quaternion.Euler(0f, spawnDirection != null ? spawnDirection.eulerAngles.y : 0f, 0f);
         stale.gameObject.SetActive(true);
 
+        FMODUnity.RuntimeManager.PlayOneShot("event:/SpawnPileSound");
         Instantiate(DustEffect, stale.transform.position, stale.transform.rotation);
 
         PlayerRefData.Instance.Lasso.SetupHeldProp(stale, null);
