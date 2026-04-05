@@ -112,7 +112,8 @@ public class LassoTetherController : MonoBehaviour
     {
         if (CurrentLassoState != LassoState.Empty) return;
 
-        bool lookingAtAutoTarget = PlayerRefData.Instance.Lasso.LookingAtAutoEquipTarget;
+        bool inRopeCutscene = CameraRefData.Instance.CameraCutsceneHandler.CurrentCutscene is RopeSwingCutscene && CameraRefData.Instance.CameraCutsceneHandler.IsPlaying();
+        bool lookingAtAutoTarget = PlayerRefData.Instance.Lasso.LookingAtAutoEquipTarget || inRopeCutscene;
 
         if (lookingAtAutoTarget && !autoEquippedRod)
         {

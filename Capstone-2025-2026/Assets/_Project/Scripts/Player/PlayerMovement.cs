@@ -466,12 +466,7 @@ public class PlayerMovement : MonoBehaviour
     #region Gravity
     private void HandleGravityRelative(ref Vector3 relVel)
     {
-        if (CurrentMovementState == PlayerMoveState.Walking && Rb.linearVelocity.y <= 0.1f)
-        {
-            relVel = Vector3.ProjectOnPlane(relVel, _groundHit.normal);
-            relVel -= _groundHit.normal * 2f * Time.fixedDeltaTime;
-            return;
-        }
+        if (CurrentMovementState == PlayerMoveState.Walking && Rb.linearVelocity.y <= 0.1f) return;
 
         relVel.y -= _gravity * Time.fixedDeltaTime;
         if (relVel.y < -_maxGravity)
