@@ -1232,10 +1232,10 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Movement.bank
   Name: Movement
   StudioPath: bank:/Player/Movement
-  lastModified: 639108713693873320
+  lastModified: 639109387366830376
   FileSizes:
   - Name: Desktop
-    Value: 313344
+    Value: 344960
   Exists: 1
 --- !u!114 &-6341412166554534850
 MonoBehaviour:
@@ -3182,10 +3182,10 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Master.strings.bank
   Name: Master.strings
   StudioPath: bank:/Master.strings
-  lastModified: 639109343082260981
+  lastModified: 639109387365994304
   FileSizes:
   - Name: Desktop
-    Value: 4778
+    Value: 4824
   Exists: 1
 --- !u!114 &-1427549211803510698
 MonoBehaviour:
@@ -3748,13 +3748,14 @@ MonoBehaviour:
   - {fileID: -7408259072387552725}
   - {fileID: 1002104760279583637}
   - {fileID: -3542154748865883236}
+  - {fileID: 3602094109965245367}
   EditorParameters: []
   MasterBanks:
   - {fileID: 1681885774721877429}
   StringsBanks:
   - {fileID: -1465714216367696045}
   cacheVersion: 131858
-  cacheTime: 639109351344916602
+  cacheTime: 639109387367346487
   SerializableEventsDict:
   - key: event:/WaterSplash
     index: 0
@@ -3914,6 +3915,8 @@ MonoBehaviour:
     index: 77
   - key: event:/ToolSwitch
     index: 78
+  - key: event:/JumpLand
+    index: 79
 --- !u!114 &69565535895606078
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4401,7 +4404,7 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Master.bank
   Name: Master
   StudioPath: bank:/Master
-  lastModified: 639109343082230983
+  lastModified: 639109387365964294
   FileSizes:
   - Name: Desktop
     Value: 1670
@@ -4866,7 +4869,7 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Tools.bank
   Name: Tools
   StudioPath: bank:/Player/Tools
-  lastModified: 639109343083431248
+  lastModified: 639109387367346487
   FileSizes:
   - Name: Desktop
     Value: 295840
@@ -4913,7 +4916,7 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Level1-1.bank
   Name: Level1-1
   StudioPath: bank:/Level1-1
-  lastModified: 639109351344916602
+  lastModified: 639109387365804250
   FileSizes:
   - Name: Desktop
     Value: 5203392
@@ -5148,6 +5151,33 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 60092
+--- !u!114 &3602094109965245367
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/JumpLand
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
+  Path: event:/JumpLand
+  Guid:
+    Data1: 1115052848
+    Data2: 1238340388
+    Data3: 2029254045
+    Data4: 1115409729
+  Banks:
+  - {fileID: -6369110965473050697}
+  IsStream: 0
+  Is3D: 0
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 4053
 --- !u!114 &3602714600909324830
 MonoBehaviour:
   m_ObjectHideFlags: 0
