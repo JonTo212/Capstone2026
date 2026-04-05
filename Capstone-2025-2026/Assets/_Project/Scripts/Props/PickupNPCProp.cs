@@ -107,7 +107,7 @@ public class PickupNPCProp : Prop
                 Destroy(t.gameObject);
 
                 //FX
-                RuntimeManager.PlayOneShot("event:/WallBreak", transform.position);
+                RuntimeManager.PlayOneShot("event:/PrisonBreak", transform.position);
                 // Spawn particle
                 Instantiate(dustParticle, t.position, Quaternion.identity);
             }
