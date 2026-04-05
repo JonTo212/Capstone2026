@@ -36989,6 +36989,7 @@ GameObject:
   - component: {fileID: 6236682009258081536}
   - component: {fileID: 460301255718568104}
   - component: {fileID: 2008295213898159645}
+  - component: {fileID: 2446740160913872925}
   m_Layer: 0
   m_Name: DT2
   m_TagString: Untagged
@@ -37088,6 +37089,26 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &2446740160913872925
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7232548193470320297}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b36eb71a4b14a6e40a0cbc6cf05fe804, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueTrigger
+  repeatable: 0
+  desiredText: 'Focus V, remember your training. '
+  speakerOptionsDropdown: 0
+  characterSpeed: 5
+  punctuationSpeed: 0.5
+  delay: 0
+  template: {fileID: 0}
+  NewDialogueStorage: {fileID: 0}
 --- !u!1 &7408473648644152897
 GameObject:
   m_ObjectHideFlags: 0
@@ -37816,7 +37837,6 @@ GameObject:
   - component: {fileID: 6970975417338591867}
   - component: {fileID: 5586540421583523967}
   - component: {fileID: 2910215933282823981}
-  - component: {fileID: 2123309338621506158}
   m_Layer: 0
   m_Name: JumpPrompt1
   m_TagString: Untagged
@@ -37934,26 +37954,6 @@ MonoBehaviour:
   controllerPrompts: []
   repeatable: 0
   active: 0
---- !u!114 &2123309338621506158
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7592269696382206059}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b36eb71a4b14a6e40a0cbc6cf05fe804, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DialogueTrigger
-  repeatable: 0
-  desiredText: 'Focus V, remember your training. '
-  speakerOptionsDropdown: 0
-  characterSpeed: 5
-  punctuationSpeed: 0.5
-  delay: 0
-  template: {fileID: 0}
-  NewDialogueStorage: {fileID: 0}
 --- !u!1 &7611187163747537796
 GameObject:
   m_ObjectHideFlags: 0
@@ -48070,6 +48070,7 @@ MonoBehaviour:
   hasBeenPlucked: 0
   startDist: 0
   groundedVisuals: {fileID: 0}
+  reelThreshold: 0.3
   savedFishTransform: {fileID: 7247901332457244280}
   platform: {fileID: 0}
   debrisToDestroy:
@@ -112719,6 +112720,7 @@ MonoBehaviour:
   hasBeenPlucked: 0
   startDist: 0
   groundedVisuals: {fileID: 0}
+  reelThreshold: 0.3
   savedFishTransform: {fileID: 0}
   platform: {fileID: 0}
   debrisToDestroy:
