@@ -31,6 +31,8 @@ public class ScoreResults : MonoBehaviour
         critters = GlobalVariables.critters;
         time = GlobalVariables.time;
 
+        FMODUnity.RuntimeManager.PlayOneShot("event:/MenuMusic");
+
         Calculate();
     }
 
@@ -54,18 +56,22 @@ public class ScoreResults : MonoBehaviour
         if (score < RankCCeiling)
         {
             animator.Play("RankV");
+            FMODUnity.RuntimeManager.PlayOneShot("event:/C Rank");
         }
         else if (score >= RankCCeiling && score < RankBCeiling)
         {
             animator.Play("RankV");
+            FMODUnity.RuntimeManager.PlayOneShot("event:/B Rank");
         }
         else if (score >= RankBCeiling && score < RankACeiling)
         {
             animator.Play("RankV");
+            FMODUnity.RuntimeManager.PlayOneShot("event:/A Rank");
         }
         else
         {
             animator.Play("RankV");
+            FMODUnity.RuntimeManager.PlayOneShot("event:/V Rank");
         }
     }
 
