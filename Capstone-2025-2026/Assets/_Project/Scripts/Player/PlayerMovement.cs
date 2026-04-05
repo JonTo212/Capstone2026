@@ -50,6 +50,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private Transform feetPos;
     [SerializeField] private float feetRadius;
     [SerializeField] private LayerMask groundLayer;
+    [SerializeField] private float maxSlopeAngle = 45f;
 
     [Header("Jump Buffer + Coyote Time + Double Jump")]
     [SerializeField] private float jumpBufferTime = 0.2f;
@@ -63,6 +64,7 @@ public class PlayerMovement : MonoBehaviour
     private MovementProperties _currentMultipliers;
     private Vector3 _lastExternalForce;
     private Vector3 _externalForce;
+    private RaycastHit _groundHit;
     private float _inputMagnitude;
     private float _acceleration;
     private float _jumpForce;
@@ -70,13 +72,13 @@ public class PlayerMovement : MonoBehaviour
     private float _maxGravity;
     private float _gravity;
     private float _lastJumpFrame;
+    private float _smoothedInputMagnitude;
     private bool _jumpEnabled;
     private bool _moveEnabled;
     private bool _useGravity;
     private bool _useFriction;
     private bool _hasJumped;
     private bool _canDoubleJump;
-    private float _smoothedInputMagnitude;
 
     public Vector3 WishDir { get; private set; }
     public Rigidbody Rb { get; private set; }
@@ -275,8 +277,8 @@ public class PlayerMovement : MonoBehaviour
     {
         if (WishDir != Vector3.zero && IsGrounded())
         {
-            if(!playerEmitter.IsPlaying())
-            playerEmitter.Play();
+            if (!playerEmitter.IsPlaying())
+                playerEmitter.Play();
             //AudioManager.Instance.SFXSource7.UnPause();
         }
         else
@@ -287,17 +289,53 @@ public class PlayerMovement : MonoBehaviour
     }
     #endregion
 
+    #region Slope Handling
+
+    public Vector3 AdjustVelocityToSlope(Vector3 velocity)
+    {
+        if (IsGrounded() != null)
+        {
+            float speed = velocity.magnitude;
+            Vector3 projectedDir = Vector3.ProjectOnPlane(velocity.normalized, _groundHit.normal).normalized;
+            return projectedDir * speed;
+        }
+        return velocity;
+    }
+
+    private float GetSlopeSurfaceSpeed(Vector3 vel)
+    {
+        //projects velocity along slope surface
+        Vector3 onPlane = Vector3.ProjectOnPlane(vel, _groundHit.normal);
+        return onPlane.magnitude;
+    }
+
+    private bool IsOnWalkableSlope()
+    {
+        if (IsGrounded() == null) return false;
+
+        //compare to max slope angle + small buffer to prevent jitter on very slight slopes
+        float angle = Vector3.Angle(Vector3.up, _groundHit.normal);
+        return angle > 0.5f && angle <= maxSlopeAngle;
+    }
+
+    private Vector3 ProjectWishDirOnSlope(Vector3 flatWishDir)
+    {
+        //project the flat input direction onto slope
+        Vector3 projected = Vector3.ProjectOnPlane(flatWishDir, _groundHit.normal);
+        return projected.normalized * flatWishDir.magnitude;
+    }
+
+
+    #endregion
+
     #region Detection
 
     public Transform IsGrounded()
     {
-        RaycastHit hit;
-
-        if (Physics.Raycast(transform.position, Vector3.down, out hit, 1.1f, groundLayer))
+        if (Physics.SphereCast(transform.position, feetRadius, Vector3.down, out _groundHit, 1.1f, groundLayer))
         {
-            return hit.transform;
+            return _groundHit.transform;
         }
-
         return null;
     }
 
@@ -428,9 +466,13 @@ public class PlayerMovement : MonoBehaviour
     #region Gravity
     private void HandleGravityRelative(ref Vector3 relVel)
     {
-        if (CurrentMovementState == PlayerMoveState.Walking) return;
+        if (CurrentMovementState == PlayerMoveState.Walking && Rb.linearVelocity.y <= 0.1f)
+        {
+            relVel = Vector3.ProjectOnPlane(relVel, _groundHit.normal);
+            relVel -= _groundHit.normal * 2f * Time.fixedDeltaTime;
+            return;
+        }
 
-        //apply gravity to the reference variable instead of addForce
         relVel.y -= _gravity * Time.fixedDeltaTime;
         if (relVel.y < -_maxGravity)
         {
@@ -470,11 +512,12 @@ public class PlayerMovement : MonoBehaviour
     #region Velocity Overshoot
     private void HandleVelocityOvershootRelative(ref Vector3 relVel)
     {
-        //I THINK THIS + FRICTION ARE STILL CAUSING STICKING ISSUES
         float hardMax = defaultMaxSpeed * hardCapMultiplier;
         float currentMax = _currentMultipliers.maxSpeedMultiplier * defaultMaxSpeed;
 
-        Vector3 horizontalRel = new Vector3(relVel.x, 0, relVel.z);
+        //use velocity on slope or horizontal velocity
+        bool onSlope = IsOnWalkableSlope();
+        Vector3 horizontalRel = onSlope ? Vector3.ProjectOnPlane(relVel, _groundHit.normal) : new Vector3(relVel.x, 0, relVel.z);
         float speed = horizontalRel.magnitude;
 
         if (speed > currentMax)
@@ -486,8 +529,8 @@ public class PlayerMovement : MonoBehaviour
             if (!IsGrounded()) decayStrength /= 2f;
 
             float newSpeed = Mathf.MoveTowards(speed, currentMax, decayStrength * Time.fixedDeltaTime);
-            relVel.x = (horizontalRel.x / speed) * newSpeed;
-            relVel.z = (horizontalRel.z / speed) * newSpeed;
+            Vector3 normalComponent = onSlope ? Vector3.Project(relVel, _groundHit.normal) : new Vector3(0, relVel.y, 0);
+            relVel = (horizontalRel / speed) * newSpeed + normalComponent;
         }
     }
     #endregion
@@ -527,6 +570,9 @@ public class PlayerMovement : MonoBehaviour
 
         float deltaV = frictionAccel * Time.fixedDeltaTime;
         float newSpeed = Mathf.Max(0f, speed - deltaV);
+
+        if (newSpeed < 0.01f) newSpeed = 0f;
+
         playerVel = (playerVel - velocityOnAxis) + (velocityOnAxis.normalized * newSpeed);
     }
 
@@ -543,28 +589,42 @@ public class PlayerMovement : MonoBehaviour
         if (WishDir == Vector3.zero) return;
         if (!_moveEnabled) return;
 
-        Vector3 wishDirNormalized = WishDir.normalized;
-        Vector3 horizontalVel = new Vector3(relVel.x, 0, relVel.z);
-        float currentSpeed = horizontalVel.magnitude;
+        bool onSlope = IsOnWalkableSlope();
+
+        //when on slope, project desired direction onto slope plane so you accelerate along the surface instead of into it
+        Vector3 moveDir = onSlope ? ProjectWishDirOnSlope(WishDir.normalized) : WishDir.normalized;
+        float currentSpeed = onSlope ? GetSlopeSurfaceSpeed(relVel) : new Vector3(relVel.x, 0, relVel.z).magnitude;
         float targetSpeed = GetTargetSpeed();
 
         if (currentSpeed < targetSpeed)
         {
-            float currentSpeedInWishDir = Vector3.Dot(horizontalVel, wishDirNormalized);
+            Vector3 surfaceVel = onSlope ? Vector3.ProjectOnPlane(relVel, _groundHit.normal) : new Vector3(relVel.x, 0, relVel.z);
+            float currentSpeedInWishDir = Vector3.Dot(surfaceVel, moveDir);
             float accelAmount = _acceleration * _currentMultipliers.accelMultiplier * Time.fixedDeltaTime;
             float speedDeficit = targetSpeed - currentSpeedInWishDir;
             float clampedAccel = Mathf.Min(accelAmount, speedDeficit);
 
-            relVel += wishDirNormalized * clampedAccel;
+            relVel += moveDir * clampedAccel;
         }
         else
         {
-            Vector3 targetVelocity = wishDirNormalized * currentSpeed;
+            //redirect velocity at max speed
+            Vector3 surfaceVel = onSlope ? Vector3.ProjectOnPlane(relVel, _groundHit.normal) : new Vector3(relVel.x, 0, relVel.z);
+            Vector3 targetVelocity = moveDir * currentSpeed;
             float steerStrength = _acceleration * _currentMultipliers.accelMultiplier * steeringMultiplier * Time.fixedDeltaTime;
+            Vector3 newSurfaceVel = Vector3.MoveTowards(surfaceVel, targetVelocity, steerStrength);
 
-            Vector3 newHorizontalVel = Vector3.MoveTowards(horizontalVel, targetVelocity, steerStrength);
-            relVel.x = newHorizontalVel.x;
-            relVel.z = newHorizontalVel.z;
+            if (onSlope)
+            {
+                //keep residual normal force, but redirect on the slope
+                Vector3 normalComponent = Vector3.Project(relVel, _groundHit.normal);
+                relVel = newSurfaceVel + normalComponent;
+            }
+            else
+            {
+                relVel.x = newSurfaceVel.x;
+                relVel.z = newSurfaceVel.z;
+            }
         }
     }
     #endregion

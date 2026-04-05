@@ -180,6 +180,26 @@ public class Lasso : MonoBehaviour
         SnaredObject.OnPropDestroyed += HandleObjectReleased;
     }
 
+    public void SetupHeldPropAtNearestGrabPoint(Prop newProp)
+    {
+        Transform nearestGrab = newProp.CheckNearestGrabPoint(_playerCam.transform.position);
+
+        if (nearestGrab != null)
+        {
+            RaycastHit syntheticHit = new RaycastHit();
+            Ray grabRay = new Ray(_playerCam.transform.position, (nearestGrab.position - _playerCam.transform.position).normalized);
+
+            if (Physics.Raycast(grabRay, out syntheticHit, MaxLassoRange,
+                Physics.AllLayers, QueryTriggerInteraction.Ignore))
+            {
+                SetupHeldProp(newProp, syntheticHit);
+                return;
+            }
+        }
+
+        SetupHeldProp(newProp, null);
+    }
+
     public void HandleLassoStart()
     {
         RaycastHit? hit = _aimAssist.GetAssistHitPoint(_playerCam, transform.position, MaxLassoRange, aimAssistType, aimAssistBufferRadius);
