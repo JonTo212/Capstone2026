@@ -21,7 +21,7 @@ public class MusicUITrigger : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        string text = "♫ Now Playing ♫\n" + names;
+        string text = "♫ Now Playing ♫\n\n" + names;
         uiText.SetText(text);
         uiText.DOFade(1f,duration);
         uiOutline.DOFade(1f,duration);
