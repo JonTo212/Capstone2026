@@ -1232,10 +1232,10 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Movement.bank
   Name: Movement
   StudioPath: bank:/Player/Movement
-  lastModified: 639109387366830376
+  lastModified: 639109439468573053
   FileSizes:
   - Name: Desktop
-    Value: 344960
+    Value: 418752
   Exists: 1
 --- !u!114 &-6341412166554534850
 MonoBehaviour:
@@ -2207,7 +2207,7 @@ MonoBehaviour:
   Parameters: []
   MinDistance: 1
   MaxDistance: 20
-  Length: 1880
+  Length: 650
 --- !u!114 &-3498296881775723246
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3182,10 +3182,10 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Master.strings.bank
   Name: Master.strings
   StudioPath: bank:/Master.strings
-  lastModified: 639109387365994304
+  lastModified: 639109439467925323
   FileSizes:
   - Name: Desktop
-    Value: 4824
+    Value: 4950
   Exists: 1
 --- !u!114 &-1427549211803510698
 MonoBehaviour:
@@ -3590,7 +3590,7 @@ MonoBehaviour:
   Parameters: []
   MinDistance: 1
   MaxDistance: 20
-  Length: 0
+  Length: 1500
 --- !u!114 &-187256702306006210
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3613,6 +3613,33 @@ MonoBehaviour:
   - {fileID: -6369110965473050697}
   IsStream: 0
   Is3D: 0
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 0
+--- !u!114 &-186625317514354428
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/PropCollision
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
+  Path: event:/PropCollision
+  Guid:
+    Data1: 1485132694
+    Data2: 1287865994
+    Data3: 1456522895
+    Data4: -1419655990
+  Banks:
+  - {fileID: 3038620563360785956}
+  IsStream: 0
+  Is3D: 1
   IsOneShot: 1
   Parameters: []
   MinDistance: 1
@@ -3749,13 +3776,16 @@ MonoBehaviour:
   - {fileID: 1002104760279583637}
   - {fileID: -3542154748865883236}
   - {fileID: 3602094109965245367}
+  - {fileID: 5788776656303946710}
+  - {fileID: -186625317514354428}
+  - {fileID: 4551690880844005528}
   EditorParameters: []
   MasterBanks:
   - {fileID: 1681885774721877429}
   StringsBanks:
   - {fileID: -1465714216367696045}
   cacheVersion: 131858
-  cacheTime: 639109387367346487
+  cacheTime: 639109439768548307
   SerializableEventsDict:
   - key: event:/WaterSplash
     index: 0
@@ -3917,6 +3947,12 @@ MonoBehaviour:
     index: 78
   - key: event:/JumpLand
     index: 79
+  - key: event:/DandelionPoof
+    index: 80
+  - key: event:/PropCollision
+    index: 81
+  - key: event:/BushShake
+    index: 82
 --- !u!114 &69565535895606078
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4404,7 +4440,7 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Master.bank
   Name: Master
   StudioPath: bank:/Master
-  lastModified: 639109387365964294
+  lastModified: 639109439467885314
   FileSizes:
   - Name: Desktop
     Value: 1670
@@ -4869,7 +4905,7 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Tools.bank
   Name: Tools
   StudioPath: bank:/Player/Tools
-  lastModified: 639109387367346487
+  lastModified: 639109406006753916
   FileSizes:
   - Name: Desktop
     Value: 295840
@@ -4916,10 +4952,10 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Level1-1.bank
   Name: Level1-1
   StudioPath: bank:/Level1-1
-  lastModified: 639109387365804250
+  lastModified: 639109439768548307
   FileSizes:
   - Name: Desktop
-    Value: 5203392
+    Value: 5232384
   Exists: 1
 --- !u!114 &3046122020266339186
 MonoBehaviour:
@@ -5177,7 +5213,7 @@ MonoBehaviour:
   Parameters: []
   MinDistance: 1
   MaxDistance: 20
-  Length: 4053
+  Length: 700
 --- !u!114 &3602714600909324830
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5516,6 +5552,33 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 18120
+--- !u!114 &4551690880844005528
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/BushShake
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
+  Path: event:/BushShake
+  Guid:
+    Data1: 808985753
+    Data2: 1331818777
+    Data3: 2132642230
+    Data4: 725218895
+  Banks:
+  - {fileID: 3038620563360785956}
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 400
 --- !u!114 &4595585363002211042
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5934,6 +5997,33 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 240000
+--- !u!114 &5788776656303946710
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/DandelionPoof
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
+  Path: event:/DandelionPoof
+  Guid:
+    Data1: 595061947
+    Data2: 1105249874
+    Data3: 1834961292
+    Data4: 1699631446
+  Banks:
+  - {fileID: 3038620563360785956}
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 0
 --- !u!114 &5911008709779138176
 MonoBehaviour:
   m_ObjectHideFlags: 0
