@@ -44,6 +44,7 @@ Transform:
   - {fileID: 3522688857429319368}
   - {fileID: 7912205552792319272}
   - {fileID: 5459021047246986397}
+  - {fileID: 5476334166237136548}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &535858972026521807
@@ -382,6 +383,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 8290928447425342623}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &3958582045177166944
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5476334166237136548}
+  m_Layer: 0
+  m_Name: dddd
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5476334166237136548
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3958582045177166944}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -141.82, y: 106.618, z: 4.24}
+  m_LocalScale: {x: -1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8290928447425342623}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4058900812805450413
 GameObject:
   m_ObjectHideFlags: 0
@@ -426,6 +458,7 @@ GameObject:
   - component: {fileID: 8660925945402076471}
   - component: {fileID: 6280964562774533523}
   - component: {fileID: 2947072112584303535}
+  - component: {fileID: 1190519123881698720}
   m_Layer: 0
   m_Name: EndTrigger
   m_TagString: Untagged
@@ -539,6 +572,38 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EndGameTrigger
   cutscene: {fileID: 0}
   shipAnim: {fileID: 1875937495797819599}
+  RandomStablePlace: {fileID: 5476334166237136548}
+--- !u!114 &1190519123881698720
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4821495434446237130}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FMODUnity::FMODUnity.StudioEventEmitter
+  CollisionTag: 
+  EventReference:
+    Guid:
+      Data1: 1644650307
+      Data2: 1115406498
+      Data3: -1642720124
+      Data4: 1461409822
+    Path: event:/TakeOff
+  Event: 
+  EventPlayTrigger: 0
+  EventStopTrigger: 0
+  AllowFadeout: 1
+  TriggerOnce: 0
+  Preload: 0
+  NonRigidbodyVelocity: 0
+  Params: []
+  OverrideAttenuation: 0
+  OverrideMinDistance: 1
+  OverrideMaxDistance: 20
 --- !u!1 &5092648250203762018
 GameObject:
   m_ObjectHideFlags: 0
@@ -10072,6 +10137,7 @@ MonoBehaviour:
   first: {fileID: 5704612330951298838}
   second: {fileID: 5225216279637292815}
   third: {fileID: 520378162865499168}
+  allPlayed: 0
 --- !u!4 &2036537856774927095 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6915766278241702431, guid: 6b32aba86af3aa84d8b237c347bdf5cb, type: 3}

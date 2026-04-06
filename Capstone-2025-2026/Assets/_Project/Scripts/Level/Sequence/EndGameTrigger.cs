@@ -1,3 +1,4 @@
+using FMODUnity;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -7,11 +8,14 @@ public class EndGameTrigger : MonoBehaviour
 
     [SerializeField] CutsceneBase cutscene;
     [SerializeField] Animator shipAnim;
+    [SerializeField] Transform RandomStablePlace;
 
     public void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.tag==("Player"))
         {
+            GetComponent<StudioEventEmitter>().Play();
+            other.transform.position = RandomStablePlace.position;
             StartCoroutine(CutsceneSequence());
         }
 
