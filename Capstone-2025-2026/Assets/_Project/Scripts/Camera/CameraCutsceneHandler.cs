@@ -1,3 +1,4 @@
+using FMODUnity;
 using System.Collections;
 using UnityEngine;
 
@@ -20,6 +21,7 @@ public class CameraCutsceneHandler : MonoBehaviour
     private bool _isBlendingOut = false;
     private float _blendOutStartTime;
     public bool BlendingOut => _isBlendingOut;
+    public StudioEventEmitter soundEm;
 
     public CutsceneBase CurrentCutscene => _cutscene;
 
@@ -45,6 +47,7 @@ public class CameraCutsceneHandler : MonoBehaviour
     {
         _isActive = true;
 
+        soundEm.Stop();
         _cutscene.OnCutscenePrepare();
 
         yield return null;
