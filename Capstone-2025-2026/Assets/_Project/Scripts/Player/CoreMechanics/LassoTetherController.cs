@@ -36,6 +36,10 @@ public class LassoTetherController : MonoBehaviour
 
     public event Action OnRodSwap;
 
+    [Header("particles")]
+    [SerializeField] private ParticleSystem rodSparkParticles;
+
+
     #region Unity Functions
     private void Start()
     {
@@ -234,6 +238,13 @@ public class LassoTetherController : MonoBehaviour
             rodEquipped = !rodEquipped;
             autoEquippedRod = false; // player took manual control, cancel auto-restore
             OnRodSwap?.Invoke();
+        }
+
+        //Make rod spark if you havent gotten tether yet
+        if (PlayerActions.Instance.toolSwitchDown && !tetherPickedUp)
+        {
+            if (rodSparkParticles !=null) rodSparkParticles.Play();
+            print("SPARK");
         }
 
         if (PlayerActions.Instance.LassoDown && rodEquipped && RodEnabled)
