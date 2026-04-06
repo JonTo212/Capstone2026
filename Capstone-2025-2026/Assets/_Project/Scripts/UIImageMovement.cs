@@ -314,6 +314,7 @@ public class UIImageMovement : MonoBehaviour
 
         // Text fade-in
         TetherObtainedText(1);
+        RuntimeManager.PlayOneShot("event:/Fanfare", transform.position);
 
         yield return StartCoroutine(WaitOrSkip(UIFadeTime, () =>
         {
@@ -404,8 +405,6 @@ public class UIImageMovement : MonoBehaviour
 
         tetherUnlockedText.DOFade(alphaValue, UIFadeTime);
         tetherUnlockedDescription.DOFade(alphaValue, UIFadeTime * 2);
-
-        RuntimeManager.PlayOneShot("event:/Fanfare", transform.position);
     }
 
     public void TransformTutorialText(int alphaValue)
@@ -477,6 +476,7 @@ public class UIImageMovement : MonoBehaviour
 
         //fade in text
         RodObtainedText(1);
+        RuntimeManager.PlayOneShot("event:/Fanfare", transform.position);
 
         yield return StartCoroutine(WaitOrSkip(UIFadeTime, () =>
         {
@@ -547,8 +547,6 @@ public class UIImageMovement : MonoBehaviour
     {
         var t1 = rodUnlockedText.DOFade(alphaValue, UIFadeTime);
         var t2 = rodUnlockedDescription.DOFade(alphaValue, UIFadeTime * 2);
-
-        RuntimeManager.PlayOneShot("event:/Fanfare", transform.position);
 
         return (t1, t2);
     }
