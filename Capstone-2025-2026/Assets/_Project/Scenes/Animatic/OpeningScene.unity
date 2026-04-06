@@ -208,6 +208,7 @@ GameObject:
   m_Component:
   - component: {fileID: 353392387}
   - component: {fileID: 353392386}
+  - component: {fileID: 353392388}
   m_Layer: 0
   m_Name: Video Player
   m_TagString: Untagged
@@ -266,6 +267,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &353392388
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 353392385}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FMODUnity::FMODUnity.StudioEventEmitter
+  CollisionTag: 
+  EventReference:
+    Guid:
+      Data1: -180985923
+      Data2: 1270673998
+      Data3: 1239897488
+      Data4: 347396136
+    Path: event:/OpeningCutscene
+  Event: 
+  EventPlayTrigger: 1
+  EventStopTrigger: 0
+  AllowFadeout: 1
+  TriggerOnce: 0
+  Preload: 0
+  NonRigidbodyVelocity: 0
+  Params: []
+  OverrideAttenuation: 0
+  OverrideMinDistance: 1
+  OverrideMaxDistance: 20
 --- !u!1 &967012109
 GameObject:
   m_ObjectHideFlags: 0
@@ -277,6 +309,7 @@ GameObject:
   - component: {fileID: 967012111}
   - component: {fileID: 967012110}
   - component: {fileID: 967012112}
+  - component: {fileID: 967012114}
   m_Layer: 0
   m_Name: Manager
   m_TagString: Untagged
@@ -329,6 +362,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   video: {fileID: 353392386}
   sceneManager: {fileID: 967012110}
+--- !u!114 &967012114
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 967012109}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b9468c5f457ace64f8d4df6d642b107f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FMODUnity::FMODUnity.StudioBankLoader
+  LoadEvent: 1
+  UnloadEvent: 0
+  Banks:
+  - Menu
+  CollisionTag: 
+  PreloadSamples: 0
 --- !u!1 &1832991578
 GameObject:
   m_ObjectHideFlags: 0
