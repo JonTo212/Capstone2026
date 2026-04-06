@@ -8124,7 +8124,8 @@ GameObject:
   - component: {fileID: 3151295679594979584}
   - component: {fileID: 913996189627630277}
   - component: {fileID: 6208253905922178732}
-  - component: {fileID: 1469152603056325665}
+  - component: {fileID: 4323139570611808750}
+  - component: {fileID: 535411917234150749}
   m_Layer: 0
   m_Name: rer (1)
   m_TagString: Untagged
@@ -8141,8 +8142,8 @@ Transform:
   m_GameObject: {fileID: 1640250057958559003}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0.034921363, z: -0, w: 0.9993901}
-  m_LocalPosition: {x: -22.62, y: 0.92, z: -2.23}
-  m_LocalScale: {x: 16.372213, y: 5.5514846, z: 23.258364}
+  m_LocalPosition: {x: -37.3, y: 45.01, z: 330.7}
+  m_LocalScale: {x: 16.372213, y: 15.27713, z: 23.258364}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8572511955729131229}
@@ -8226,7 +8227,7 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &1469152603056325665
+--- !u!114 &4323139570611808750
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8235,17 +8236,42 @@ MonoBehaviour:
   m_GameObject: {fileID: 1640250057958559003}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b36eb71a4b14a6e40a0cbc6cf05fe804, type: 3}
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DialogueTrigger
-  repeatable: 0
-  desiredText: I bet my tether can go through those grates.
-  speakerOptionsDropdown: 0
-  characterSpeed: 5
-  punctuationSpeed: 0.5
-  delay: 0
-  template: {fileID: 0}
-  NewDialogueStorage: {fileID: 0}
+  m_EditorClassIdentifier: FMODUnity::FMODUnity.StudioEventEmitter
+  CollisionTag: 
+  EventReference:
+    Guid:
+      Data1: 407576127
+      Data2: 1181461168
+      Data3: -452735074
+      Data4: 1414060640
+    Path: event:/Level1SmoothMusic
+  Event: 
+  EventPlayTrigger: 3
+  EventStopTrigger: 0
+  AllowFadeout: 1
+  TriggerOnce: 1
+  Preload: 0
+  NonRigidbodyVelocity: 0
+  Params: []
+  OverrideAttenuation: 0
+  OverrideMinDistance: 1
+  OverrideMaxDistance: 20
+--- !u!114 &535411917234150749
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1640250057958559003}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a785debcc7fb004468e3cc650423240c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MusicUITrigger
+  duration: 2
+  names: Clouded Summit Pt. 2\nMichael Cheung
 --- !u!1 &1704414300422841730
 GameObject:
   m_ObjectHideFlags: 0
