@@ -10,7 +10,7 @@ public class ParticleSystemTrigger : MonoBehaviour
         {
             if (particles.isPlaying || particles == null) return;
 
-            particles.gameObject.transform.position = other.transform.position + other.transform.forward * 10f;
+            //particles.gameObject.transform.position = other.transform.position + other.transform.forward * 10f;
             particles.Play();
         }
     }

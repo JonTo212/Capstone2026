@@ -114,6 +114,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
+        HandleForward();
         HandleJumpBuffer();
         HandleCoyoteTime();
         HandleJump();
@@ -123,7 +124,6 @@ public class PlayerMovement : MonoBehaviour
     private void FixedUpdate()
     {
         HandleMovementState();
-        HandleForward();
 
         Vector3 relVel = Rb.linearVelocity - _lastExternalForce;
 

@@ -1,3 +1,4 @@
+using FMODUnity;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -65,6 +66,7 @@ public class PropSpawnPile : Prop
         Instantiate(DustEffect, stale.transform.position, stale.transform.rotation);
 
         PlayerRefData.Instance.Lasso.SetupHeldPropAtNearestGrabPoint(stale);
+        RuntimeManager.PlayOneShot("event:/SpawnPileSound", transform.position);
         _pool.Enqueue(stale);
     }
 
