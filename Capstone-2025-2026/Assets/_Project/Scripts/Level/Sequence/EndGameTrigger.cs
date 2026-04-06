@@ -8,7 +8,6 @@ public class EndGameTrigger : MonoBehaviour
 
     [SerializeField] CutsceneBase cutscene;
     [SerializeField] Animator shipAnim;
-    [SerializeField] Transform RandomStablePlace;
     [SerializeField] StudioEventEmitter Music2;
 
     public void OnTriggerEnter(Collider other)
@@ -16,7 +15,6 @@ public class EndGameTrigger : MonoBehaviour
         if (other.gameObject.tag == ("Player"))
         {
             GetComponent<StudioEventEmitter>().Play();
-            other.transform.position = RandomStablePlace.position;
             StartCoroutine(CutsceneSequence());
         }
 
