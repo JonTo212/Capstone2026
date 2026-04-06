@@ -15,14 +15,15 @@ public class PlantBounce : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-
+        if ((other.CompareTag("Player")) || (other.TryGetComponent<EnvironmentalProp>(out EnvironmentalProp propScript))) //|| (other.TryGetComponent<EnvironmentalProp>(out EnvironmentalProp prop))) 
+        {
             //play animation
-            animator.Play("PlantBouncingAnimaion",0,0f);
+            animator.Play("PlantBounceAnim-V2", 0, 0f);
 
             //instantiate particle
-            if (particle !=null ) particle.Play();
+            if (particle != null) particle.Play();
             FMODUnity.RuntimeManager.PlayOneShot("event:/BushShake");
-
+        }
 
     }
 }
