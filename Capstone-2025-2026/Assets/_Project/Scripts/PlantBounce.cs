@@ -21,6 +21,7 @@ public class PlantBounce : MonoBehaviour
 
             //instantiate particle
             if (particle !=null ) particle.Play();
+            FMODUnity.RuntimeManager.PlayOneShot("event:/BushShake");
 
 
     }
