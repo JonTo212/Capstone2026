@@ -6,32 +6,38 @@ public class CutsceneBehaviour : MonoBehaviour
     public VideoPlayer video;
     public MySceneManager sceneManager;
     private double videoLength;
-    private double elapsed;
+    private float elapsed;
+    private bool startedLoad;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    private void Awake()
+    {
+        sceneManager = FindAnyObjectByType<MySceneManager>();
+    }
+
     void Start()
     {
-        videoLength = video.length - 4;
+        startedLoad = false;
+        videoLength = video.length;
+        sceneManager.SetExternalReady(false);
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
-    private void FixedUpdate()
+    private void Update()
     {
         elapsed += Time.deltaTime;
 
-        if (elapsed >= videoLength)
+        if (!startedLoad && elapsed >= videoLength)
         {
-            sceneManager.LoadNewScene(0);
+            LoadNextScene();
         }
 
-        if (Input.anyKey)
-        {
-            sceneManager.LoadNewScene(0);
-        }
+        if (PlayerActions.Instance.DeactivateTetherDown) LoadNextScene();
+    }
+
+    private void LoadNextScene()
+    {
+        sceneManager.LoadNewScene(1); // begins async load, no animation yet
+        startedLoad = true;
+        sceneManager.loadingScreenAnimation.ShowLoadingScreen(); // activates screen AND starts animation
+        sceneManager.SetExternalReady(true);
     }
 }
