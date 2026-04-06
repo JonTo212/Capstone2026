@@ -1,3 +1,4 @@
+using FMODUnity;
 using System;
 using System.Collections;
 using TMPro;
@@ -244,16 +245,19 @@ public class LassoTetherController : MonoBehaviour
         if (PlayerActions.Instance.toolSwitchDown && !tetherPickedUp)
         {
             if (rodSparkParticles !=null) rodSparkParticles.Play();
-            print("SPARK");
+            RuntimeManager.PlayOneShot("event:/ToolSwitchBroken", transform.position);
+            Debug.Log("SPARK");
         }
 
         if (PlayerActions.Instance.LassoDown && rodEquipped && RodEnabled)
         {
+            RuntimeManager.PlayOneShot("event:/ToolSwitch", transform.position);
             PlayerRefData.Instance.Lasso.HandleLassoStart();
 
         }
         if (PlayerActions.Instance.LassoDown && !rodEquipped && tetherPickedUp && TetherEnabled) // temporarily making it check for lasso input so they can use the same button
         {
+            RuntimeManager.PlayOneShot("event:/ToolSwitch", transform.position);
             PlayerRefData.Instance.JointTetherPlacer.StartTetherPlacement();
         }
     }
