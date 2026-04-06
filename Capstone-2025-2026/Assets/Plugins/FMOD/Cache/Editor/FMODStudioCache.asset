@@ -1,5 +1,32 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-9086783973282340658
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/OpeningCutscene
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
+  Path: event:/OpeningCutscene
+  Guid:
+    Data1: -180985923
+    Data2: 1270673998
+    Data3: 1239897488
+    Data4: 347396136
+  Banks:
+  - {fileID: 9009420948994602199}
+  IsStream: 1
+  Is3D: 0
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 0
 --- !u!114 &-9033965695130181052
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1182,8 +1209,8 @@ MonoBehaviour:
     Data3: -1648993400
     Data4: 672845761
   Banks:
-  - {fileID: 9009420948994602199}
   - {fileID: -6056021060111869724}
+  - {fileID: 9009420948994602199}
   IsStream: 0
   Is3D: 0
   IsOneShot: 1
@@ -1206,10 +1233,10 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Movement.bank
   Name: Movement
   StudioPath: bank:/Player/Movement
-  lastModified: 639110772884664855
+  lastModified: 639110792758185624
   FileSizes:
   - Name: Desktop
-    Value: 462176
+    Value: 468256
   Exists: 1
 --- !u!114 &-6341412166554534850
 MonoBehaviour:
@@ -3045,8 +3072,8 @@ MonoBehaviour:
     Data3: -1428133229
     Data4: 1386680458
   Banks:
-  - {fileID: 9009420948994602199}
   - {fileID: -6056021060111869724}
+  - {fileID: 9009420948994602199}
   IsStream: 0
   Is3D: 0
   IsOneShot: 1
@@ -3285,10 +3312,10 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Master.strings.bank
   Name: Master.strings
   StudioPath: bank:/Master.strings
-  lastModified: 639110774321010712
+  lastModified: 639110794632827067
   FileSizes:
   - Name: Desktop
-    Value: 5194
+    Value: 5210
   Exists: 1
 --- !u!114 &-1427549211803510698
 MonoBehaviour:
@@ -3846,7 +3873,6 @@ MonoBehaviour:
   - {fileID: -781484916762161685}
   - {fileID: 5066093696825629638}
   - {fileID: 8911774406879411739}
-  - {fileID: 2435086697232411251}
   - {fileID: 5324401120959848339}
   - {fileID: 1516032964073947109}
   - {fileID: 2424044568093870803}
@@ -3860,13 +3886,14 @@ MonoBehaviour:
   - {fileID: -4815467286742080049}
   - {fileID: 3858957029304229776}
   - {fileID: 2675014880598371550}
+  - {fileID: -9086783973282340658}
   EditorParameters: []
   MasterBanks:
   - {fileID: 1681885774721877429}
   StringsBanks:
   - {fileID: -1465714216367696045}
   cacheVersion: 131858
-  cacheTime: 639110774321010712
+  cacheTime: 639110830331385156
   SerializableEventsDict:
   - key: event:/WaterSplash
     index: 0
@@ -4008,6 +4035,42 @@ MonoBehaviour:
     index: 68
   - key: event:/Swing
     index: 69
+  - key: event:/FruitBreak
+    index: 70
+  - key: event:/PrisonBreak
+    index: 71
+  - key: event:/Level1Pt1Mute
+    index: 72
+  - key: event:/GrappleSparks
+    index: 73
+  - key: event:/PropCollision
+    index: 74
+  - key: event:/BushShake
+    index: 75
+  - key: event:/Level1Pt2Mute
+    index: 76
+  - key: event:/DandelionPoof
+    index: 77
+  - key: event:/VIntroFall
+    index: 78
+  - key: event:/SpawnPileSound
+    index: 79
+  - key: event:/Level1Pt1
+    index: 80
+  - key: event:/Level1Pt2
+    index: 81
+  - key: event:/JumpLand
+    index: 82
+  - key: event:/EOTSLevelMusicDraft
+    index: 83
+  - key: event:/A Rank
+    index: 84
+  - key: event:/ToolSwitch
+    index: 85
+  - key: event:/Level1SmoothMusic
+    index: 86
+  - key: event:/OpeningCutscene
+    index: 87
 --- !u!114 &69565535895606078
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4549,7 +4612,7 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Master.bank
   Name: Master
   StudioPath: bank:/Master
-  lastModified: 639110774321000702
+  lastModified: 639110794632801717
   FileSizes:
   - Name: Desktop
     Value: 1670
@@ -4810,33 +4873,6 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 96912
---- !u!114 &2435086697232411251
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Level1Pt2Continuous
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/Level1Pt2Continuous
-  Guid:
-    Data1: -1208903040
-    Data2: 1196523599
-    Data3: 1836145330
-    Data4: 457389539
-  Banks:
-  - {fileID: 3038620563360785956}
-  IsStream: 1
-  Is3D: 0
-  IsOneShot: 0
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 317004
 --- !u!114 &2445065224260609302
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5196,10 +5232,10 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Level1-1.bank
   Name: Level1-1
   StudioPath: bank:/Level1-1
-  lastModified: 639110774320875454
+  lastModified: 639110794632673796
   FileSizes:
   - Name: Desktop
-    Value: 5395392
+    Value: 5394080
   Exists: 1
 --- !u!114 &3065620269822465237
 MonoBehaviour:
@@ -5847,8 +5883,8 @@ MonoBehaviour:
     Data3: 1387721652
     Data4: 72312818
   Banks:
-  - {fileID: 9009420948994602199}
   - {fileID: -6056021060111869724}
+  - {fileID: 9009420948994602199}
   IsStream: 0
   Is3D: 0
   IsOneShot: 1
@@ -7334,7 +7370,7 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Music.bank
   Name: Music
   StudioPath: bank:/Music
-  lastModified: 639110772881852018
+  lastModified: 639110830331385156
   FileSizes:
   - Name: Desktop
     Value: 6526400
@@ -7548,7 +7584,7 @@ MonoBehaviour:
     Data4: -615069179
   Banks:
   - {fileID: 8587686786728051173}
-  IsStream: 0
+  IsStream: 1
   Is3D: 0
   IsOneShot: 0
   Parameters: []
@@ -7705,10 +7741,10 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Menu.bank
   Name: Menu
   StudioPath: bank:/Player/Menu
-  lastModified: 639110772883556560
+  lastModified: 639110794636680167
   FileSizes:
   - Name: Desktop
-    Value: 206496
+    Value: 437920
   Exists: 1
 --- !u!114 &9032629825444908859
 MonoBehaviour:
