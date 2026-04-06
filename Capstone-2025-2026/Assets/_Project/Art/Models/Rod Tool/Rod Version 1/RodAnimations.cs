@@ -25,9 +25,14 @@ public class RodAnimations : MonoBehaviour
     [SerializeField] public bool facts = true;
 
 
+
     private void Awake()
     {
+        toolMat.SetColor("_MainColor", Color.yellow * 8);
+
         animator = GetComponent<Animator>();
+
+
     }
 
     void Update()
