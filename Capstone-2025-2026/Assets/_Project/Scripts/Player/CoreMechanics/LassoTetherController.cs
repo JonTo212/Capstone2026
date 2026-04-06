@@ -251,13 +251,13 @@ public class LassoTetherController : MonoBehaviour
 
         if (PlayerActions.Instance.LassoDown && rodEquipped && RodEnabled)
         {
-            RuntimeManager.PlayOneShot("event:/ToolSwitch", transform.position);
+            //RuntimeManager.PlayOneShot("event:/ToolSwitch", transform.position);
             PlayerRefData.Instance.Lasso.HandleLassoStart();
 
         }
         if (PlayerActions.Instance.LassoDown && !rodEquipped && tetherPickedUp && TetherEnabled) // temporarily making it check for lasso input so they can use the same button
         {
-            RuntimeManager.PlayOneShot("event:/ToolSwitch", transform.position);
+            //RuntimeManager.PlayOneShot("event:/ToolSwitch", transform.position);
             PlayerRefData.Instance.JointTetherPlacer.StartTetherPlacement();
         }
     }
