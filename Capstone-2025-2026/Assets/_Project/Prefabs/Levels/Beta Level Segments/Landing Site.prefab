@@ -7702,7 +7702,7 @@ Transform:
   m_GameObject: {fileID: 7199654901976336619}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 9.44, y: 13.03, z: 52.85}
+  m_LocalPosition: {x: 2.9, y: 13.03, z: 52.85}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -7733,7 +7733,7 @@ Transform:
   m_GameObject: {fileID: 7531720133904151077}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.1300201, y: 13.029999, z: 52.850006}
+  m_LocalPosition: {x: 9.1, y: 13.029999, z: 52.850006}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -9864,6 +9864,18 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6103059628076599461, guid: 6b32aba86af3aa84d8b237c347bdf5cb, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7403524582769614600}
+    - targetCorrespondingSourceObject: {fileID: 6103059628076599461, guid: 6b32aba86af3aa84d8b237c347bdf5cb, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5704612330951298838}
+    - targetCorrespondingSourceObject: {fileID: 6103059628076599461, guid: 6b32aba86af3aa84d8b237c347bdf5cb, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5225216279637292815}
+    - targetCorrespondingSourceObject: {fileID: 6103059628076599461, guid: 6b32aba86af3aa84d8b237c347bdf5cb, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 520378162865499168}
+    - targetCorrespondingSourceObject: {fileID: 6103059628076599461, guid: 6b32aba86af3aa84d8b237c347bdf5cb, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5707593935149236887}
   m_SourcePrefab: {fileID: 100100000, guid: 6b32aba86af3aa84d8b237c347bdf5cb, type: 3}
 --- !u!1 &1659836809074714701 stripped
 GameObject:
@@ -9952,6 +9964,114 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &5704612330951298838
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1659836809074714701}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FMODUnity::FMODUnity.StudioEventEmitter
+  CollisionTag: 
+  EventReference:
+    Guid:
+      Data1: -1643097662
+      Data2: 1157415888
+      Data3: -2100045421
+      Data4: 1124227111
+    Path: event:/VIntroFall
+  Event: 
+  EventPlayTrigger: 0
+  EventStopTrigger: 0
+  AllowFadeout: 1
+  TriggerOnce: 0
+  Preload: 0
+  NonRigidbodyVelocity: 0
+  Params: []
+  OverrideAttenuation: 0
+  OverrideMinDistance: 1
+  OverrideMaxDistance: 20
+--- !u!114 &5225216279637292815
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1659836809074714701}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FMODUnity::FMODUnity.StudioEventEmitter
+  CollisionTag: 
+  EventReference:
+    Guid:
+      Data1: -721350553
+      Data2: 1283958335
+      Data3: -55673457
+      Data4: -920406371
+    Path: event:/UFOCrash
+  Event: 
+  EventPlayTrigger: 0
+  EventStopTrigger: 0
+  AllowFadeout: 1
+  TriggerOnce: 0
+  Preload: 0
+  NonRigidbodyVelocity: 0
+  Params: []
+  OverrideAttenuation: 0
+  OverrideMinDistance: 1
+  OverrideMaxDistance: 20
+--- !u!114 &520378162865499168
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1659836809074714701}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FMODUnity::FMODUnity.StudioEventEmitter
+  CollisionTag: 
+  EventReference:
+    Guid:
+      Data1: 1207691335
+      Data2: 1183019118
+      Data3: -439605630
+      Data4: -1300393060
+    Path: event:/PillarDrop
+  Event: 
+  EventPlayTrigger: 0
+  EventStopTrigger: 0
+  AllowFadeout: 1
+  TriggerOnce: 0
+  Preload: 0
+  NonRigidbodyVelocity: 0
+  Params: []
+  OverrideAttenuation: 0
+  OverrideMinDistance: 1
+  OverrideMaxDistance: 20
+--- !u!114 &5707593935149236887
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1659836809074714701}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca07bafdb2c8d7f4087423a5e2857624, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  first: {fileID: 5704612330951298838}
+  second: {fileID: 5225216279637292815}
+  third: {fileID: 520378162865499168}
 --- !u!4 &2036537856774927095 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6915766278241702431, guid: 6b32aba86af3aa84d8b237c347bdf5cb, type: 3}
