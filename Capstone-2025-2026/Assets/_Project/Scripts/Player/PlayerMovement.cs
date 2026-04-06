@@ -334,6 +334,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (Physics.SphereCast(transform.position, feetRadius, Vector3.down, out _groundHit, 1.1f, groundLayer))
         {
+            PlayerRefData.Instance.PlayerLedgeGrab.ResetGrabCooldown();
             return _groundHit.transform;
         }
         return null;

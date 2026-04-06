@@ -33,12 +33,14 @@ public class PlayerLedgeGrab : MonoBehaviour
 
     private CapsuleCollider _playerCol;
     private float hangTimer;
+    private Collider _cooldownLedge;
     private float _grabCooldown;
     private Transform grabbedLedge;
     private Vector3 grabPosLocal;
     private Collider grabbedLedgeCollider;
     private Quaternion _localLedgeRotation;
     private Vector3 _grabWallNormal;
+    private Vector3 _grabFacingDir;
     public event Action<bool> OnMantle;
 
     public bool IsHanging { get; private set; }
@@ -92,15 +94,20 @@ public class PlayerLedgeGrab : MonoBehaviour
             Vector3 worldGrabPos = grabbedLedge.TransformPoint(grabPosLocal);
             PlayerRefData.Instance.PlayerMovement.Rb.MovePosition(worldGrabPos);
 
-            Quaternion targetRot = grabbedLedge.rotation * _localLedgeRotation;
-            PlayerRefData.Instance.PlayerModelRotationHandler.SetNewRotationDir(targetRot, true);
+            // Hang rotation: always upright, facing direction baked at grab time from wall normal.
+            PlayerRefData.Instance.PlayerModelRotationHandler.SetNewRotationDir(Quaternion.LookRotation(_grabFacingDir, Vector3.up), true);
         }
+    }
+
+    public void ResetGrabCooldown()
+    {
+        _grabCooldown = 0f;
+        _cooldownLedge = null;
     }
 
     private bool CanGrabLedge()
     {
         if (IsHanging) return false;
-        if (_grabCooldown > 0f) return false;
 
         //prevent grabbing ledge faces while walking past them at foot level
         float distToFeet = _playerCol.bounds.extents.y;
@@ -180,8 +187,11 @@ public class PlayerLedgeGrab : MonoBehaviour
         Vector3 robustTopNormal = GetRobustNormal(topHit);
         if (Mathf.Abs(Vector3.Angle(robustTopNormal, Vector3.up)) > maxLedgeAngle) return null;
 
-        //for rotation - project the wall's face upwards to prevent rotation in weird axes
-        Quaternion worldLookRot = Quaternion.LookRotation(-forwardHit.normal, robustTopNormal);
+        //for rotation - face away from the wall but always stay upright (world up, not surface normal)
+        Vector3 facingDir = new Vector3(-forwardHit.normal.x, 0f, -forwardHit.normal.z).normalized;
+        if (facingDir.sqrMagnitude < 0.001f) facingDir = Vector3.forward;
+        _grabFacingDir = facingDir; //store directly - avoids re-deriving through ledge rotation which breaks on corners
+        Quaternion worldLookRot = Quaternion.LookRotation(facingDir, Vector3.up);
         _localLedgeRotation = Quaternion.Inverse(topHit.transform.rotation) * worldLookRot;
 
         Vector3 wallBack = new Vector3(forwardHit.normal.x, 0f, forwardHit.normal.z).normalized;
@@ -201,6 +211,8 @@ public class PlayerLedgeGrab : MonoBehaviour
         grabbedLedge = topHit.transform;
         grabbedLedgeCollider = topHit.collider;
         grabPosLocal = grabbedLedge.InverseTransformPoint(target);
+
+        if (_grabCooldown > 0f && topHit.collider == _cooldownLedge) return null;
 
         return target;
     }
@@ -268,6 +280,7 @@ public class PlayerLedgeGrab : MonoBehaviour
         }
 
         IsHanging = false;
+        _cooldownLedge = grabbedLedgeCollider; // save before clearing
         _grabCooldown = grabCooldownTime;
     }
 
@@ -288,7 +301,9 @@ public class PlayerLedgeGrab : MonoBehaviour
         _mantleCoroutine = StartCoroutine(Mantle(ledgePos));
     }
 
-    public float mantleDuration = 0.45f;
+    public float climbDuration = 0.25f;
+    public float forwardDuration = 0.2f;
+    public float climbHeightBuffer = 0.1f;
     public Coroutine _mantleCoroutine;
 
     private IEnumerator Mantle(Vector3 targetPos)
@@ -296,31 +311,17 @@ public class PlayerLedgeGrab : MonoBehaviour
         PlayerRefData.Instance.PlayerMovement.Rb.isKinematic = true;
         OnMantle?.Invoke(true);
 
-        //snap to authoritative hang position before starting the arc
-        Vector3 worldGrabPos = grabbedLedge.TransformPoint(grabPosLocal);
-        PlayerRefData.Instance.PlayerMovement.Rb.MovePosition(worldGrabPos);
+        // Snap rotation: face away from the wall, always upright.
+        PlayerRefData.Instance.PlayerModelRotationHandler.SetNewRotationDir(Quaternion.LookRotation(_grabFacingDir, Vector3.up), true);
 
-        Quaternion targetRot = grabbedLedge.rotation * _localLedgeRotation;
-        PlayerRefData.Instance.PlayerModelRotationHandler.SetNewRotationDir(targetRot, true);
-
-        Vector3 p0 = PlayerRefData.Instance.PlayerMovement.Rb.position;
         targetPos = SafeMantleTarget(targetPos);
-        Vector3 p3 = targetPos;
 
-        //re-sample wall normal at mantle time - the value baked at grab time can be from a badly-angled triangle and misalign the arc
-        Vector3 freshWallNormal = GetRobustWallNormal(p0, p3);
-        float heightDiff = p3.y - p0.y;
+        Vector3 startPos = PlayerRefData.Instance.PlayerMovement.Rb.position;
+        Vector3 climbPos = new Vector3(startPos.x, targetPos.y + climbHeightBuffer, startPos.z);
 
-        //p1: push back along the wall normal so the arc hugs the rock face on the way up
-        Vector3 p1 = p0 + freshWallNormal * _playerCol.radius;
-        p1.y = p0.y + heightDiff * 0.8f;
-
-        //p2: pull back slightly from target so the arc arrives flat rather than still moving forward
-        Vector3 p2 = p3 + freshWallNormal * _playerCol.radius;
-        p2.y = p3.y;
-
+        // Phase 1: climb upward
         float timer = 0f;
-        while (timer < mantleDuration)
+        while (timer < climbDuration)
         {
             if (PlayerActions.Instance.JumpDown)
             {
@@ -328,23 +329,29 @@ public class PlayerLedgeGrab : MonoBehaviour
                 _mantleCoroutine = null;
                 yield break;
             }
-
             timer += Time.fixedDeltaTime;
-            float t = Mathf.Clamp01(timer / mantleDuration);
-            float et = t * t * (3f - 2f * t); //smooth-step ease
-
-            //cubic bezier: B(t) = (1-t)³P0 + 3(1-t)²tP1 + 3(1-t)t²P2 + t³P3
-            float u = 1f - et;
-            Vector3 pos = (u * u * u) * p0
-                        + (3f * u * u * et) * p1
-                        + (3f * u * et * et) * p2
-                        + (et * et * et) * p3;
-
-            PlayerRefData.Instance.PlayerMovement.Rb.MovePosition(pos);
+            float t = Mathf.Clamp01(timer / climbDuration);
+            PlayerRefData.Instance.PlayerMovement.Rb.MovePosition(Vector3.Lerp(startPos, climbPos, t));
             yield return new WaitForFixedUpdate();
         }
 
-        //settle position before re-enabling collision so the capsule is fully placed before physics reacts
+        // Phase 2: move forward onto the ledge
+        timer = 0f;
+        while (timer < forwardDuration)
+        {
+            if (PlayerActions.Instance.JumpDown)
+            {
+                HandleLedgeJump();
+                _mantleCoroutine = null;
+                yield break;
+            }
+            timer += Time.fixedDeltaTime;
+            float t = Mathf.Clamp01(timer / forwardDuration);
+            PlayerRefData.Instance.PlayerMovement.Rb.MovePosition(Vector3.Lerp(climbPos, targetPos, t));
+            yield return new WaitForFixedUpdate();
+        }
+
+        // Settle
         PlayerRefData.Instance.PlayerMovement.Rb.position = targetPos;
         PlayerRefData.Instance.PlayerMovement.Rb.isKinematic = false;
 
@@ -355,6 +362,7 @@ public class PlayerLedgeGrab : MonoBehaviour
         }
 
         ReleaseLedge(restoreCollision: false);
+        OnMantle?.Invoke(false);
         _mantleCoroutine = null;
     }
 
@@ -378,42 +386,14 @@ public class PlayerLedgeGrab : MonoBehaviour
         Vector3 castOrigin = new Vector3(candidate.x, candidate.y + _playerCol.height, candidate.z);
 
         if (Physics.Raycast(castOrigin, Vector3.down, out RaycastHit hit, _playerCol.height * 1.5f, grabbableLayers, QueryTriggerInteraction.Ignore))
-            candidate.y = hit.point.y + _playerCol.height * 0.5f;
+        {
+            // Place capsule centre so the bottom hemisphere clears the surface.
+            // height*0.5f puts the centre at half-height, and the radius keeps the
+            // hemisphere from sinking into the floor on uneven geometry.
+            candidate.y = hit.point.y + _playerCol.height * 0.5f + _playerCol.radius * 0.05f;
+        }
 
         return candidate;
     }
 
-    //fires raycasts toward the wall at multiple heights and averages the wall-facing normals, more stable than a single ray on coarse mesh colliders
-    private Vector3 GetRobustWallNormal(Vector3 playerPos, Vector3 targetPos)
-    {
-        Vector3 toTarget = targetPos - playerPos;
-        toTarget.y = 0f;
-        if (toTarget.sqrMagnitude < 0.001f) return _grabWallNormal;
-        Vector3 wallDir = toTarget.normalized;
-
-        Vector3 avg = Vector3.zero;
-        int count = 0;
-
-        float[] heights = { 0f, _playerCol.height * 0.35f, _playerCol.height * 0.7f };
-        foreach (float h in heights)
-        {
-            Vector3 origin = playerPos + Vector3.up * h;
-            if (Physics.Raycast(origin, wallDir, out RaycastHit hit, forwardCheckDistance * 1.5f, grabbableLayers, QueryTriggerInteraction.Ignore))
-            {
-                //ignore normals too close to vertical - those are top-surface bleed at the edge, not the wall face
-                if (Mathf.Abs(Vector3.Dot(hit.normal, Vector3.up)) < 0.5f)
-                {
-                    avg += hit.normal;
-                    count++;
-                }
-            }
-        }
-
-        if (count == 0) return _grabWallNormal;
-
-        //flatten to horizontal, we only want XZ orientation for the arc direction
-        Vector3 result = avg / count;
-        result.y = 0f;
-        return result.sqrMagnitude > 0.001f ? result.normalized : _grabWallNormal;
-    }
 }
