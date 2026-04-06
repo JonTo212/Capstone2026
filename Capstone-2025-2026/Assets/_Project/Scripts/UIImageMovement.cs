@@ -151,7 +151,7 @@ public class UIImageMovement : MonoBehaviour
         if (PlayerActions.Instance.toolSwitchDown)
         {
             //playsound
-            RuntimeManager.PlayOneShot("event:/MenuSelect", transform.position);
+            RuntimeManager.PlayOneShot("event:/ToolSwitch", transform.position);
 
             //rotate
             RotateIcon();
