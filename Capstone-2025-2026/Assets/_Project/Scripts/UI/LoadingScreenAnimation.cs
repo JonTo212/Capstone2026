@@ -1,9 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
-using DG.Tweening;
-using TMPro;
 using System.Collections;
-using System.Linq;
 
 public class LoadingScreenAnimation : MonoBehaviour
 {
@@ -28,7 +25,6 @@ public class LoadingScreenAnimation : MonoBehaviour
     {
         sceneManager = FindAnyObjectByType<MySceneManager>();
         originalPos = movingObject.anchoredPosition;
-        DontDestroyOnLoad(gameObject);
     }
 
     public void StartTracking(AsyncOperation operation)
