@@ -394,10 +394,10 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Master.strings.bank
   Name: Master.strings
   StudioPath: bank:/Master.strings
-  lastModified: 639111064185347446
+  lastModified: 639111070852057781
   FileSizes:
   - Name: Desktop
-    Value: 5428
+    Value: 5482
   Exists: 1
 --- !u!114 &-6872320084464274167
 MonoBehaviour:
@@ -1414,13 +1414,14 @@ MonoBehaviour:
   - {fileID: 8138766311448709577}
   - {fileID: 1169533942160989909}
   - {fileID: 1031531918435578314}
+  - {fileID: 622676332293406238}
   EditorParameters: []
   MasterBanks:
   - {fileID: 6784272816887344547}
   StringsBanks:
   - {fileID: -7264284491642604713}
   cacheVersion: 131858
-  cacheTime: 639111065155408041
+  cacheTime: 639111070971465978
   SerializableEventsDict:
   - key: event:/WindAmbient-3D
     index: 0
@@ -1608,6 +1609,8 @@ MonoBehaviour:
     index: 91
   - key: event:/FruitBreak 2
     index: 92
+  - key: event:/PillarFallWhistle
+    index: 93
 --- !u!114 &36649851166704467
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1763,6 +1766,33 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 5055
+--- !u!114 &622676332293406238
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/PillarFallWhistle
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
+  Path: event:/PillarFallWhistle
+  Guid:
+    Data1: -1950769435
+    Data2: 1083249296
+    Data3: 1387984267
+    Data4: -2110000174
+  Banks:
+  - {fileID: 7468551663755183734}
+  IsStream: 0
+  Is3D: 0
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 3000
 --- !u!114 &742452525999216358
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2678,7 +2708,7 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Master.bank
   Name: Master
   StudioPath: bank:/Master
-  lastModified: 639111064185322316
+  lastModified: 639111070852032640
   FileSizes:
   - Name: Desktop
     Value: 1670
@@ -2806,10 +2836,10 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Level1-1.bank
   Name: Level1-1
   StudioPath: bank:/Level1-1
-  lastModified: 639111064185183306
+  lastModified: 639111070971465978
   FileSizes:
   - Name: Desktop
-    Value: 5638112
+    Value: 5638976
   Exists: 1
 --- !u!114 &7673653619738174367
 MonoBehaviour:
