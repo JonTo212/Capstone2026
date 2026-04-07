@@ -9,13 +9,9 @@ public class CutsceneBehaviour : MonoBehaviour
     private float elapsed;
     private bool startedLoad;
 
-    private void Awake()
-    {
-        sceneManager = FindAnyObjectByType<MySceneManager>();
-    }
-
     void Start()
     {
+        elapsed = 0;
         startedLoad = false;
         videoLength = video.length;
         sceneManager.SetExternalReady(false);
@@ -30,12 +26,20 @@ public class CutsceneBehaviour : MonoBehaviour
             LoadNextScene();
         }
 
-        if (PlayerActions.Instance.DeactivateTetherDown) LoadNextScene();
+        if (PlayerActions.Instance.DeactivateTetherDown)
+        {
+            print("running");
+        }
+
+        if (PlayerActions.Instance.DeactivateTetherDown && !startedLoad)
+        {
+            LoadNextScene();
+        }
     }
 
     private void LoadNextScene()
     {
-        sceneManager.LoadNewScene(1); // begins async load, no animation yet
+        sceneManager.LoadNewScene(0); // begins async load, no animation yet
         startedLoad = true;
         sceneManager.loadingScreenAnimation.ShowLoadingScreen(); // activates screen AND starts animation
         sceneManager.SetExternalReady(true);

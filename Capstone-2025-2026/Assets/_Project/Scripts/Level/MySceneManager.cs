@@ -25,11 +25,7 @@ public class MySceneManager : MonoBehaviour
     public LoadingScreenAnimation loadingScreenAnimation;
     private AsyncOperation pendingLoad;
     public AsyncOperation GetPendingLoad() => pendingLoad;
-
-    private void Awake()
-    {
-        DontDestroyOnLoad(gameObject);
-    }
+    private Coroutine SwitchLevelCoroutine;
 
     private void Start()
     {
@@ -42,9 +38,11 @@ public class MySceneManager : MonoBehaviour
         //transitions.gameObject.transform.parent = goalScreen.transform;
         //goalScreen.SetActive(true);
 
-
-        readyToLoad = false;
-        StartCoroutine(SwitchLevel(sceneIndex));
+        StopAllCoroutines();
+        SetExternalReady(false);
+        SetReadyToLoad(false);
+        pendingLoad = null;
+        SwitchLevelCoroutine = StartCoroutine(SwitchLevel(sceneIndex));
 
         /*SceneManager.LoadScene(SceneNames[sceneIndex]);
         currentScene = SceneNames[sceneIndex];*/
@@ -100,8 +98,8 @@ public class MySceneManager : MonoBehaviour
 
         if (loadingScreenAnimation == null)
         {
-            externalReady = true;
-            readyToLoad = true;
+            SetExternalReady(true);
+            SetReadyToLoad(true);
         }
 
         //needs to run a minimum duration before officially being completed, even if it loads faster than that
@@ -122,5 +120,11 @@ public class MySceneManager : MonoBehaviour
             loadingScreenAnimation.Reset();
             loadingScreenAnimation.gameObject.SetActive(false);
         }
+
+        SetExternalReady(false);
+        SetReadyToLoad(false);
+        pendingLoad = null;
+        SwitchLevelCoroutine = null;
+
     }
 }
