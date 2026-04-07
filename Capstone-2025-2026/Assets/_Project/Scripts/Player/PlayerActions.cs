@@ -134,6 +134,8 @@ public class PlayerActions : MonoBehaviour
         }
 
         Instance = this;
+        DontDestroyOnLoad(gameObject);
+
         map = InputSystem.actions;
         MoveAction = map.FindAction("Move");
         lookAction = map.FindAction("Look");
