@@ -35,7 +35,8 @@ public class UIImageMovement : MonoBehaviour
     [SerializeField] private RawImage tetherBreakImage;
     [SerializeField] private Vector3 tetherBreakImageStartSize;
     [SerializeField] private RawImage blackBG;
-
+    [SerializeField] private RawImage continueButton; //A button to continue
+    [SerializeField] private Image rbButtonToTransform;
 
 
     [Header("Lost Tool Sprites")]// sprite reference so i can show it being broken and fixed
@@ -113,6 +114,11 @@ public class UIImageMovement : MonoBehaviour
         tetherLocation = tetherImage.GetComponent<RectTransform>();
 
         //Disable Tool UI at start of game 
+
+        //continue button
+        continueButton.DOFade(0f, 0f);
+
+        rbButtonToTransform.DOFade(0f, 0f);
 
         //selection ring
         selectionRingImage.DOFade(0f, 0f);
@@ -405,11 +411,15 @@ public class UIImageMovement : MonoBehaviour
 
         tetherUnlockedText.DOFade(alphaValue, UIFadeTime);
         tetherUnlockedDescription.DOFade(alphaValue, UIFadeTime * 2);
+
+        continueButton.DOFade(alphaValue, UIFadeTime * 3);
     }
 
     public void TransformTutorialText(int alphaValue)
     {
         transformTutorialText.DOFade(alphaValue, UIFadeTime);
+
+        rbButtonToTransform.DOFade(alphaValue, UIFadeTime);
     }
 
     #endregion
@@ -476,6 +486,8 @@ public class UIImageMovement : MonoBehaviour
 
         //fade in text
         RodObtainedText(1);
+        continueButton.DOFade(1f, UIFadeTime*2);
+
         RuntimeManager.PlayOneShot("event:/Fanfare", transform.position);
 
         yield return StartCoroutine(WaitOrSkip(UIFadeTime, () =>
@@ -485,6 +497,8 @@ public class UIImageMovement : MonoBehaviour
 
             rodUnlockedText.DOFade(1f, 0f);
             rodUnlockedDescription.DOFade(1f, 0f);
+            
+
         }));
     }
 
@@ -493,6 +507,7 @@ public class UIImageMovement : MonoBehaviour
         //fade out black tint + text
         blackBG.DOFade(0f, UIFadeTime);
         var (textTween, descTween) = RodObtainedText(0);
+        continueButton.DOFade(0f, 1f);
 
         //move tool ui back
         Tools.transform.DOLocalMove(Vector3.zero, toolUIMoveTime, false);
