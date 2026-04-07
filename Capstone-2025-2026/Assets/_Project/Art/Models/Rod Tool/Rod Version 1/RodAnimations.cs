@@ -10,7 +10,6 @@ public class RodAnimations : MonoBehaviour
 
     [Header("Rotate Handle")]
     public static RodAnimations Instance;
-    [SerializeField] private PlayerActions playerActions;
     [SerializeField] private GameObject handle;
     public float rotationAmount = 5f;
 
@@ -55,7 +54,7 @@ public class RodAnimations : MonoBehaviour
 
 
 
-        float scrollValue = playerActions.GetDPadScrollValue();
+        float scrollValue = PlayerActions.Instance.GetDPadScrollValue();
 
         if (scrollValue != 0)
         {
