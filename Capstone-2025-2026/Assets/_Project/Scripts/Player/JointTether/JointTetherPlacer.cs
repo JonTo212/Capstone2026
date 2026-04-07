@@ -163,7 +163,7 @@ public class JointTetherPlacer : MonoBehaviour
     {
         if (didStartPointHit && !cancelTetherPlacement)
         {
-            if (GetObjectInPlayerFront(out RaycastHit hit) && hit.transform != startTransform && Vector3.Distance(startWorldLocation, hit.point) < maxTetherLength)
+            if (GetObjectInPlayerFront(out RaycastHit hit) && hit.transform != startTransform && Vector3.Distance(startTransform.TransformPoint(startLocalPosition), hit.point) < maxTetherLength)
             {
                 didEndPointHit = true;
                 SetTetherEndPoint(hit.transform, hit.point);
@@ -296,7 +296,7 @@ public class JointTetherPlacer : MonoBehaviour
 
             tetherPreviewLine.SetEndPoint(endPosition);
 
-            if (IsTetherPointValid(hit.transform) && isStartPointValid && Vector3.Distance(startWorldLocation, hit.point) < maxTetherLength)
+            if (IsTetherPointValid(hit.transform) && isStartPointValid && Vector3.Distance(startTransform.TransformPoint(startLocalPosition), hit.point) < maxTetherLength)
             {
                 tetherPreviewLine.SetColorToValid();
             }
