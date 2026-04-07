@@ -53,7 +53,7 @@ MonoBehaviour:
   Parameters: []
   MinDistance: 1
   MaxDistance: 20
-  Length: 0
+  Length: 9095
 --- !u!114 &-8922434408925407439
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -297,7 +297,7 @@ MonoBehaviour:
   Parameters: []
   MinDistance: 1
   MaxDistance: 20
-  Length: 60426
+  Length: 60501
 --- !u!114 &-7700002473733857456
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -318,13 +318,13 @@ MonoBehaviour:
     Data4: -213840204
   Banks:
   - {fileID: 4360239186330121707}
-  IsStream: 1
+  IsStream: 0
   Is3D: 0
   IsOneShot: 0
   Parameters: []
   MinDistance: 1
   MaxDistance: 20
-  Length: 18120
+  Length: 320
 --- !u!114 &-7352435250768122406
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -347,11 +347,11 @@ MonoBehaviour:
   - {fileID: 7468551663755183734}
   IsStream: 1
   Is3D: 0
-  IsOneShot: 1
+  IsOneShot: 0
   Parameters: []
   MinDistance: 1
   MaxDistance: 20
-  Length: 61692
+  Length: 90000
 --- !u!114 &-7274558223027394008
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -373,7 +373,7 @@ MonoBehaviour:
   Banks:
   - {fileID: 7468551663755183734}
   IsStream: 0
-  Is3D: 1
+  Is3D: 0
   IsOneShot: 1
   Parameters: []
   MinDistance: 1
@@ -587,7 +587,7 @@ MonoBehaviour:
   Parameters: []
   MinDistance: 1
   MaxDistance: 20
-  Length: 3946
+  Length: 1770
 --- !u!114 &-5851506224878336907
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -711,10 +711,10 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Rank.bank
   Name: Rank
   StudioPath: bank:/Rank
-  lastModified: 639110879895558093
+  lastModified: 639111156691880458
   FileSizes:
   - Name: Desktop
-    Value: 184096
+    Value: 354240
   Exists: 1
 --- !u!114 &-4041766169097037811
 MonoBehaviour:
@@ -797,7 +797,7 @@ MonoBehaviour:
   Parameters: []
   MinDistance: 1
   MaxDistance: 20
-  Length: 5924
+  Length: 6100
 --- !u!114 &-3530262776417724417
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -906,7 +906,7 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 0
---- !u!114 &-3215957838314680473
+--- !u!114 &-3162101247954217904
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -916,23 +916,30 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Level1Pt2Continuous
+  m_Name: 
   m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/Level1Pt2Continuous
+  Path: 
   Guid:
-    Data1: -1208903040
-    Data2: 1196523599
-    Data3: 1836145330
-    Data4: 457389539
+    Data1: -1352669929
+    Data2: 1097002329
+    Data3: -827287926
+    Data4: -494314070
   Banks:
+  - {fileID: 436077220583194529}
   - {fileID: 7468551663755183734}
-  IsStream: 1
+  - {fileID: 7468551663755183734}
+  - {fileID: 7468551663755183734}
+  - {fileID: 7468551663755183734}
+  - {fileID: 7468551663755183734}
+  - {fileID: 4326853761865992888}
+  - {fileID: -192869307779878667}
+  IsStream: 0
   Is3D: 0
-  IsOneShot: 0
+  IsOneShot: 1
   Parameters: []
   MinDistance: 1
   MaxDistance: 20
-  Length: 317004
+  Length: 1595
 --- !u!114 &-2398005622137919816
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1110,7 +1117,7 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Music.bank
   Name: Music
   StudioPath: bank:/Music
-  lastModified: 639110879894584612
+  lastModified: 639111156690130174
   FileSizes:
   - Name: Desktop
     Value: 6526400
@@ -1162,7 +1169,7 @@ MonoBehaviour:
     Data4: -615069179
   Banks:
   - {fileID: -958302018684995647}
-  IsStream: 0
+  IsStream: 1
   Is3D: 0
   IsOneShot: 0
   Parameters: []
@@ -1184,10 +1191,10 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Tools.bank
   Name: Tools
   StudioPath: bank:/Player/Tools
-  lastModified: 639110885925192194
+  lastModified: 639111156699341353
   FileSizes:
   - Name: Desktop
-    Value: 295840
+    Value: 378144
   Exists: 1
 --- !u!114 &-95698362227195368
 MonoBehaviour:
@@ -1353,14 +1360,14 @@ MonoBehaviour:
   - {fileID: 116742337414544190}
   - {fileID: -5851506224878336907}
   - {fileID: 5042332831674623924}
-  - {fileID: -3215957838314680473}
+  - {fileID: -3162101247954217904}
   EditorParameters: []
   MasterBanks:
   - {fileID: 6784272816887344547}
   StringsBanks:
   - {fileID: -7264284491642604713}
   cacheVersion: 131858
-  cacheTime: 639110885925192194
+  cacheTime: 639111156699341353
   SerializableEventsDict:
   - key: event:/WindAmbient-3D
     index: 0
@@ -1534,22 +1541,6 @@ MonoBehaviour:
     index: 84
   - key: event:/TetherActivate
     index: 85
-  - key: event:/TreeAmbience
-    index: 86
-  - key: event:/Level1SmoothMusic
-    index: 87
-  - key: event:/UFOCrash
-    index: 88
-  - key: event:/VIntroFall 2
-    index: 89
-  - key: event:/OpeningCutscene
-    index: 90
-  - key: event:/ToolSwitchBroken
-    index: 91
-  - key: event:/FruitBreak 2
-    index: 92
-  - key: event:/PillarFallWhistle
-    index: 93
 --- !u!114 &36649851166704467
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1603,7 +1594,7 @@ MonoBehaviour:
   Parameters: []
   MinDistance: 1
   MaxDistance: 20
-  Length: 650
+  Length: 1595
 --- !u!114 &207840506148583612
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1673,10 +1664,10 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Ambience.bank
   Name: Ambience
   StudioPath: bank:/Ambience
-  lastModified: 639110880049994845
+  lastModified: 639111156684194573
   FileSizes:
   - Name: Desktop
-    Value: 2696960
+    Value: 3820736
   Exists: 1
 --- !u!114 &501957595995202258
 MonoBehaviour:
@@ -1937,7 +1928,7 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Collectible.bank
   Name: Collectible
   StudioPath: bank:/Player/Collectible
-  lastModified: 639110879895794085
+  lastModified: 639111156692370679
   FileSizes:
   - Name: Desktop
     Value: 37440
@@ -1969,7 +1960,7 @@ MonoBehaviour:
   Parameters: []
   MinDistance: 1
   MaxDistance: 20
-  Length: 5055
+  Length: 5600
 --- !u!114 &3398958480722005312
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2120,10 +2111,10 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Menu.bank
   Name: Menu
   StudioPath: bank:/Player/Menu
-  lastModified: 639110879896407924
+  lastModified: 639111156697117372
   FileSizes:
   - Name: Desktop
-    Value: 206496
+    Value: 559776
   Exists: 1
 --- !u!114 &4360239186330121707
 MonoBehaviour:
@@ -2140,10 +2131,10 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Movement.bank
   Name: Movement
   StudioPath: bank:/Player/Movement
-  lastModified: 639110879897308749
+  lastModified: 639111156698306640
   FileSizes:
   - Name: Desktop
-    Value: 462176
+    Value: 467904
   Exists: 1
 --- !u!114 &4935202117686037471
 MonoBehaviour:
@@ -2198,7 +2189,7 @@ MonoBehaviour:
   Parameters: []
   MinDistance: 1
   MaxDistance: 20
-  Length: 9412
+  Length: 6641
 --- !u!114 &5042332831674623924
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2334,7 +2325,7 @@ MonoBehaviour:
   Parameters: []
   MinDistance: 1
   MaxDistance: 20
-  Length: 5432
+  Length: 5055
 --- !u!114 &6110039116390160327
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2667,10 +2658,10 @@ MonoBehaviour:
   Path: Assets/_Project/FMOD/Capstone/Build/Desktop/Level1-1.bank
   Name: Level1-1
   StudioPath: bank:/Level1-1
-  lastModified: 639110879893584742
+  lastModified: 639111156688588519
   FileSizes:
   - Name: Desktop
-    Value: 5393952
+    Value: 5638976
   Exists: 1
 --- !u!114 &7673653619738174367
 MonoBehaviour:

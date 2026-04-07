@@ -23,7 +23,7 @@ public class turnipPluckAnimateLogic : MonoBehaviour
 
     private void DestroyObject()
     {
-        RuntimeManager.PlayOneShot("event:/FruitBreak 2", transform.position);
+        RuntimeManager.PlayOneShot("event:/FruitBreak", transform.position);
 
         if (propToSpawnAfterBreak != null)
         {
