@@ -66,7 +66,7 @@ public class ScoreResults : MonoBehaviour
 
         coin_text.text = coins + " x " + coinMult + " = " + coin_score;
         critter_text.text = critters + " x " + critterMult + " = " + critters_score;
-        time_text.text = digi_time.Minutes.ToString() + ":" + digi_time.Seconds.ToString() + ":" + digi_time.Milliseconds.ToString();
+        time_text.text = digi_time.Minutes.ToString() + ":" + digi_time.Seconds.ToString() + "." + digi_time.Milliseconds.ToString();
 
         score_text.text = score.ToString();
 
