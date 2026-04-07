@@ -48,7 +48,7 @@ public class ScoreResults : MonoBehaviour
         critters = GlobalVariables.critters;
         time = GlobalVariables.time;
 
-        FMODUnity.RuntimeManager.PlayOneShot("event:/MenuMusic");
+        
         overrideController = new AnimatorOverrideController(animator.runtimeAnimatorController);
         animator.runtimeAnimatorController = overrideController;
         Calculate();
